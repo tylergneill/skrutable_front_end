@@ -29,20 +29,26 @@
 
         <div class="container">
 
+					<div class="col-md-6">
+
             <form action="./wholeFile" method="POST" enctype="multipart/form-data">
 
                 <p><b>skrutable</b> will "{{ skrutable_action }}" for the whole file.
                 <p>The input transliteration scheme is: {{ from_scheme }}</p>
                 <p>For transliteration, the output scheme is: {{ to_scheme }}.</p>
 
-                <p><input type="file" name="input_file" /></p>
-                <p><input type="submit" value="Upload" /></p>
+                <p><input type="file" name="input_file" class="btn btn-block" /></p>
+                <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
 
-                <p>Depending on the size of your file, the result may take a minute or more.
-                When <b>skrutable</b> is re-splitting verses, count on something like 10–15 verses per second.</p>
+                <p>Depending on the size of your file, upload and processing may take a minute or more.
+								When <b>skrutable</b> is re-splitting verses, count on something like 20–25 verses per second.</p>
+
+								<p>Very large files (e.g., entire epics) may not work all in one go. Breaking them up may help.</p>
+
 
             </form>
 
+					</div>
         </div><!-- container -->
 
     </body>
