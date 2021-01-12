@@ -1,5 +1,5 @@
 # skrutable front end
 
-Currently deployed at [http://skrutable.pythonanywhere.com/](skrutable.pythonanywhere.com).
+Currently deployed at [skrutable.pythonanywhere.com](http://skrutable.pythonanywhere.com).
 
-See documentation for [https://github.com/tylergneill/skrutable](skrutable main package) for more info.
+See documentation for [skrutable main package](http://github.com/tylergneill/skrutable) for more info.
