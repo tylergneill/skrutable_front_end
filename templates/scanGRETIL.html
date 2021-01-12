@@ -13,21 +13,31 @@
 
     <body>
 
-        <nav class="navbar navbar-inverse">
-            <div class="container">
-                <div class="col-md-11">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" href="./about">back to about</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
+				<nav class="navbar navbar-inverse">
+						 <div class="container">
+
+							 <div class="col-md-3">
+									 <div class="navbar-header">
+											 <a class="navbar-brand" href="./reset">back to the tool</a>
+									 </div>
+							 </div>
+
+							 <div class="col-md-2">
+									 <div class="navbar-header" id="hiddenExample" style="visibility: hidden">
+									 </div>
+							 </div>
+
+							 <div class="col-md-1">
+									 <div class="navbar-header">
+										 <a class="navbar-brand float-right" href="./tutorial">tutorial</a>
+									 </div>
+							 </div>
+
+							 <div class="col-md-1">
+									 <a class="navbar-brand float-right" href="./about">about</a>
+							 </div>
+					 </div>
+				</nav>
 
         <div class="container">
 
@@ -46,24 +56,25 @@
             Here's one way to go about it.</p>
 
             <p><b>Step 1</b>: Identify a text you'd like to work on. Go find it online.
-            GRETIL texts include some of the highest-quality ones around and are relatively easy to work with, so they're a good starting point.</p>
-            <p style="text-indent: 2em;">For example: The Bhagavadgītā (BhG) (<a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw GRETIL file</a>)</p>
-            <p>Step 2: Clean up the file so that it is a text file with exactly one (potential) whole verse per line. (Note: For now, no half-verses. I'll fix that soon.)</p>
-            <p style="text-indent: 2em;">For example:
+            GRETIL texts include some of the highest-quality ones around and are relatively easy to work with, so they're a good starting point.
+            For example: The Bhagavadgītā (BhG) (<a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw GRETIL file</a>)</p>
+            <p><b>Step 2</b>: Clean up the file so that it is a text file with exactly one (potential) whole verse per line. Half of an anuṣṭubh śloka is ok, too.
+            For example:
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_input_cleaned.txt">BhG input cleaned</a></p>
-            <p>Step 3: Submit the cleaned file to <b>skrutable</b>'s <i>en-masse</i> meter identifier using the "whole file" button.</p>
-            <p style="text-indent: 2em;">For example:
+            <p><b>Step 3</b>: Submit the cleaned file to <b>skrutable</b>'s <i>en-masse</i> meter identifier using the "whole file" button.
+            For example:
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_output_raw.txt">BhG raw output</a>
             &gt;&gt;
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_output_cleaned.txt">BhG output cleaned</a>
             </p>
-            <p>Step 4: Read through the results, looking for irregularities (use regexes to search more effectively). Where there's a metrical problem, there's usually a textual problem.</p>
-            <p style="text-indent: 2em;">For example: (currently working on separating interesting BhG issues from <b>skrutable</b>'s failure on upajāti ...) </p>
-            <p>Step 5: If you can, try to come up with solutions for the textual problems, one-by-one.
+            <p><b>Step 4</b>: Read through the results, looking for irregularities (use regexes to search more effectively). Where there's a metrical problem, there's usually a textual problem.
+            For example:
+						(BhG doesn't have any, but Rāmāyaṇa does...)</p>
+            <p><b>Step 5</b>: If you can, try to come up with solutions for the textual problems, one-by-one.
                 <ul>
                     <li>Is the problem in the digital text itself?</li>
                     <li>Or in the edition the digital text is based on?</li>
-                    <li>Is it <b>skrutable</b>? (entirely likely, since there are still meters I have yet to teach it to recognize properly, e.g., upajāti)</li>
+                    <li>Is it <b>skrutable</b>?</li>
                     <li>Something even more interesting?</li>
                 </ul>
             Once you're confident about your results, send the results over to me.
@@ -71,7 +82,7 @@
             This takes time, patience, and expert knowledge,
             so there's no way one person could ever do it properly all on their own!</p>
 
-            <p>And if you were able to make improvements to the text, send it on back to GRETIL. (I'm happy to help you do that, if need be.)</p>
+            <p>And if you were able to make improvements to the text, send it on back to GRETIL. I'm happy to help you do that, if need be.</p>
 
             Intrigued? Flabbergasted? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Write me!</a> We'll talk.</p>
 
