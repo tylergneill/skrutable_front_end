@@ -1,0 +1,50 @@
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+        <link rel="shortcut icon" href="#">
+
+        <title>skrutable</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="col-md-11">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="./reset">skrutable ({{ skrutable_action }})</a>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <a class="navbar-brand float-right" href="http://skrutable.pythonanywhere.com/about">about</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <form action="./wholeFile" method="POST" enctype="multipart/form-data">
+
+                <p><b>skrutable</b> will "{{ skrutable_action }}" for the whole file.
+                <p>The input transliteration scheme is: {{ from_scheme }}</p>
+                <p>For transliteration, the output scheme is: {{ to_scheme }}.</p>
+
+                <p><input type="file" name="input_file" /></p>
+                <p><input type="submit" value="Upload" /></p>
+
+                <p>Depending on the size of your file, the result may take a minute or more.
+                When <b>skrutable</b> is re-splitting verses, count on something like 10–15 verses per second.</p>
+
+            </form>
+
+        </div><!-- container -->
+
+    </body>
+
+</html>

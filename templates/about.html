@@ -1,0 +1,91 @@
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+        <title>skrutable</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="col-md-11">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href=".">back to the tool</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <h1>skrutable</h1>
+
+            <p>For making Sanskrit "less inscrutible" for anyone interested, and because I like Maharashtrian pronunciation. :)</p>
+
+            <p><b>skrutable</b> is an online workbench providing transliteration, scansion, and meter identification for Sanskrit text.
+            Although there are
+            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#related-sanskrit-transliteration-and-scansion-projects">
+            other such tools</a> already out there with advantages of their own, <b>skrutable</b> brings several new things to the table:
+
+                <ul>
+                    <li>integrated and user-friendly access to numerous functions in one place</li>
+                    <li>modular and documented Python code meant to be readable and useable for various projects
+                    (like <a href="https://www.github.com/tylergneill/pramana-nlp">this one</a>)</li>
+                    <li>and some handy new features</li>
+                    <ul>
+                        <li>for transliteration, practical "virāma-avoidance" for Indic scripts (e.g., “asty eva” >> (“अस्त्य् एव”) >> “अस्त्येव”)</li>
+                        <li>for scansion and meter identification, a flexible range of detail output options
+                        (like gaṇa abbreivations and syllable-weight alignments)</li>
+                        <li>for meter identification, optional automatic re-splitting of pādas</li>
+                        <li>for transliteration and meter identification, easy whole-file analysis</li>
+                    </ul>
+                </ul>
+
+            </p>
+
+            <p>With this, I hope to support a range of users, from beginning students to advanced scholars,
+            in understanding and enjoying Sanskrit language and literature.
+
+            <p>I'm also hoping it will help improve the world's stock of digital Sanskrit data. You can help!
+            Check out the <a href="./scanGRETIL">"Scan GRETIL"</a> project to learn more.</p>
+
+            <h2>Feedback</h2>
+
+            <p>
+                <ul>
+                    <li>Did you find a bug 🐞 and see <b>skrutable</b> break?</li>
+                    <li>Would you like to see additional transliteration schemes? Additional meters?</li>
+                    <li>Do you have suggestions regarding aesthetics or ease-of-use?</li>
+                </ul>
+            </p>
+
+            <p>I'd love to hear from you!
+            Find <a href="https://uni-leipzig1.academia.edu/TylerNeill">me on Academia</a> and send me an email.</p>
+
+            <h2>Technical</h2>
+
+            <p>For those so inclined:
+            <ul>
+                <li>The underlying code is a <a href="https://www.github.com/tylergneill/skrutable">Python library available here on GitHub</a>.</li>
+                <li>The minimalistic web interface is HTML, Bootstrap CSS, Javascript, and Python's Flask web-app framework, hosted by PythonAnywhere.</li>
+                <li>Here's <a href="./next">a list of technical things to fix and add next</a>.</p></li>
+            </ul>
+
+        </div><!-- /.container -->
+
+    </body>
+
+</html>
