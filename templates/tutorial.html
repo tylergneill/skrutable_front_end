@@ -1,0 +1,91 @@
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+        <title>skrutable</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="col-md-11">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href=".">back to the tool</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <h1>how to use skrutable</h1>
+
+            <p>First thing: Try starting with the
+            <a href="./ex1" target="_blank" rel="noopener noreferrer">"dharmakṣetre" example input</a> (opens in new tab).
+            This is also available in the navbar on the main page whenever no function is yet selected,
+            that is, when you see "skrutable (...)" in the top left.
+
+            <p>This sets the first verse of the Gītā as the input,
+            with IAST Romanization and Devanāgarī as the input and output transliteration schemes, respectively.</p>
+
+            <p>Now just click the "Transliterate", "Scan", and "Identify Meter" buttons to calculate and display the basic outputs.</p>
+
+            <p>For supported transliteration schemes, visit
+            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#schemes">the <b>skrutable</b> manual on Github</a>.
+            Use the "Output scheme" dropdown to change the transliteration output.
+            You can also use the "Swap" buttons to explore doing "round-trip" transliteration.</p>
+
+            <p>Scansion is line-by-line, and it doesn't matter how many lines or how much content you enter.
+            This mode is especially good for fiddling and exploring.
+
+            <p>Meter identification, by contrast, effectively requires four lines of content,
+            corresponding to four verse quarters or <i>pādas</i>.
+            You should use this mode when you believe you're dealing with a whole verse
+            (or also an anuṣṭubh half-verse, since this is also common).
+            Otherwise, if what you drop in is more or less than a verse
+            (e.g., just a samavṛtta quarter-verse, or three anuṣṭubh half-verses),
+            you generally won't get a good result. With that said,
+            use the "Re-Split Pāda" dropdown to decide between manually setting line breaks yourself
+            and letting <b>skrutable</b> find them for you (generally easier).
+
+            <p>You can also use the "Scansion detail" dropdown to choose from among several configurations
+            for displaying the output of <b>both</b> scansion and meter identification.</p>
+
+            <h2>whole-file processing</h2>
+
+            <p>If you're feeling more ambitious, trying doing Transliteration on a whole file.
+            Set your input and output schemes as normal, but then instead of hitting the "Transliterate" button,
+            hit the "whole file" button underneath.
+            Continue through the next screen to upload your file, then look for the output in your usual download location.</p>
+
+            <p>Doing whole-file metrical analysis is similar, but the input must be more carefully prepared.
+            See the <a href="./scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.</p>
+
+            <p>If you want to try these whole-file functions out right away, you can use these prepared input files:
+            <ul>
+                <li><a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_1–10_input_cleaned.txt">BhG first ten</a></li>
+                <li><a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_1–100_input_cleaned.txt">BhG first hundred</a></li>
+                <li><a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_input_cleaned.txt">BhG all</a></li>
+            </ul>
+            </p>
+
+            <p>Have fun using <b>skrutable</b>!</p>
+
+        </div><!-- /.container -->
+
+    </body>
+
+</html>
