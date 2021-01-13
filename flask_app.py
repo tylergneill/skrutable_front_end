@@ -225,7 +225,8 @@ def scanGRETILresults_page():
 @app.route('/ex1')
 def ex1():
     session["text_input"] = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-    session["text_output"] = ""
+    session["text_output"] = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
+मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
     session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
     session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
     session["alignment"] = 1

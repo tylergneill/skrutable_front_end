@@ -81,26 +81,21 @@
 
             <p>Here's what's next (regarding back-end treatment of content):</p>
             <ul>
-                <li><b>fixing prioritization of multiple possibilities in resplit-mode meter identification
-                (e.g., perfect upajāti passed over in favor of imperfect samavṛtta) 🐞</b></li>
-                <li>enable no-resplit in whole-file mode (with user-specified character like semicolon, colon, or tab for pāda breaks)</li>
-                <li>completing "soft" re-split option (= re-split initialized with user-input), adding to GUI</li>
-                <li>adding number-exclusion option to transliteration</li>
-                <li>fixing scheme-detection functionality, adding to GUI as fourth function</li>
-                <li>improving meter identification for partial samavṛtta verses in no-split mode</li>
-                <li>improving meter identification for partial jāti verses (?)</li>
                 <li>improving meter identification for samavṛtta edge cases: viṣamavṛtta, ardhasamavṛtta</li>
+                <li>fixing scheme-detection functionality</li>
+                <li>enabling no-resplit in whole-file mode (with user-specified character like semicolon, colon, or tab for pāda breaks)</li>
+                <li>completing "soft" re-split option (= re-split initialized with user-input)</li>
+                <li>adding number-exclusion option to transliteration</li>
+                <li>improving meter identification for partial samavṛtta verses in no-split mode</li>
+                <li>improving meter identification for partial jāti verses</li>
                 <li>adding PyPi (e.g. pip) install functionality for library</li>
                 <li>completing incorporation of wrapper for
-                <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Splitter</a>,
-                adding to GUI as fifth function</li>
-                <li>implement comprehensive testing with pytest (ongoing)</li>
+                <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Splitter</a></li>
+                <li>implementing comprehensive testing with pytest (ongoing)</li>
             </ul>
 
             <p>And also (regarding web front-end):</p>
             <ul>
-                <li><b>improving mix-and-match flexibility for scansion detail output (causing some errors in no-split meter identification) 🐞</b></li>
-                <li><b>enable greater range of scansion detail output in "whole file" mode</b></li>
                 <li>enabling optional toggling-off of virāma-avoidance functionality in GUI</li>
                 <li>adding API endpoints with JSON and plain-text output options</li>
                 <li>adding mobile version of web-app for better display on smaller devices (maybe?)</li>
@@ -108,11 +103,14 @@
 
             <p>And maybe something you have in mind? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Hit me up</a> and let me know what you think.</p>
 
-            <p>(Done recently)</p>
+            <p>(Done recently: Dec '20 – Jan '21)</p>
             <ul>
-                <li>added whole file analysis in GUI for transliteration and meter identification (latter currently auto-re-split only)</li>
+                <li>fixed prioritization of multiple possibilities in resplit-mode meter identification</li>
+                <li>enabled greater range of scansion detail in whole-file meter identification</li>
+                <li>improved mix-and-match flexibility for scansion detail output</li>
+                <li>added whole-file analysis in GUI for transliteration and meter identification</li>
                 <li>added support for meter identification of anuṣṭubh half-verses</li>
-                <li>improved meter identification for samavṛtta edge case: upajāti (currently only triṣṭubh)</li>
+                <li>improved meter identification for samavṛtta edge case: upajāti</li>
                 <li>added Prakrit support (so far just ï and ü, e.g., saï >> सइ)</li>
                 <li>added transliteration scheme support: ITRANS, WX, "IAST reduced"</li>
                 <li>fixed line-end vowel-truncation error for transliteration from Indic (e.g., चातुर >> cātur)</li>
