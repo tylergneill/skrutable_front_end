@@ -1,0 +1,120 @@
+anuṣṭubh
+17555 full śloka, correct
+270 full śloka, one half incorrect
+658 half śloka, correct
+2 full śloka, neither half correct ("upajāti anuṣṭubh")
+
+triṣṭubh
+344 upajāti (indravajrā, upendravajrā)
+80 upendravajrā
+36 indravajrā
+
+jagatī
+268 vaṃśastha
+1 vaiśvadevī
+
+ardhasamavṛtta
+26 puṣpitāgrā
+9 aparavaktra
+
+atijagatī
+5 rucirā
+4 praharṣiṇī
+
+plus 95 interesting/problem cases, most often actually one of above triṣṭubhs or jagatīs with an incorrect pāda, called "jagatī upajāti", "triṣṭubh-jagatī-saṃkara upajāti", "pratiṣṭhā upajāti", etc.
+
+tatas tu tau rāmavacaḥ pracoditāv; agāyatāṃ mārgavidhānasaṃpadā / sa cāpi rāmaḥ pariṣadgataḥ śanair; bubhūṣayāsaktamanā babhūva // 1.004.027	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tām agnimadbhir guṇavadbhir āvṛtāṃ; dvijottamair vedaṣaḍaṅgapāragaiḥ / sahasradaiḥ satyaratair mahātmabhir; maharṣikalpair ṛṣibhiś ca kevalaiḥ // 1.005.023	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tāṃ satyanāmāṃ dṛḍhatoraṇārgalām; gṛhair vicitrair upaśobhitāṃ śivām / purīm ayodhyāṃ nṛsahasrasaṃkulāṃ; śaśāsa vai śakrasamo mahīpatiḥ // 1.006.024	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+ekāhnā rājaputrīṇāṃ catasḥṇāṃ mahāmune / pāṇīn gṛhṇantu catvāro rājaputrā mahābalāḥ // 1.071.011	ajñātasamavṛttam [mrg] (? 2 eva pādāḥ yuktāḥ)
+taṃ devadevopamam ātmajaṃ te; sarvasya lokasya hite niviṣṭam / hitāya naḥ kṣipram udārajuṣṭaṃ; mudābhiṣektuṃ varada tvam arhasi // 2.002.034	indravajrā [ttjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjB])
+nṛśaṃsāṃ kaikeyīṃ draṣṭuṃ yatkṛte vyasanaṃ mahat // 2.011.010.2	upajāti (pratiṣṭhā: kanyā [mg], ajñātam [yg], ajñātam [jg], ajñātam [rl])
+lābho janasyāsya yad eṣa sarvaṃ; prapatsyate rāṣṭram idaṃ cirāya // 2.014.025.2	ajñātasamavṛttam [sy] (? 2 eva pādāḥ yuktāḥ)
+sa ghoṣavadbhiś ca hayaiḥ sanāgaiḥ; puraḥsaraiḥ svastikasūtamāgadhaiḥ / mahīyamānaḥ pravaraiś ca vādakair; abhiṣṭuto vaiśravaṇo yathā yayau // 2.014.026	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tau tatra hatvā caturo mahāmṛgān; varāham ṛśyaṃ pṛṣataṃ mahārurum / ādāya medhyaṃ tvaritaṃ bubhukṣitau; vāsāya kāle yayatur vanaspatim // 2.046.079	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā indravaṃśā [ttjr] (? 3 eva pādāḥ yuktāḥ)
+sa naḥ samīkṣya dvijavaryavṛttaṃ; nṛpaṃ vinā rājyam araṇyabhūtam / kumāram ikṣvākusutaṃ vadānyaṃ; tvam eva rājānam ihābhiṣiñcaya // 2.061.025	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+ekasāle sthāṇumatīṃ vinate gomatīṃ nadīm // 2.065.011.2	upajāti (pratiṣṭhā: ajñātam [jg], ajñātam [sg], ajñātam [Bg], ajñātam [rg])
+saṃraktanetraḥ śithilāmbaras tadā; vidhūtasarvābharaṇaḥ paraṃtapaḥ / babhūva bhūmau patito nṛpātmajaḥ; śacīpateḥ ketur ivotsavakṣaye // 2.068.029	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tūṇa samutthāya sumantra gaccha; balasya yogāya balapradhānān / ānetum icchāmi hi taṃ vanasthaṃ; prasādya rāmaṃ jagato hitāya // 2.076.028	upajāti (triṣṭubh: upendravajrā [jtjgg], ajñātam [Btjgl], indravajrā [ttjgg])
+rāmaḥ saṃsādhya tv ṛṣigaṇam anugamanād; deśāt tasmāccit kulapatim abhivādyarṣim / samyakprītais tair anumata upadiṣṭārthaḥ; puṇyaṃ vāsāya svanilayam upasaṃpede // 2.108.025	upajāti (śakvarī: ajñātam [mtnnlg], asaṃbādhā [mtnsgg]) atha vā asaṃbādhā [mtnsgg] (? 3 eva pādāḥ yuktāḥ)
+āśramaṃ tv ṛṣivirahitaṃ prabhuḥ; kṣaṇam api na jahau sa rāghavaḥ / rāghavaṃ hi satatam anugatās; tāpasāś carṣicaritadhṛtaguṇāḥ // 2.108.026	upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [rBns], ajñātam [nnrlg], ajñātam [rnslg], ajñātam [rnnlg])
+āsādyā taṃ jīvitasaṃśayas te; mṛtyur dhruvo hy adya mayā virudhya / etad yathāvat parigṛhya buddhyā; yad atra pathyaṃ kuru tat tathā tvam // 3.038.021	upajāti (triṣṭubh: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [mtjgg])
+tatas tu sītām abhivādya lakṣmaṇaḥ; kṛtāñjaliḥ kiṃ cid abhipraṇamya / avekṣamāṇo bahuśaś ca maithilīṃ; jagāma rāmasya samīpam ātmavān // 3.043.037	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+yad antaraṃ kāñcanasīsalohayor; yad antaraṃ candanavāripaṅkayoḥ / yad antaraṃ hastibiḍālayor vane; tad antaraṃ daśarathes tavaiva ca // 3.045.041	upajāti (jagatī: ajñātam [jBjB], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tāṃ vepamānām upalakṣya sītāṃ; sa rāvaṇo mṛtyusamaprabhāvaḥ / kulaṃ balaṃ nāma ca karma cātmanaḥ; samācacakṣe bhayakāraṇārtham // 3.045.045	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+tathā bhṛśārtāṃ bahu caiva bhāṣiṇīṃ; vilalāpa pūrvaṃ karuṇaṃ ca bhāminīm / jahāra pāpas taruṇīṃ viveṣṭatīṃ; nṛpātmajām āgatagātravepathum // 3.051.025	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+vikṛṣya cāpaṃ paridhāya sāyakaṃ; salīla bāṇena ca tāḍito mayā / mārgīṃ tanuṃ tyajya ca viklavasvaro; babhūva keyūradharaḥ sa rākṣasaḥ // 3.057.024	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+nātibhāro 'sti daivasya sarvabhuteṣu lakṣmaṇa // 3.065.029.2	upajāti (pratiṣṭhā: ajñātam [jl], ajñātam [yl], ajñātam [Bg], ajñātam [rg])
+tatheti saṃpūjya vacas tu tasya; kapeḥ subhītasya durāsadasya / mahānubhāvo hanumān yayau tadā; sa yatra rāmo 'tibalaś ca lakṣmaṇaḥ // 4.002.028	vaṃśastha [jtjr] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: upendravajrā [jtjgg], ajñātam [jtjr])
+mama dayitatamā hṛtā vanād; rajanicareṇa vimathya yena sā / kathaya mama ripuṃ tam adya vai; pravagapate yamasaṃnidhiṃ nayāmi // 4.006.023	ajñātasamavṛttam [nnrlg] (? 2 eva pādāḥ yuktāḥ)
+athokṣitaḥ śoṇitatoyavisravaiḥ ; supuṣpitāśoka ivāniloddhataḥ / vicetano vāsavasūnur āhave; prabhraṃśitendradhvajavat kṣitiṃ gataḥ // 4.016.027	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tatas tu tārā vyasanārṇava plutā; mṛtasyā bhartur vadanaṃ samīkṣya sā / jagāma bhūmiṃ parirabhya vālinaṃ; mahādrumaṃ chinnam ivāśritā latā // 4.022.026	upajāti (jagatī: ajñātam [ytjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+niyamya kopaṃ pratipālyatāṃ śarat; kṣamasva māsāṃś caturo mayā saha / vasācale 'smin mṛgarājasevite; saṃvardhayañ śatruvadhe samudyataḥ // 4.026.023	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+vidyutpatākāḥ sabalāka mālāḥ; śailendrakūṭākṛtisaṃnikāśāḥ / garjanti meghāḥ samudīrṇanādā; mattagajendrā iva saṃyugasthaḥ // 4.027.020	upajāti (triṣṭubh: indravajrā [ttjgg], ajñātam [Btjgg])
+kim ārya kāmasya vaśaṃgatena; kim ātmapauruṣyaparābhavena / ayaṃ sadā saṃhṛiyate samādhiḥ; kim atra yogena nivartitena // 4.029.016	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+kuruṣva satyaṃ mayi vānareśvara; pratiśrutaṃ dharmam avekṣya śāśvatam / mā vālinaṃ pretya gato yamakṣayaṃ; tvam adya paśyer mama coditaiḥ śaraiḥ // 4.029.051	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sa pūrvajaṃ tīvravivṛddhakopaṃ; lālapyamānaṃ prasamīkṣya dīnam / cakāra tīvrāṃ matim ugratejā; harīśvaramānavavaṃśanāthaḥ // 4.029.052	upajāti (triṣṭubh: indravajrā [ttjgg], ajñātam [jjjgg], upendravajrā [jtjgg])
+tam āttabāṇāsanam utpatantaṃ; niveditārthaṃ raṇacaṇḍakopam / uvaca rāmaḥ paravīrahantā; svavekṣitaṃ sānunayaṃ ca vākyam // 4.030.005	upajāti (triṣṭubh: upendravajrā [jtjgg], ajñātam [ntjgg])
+tataḥ suṣeṇa pramukhāḥ plavaṃgamāḥ; sugrīvavākyaṃ nipuṇaṃ niśamya / āmantrya sarve plavagādhipaṃ te; jagmur diśaṃ tāṃ varuṇābhiguptām // 4.041.052	indravajrā [ttjgg] (? 3 eva pādāḥ yuktāḥ)
+idaṃ hi māyā vihitaṃ sudurgamaṃ; prabhūtavṛkṣodakabhojyapeyam / ihāsti no naiva bhayaṃ puraṃdarān; na rāghavād vānararājato 'pi vā // 4.052.032	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sā rākṣasānāṃ pravareṇa bālā; svaśīlasaṃrakṣaṇa tat parā satī / anena nūnaṃ pratiduṣṭakarmaṇā; hatā bhaved āryapathe pare sthitā // 5.010.003	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sītām adṛṣṭvā hy anavāpya pauruṣaṃ; vihṛtya kālaṃ saha vānaraiś ciram / na me 'sti sugrīvasamīpagā gatiḥ; sutīkṣṇadaṇḍo balavāṃś ca vānaraḥ // 5.010.005	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tad unnasaṃ pāṇḍuradantam avraṇaṃ; śucismitaṃ padmapalāśalocanam / drakṣye tad āryāvadanaṃ kadā nv ahaṃ; prasannatārādhipatulyadarśanam // 5.011.068	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+kṣudreṇa pāpena nṛśaṃsakarmaṇā; sudāruṇālāṃkṛtaveṣadhāriṇā / balābhibhūtā abalā tapasvinī; kathaṃ nu me dṛṣṭapathe 'dya sā bhavet // 5.011.069	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+giriṃ kuberasya gato 'thavālayaṃ; sabhāṃ gato vā varuṇasya rājñaḥ / asaṃśayaṃ dāśarather na mokṣyase; mahādrumaḥ kālahato 'śaner iva // 5.019.030	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+pitur nirdeśaṃ niyamena kṛtvā; vanān nivṛttaś caritavrataś ca / strībhis tu manye vipulekṣaṇābhiḥ; saṃraṃsyase vītabhayaḥ kṛtārthaḥ // 5.026.014	upajāti (triṣṭubh: ajñātam [ytjgg], upendravajrā [jtjgg], indravajrā [ttjgg])
+upasthitā sā mṛdur sarvagātrī; śākhāṃ gṛhītvātha nagasya tasya / tasyās tu rāmaṃ pravicintayantyā; rāmānujaṃ svaṃ ca kulaṃ śubhāṅgyāḥ // 5.026.019	upajāti (triṣṭubh: indravajrā [ttjgg], ajñātam [jttgg])
+namo 'stu vācaspataye savajriṇe; svayambhuve caiva hutāśanāya / anena coktaṃ yad idaṃ mamāgrato; vanaukasā tac ca tathāstu nānyathā // 5.030.008	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+na sāma rakṣaḥsu guṇāya kalpate; na danam arthopaciteṣu vartate / na bhedasādhyā baladarpitā janāḥ; parākramas tv eṣa mameha rocate // 5.039.003	upajāti (jagatī: ajñātam [ntjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+visṛjanto mahākṣayā mārutiṃ paryavārayan // 5.041.011.2	upajāti (pratiṣṭhā: ajñātam [sg], ajñātam [jg], ajñātam [rl])
+senāpatīn pañca sa tu pramāpitān; hanūmatā sānucarān savāhanān / samīkṣya rājā samaroddhatonmukhaṃ; kumāram akṣaṃ prasamaikṣatākṣatam // 5.045.001	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sa pūrayan khaṃ ca mahīṃ ca sācalāṃ; turaṃgamataṅgamahārathasvanaiḥ / balaiḥ sametaiḥ sa hi toraṇasthitaṃ; samartham āsīnam upāgamat kapim // 5.045.007	upajāti (jagatī: ajñātam [jjjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sa mandarāgrastha ivāṃśumālī; vivṛddhakopo balavīryasaṃyutaḥ / kumāram akṣaṃ sabalaṃ savāhanaṃ; dadāha netrāgnimarīcibhis tadā // 5.045.017	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+mahākapir bhūmitale nipīḍya taṃ; cakāra rakṣo'dhipater mahad bhayam // 5.045.037	ajñātārdhasamavṛttam [jt, jr]
+mamānurūpaṃ tapaso balaṃ ca te; parākramaś cāstrabalaṃ ca saṃyuge / na tvāṃ samāsādya raṇāvamarde; manaḥ śramaṃ gacchati niścitārtham // 5.046.006	vaṃśastha [jtjr] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [jtjgg], ajñātam [ttjgg], vaṃśastha [jtjr])
+idaṃ hi dṛṣṭvā matiman mahad balaṃ; kapeḥ prabhāvaṃ ca parākramaṃ ca / tvam ātmanaś cāpi samīkṣya sāraṃ; kuruṣva vegaṃ svabalānurūpam // 5.046.009	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+sa niścitārthaḥ paravīrahantā; samīkṣya karī vinivṛttaceṣṭaḥ / paraiḥ prasahyābhigatair nigṛhya; nanāda tais taiḥ paribhartsyamānaḥ // 5.046.043	upajāti (triṣṭubh: ajñātam [jjjgg], upendravajrā [jtjgg])
+sa rocayām āsa paraiś ca bandhanaṃ; prasahya vīrair abhinigrahaṃ ca / kautūhalān māṃ yadi rākṣasendro; draṣṭuṃ vyavasyed iti niścitārthaḥ // 5.046.045	indravajrā [ttjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [jtjgl], ajñātam [ttjgg], vaṃśastha [jtjr])
+aho mahat karma kṛtaṃ nirarthakaṃ; na rākṣasair mantragatir vimṛṣṭā / punaś ca nāstre vihate 'stram anyat; pravartate saṃśayitāḥ sma sarve // 5.046.048	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+vairūpyām aṅgeṣu kaśābhighāto; mauṇḍyaṃ tathā lakṣmaṇasaṃnipātaḥ / etān hi dūte pravadanti daṇḍān; vadhas tu dūtasya na naḥ śruto 'pi // 5.050.007	upajāti (triṣṭubh: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [mtjgg])
+sa tān nihatvā raṇacaṇḍavikramaḥ; samīkṣamāṇaḥ punar eva laṅkām / pradīptalāṅgūlakṛtārcimālī; prakāśatāditya ivāṃśumālī // 5.051.039	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+hutāśanajvālasamāvṛtā sā; hatapravīrā parivṛttayodhā / hanūmātaḥ krodhabalābhibhūtā; babhūva śāpopahateva laṅkā // 5.052.014	upajāti (triṣṭubh: ajñātam [ytjgg], upendravajrā [jtjgg])
+na cātra kaś cin na babhūva matto; na cātra kaś cin na babhūva tṛpto // 5.059.017.2	ajñātārdhasamavṛttam [jgl, sy]
+tato daśagrīvam upasthitās te; cārā bahirnityacarā niśācarāḥ / gireḥ suvelasya samīpavāsinaṃ; nyavedayan bhīmabalaṃ mahābalāḥ // 6.020.024	vaṃśastha [jtjr] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [ttjr], upendravajrā [jtjgg], ajñātam [jtjr])
+sa vidyujjihvena sahaiva tac chiro; dhanuś ca bhūmau vinikīrya rāvaṇaḥ / videharājasya sutāṃ yaśasvinīṃ; tato 'bravīt tāṃ bhava me vaśānugā // 6.022.043	upajāti (jagatī: ajñātam [ytjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+daṇḍaṃ dhārayamāṇas tu laṅkādvare vyavasthitaḥ // 6.031.053.2	upajāti (pratiṣṭhā: kanyā [mg], ajñātam [yl], ajñātam [jg], ajñātam [tg])
+vidāryamāṇā haripuṃgavais tadā; niśācarāḥ śoṇitadigdhagātrāḥ / punaḥ suyuddhaṃ tarasā samāśritā; divākarasyāstamayābhikāṅkṣiṇaḥ // 6.033.046	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+baddhau tu vīrau patitau śayānau; tau vānarāḥ saṃparivārya tasthuḥ / samāgatā vāyusutapramukhyā; viṣadam ārtāḥ paramaṃ ca jagmuḥ // 6.035.026	upajāti (triṣṭubh: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [ntjgg])
+sa harṣavegānugatāntarātmā; śrutvā vacas tasya mahārathasya / jahau jvaraṃ dāśaratheḥ samutthitaṃ; prahṛṣya vācābhinananda putram // 6.036.043	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+tatas tu nīlo vijayī mahābalaḥ; praśasyamānaḥ svakṛtena karmaṇā / sametya rāmeṇa salakṣmaṇena; prahṛṣṭarūpas tu babhūva yūthapaḥ // 6.046.051	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tam āha saumitrir adīnasattvo; visphārayantaṃ dhanur aprameyam / anvehi mām eva niśācarendra; na vānarāṃs tvaṃ prati yoddhum arhasi // 6.047.089	indravajrā [ttjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjB])
+yadīndravaivasvata bhāskarān vā; svayambhuvaiśvānaraśaṃkarān vā / gamiṣyasi tvaṃ daśa vā diśo vā; tathāpi me nādya gato vimokṣyase // 6.047.122	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+sa tat tadā sūrya ivābhrajālaṃ; praviśya rakṣo'dhipater niveśanam / dadarśa dūre 'grajam āsanasthaṃ; svayambhuvaṃ śakra ivāsanastham // 6.050.004	upendravajrā [jtjgg] (? 3 eva pādāḥ yuktāḥ)
+vadhena te dāśaratheḥ sukhāvahaṃ; sukhaṃ samāhartum ahaṃ vrajāmi / nihatya rāmaṃ sahalakṣmaṇena; khādāmi sarvān hariyūthamukhyān // 6.051.046	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [jtjgl], ajñātam [ttjgg], vaṃśastha [jtjr])
+tac chailaśṛṅgaṃ sahasā vikīrṇaṃ; bhujāntare tasya tadā viśāle / tato viṣeduḥ sahasā plavaṃgamā; rakṣogaṇāś cāpi mudā vineduḥ // 6.055.044	indravajrā [ttjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+tac cātikāyaṃ himavatprakāśaṃ; rakṣas tadā toyanidhau papāta / grāhān mahāmīnacayān bhujaṃgamān; mamarda bhūmiṃ ca tathā viveśa // 6.055.125	indravajrā [ttjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], ajñātam [ttjr], upendravajrā [jtjgg])
+tatas tu devarṣimaharṣipannagāḥ; surāś ca bhūtāni suparṇaguhyakāḥ / sayakṣagandharvagaṇā nabhogatāḥ; praharṣitā rāma parākrameṇa // 6.055.127	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+narāntakaḥ krodhavaśaṃ jagāma; hataṃ turagaṃ patitaṃ nirīkṣya / sa muṣṭim udyamya mahāprabhāvo; jaghāna śīrṣe yudhi vāliputram // 6.057.085	upajāti (triṣṭubh: upendravajrā [jtjgg], ajñātam [jjjgl])
+tasmin hate devaripau triśīrṣe; hanūmata śakraparākrameṇa / neduḥ plavaṃgāḥ pracacāla bhūmī; rakṣāṃsy atho dudruvire samantāt // 6.058.042	upajāti (triṣṭubh: indravajrā [ttjgg], ajñātam [jjjgl])
+rathe sthito 'haṃ śaracāpapāṇir; na prākṛtaṃ kaṃ cana yodhayāmi / yasyāsti śaktir vyavasāya yuktā; dadātuṃ me kṣipram ihādya yuddham // 6.059.044	upajāti (triṣṭubh: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [ytjgg])
+na tāta mohaṃ pratigantum arhasi; yatrendrajij jīvati rākṣasendra / nendrāribāṇābhihato hi kaś cit; prāṇān samarthaḥ samare 'bhidhartum // 6.060.004	indravajrā [ttjgg] (? 3 eva pādāḥ yuktāḥ)
+sa pāvakaṃ pāvakadīptatejā; hutvā mahendrapratimaprabhāvaḥ / sacāpabāṇāsirathāśvasūtaḥ; khe 'ntardadha ātmānam acintyarūpaḥ // 6.060.028	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [tysy])
+ity evam uktvā vacanaṃ mahātmā; raghupravīraḥ plavagarṣabhair vṛtaḥ / vadhāya raudrasya nṛśaṃsakarmaṇas; tadā mahātmā tvaritaṃ nirīkṣate // 6.067.042	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tathā tu sītāṃ vinihatya durmatiḥ; prahṛṣṭacetāḥ sa babhūva rāvaṇiḥ / taṃ hṛṣṭarūpaṃ samudīkṣya vānarā; viṣaṇṇarūpāḥ samabhipradudruvuḥ // 6.068.033	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+athendrajid rākṣasabhūtaye tu; juhāva havyaṃ vidhinā vidhānavat / dṛṣṭvā vyatiṣṭhanta ca rākṣasās te; mahāsamūheṣu nayānayajñāḥ // 6.069.026	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+samāptakarmā hi sa rākṣasendro; bhavaty adṛśyaḥ samare surāsuraiḥ / yuyutsatā tena samāptakarmaṇā; bhavet surāṇām api saṃśayo mahān // 6.071.022	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+ity evam uktas tu tadā mahātmā; vibhīṣaṇenārivibhīṣaṇena / dadarśa taṃ parvatasaṃnikāśaṃ; rathasthitaṃ bhīmabalaṃ durāsadam // 6.073.034	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+apūjayat karma sa lakṣmaṇasya; suduṣkaraṃ dāśarathir mahātmā / hṛṣṭā babhūvur yudhi yūthapendrā; niśamya taṃ śakrajitaṃ nipātitam // 6.079.018	upendravajrā [jtjgg] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: indravajrā [ttjgg], upendravajrā [jtjgg], ajñātam [jtjr])
+purohitasyātmasamasya rāghavo; bṛhaspateḥ śakra ivāmarādhīaph / nipīḍya pādau pṛthag āsane śubhe; sahaiva tenopaviveśa vīryavān // 6.115.051	upajāti (jagatī: ajñātam [jtjm], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+prabhaviṣṇavo bhavāmeti parasparam anuvratāḥ // 7.005.013.2	ajñātasamavṛttam [sl] (? 2 eva pādāḥ yuktāḥ)
+tatha śitaiḥ śoṇitamāṃsarūṣitair; yugāntavaiśvānaratulyavigrahaiḥ / niśācarāḥ saṃparivārya mādhavaṃ; varāyudhair nirbibhiduḥ sahasraśaḥ // 7.006.055	upajāti (jagatī: ajñātam [ntjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+saṃchādyamānā haribāṇajālaiḥ; svabāṇajāalāni samutsṛjantaḥ / dhāvanti naktaṃcarakālameghā; vāyupraṇunnā iva kālameghāḥ // 7.007.046	indravajrā [ttjgg] (? 3 eva pādāḥ yuktāḥ)
+tadāmbaraṃ vigalitahārakuṇḍalair; niśācarair nīlabalāhakopamaiḥ / nipātyamānair dadṛśe nirantaraṃ; nipātyamānair iva nīlaparvataiḥ // 7.007.050	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sā vimuktā tato rambhā bhraṣṭamālyavibhūṣaṇā / gajendrākrīḍamathitā&nbsp;&nbsp;nadīvākulatāṃ gatā // 7.026.031	upajāti (anuṣṭubh: ajñātam [yBlg], ajñātam [yslg]) (? 2 eva pādāḥ yuktāḥ)
+atha raṇavigatajvaraḥ prabhur; vijayam avāpya niśācarādhipaḥ / bhavanam abhi tato jagāma hṛṣṭaḥ; svasutam avāpya ca vākyam abravīt // 7.029.037	mālatī [njjr] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [njjr], ajñātam [nnrlg], ajñātam [nnry])
+atibalasadṛśaiḥ parākramais tair; mama kulamānavivardhanaṃ kṛtam / yad amarasamavikrama tvayā; tridaśapatis tridaśāś ca nirjitāḥ // 7.029.038	mālatī [njjr] (? 2 eva pādāḥ yuktāḥ) atha vā upajāti (triṣṭubh-jagatī-saṃkara: ajñātam [nnrlg], ajñātam [nnry], mālatī [njjr])
+sa taṃ pramuktvā tridaśārim arjunaḥ; prapūjya divyābharaṇasragambaraiḥ / ahiṃsākaṃ sakhyam upetya sāgnikaṃ; praṇamya sa brahmasutaṃ gṛhaṃ yayau // 7.033.018	upajāti (jagatī: ajñātam [ytjr], vaṃśastha [jtjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+sā duḥkhabhārāvanatā tapasvinī; yaśodharā nātham apaśyatī satī / ruroda sā barhiṇanādite vane; mahāsvanaṃ duḥkhaparāyaṇā satī // 7.047.018	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tvayā punar brāhmaṇa gauravād iyaṃ; kṛtvā pratijñā hy anavekṣya kāraṇam / kuruṣva kartā hy asi nātra saṃśayo; mahābhayāt trātum ṛṣīṃs tvam arhasi // 7.052.016	upajāti (jagatī: vaṃśastha [jtjr], indravaṃśā [ttjr]) atha vā vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+tām adbhutāṃ tau hṛdaye kumārau; niveśya vāṇīm ṛṣibhāṣitāṃ śubhām / samutsukau tau sukham ūṣatur niśāṃ; yathāśvinau bhārgavanītisaṃskṛtau // 7.084.016	vaṃśastha [jtjr] (? 3 eva pādāḥ yuktāḥ)
+madvaco brūta gacchadhvam iti bhagavato 'ntikam // 7.086.003	upajāti (pratiṣṭhā: ajñātam [yl], ajñātam [nl], ajñātam [jg], ajñātam [rg])
