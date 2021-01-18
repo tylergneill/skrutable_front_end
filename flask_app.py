@@ -193,7 +193,7 @@ def wholeFile():
 			# report total duration
 			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
 			duration_secs = delta.seconds + delta.microseconds / 1000000
-			output_data += str("samāptam: %fs" % duration_secs)
+			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
 			output_fn_suffix = '_meter_identified'
 
