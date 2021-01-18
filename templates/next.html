@@ -77,44 +77,47 @@
 
             <h1>next tasks</h1>
 
-            <p>(<b>bold is for version 0</b>)</p>
-
-            <p>Here's what's next (regarding back-end treatment of content):</p>
+            <p>Here's what's next:</p>
             <ul>
-                <li><b>improving meter identification for samavṛtta edge cases: viṣamavṛtta, ardhasamavṛtta</b></li>
-                <li>fixing scheme-detection functionality</li>
-                <li>enabling no-resplit in whole-file mode (with user-specified character like semicolon, colon, or tab for pāda breaks)</li>
-                <li>completing "soft" re-split option (= re-split initialized with user-input)</li>
+                <li>virāma-avoidance toggle in front end</li>
+                <li>repairing scheme-detection functionality</li>
                 <li>adding number-exclusion option to transliteration</li>
-                <li>improving meter identification for partial samavṛtta verses in no-split mode</li>
-                <li>improving meter identification for partial jāti verses</li>
                 <li>adding PyPi (e.g. pip) install functionality for library</li>
-                <li>completing incorporation of wrapper for
+                <li>completing wrapper for
                 <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Splitter</a></li>
+                <li>enabling meter identification for viṣamavṛtta</b></li>                
+                <li>enabling more partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
+                <li>API endpoints with JSON and plain-text output options</li>
                 <li>implementing metrical material detection</li>
+                <li>cleaning up code and documentation (ongoing)</li>
                 <li>implementing comprehensive testing with pytest (ongoing)</li>
             </ul>
 
-            <p>And also (regarding web front-end):</p>
-            <ul>
-                <li>enabling optional toggling-off of virāma-avoidance functionality in GUI</li>
-                <li>adding API endpoints with JSON and plain-text output options</li>
-                <li>adding mobile version of web-app for better display on smaller devices (maybe?)</li>
-            </ul>
+            <p>And maybe something you have in mind? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Contact me</a> and let me know what you think.</p>
 
-            <p>And maybe something you have in mind? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Hit me up</a> and let me know what you think.</p>
+            <br>
 
-            <p>(Done recently: Dec '20 – Jan '21)</p>
+            <h1>done recently</h1>
+            <p>(Jan '21)</p>
             <ul>
-                <li>fixed prioritization of multiple possibilities in resplit-mode meter identification</li>
-                <li>enabled greater range of scansion detail in whole-file meter identification</li>
-                <li>improved mix-and-match flexibility for scansion detail output</li>
-                <li>added whole-file analysis in GUI for transliteration and meter identification</li>
-                <li>added support for meter identification of anuṣṭubh half-verses</li>
+                <li>adjusted relative scores for meter identification with resplit</li>
+                <li>enabled meter identification for ardhasamavṛtta</li>
+                <li>added many more meters from Apte</li>
+                <li>implemented resplit_lite (including with option to keep midpoint)</li>
+                <li>enabled additional pāda breaks (e.g. with semicolon)</li>
+                <li>enabled meter identification options (scansion detail, resplit option) for whole-file analysis</li>
+                <li>updated manual on GitHub</li>
+                <li>enabled  mix-and-match</li>
+                <li>added whole-file analysis to front end: transliteration, meter identification</li>
+                <li>added partial meter identification: anuṣṭubh half-verses</li>
                 <li>improved meter identification for samavṛtta edge case: upajāti</li>
                 <li>added Prakrit support (so far just ï and ü, e.g., saï >> सइ)</li>
                 <li>added transliteration scheme support: ITRANS, WX, "IAST reduced"</li>
                 <li>fixed line-end vowel-truncation error for transliteration from Indic (e.g., चातुर >> cātur)</li>
+            </ul>
+            <p>(Dec '20)</p>
+            <ul>
+                <li>created front end</li>
             </ul>
 
         </div><!-- /.container -->
