@@ -154,7 +154,6 @@
                             </select>
                             </br>
                             <input id="transliterate_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('transliterate');" formaction="./wholeFile"/>
-                            </br>
                         </div>
 
                         <!-- scansion -->
@@ -182,14 +181,6 @@
                                     <label for="alignment">align</label>
                                 </div>
                             </div>
-                            </br>
-                            <!--<select name="truncate_option" id="truncate_option" class="btn-block">-->
-                            <!--    <option value="short">lgg</option>-->
-                            <!--    <option value="med_1">lgg [# y]</option>-->
-                            <!--    <option value="med_2">lgg align</option>-->
-                            <!--    <option value="long">lgg [#] align</option>-->
-                            <!--</select>-->
-                            <!--</br>-->
                         </div>
 
                         <!-- meter identification -->
@@ -198,12 +189,12 @@
                             <label for="resplit_option">Re-Split Pādas</label>
                             </br>
                             <select id="resplit_option" name="resplit_option" class="btn-block">
-                                <option value="resplit_hard">yes</option>
-                                <option value="none">no</option>
+                                <option value="resplit_lite">resplit lite</option>
+                                <option value="resplit_max">resplit max</option>
+                                <option value="none">none</option>
                             </select>
                             </br>
                             <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/wholeFile"/>
-                            </br>
                         </div>
 
                     </div><!-- submission -->
@@ -265,9 +256,9 @@
                     document.getElementById("hiddenExample").style.visibility = "visible";
 
                 }
-								else {
-										document.getElementById("hiddenActionTitle").style.visibility = "visible";
-								}
+				else {
+						document.getElementById("hiddenActionTitle").style.visibility = "visible";
+				}
             }
 
             window.onload = function() {
