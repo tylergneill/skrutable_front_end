@@ -77,16 +77,17 @@
 
             <h1>scan GRETIL</h1>
 
-            <p>I'm inviting anyone who's interested to help improve the world's stock of digital Sanskrit texts
-            by using <b>skrutable</b>'s <i>en-masse</i> meter-identification functionality
+            <p>One way you can help improve the world's stock of digital Sanskrit data
+            is to use <b>skrutable</b>'s whole-file meter-identification functionality
             to help sniff out and fix textual problems
-            and to establish a meter dataset for reference and benchmarking purposes.</p>
+            and to establish an open meter dataset for reference and benchmarking purposes.</p>
 
             <h2>how-to</h2>
 
-            <p>Analyzing the meter of a whole metrical text is a fun and effective way to identify textual problems in need of fixing.
-            Obviously you need to already know a bit about Sanskrit and Sanskrit meter, and you have to start with decently good data.
-            But assuming those, then it's only a matter of having the right tools and patiently applying yourself.
+            <p>Your results are going to be only as good as your input data,
+            and in order to be able to do anything with your results,
+            you're obviously going to need to already know at least a little bit about Sanskrit language and meter (or "prosody").
+            However, assuming those two things, then it's really only a matter of having a good tool and some patience.
             Here's one way to go about it.</p>
 
             <p><b>Step 1</b>: Identify a text you'd like to work on. Go find it online.
@@ -95,28 +96,32 @@
             <p><b>Step 2</b>: Clean up the file so that it is a text file with exactly one (potential) whole verse per line. Half of an anuṣṭubh śloka is ok, too.
             For example:
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_input_cleaned.txt">BhG input cleaned</a></p>
-            <p><b>Step 3</b>: Submit the cleaned file to <b>skrutable</b>'s <i>en-masse</i> meter identifier using the "whole file" button.
-            For example:
+            <p><b>Step 3</b>: Submit the cleaned file to <b>skrutable</b>'s meter identifier using the "whole file" button.
+            <b>skrutable</b> is <i>really</i> fast, so the 700 verses of the Gītā don't take long at all:
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_output_raw.txt">BhG raw output</a>
             &gt;&gt;
             <a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_output_cleaned.txt">BhG output cleaned</a>
             </p>
-            <p><b>Step 4</b>: Read through the results, looking for irregularities (use regexes to search more effectively). Where there's a metrical problem, there's usually a textual problem.
-            For example:
-						(BhG doesn't have any, but Rāmāyaṇa does...)</p>
+            <p><b>Step 4</b>: Now read through the results, looking for irregularities (you can use regexes to search more effectively). Where there's a metrical problem, there's usually a textual problem.</p>
+            
+            <p>As it turns out, the BhG is in pretty good shape. But consider for example the Rāmāyaṇa:
+            (<a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/R_input_cleaned_(ram_1-7u_htm_Dec_2018_semicolons).htm">raw in</a>), (<a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/R_input_cleaned.txt">clean in</a>), (<a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/R_output_raw_none_lite_conditional.txt">raw out</a>), (<a href="R_output_cleaned_none_lite_conditional.txt">clean out</a>), (<a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/R_breakdown_and_problems.txt">breakdown and problems</a>)
+
+            </p>
             <p><b>Step 5</b>: If you can, try to come up with solutions for the textual problems, one-by-one.
                 <ul>
-                    <li>Is the problem in the digital text itself?</li>
-                    <li>Or in the edition the digital text is based on?</li>
-                    <li>Is it <b>skrutable</b>?</li>
-                    <li>Something even more interesting?</li>
+                    <li>Is something wrong with the digital text itself?</li>
+                    <li>Or with the edition (or editions) the digital text is based on?</li>
+                    <li>Or is <b>skrutable</b> doing something wrong?</li>
+                    <li>Maybe something even more interesting?</li>
                 </ul>
-            Once you're confident about your results, send the results over to me.
-            I'll post the <a href="./scanGRETILresults">cumulative results here</a>.
-            This takes time, patience, and expert knowledge,
-            so there's no way one person could ever do it properly all on their own!</p>
+            <p>
 
-            <p>And if you were able to make improvements to the text, send it on back to GRETIL. I'm happy to help you do that, if need be.</p>
+            <p>If you want, share your results with me or others.
+            I'll post any and all <a href="./scanGRETILresults">cumulative results here</a>.
+            This takes time, patience, and expert knowledge — preparing data, scrutinizing each problem verse, and so on — so it definitely needs to be a team effort!</p>
+
+            <p>And if you were able to make improvements to the text, you can send it on back to GRETIL. I'm happy to help you do that, if need be.</p>
 
             Intrigued? Flabbergasted? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Write me!</a> We'll talk.</p>
 
