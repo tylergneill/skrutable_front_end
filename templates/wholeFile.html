@@ -80,20 +80,39 @@
 
                         <form action="./wholeFile" method="POST" enctype="multipart/form-data">
 
+                            <h1>whole-file processing</h1>
+
                             <p><b>skrutable</b> will "{{ skrutable_action }}" for the whole file.
-                            <p>The input transliteration scheme is: {{ from_scheme }}</p>
-                            <p>For transliteration, the output scheme is: {{ to_scheme }}.</p>
+                            
+                            <p>Transliteration settings:</p>
+                            <ul>
+                                <li>input scheme: {{ from_scheme }}</li>
+                                <li>output scheme: {{ to_scheme }} (transliteration output only)</li>
+                            </ul>
+
+                            <p>Scansion settings (1 true, 0 false):</p>
+                            <ul>
+                                <li>show weights: {{ weights }}</li>
+                                <li>show morae: {{ morae }}</li>
+                                <li>show gaṇas: {{ gaRas }}</li>
+                                <li>show alignment: {{ alignment }}</li>
+                            </ul>
+
+                            <p>Meter identification settings:</p>
+                            <ul>
+                                <li>resplit option: {{ resplit_option }}</li>
+                            </ul>
 
                             <p><input type="file" name="input_file" class="btn btn-block" /></p>
                             <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
 
-                            <p>Tips: If you can, make sure the filename is ASCII characters only, to avoid problems.
-                            Depending on the size of your file, upload and processing may take a few seconds. There's no progress bar yet, but if your computer seems to be working, just be patient.
-                            If you experience problems with very large files (e.g., entire epics),
-                            break them up into pieces before you upload.
-                            Or, for better performance, if you can handle coding in Python,
-                            try installing and running on your own machine
-                            (see <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#using-as-local-web-app">here</a> for how).</p>
+                            <h2>Tips</h2>
+
+                            <p>User ASCII-only filenames to avoid problems.</p>
+                            <p>Depending on the size of your file, upload and processing may take a few seconds. There's no progress bar yet, but if your computer seems to be working, just be patient, it shouldn't be long.</p>
+                            <p>For very large files, this online interface may not be best.
+                            What you may need to do instead is install and run locally on your own machine.
+                            See <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#using-as-local-web-app">here</a> for how.</p>
 
                         </form>
 
