@@ -78,22 +78,26 @@
 
 					<div class="col-md-6">
 
-            <form action="./wholeFile" method="POST" enctype="multipart/form-data">
+                        <form action="./wholeFile" method="POST" enctype="multipart/form-data">
 
-                <p><b>skrutable</b> will "{{ skrutable_action }}" for the whole file.
-                <p>The input transliteration scheme is: {{ from_scheme }}</p>
-                <p>For transliteration, the output scheme is: {{ to_scheme }}.</p>
+                            <p><b>skrutable</b> will "{{ skrutable_action }}" for the whole file.
+                            <p>The input transliteration scheme is: {{ from_scheme }}</p>
+                            <p>For transliteration, the output scheme is: {{ to_scheme }}.</p>
 
-                <p><input type="file" name="input_file" class="btn btn-block" /></p>
-                <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
+                            <p>If you can, make sure the filename is ASCII characters only, to avoid problems.</p>
 
-                <p>Depending on the size of your file, upload and processing may take a minute or more.
-								When <b>skrutable</b> is re-splitting verses, count on something like 20–25 verses per second.</p>
+                            <p><input type="file" name="input_file" class="btn btn-block" /></p>
+                            <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
 
-								<p>Very large files (e.g., entire epics) may not work all in one go. Breaking them up may help.</p>
+                            <p>Depending on the size of your file, upload and processing may take a few seconds.
+                            There's no progress bar yet, but if your computer seems to be working, just be patient.
+                            If you experience problems with very large files (e.g., entire epics),
+                            break them up into pieces before you upload.
+                            Or, for better performance, if you can handle coding in Python,
+                            try installing and running on your own machine
+                            (see <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#using-as-local-web-app">here</a> for how).</p>
 
-
-            </form>
+                        </form>
 
 					</div>
         </div><!-- container -->
