@@ -78,42 +78,47 @@
             <h1>how to use skrutable</h1>
 
             <p>First thing: Try starting with the
-            <a href="./ex1" target="_blank" rel="noopener noreferrer"><i>dharmakṣetre</i> example</a> (opens in new tab). This sets Gītā 1.1 as the input and transliteration as the action,
-            with IAST Romanization and Devanāgarī as the input and output schemes, respectively.
+            <a href="./ex1" target="_blank" rel="noopener noreferrer"><i>dharmakṣetre</i> example</a> (opens in new tab). This sets Gītā 1.1 as the input in IAST Romanization and transliterates it to Devanāgarī.</p>
+
+            <p>For different transliteration output, use the "Output scheme" dropdown 
+            and click "Transliterate" again.
+            To learn about supported transliteration schemes, visit
+            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#transliteration-schemes">the <b>skrutable</b> manual on Github</a>.
+            You can also use the "Swap" buttons to move things around as needed.</p>
 
             <p>Now click between the "Transliterate", "Scan", and "Identify Meter" buttons to calculate and display <b>skrutable</b>'s three basic outputs.</p>
 
-            <p>For supported transliteration schemes, visit
-            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#transliteration-schemes">the <b>skrutable</b> manual on Github</a>.
-            Use the "Output scheme" dropdown to change the transliteration output.
-            You can also use the "Swap" buttons to explore doing "round-trip" transliteration.</p>
-
             <p>Scansion is line-by-line, and it doesn't matter how many lines or how much content you enter.
-            This mode is especially good for fiddling and exploring.
+            This mode is especially good for fiddling and exploring.</p>
 
             <p>Meter identification, by contrast, effectively requires four lines of content,
             corresponding to four verse quarters or <i>pādas</i>.
             You should use this mode when you believe you're dealing with a whole verse
-            (half of an anuṣṭubh śloka works, too). You can use the "Re-Split Pādas" dropbox to decide whether to use your own line breaks or to let <b>skrutable</b> try to find them for you.
-            The option "resplit_lite" generally works pretty well.
-            
-            <p>You can also use the "Scansion Detail" dropdown to choose from among several configurations
-            for displaying the output of <b>both</b> scansion and meter identification.</p>
+            (half of an anuṣṭubh śloka works, too).</p>
 
-			<p>For more on working with Sanskrit meter, see again the
-			<a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#scansion-and-meter-identification">
-			<b>skrutable</b> manual on GitHub</a>.
+            <p>You can use the "Re-Split Pādas" dropbox to decide whether to use your own line breaks 
+            or to let <b>skrutable</b> try and find them for you.
+            The option "resplit_max" uses the most brute force and requires the least thought, 
+            while "resplit_lite" better respects whatever line breaks (or ';' or ' / ') you provide.
+            Or, choose "none" in order to evaluate exactly the (necessarily four!) lines you input.</p>
+
+            <p>Definitely also try changing the mix-and-match detail options below "Scan".</p>
+
+            <p>To learn more about working with Sanskrit meter, again see the
+            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#scansion-and-meter-identification">
+            <b>skrutable</b> manual on GitHub</a>.</p>       
 
             <h2>whole-file processing</h2>
 
-            <p>If you're feeling more ambitious, trying doing transliteration on a whole file.
-            Set your input and output schemes as normal, but then instead of hitting the "Transliterate" button, hit the "whole file" button underneath. 
+            <p>If you're feeling more ambitious, you can also do transliteration and meter identification on whole files.</p>
+
+            <p>For transliteration, just set your input and output schemes as normal, but then instead of hitting the "Transliterate" button, hit the "whole file" button underneath. 
             Continue through the next screen to upload your file, then look for the output in your usual download location.</p>
 
             <p>Doing whole-file metrical analysis is similar, but the input must be more carefully prepared.
             See the <a href="./scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.</p>
 
-            <p>If you want to try these whole-file functions out right away, you can use these prepared input files:
+            <p>If you want to try out these whole-file functions right away, you can use these prepared input files:
             <ul>
                 <li><a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_1-10_input_cleaned.txt">BhG first ten</a></li>
                 <li><a href="https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/scanGRETIL/BhG_1-100_input_cleaned.txt">BhG first hundred</a></li>
