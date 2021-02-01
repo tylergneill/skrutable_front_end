@@ -8,6 +8,15 @@ T = Transliterator()
 S = Scanner()
 MI = MeterIdentifier()
 
+def parse_complex_resplit_option(complex_resplit_option):
+	if complex_resplit_option[-len('_keep_mid'):] == '_keep_mid':
+		resplit_keep_midpoint = True
+		resplit_option = complex_resplit_option[:-len('_keep_mid')]
+	else:
+		resplit_keep_midpoint = False
+		resplit_option = complex_resplit_option
+	return resplit_option, resplit_keep_midpoint
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien"
@@ -96,9 +105,14 @@ def index():
 
 		elif session["skrutable_action"] == "identify meter":
 
+			r_o, r_k_m = parse_complex_resplit_option(
+				complex_resplit_option=session["resplit_option"]
+				)
+
 			V = MI.identify_meter(
 				session["text_input"] ,
-				resplit_option=session["resplit_option"],
+				resplit_option=r_o,
+				resplit_keep_midpoint=r_k_m,
 				from_scheme=session["from_scheme"]
 				)
 
@@ -158,6 +172,10 @@ def wholeFile():
 
 		elif session["skrutable_action"] == "identify meter":
 
+			r_o, r_k_m = parse_complex_resplit_option(
+				complex_resplit_option=session["resplit_option"]
+				)
+
 			# record starting time
 			from datetime import datetime, date
 			# now = datetime.now()
@@ -171,7 +189,8 @@ def wholeFile():
 
 				result = MI.identify_meter(
 					verse,
-					resplit_option=session['resplit_option'],
+					resplit_option=r_o,
+					resplit_keep_midpoint=r_k_m,
 					from_scheme=session['from_scheme']
 					)
 
@@ -213,7 +232,7 @@ def reset_variables():
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite"
+	session["resplit_option"] = "resplit_lite_keep_mid"
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -225,7 +244,7 @@ def ex1():
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite"
+	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["skrutable_action"] = "transliterate"
 	session.modified = True
 	return redirect(url_for('index'))
