@@ -53,7 +53,7 @@ def process_form(form):
 	session.modified = True
 
 @app.route("/testMelody", methods=["GET", "POST"])
-def index():
+def testMelody():
 
 	# just in case, make sure all keys in session
 	for var_name in session_variable_names:
@@ -126,7 +126,7 @@ def index():
 
 		session.modified = True
 
-		return redirect(url_for('index'))
+		return redirect(url_for('testMelody'))
 
 @app.route("/", methods=["GET", "POST"])
 def index():
