@@ -52,8 +52,84 @@ def process_form(form):
 
 	session.modified = True
 
-@app.route("/", methods=["GET", "POST"])
 @app.route("/testMelody", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
+def index():
+
+	# just in case, make sure all keys in session
+	for var_name in session_variable_names:
+		if var_name not in session:
+			reset_variables()
+
+	if request.method == "GET":
+
+		return render_template(
+			"testMelody.html",
+			skrutable_action=session["skrutable_action"],
+			text_input=session["text_input"], text_output=session["text_output"],
+			from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
+			weights=session["weights"],
+			morae=session["morae"],
+			gaRas=session["gaRas"],
+			alignment=session["alignment"],
+			resplit_option=session["resplit_option"]
+			)
+
+	if request.method == "POST":
+
+		process_form(request.form)
+
+		# carry out chosen action
+
+		if session["skrutable_action"] == "transliterate":
+
+			session["text_output"] = T.transliterate(
+				session["text_input"],
+				from_scheme=session["from_scheme"],
+				to_scheme=session["to_scheme"]
+				)
+
+		elif session["skrutable_action"] == "scan":
+
+			V = S.scan(
+				session["text_input"] ,
+				from_scheme=session["from_scheme"]
+				)
+
+			session["text_output"] = V.summarize(
+				show_weights=session["weights"],
+				show_morae=session["morae"],
+				show_gaRas=session["gaRas"],
+				show_alignment=session["alignment"],
+				show_label=False
+				)
+
+		elif session["skrutable_action"] == "identify meter":
+
+			r_o, r_k_m = parse_complex_resplit_option(
+				complex_resplit_option=session["resplit_option"]
+				)
+
+			V = MI.identify_meter(
+				session["text_input"] ,
+				resplit_option=r_o,
+				resplit_keep_midpoint=r_k_m,
+				from_scheme=session["from_scheme"]
+				)
+
+			session["text_output"] = V.summarize(
+				show_weights=session["weights"],
+				show_morae=session["morae"],
+				show_gaRas=session["gaRas"],
+				show_alignment=session["alignment"],
+				show_label=True
+				)
+
+		session.modified = True
+
+		return redirect(url_for('index'))
+
+@app.route("/", methods=["GET", "POST"])
 def index():
 
 	# just in case, make sure all keys in session
