@@ -53,7 +53,6 @@ def process_form(form):
 	session.modified = True
 
 @app.route("/testMelody", methods=["GET", "POST"])
-@app.route("/", methods=["GET", "POST"])
 def index():
 
 	# just in case, make sure all keys in session
