@@ -4,6 +4,8 @@ from flask import make_response
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
 from skrutable.meter_identification import MeterIdentifier
+from skrutable.meter_patterns import meter_melodies
+
 T = Transliterator()
 S = Scanner()
 MI = MeterIdentifier()
@@ -31,9 +33,13 @@ checkbox_element_names = [
 	"weights", "morae", "gaRas",
 	"alignment"
 	]
+melody_variable_names = [
+	"meter_label", "melody_options"
+	]
 session_variable_names = (
 	select_element_names +
-	checkbox_element_names
+	checkbox_element_names +
+	melody_variable_names
 	)
 
 def process_form(form):
@@ -71,7 +77,9 @@ def testMelody():
 			morae=session["morae"],
 			gaRas=session["gaRas"],
 			alignment=session["alignment"],
-			resplit_option=session["resplit_option"]
+			resplit_option=session["resplit_option"],
+			meter_label=session["meter_label"],
+			melody_options=session["melody_options"]
 			)
 
 	if request.method == "POST":
@@ -123,6 +131,17 @@ def testMelody():
 				show_alignment=session["alignment"],
 				show_label=True
 				)
+
+			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
+			import pdb; pdb.set_trace()
+			if short_meter_label in meter_melodies:
+				session["meter_label"] = T.transliterate(
+					short_meter_label,
+					from_scheme='IAST',
+					to_scheme='HK'
+					)
+
+				session["melody_options"] = meter_melodies[ short_meter_label ]
 
 		session.modified = True
 
@@ -309,6 +328,8 @@ def reset_variables():
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
+	session["meter_label"] = ""
+	session["melodies"] = []
 	session.modified = True
 	return redirect(url_for('index'))
 
