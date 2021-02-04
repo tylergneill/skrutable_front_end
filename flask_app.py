@@ -133,7 +133,6 @@ def testMelody():
 				)
 
 			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
-			import pdb; pdb.set_trace()
 			if short_meter_label in meter_melodies:
 				session["meter_label"] = T.transliterate(
 					short_meter_label,
@@ -329,7 +328,7 @@ def reset_variables():
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["meter_label"] = ""
-	session["melodies"] = []
+	session["melody_options"] = []
 	session.modified = True
 	return redirect(url_for('index'))
 
