@@ -211,8 +211,8 @@
                     	</div>
 
                         <!-- melody player -->
-                    	<!-- <div class="row" id="melodyPlayer" style="visibility: hidden"> -->
-                        <div class="row" id="melodyPlayer">
+                    	<div class="row" id="melodyPlayer" style="visibility: hidden">
+                        <!-- <div class="row" id="melodyPlayer"> -->
                     		<div class="col-md-8">
                     			<audio id="audio" controls>
                     				<source type="audio/mp3">
@@ -221,7 +221,6 @@
 
                             <div class="col-md-4">
                                 <label for="melody_option">Melody</label>
-                                <div id="result"></div>
                                 <select id="melody_option" name="melody_option" class="btn-block">
                                     {% for melody_option in melody_options %}
                                     <option value= "{{melody_option}}">{{melody_option}}</option>
@@ -276,6 +275,10 @@
                 if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
                 if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
                 document.getElementById("resplit_option").value = "{{ resplit_option }}";
+                testArray = "{{ melody_options }}";
+                if ( testArray.length > 2) {
+                	document.getElementById("melody_option").value = "{{ melody_options[0] }}";
+                }
             }
 
             function conditionally_display_examples() {
@@ -297,15 +300,17 @@
             const audio_prefix = "https://www.pythonanywhere.com/user/skrutable/files/home/skrutable/mysite/melodies/"
             melodySelectElement.addEventListener("change", update_melody);
             function update_melody() {
-              var result = document.getElementById("result");
-              result.textContent = "Melody filename: " + "{{ meter_label }}" + "-" + melodySelectElement.value + ".mp3";
               var audioElement = document.getElementById("audio");
-              audioElement.src = audio_prefix + "{{ meter_label }}" + "-" + melodySelectElement.value + ".mp3";
+              audioElement.src = audio_prefix + 
+              					"{{ meter_label }}" + 
+              					"-" + 
+              					melodySelectElement.value + 
+              					".mp3";
             }
 
             function conditionally_display_melody_player() {
-                // if ({{ melodies }} != [] ) {
-                if (true) {
+                testArray = "{{ melody_options }}";
+                if ( testArray.length > 2 ) {
                     document.getElementById("melodyPlayer").style.visibility = "visible";
                 }
             }
@@ -313,6 +318,7 @@
             window.onload = function() {
                 initialize_choices();
                 conditionally_display_examples();
+                update_melody();
                 conditionally_display_melody_player();
             }
 
