@@ -301,11 +301,14 @@
             melodySelectElement.addEventListener("change", update_melody);
             function update_melody() {
               var audioElement = document.getElementById("audio");
-              audioElement.src = audio_prefix + 
+              var audio_src_str = audio_prefix + 
               					"{{ meter_label }}" + 
               					"-" + 
               					melodySelectElement.value + 
               					".mp3";
+              audio_src_str = audio_src_str.replace(" ", "-");
+              audio_src_str = audio_src_str.replace(".", ""); // e.g. for H.V. Nagaraja Rao
+              audioElement.src = audio_src_str
             }
 
             function conditionally_display_melody_player() {
