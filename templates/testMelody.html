@@ -301,13 +301,14 @@
             melodySelectElement.addEventListener("change", update_melody);
             function update_melody() {
               var audioElement = document.getElementById("audio");
+              var audio_src_selection = melodySelectElement.value
+              audio_src_selection = audio_src_selection.replace(/ /g, "-");
+              audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
               var audio_src_str = audio_prefix + 
               					"{{ meter_label }}" + 
               					"-" + 
               					melodySelectElement.value + 
               					".mp3";
-              audio_src_str = audio_src_str.replace(/ /g, "-");
-              audio_src_str = audio_src_str.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
               audioElement.src = audio_src_str
             }
 
