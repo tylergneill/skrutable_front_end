@@ -306,8 +306,8 @@
               					"-" + 
               					melodySelectElement.value + 
               					".mp3";
-              audio_src_str = audio_src_str.replace(" ", "-");
-              audio_src_str = audio_src_str.replace(".", ""); // e.g. for H.V. Nagaraja Rao
+              audio_src_str = audio_src_str.replace(/ /g, "-");
+              audio_src_str = audio_src_str.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
               audioElement.src = audio_src_str
             }
 
