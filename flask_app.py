@@ -96,6 +96,10 @@ def testMelody():
 				to_scheme=session["to_scheme"]
 				)
 
+			session["meter_label"] = ""
+			session["melody_options"] = []
+
+
 		elif session["skrutable_action"] == "scan":
 
 			V = S.scan(
@@ -110,6 +114,10 @@ def testMelody():
 				show_alignment=session["alignment"],
 				show_label=False
 				)
+
+			session["meter_label"] = ""
+			session["melody_options"] = []
+
 
 		elif session["skrutable_action"] == "identify meter":
 
