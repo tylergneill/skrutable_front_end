@@ -139,8 +139,10 @@ def testMelody():
 					from_scheme='IAST',
 					to_scheme='HK'
 					)
-
 				session["melody_options"] = meter_melodies[ short_meter_label ]
+			else:
+				session["meter_label"] = ""
+				session["melody_options"] = []
 
 		session.modified = True
 
