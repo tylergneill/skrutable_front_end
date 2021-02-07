@@ -213,14 +213,18 @@
                         <!-- melody player -->
                     	<div class="row" id="melodyPlayer" style="visibility: hidden">
                         <!-- <div class="row" id="melodyPlayer"> -->
-                    		<div class="col-md-8">
+                    		
+                        	<div class="col-md-1">
+                        	</div>
+
+                    		<div class="col-md-7">
                     			<audio id="audio" controls>
                     				<source type="audio/mp3">
                     			</audio>
                     		</div>
 
                             <div class="col-md-4">
-                                <label for="melody_option">Melody</label>
+                                <label for="melody_option">Voice</label>
                                 <select id="melody_option" name="melody_option" class="btn-block">
                                     {% for melody_option in melody_options %}
                                     <option value= "{{melody_option}}">{{melody_option}}</option>
