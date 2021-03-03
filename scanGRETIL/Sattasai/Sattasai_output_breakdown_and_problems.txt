@@ -1,0 +1,56 @@
+breakdown of successful cases (985)
+	āryā 956
+	gīti 18
+	upagīti 9
+	udgīti 2
+
+problem cases (14)
+	āryā, imperfect 8
+	udgīti/upagīti (?), imperfect 1
+	rare combo-type meter 2
+	unclear 3
+
+
+digitization typos
+
+435 gaaṃa > gaaṃ
+711 guṇa > guṇe
+712 pahaṃ > paham
+803 uvvahi > uvvahaī
+836 païvaṃ > paīvaṃ
+865 haliutteṇa > haliaütteṇa
+879 uṇṇaapaahare > uṇṇaapaohare
+918 sa > so
+958 āsāiaṃ > āsāiam
+963 te > ti
+
+
+edition orthography
+
+731 vachaā > vacchaā
+
+
+needs different variant?
+
+570 pāda d hypermetrical (e.g., ṇavavahūe > ??)
+713 pāda b hypometrical (e.g., mattammi > mattammī?)
+760 pāda d hypometrical (e.g., miliyā jaṃ > jaṃ miliyā taṃ?)
+816 pāda c hypometrical (...)
+944 pāda d hypermetrical (Weber: ṇajjaṃtu / jāṇīaṃtu difference noted)
+
+
+textual corruption
+
+716 "ganz corrupt."
+719 no Prakrit attempted, pāda c "gänzlich dunkel"
+775 pāda a hypometrical (...)
+787 pāda d incomplete
+798 pāda b incomplete
+964 pāda d incomplete
+965 no Prakrit attempted
+
+
+rare combination-type of meter
+
+712 āryāgīti + udgīti (after typo fixed, see above)
+806 āryāgīti + āryā = "sugīti" ("s. Capeller Gaṇachandas, p. 22"")
