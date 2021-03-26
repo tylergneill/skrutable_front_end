@@ -5,10 +5,12 @@ from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
 from skrutable.meter_identification import MeterIdentifier
 from skrutable.meter_patterns import meter_melodies
+from skrutable.splitter.wrapper import Splitter
 
 T = Transliterator()
 S = Scanner()
 MI = MeterIdentifier()
+Spl = Splitter()
 
 def parse_complex_resplit_option(complex_resplit_option):
 	if complex_resplit_option[-len('_keep_mid'):] == '_keep_mid':
@@ -228,6 +230,25 @@ def index():
 				show_label=True
 				)
 
+		elif session["skrutable_action"] == "split":
+
+			IAST_input = T.transliterate(
+				session["text_input"],
+				from_scheme=session["from_scheme"],
+				to_scheme='IAST'
+				)
+
+			split_result = Spl.split(
+				IAST_input,
+				prsrv_punc=True
+				)
+
+			session["text_output"] = T.transliterate(
+				split_result,
+				from_scheme='IAST',
+				to_scheme=session["to_scheme"]
+				)
+
 		session.modified = True
 
 		return redirect(url_for('index'))
@@ -319,6 +340,27 @@ def wholeFile():
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
 			output_fn_suffix = '_meter_identified'
+
+		elif session["skrutable_action"] == "split":
+
+			IAST_input = T.transliterate(
+				input_data,
+				from_scheme=session["from_scheme"],
+				to_scheme='IAST'
+				)
+
+			split_result = Spl.split(
+				IAST_input,
+				prsrv_punc=True
+				)
+
+			output_data = T.transliterate(
+				split_result,
+				from_scheme='IAST',
+				to_scheme=session["to_scheme"]
+				)
+
+			output_fn_suffix = '_split'
 
 		# prepare and return output file
 		output_fn = (	input_fn[:input_fn.find('.')] +
