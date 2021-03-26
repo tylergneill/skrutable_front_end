@@ -91,49 +91,76 @@
                 <!-- controls -->
                 <div class="row">
 
-                    <!-- input scheme -->
-                    <div class="col-md-2">
-                        <div class="col-md-12">
-                            <label for="from_scheme">Input Scheme</label>
-                            </br>
-                            <select name="from_scheme" id="from_scheme" class="btn-block">
-                                <optgroup label="Romanizations">
-                                    <option value="IAST">IAST</option>
-                                    <option value="HK">HK</option>
-                                    <option value="SLP">SLP</option>
-                                    <option value="ITRANS">ITRANS</option>
-                                    <option value="VH">VH</option>
-                                    <option value="WX">WX</option>
-                                    <option value="IASTREDUCED" disabled>IAST reduced</option>
-                                </optgroup>
-                                <optgroup label="Indic Scripts">
-                                    <option value="DEV">DEV</option>
-                                    <option value="BENGALI">BENGALI</option>
-                                    <option value="GUJARATI">GUJARATI</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- input and output schemes, and swap buttons -->
+                    <div class="col-md-4">
+                    	<div class="col-md-12">
+                    	
+	                    	<div class="row">
+	                        
+	                        	<div class="col-md-6">
+		                            <label for="from_scheme">Input Scheme</label>
+		                            </br>
+		                            <select name="from_scheme" id="from_scheme" class="btn-block">
+		                                <optgroup label="Romanizations">
+		                                    <option value="IAST">IAST</option>
+		                                    <option value="HK">HK</option>
+		                                    <option value="SLP">SLP</option>
+		                                    <option value="ITRANS">ITRANS</option>
+		                                    <option value="VH">VH</option>
+		                                    <option value="WX">WX</option>
+		                                    <option value="IASTREDUCED" disabled>IAST reduced</option>
+		                                </optgroup>
+		                                <optgroup label="Indic Scripts">
+		                                    <option value="DEV">DEV</option>
+		                                    <option value="BENGALI">BENGALI</option>
+		                                    <option value="GUJARATI">GUJARATI</option>
+		                                </optgroup>
+		                            </select>
+	                        	</div>
+
+	                        	<div hidden class="col-md-6">
+	                        		<label for="to_scheme">Virāma Option</label>
+		                            </br>
+		                            <select name="virAma_option" id="virAma_option" class="btn-block">
+		                                <option value="preserve_space">default: preserve</option>
+		                                <option value="break_clusters">more virāmas</option>
+		                                <option value="combine">less virāmas</option>
+		                            </select>
+		                        </div>
+	                        
+	                        </div>
+							
+							</br>
+	                       	
+	                       	<div class="row">
+
+								<div class="col-md-3">
+		                            <!-- <label>Swap</label> -->
+		                            <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Txt ⇅" onclick="swapTexts();"/>
+		                        </div>
+		                        <div class="col-md-5">
+		                            <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
+	                            </div>
+	                            <div class="col-md-4">
+		                            <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
+	                        	</div>
+	                    	</div>
+                        	</br>
+
+                       	</div>
+                    </div><!-- input and output schemes, and swap buttons -->
 
                     <!-- swap buttons -->
-                    <div class="col-md-2">
-                        <div class="col-md-12">
-                            <label>Swap</label>
-                            <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Text ⇅" onclick="swapTexts();"/>
-                            <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
-                            <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
-                        </div>
-                        <br>
-                    </div>
+                    <!-- <div class="col-md-2"> -->
+                        
+                    <!-- </div> -->
 
-                    <!-- empty space -->
-                    <div class="col-md-2"></br></div>
 
                     <!-- submission -->
-                    <div class="col-md-6">
+                    <div class="col-md-8">
 
                         <!-- transliteration -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <input id="transliterate_button" type="submit" class="btn btn-block btn-primary" value="Transliterate" onclick="set_action('transliterate');"/>
                             <label for="to_scheme">Output Scheme</label>
                             </br>
@@ -155,11 +182,11 @@
                             </select>
                             </br>
                             <input id="transliterate_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('transliterate');" formaction="./wholeFile"/>
-                            <br>
+                            </br>
                         </div>
 
                         <!-- scansion -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <input id="scan_button" type="submit" class="btn btn-block btn-primary" value="Scan" onclick="set_action('scan')"/>
                             <label>Scansion Detail</label>
                             </br>
@@ -183,11 +210,11 @@
                                     <label for="alignment">align</label>
                                 </div>
                             </div>
-                            <br>
+                            </br>
                         </div>
 
                         <!-- meter identification -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <input id="identify_meter_button" type="submit" class="btn btn-block btn-primary" value="Identify Meter" onclick="set_action('identify meter');"/>
                             <label for="resplit_option">Re-Split Pādas</label>
                             </br>
@@ -200,8 +227,25 @@
                             </select>
                             </br>
                             <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/wholeFile"/>
+                        	</br>
                         </div>
-                        <br>
+
+                    	<!-- splitting -->
+                    	<div class="col-md-3">
+                    		<input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Sandhi & Cpds" onclick="set_action('split');"/>
+                    		<div hidden>
+                    		<label for="split">Punctuation</label>
+                    		</br>
+                    		<select name="prsrv_punc" id="prsrv_punc" class="btn-block">
+                                <option value="preserve">preserve</option>
+                                <option value="preserve">discard</option>
+                            </select>
+                        </div>
+                            </br>
+                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('split');" formaction="./wholeFile"/>
+                            </br>
+                    	</div>
+
                     </div><!-- submission -->
 
                 </div><!-- controls -->
@@ -210,6 +254,7 @@
                     <option value="transliterate">transliterate</option>
                     <option value="scan">scan</option>
                     <option value="identify meter">identify meter</option>
+                    <option value="split">split</option>
                 </select>
 
             </form>
@@ -256,7 +301,8 @@
 								// for some reason value == "..." does not work...
                 if (document.getElementById("skrutable_action").value != "transliterate" &&
                     document.getElementById("skrutable_action").value != "scan" &&
-                    document.getElementById("skrutable_action").value != "identify meter") {
+                    document.getElementById("skrutable_action").value != "identify meter" &&
+                    document.getElementById("skrutable_action").value != "split") {
 
                     document.getElementById("hiddenExample").style.visibility = "visible";
 
