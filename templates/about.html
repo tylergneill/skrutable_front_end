@@ -79,41 +79,38 @@
 
             <p>For making Sanskrit "less inscrutible" for anyone interested, and because I like Maharashtrian pronunciation. :)</p>
 
-            <p><b>skrutable</b> is a toolkit and online workbench providing transliteration, scansion, and meter identification for Sanskrit text.
-            Although there are
-            <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#related-projects">
-            other such tools</a> already out there with advantages of their own, <b>skrutable</b> brings several new things to the table:
+            <p><b>skrutable</b> is a toolkit and online workbench providing useful functions for working with Sanskrit text, 
+            specifically: transliteration, scansion, meter identification, 
+            and (through the <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">amazing work of Oliver Hellwig and Sebastian Nehrdich</a>) 
+            sandhi and compound splitting.</p>
 
+            <p><a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#related-projects">Other tools</a> have their advantages, too,
+            but <b>skrutable</b> brings several new things to the table, including, among other things:
+            <ul>
+                <li>integrated and user-friendly access to diverse functionality in one place</li>
+                <li>modular design for use in other coding projects</li>
+                <li>and handy new features, such as</li>
                 <ul>
-                    <li>integrated and user-friendly access to several functions in one place</li>
-                    <li>modular and documented Python code for use with various projects</li>
-                    <li>and some handy new features, such as</li>
-                    <ul>
-                        <li>practical "virāma-avoidance" for transliteration into Indic scripts (e.g., asty eva >> ( अस्त्य् एव ) >> अस्त्येव)</li>
-                        <li>flexible and customizable text-based output for scansion and meter identification
-                        (like gaṇa abbreviations and syllable-weight alignments)</li>
-                        <li>options for automatically re-splitting pādas in meter identification</li>
-                        <li>better performance on more difficult cases (e.g., upajāti)</li>
-                        <li>speed and accuracy at scale with whole-file analysis (see for example <a href="https://github.com/tylergneill/skrutable/blob/master/jupyter_notebooks/identify_meter_whole_file.ipynb">this discussion of analyzing the Rāmāyaṇa</a>)</li>
-                    </ul>
+                    <li>clear and customizable scansion output in plain-text</li>
+					<li>optional pāda re-splitting for meter identification</li>
+					<li>one-click Splitter access</li>
+					<li>uploading for fast whole-file processing</li>
                 </ul>
-
+            </ul>
             </p>
 
-            <p>I'm hoping this will support a range of users, from beginning students to advanced scholars,
-            in their understanding and enjoyment of Sanskrit language and literature.
+            <p>Whether you're a beginning student or advanced scholar, 
+            Skrutable is there to help you understand and enjoy Sanskrit language and literature.
 
-            <p>I'm also hoping it will help improve the world's stock of digital Sanskrit data. You can help!
-            Check out the <a href="./scanGRETIL">"Scan GRETIL"</a> project to learn more.</p>
+            <p>You can also participate in using it to improve the world's stock of digital Sanskrit data.
+            Check out the <a href="./scanGRETIL">"Scan GRETIL"</a> page to learn more.</p>
 
             <h2>Feedback</h2>
 
             <p>
                 <ul>
                     <li>Did you find a bug 🐞 and see <b>skrutable</b> break?</li>
-                    <li>Would you like to see additional transliteration schemes? 
-                    Additional meters?</li>
-                    <li>Do you have suggestions regarding aesthetics or ease-of-use?</li>
+                    <li>Or do you have any other comments or suggestions?</li>
                 </ul>
             </p>
 
@@ -124,9 +121,10 @@
 
             <p>For those so inclined:
             <ul>
-                <li>The underlying code is a <a href="https://www.github.com/tylergneill/skrutable">Python library available on GitHub</a>.</li>
-                <li>This web interface is written in HTML, Bootstrap CSS, Javascript, and Python's Flask web-app framework, and hosted by PythonAnywhere. Its <a href="https://www.github.com/tylergneill/skrutable_front_end">separate GitHub repo</a> interacts with the main <b>skrutable</b> library and can be set up to run locally on your machine.</li>
-                <li>Here's <a href="./next">a list of tasks, both upcoming and recently completed</a>.</p></li>
+                <li>The underlying code is a 
+                <a href="https://www.github.com/tylergneill/skrutable">Python library available on GitHub</a>,
+                plus an <a href="https://www.github.com/tylergneill/skrutable_front_end">associated Flask front-end</a>, currently deployed on PythonAnywhere.</li>
+                <li>Here's the public <a href="./next">list of tasks</a>, both upcoming and recently completed.</p></li>
             </ul>
 
         </div><!-- /.container -->

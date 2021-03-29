@@ -80,7 +80,7 @@
             <p>One way you can help improve the world's stock of digital Sanskrit data
             is to use <b>skrutable</b>'s whole-file meter identification 
             to detect certain kinds of textual problems
-            and also to contribute toward an open meter dataset for reference and benchmarking purposes.</p>
+            and to contribute toward an open meter dataset for reference and benchmarking purposes.</p>
 
             <h2>how-to</h2>
 
@@ -93,22 +93,22 @@
             <p><b>Step 1</b>: Identify a text you'd like to work on. Go find it online.
             GRETIL texts include some of the highest-quality ones around and are relatively easy to work with, so they're a good starting point.
             For example: the Bhagavadgītā (BhG) <a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw GRETIL file</a></p>
-            <p><b>Step 2</b>: Clean up the file so that it is a text file with exactly one (potential) whole verse per line. Half an anuṣṭubh śloka is ok, too.
+            <p><b>Step 2</b>: Clean up the file (using search-and-replace, etc.) so that it is a text file with exactly one (potential) whole verse per line. Half an anuṣṭubh śloka is ok, too.
             For example:
             <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_input_cleaned.txt">BhG input cleaned</a></p>
             <p><b>Step 3</b>: Submit the cleaned file to <b>skrutable</b>'s meter identifier using the "whole file" button.
             <b>skrutable</b> is <i>really</i> fast, so the 700 verses of the Gītā won't take long at all:
             <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_output_raw.txt">BhG raw output</a> and 
-            <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_output_cleaned.txt">BhG output cleaned</a>
+            <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_output_cleaned.txt">BhG output cleaned</a>. There's also the option to see summaries in spreadsheet form: 
             </p>
-            <p><b>Step 4</b>: Now read through the results, looking for irregularities (you can use regexes to search more effectively). Where there's a metrical "problem", there just might be also a textual "problem" in need of fixing.</p>
+            <p><b>Step 4</b>: Now read through the results, looking for irregularities (you can use regexes to search more effectively). Where there's a metrical "problem", there just might be also a textual "problem" in need of fixing or other attention.</p>
             
-            <p>As you might expect, though, the BhG is in pretty good shape, having received a lot of attention over the years.</p>
+            <p>As you might expect, the BhG text is in pretty good shape, having received a lot of attention over the years. Those non-standard upajātis sure are interesting though...</p>
 
-            <p>But consider for example the huge text of the Rāmāyaṇa:
+            <p>Meanwhile, there's plenty of lower-hanging fruit elsewhere, such as in the huge text of the Rāmāyaṇa:
             (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_input_raw_(ram_1-7u_htm_Dec_2018_semicolons).htm">raw in</a> — Dec 2018 version with semicolons), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_input_cleaned.txt">clean in</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_raw_none_lite_conditional.txt">raw out</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_cleaned_none_lite_conditional.txt">clean out</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_breakdown_and_problems.txt">breakdown and problems</a>).</p>
 
-            <p>There one definitely finds some clear textual problems: hyper- or hypometrical lines, typos that result in different syllable weights, and so on. Just look for invalid ("asamīcīna") anuṣṭubhs and other verses with less than four valid ("yukta") pādas, as well as for verses that might be either one thing or another ("atha vā"). Also, the verse type "upajāti (triṣṭubh-jagatī-saṃkara)" can sometimes be genuine, but usually it's just a pāda gone wrong.</p>
+            <p>There one definitely finds some clear textual problems: hyper- or hypometrical lines, typos that result in different syllable weights, and so on. (In development: <b>skrutable</b> itself can help automatically categorize and highlight problematic cases with its TSV summary output...) You can manually look for the following: invalid ("asamīcīna") anuṣṭubhs; samavṛttas with less than four valid pādas ("yuktāḥ pādāḥ"); verses recognized as having the shape of samavṛttas or ardhasamavṛttas but not yet known by name ("ajñātasamavṛtta", "ajñātārdhasamavṛtta"); upajātis that are not the standard indravajrā-upendravajrā type (e.g. "upajāti paṅkti") or with pādas of valid lengths but not yet known by name ("ajñāta"); verses that qualify equally to be one thing or another ("atha vā"); or verses not successully categorized ("na kiṃcid adhyavasitam").</p>
             
             <p><b>Step 5</b>: Now, if you can, try to come up with solutions for the textual problems, or in other words, explanations for the interesting stuff that you find in your text.
                 <ul>
@@ -121,7 +121,7 @@
 
             <p>Then, if you want, share your results with me or others.
             I'll post <a href="./scanGRETILresults">cumulative results here</a>.
-            This takes time, patience, and expert knowledge — preparing the data, scrutinizing each problem verse, and so on — so it definitely needs to be a team effort!</p>
+            This work takes time, patience, and expert knowledge — preparing the data, scrutinizing each problem verse, and so on — so it definitely needs to be a team effort!</p>
 
             <p>And if you were able to make improvements to the text, you can send it on back to GRETIL
             or wherever else. I'm happy to help you do that, if need be.</p>
