@@ -102,24 +102,32 @@
             while "resplit_lite" better respects whatever line breaks (or ';' or ' / ') you provide.
             Or, choose "none" in order to evaluate exactly the (necessarily four!) lines you input.</p>
 
-            <p>Definitely also try changing the mix-and-match detail options below "Scan".
+            <p>Definitely also try changing the mix-and-match scansion detail options with the checkboxes below "Scan".
             These also work for the whole-file mode described below.</p>
 
             <p>To learn more about working with Sanskrit meter, the
             <a href="https://github.com/tylergneill/skrutable/blob/master/manual.md#scansion-and-meter-identification">
             <b>skrutable</b> manual on GitHub</a> provides some very basic pointers.</p>
 
+            <p>And to automatically split the compounds "dharmakṣetre" and "kurukṣetre" and the sandhi-coalescence "caiva", just click "Split Sandhi & Cpds".
+            This function is relatively slow for single examples, and its results are not always 100% correct (see the <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Hellwig-Nehrdich paper</a> for details), but it's quite useful nonetheless.
+            This is the first time it's been easily available online, and you can enter material of any length, even with punctuation. The output is also transliterated.</p>
+
             <h2>whole-file processing</h2>
 
-            <p>If you're feeling more ambitious, you can also do transliteration and meter identification on whole files.</p>
+            <p>If you're feeling more ambitious, you can also do transliteration, meter identification, and sandhi/compound splitting on whole files.</p>
 
             <p>For transliteration, just set your input and output schemes as normal, but then instead of hitting the "Transliterate" button, hit the "whole file" button underneath. 
             Continue through the next screen to upload your file, then look for the output in your usual download location.</p>
 
-            <p>Doing whole-file metrical analysis is similar, but the input must be more carefully prepared.
+            <p>Whole-file sandhi/compound splitting is exactly as easy.
+            Note also that it is relatively fast, 
+            and not at all as slow as single-example processing would lead you to expect.</p>
+
+            <p>Doing whole-file metrical analysis is also similar, but the input must be more carefully prepared, with one verse per line and no extraneous material.
             See the <a href="./scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.</p>
 
-            <p>If you want to try out these whole-file functions right away, you can use these prepared input files:
+            <p>If you want to try out the whole-file meter identification function right away, you can use these prepared input files:
             <ul>
                 <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_1-10_input_cleaned.txt">BhG first ten</a></li>
                 <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_1-100_input_cleaned.txt">BhG first hundred</a></li>
