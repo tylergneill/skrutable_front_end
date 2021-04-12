@@ -1,0 +1,325 @@
+1.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.3	na kiṃcid adhyavasitam
+1.4	pṛthvī [17: jsjsylg] (? 3 eva pādāḥ yuktāḥ)
+1.5	pṛthvī [17: jsjsylg] (? 2 eva pādāḥ yuktāḥ)
+1.6	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+1.7	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+1.8	śikhariṇī [17: ymnsBlg]
+1.9	hariṇī [17: nsmrslg] (? 3 eva pādāḥ yuktāḥ)
+1.10	na kiṃcid adhyavasitam
+1.11	śārdūlavikrīḍitā [19: msjsttg]
+1.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.13	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.15	śārdūlavikrīḍitā [19: msjsttg]
+1.16	śārdūlavikrīḍitā [19: msjsttg]
+1.17	mālinī [15: nnmyy]
+1.18	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+1.19	śārdūlavikrīḍitā [19: msjsttg]
+1.20	śārdūlavikrīḍitā [19: msjsttg]
+1.21	śārdūlavikrīḍitā [19: msjsttg]
+1.22	śārdūlavikrīḍitā [19: msjsttg]
+1.23	vasantatilakā [14: tBjjgg]
+1.24	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.25	śārdūlavikrīḍitā [19: msjsttg]
+1.26	sragdharā [21: mrBnyyy]
+1.27	vasantatilakā [14: tBjjgg]
+1.28	śikhariṇī [17: ymnsBlg]
+1.29	śārdūlavikrīḍitā [19: msjsttg]
+1.30	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+1.31	vasantatilakā [14: tBjjgg]
+1.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.34	śārdūlavikrīḍitā [19: msjsttg]
+1.35	hariṇī [17: nsmrslg]
+1.36	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+1.37	āryā (12, 18, 12, 15)
+1.38	śārdūlavikrīḍitā [19: msjsttg]
+1.39	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.40	vasantatilakā [14: tBjjgg]
+1.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.42	śārdūlavikrīḍitā [19: msjsttg]
+1.43	na kiṃcid adhyavasitam
+1.44	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+1.45	śikhariṇī [17: ymnsBlg]
+1.46	na kiṃcid adhyavasitam
+1.47	vasantatilakā [14: tBjjgg]
+1.48	śālinī [11: mttgg]
+1.49	śārdūlavikrīḍitā [19: msjsttg]
+1.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.51	śārdūlavikrīḍitā [19: msjsttg]
+1.52	drutavilambita [12: nBBr]
+1.53	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.54	śārdūlavikrīḍitā [19: msjsttg]
+1.55	śārdūlavikrīḍitā [19: msjsttg]
+1.56	pṛthvī [17: jsjsylg]
+1.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.58	mandākrāntā [17: mBnttgg]
+1.59	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+1.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.61	āryā (12, 18, 12, 15)
+1.62	śārdūlavikrīḍitā [19: msjsttg]
+1.63	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+1.64	śikhariṇī [17: ymnsBlg]
+1.65	śikhariṇī [17: ymnsBlg]
+1.66	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.67	śārdūlavikrīḍitā [19: msjsttg]
+1.68	vasantatilakā [14: tBjjgg]
+1.69	śālinī [11: mttgg]
+1.70	sragdharā [21: mrBnyyy]
+1.71	vaṃśastha [12: jtjr] (? 2 eva pādāḥ yuktāḥ)
+1.72	upajāti triṣṭubh: ajñātam [11: jtngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.73	vasantatilakā [14: tBjjgg]
+1.74	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+1.75	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+1.76	śārdūlavikrīḍitā [19: msjsttg]
+1.77	pṛthvī [17: jsjsylg] (? 2 eva pādāḥ yuktāḥ)
+1.78	śārdūlavikrīḍitā [19: msjsttg]
+1.79	mālinī [15: nnmyy]
+1.80	vasantatilakā [14: tBjjgg]
+1.81	upajāti triṣṭubh: ajñātam [11: jBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.82	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+1.83	śārdūlavikrīḍitā [19: msjsttg]
+1.84	vasantatilakā [14: tBjjgg]
+1.85	śārdūlavikrīḍitā [19: msjsttg]
+1.86	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.87	na kiṃcid adhyavasitam
+1.88	śārdūlavikrīḍitā [19: msjsttg]
+1.89	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.90	śārdūlavikrīḍitā [19: msjsttg]
+1.91	drutavilambita [12: nBBr]
+1.92	na kiṃcid adhyavasitam
+1.93	śārdūlavikrīḍitā [19: msjsttg]
+1.94	śikhariṇī [17: ymnsBlg]
+1.95	śārdūlavikrīḍitā [19: msjsttg]
+1.96	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+1.97	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.98	śārdūlavikrīḍitā [19: msjsttg]
+1.99	mālinī [15: nnmyy]
+1.100	sragdharā [21: mrBnyyy] (? 2 eva pādāḥ yuktāḥ)
+1.101	śārdūlavikrīḍitā [19: msjsttg]
+1.102	vasantatilakā [14: tBjjgg]
+1.103	śārdūlavikrīḍitā [19: msjsttg]
+1.104	na kiṃcid adhyavasitam
+1.105	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+1.106	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+1.107	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.108	śārdūlavikrīḍitā [19: msjsttg]
+1.109	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+2.1	vasantatilakā [14: tBjjgg]
+2.2	vaṃśastha [12: jtjr]
+2.3	śālinī [11: mttgg]
+2.4	śikhariṇī [17: ymnsBlg]
+2.5	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+2.6	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+2.7	na kiṃcid adhyavasitam
+2.8	vasantatilakā [14: tBjjgg] (? 2 eva pādāḥ yuktāḥ)
+2.9	dodhaka [11: BBBgg] (? 3 eva pādāḥ yuktāḥ)
+2.10	vasantatilakā [14: tBjjgg]
+2.11	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.12	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.14	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+2.15	śārdūlavikrīḍitā [19: msjsttg]
+2.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.17	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+2.18	vasantatilakā [14: tBjjgg]
+2.19	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+2.20	hariṇī [17: nsmrslg]
+2.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.22	na kiṃcid adhyavasitam
+2.23	rathoddhatā [11: rnrlg]
+2.24	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+2.25	mālinī [15: nnmyy] (? 2 eva pādāḥ yuktāḥ)
+2.26	na kiṃcid adhyavasitam
+2.27	puṣpitāgrā = [12: nnry] 1,3 + [12: njjrg] 2,4
+2.28	sragdharā [21: mrBnyyy] (? 2 eva pādāḥ yuktāḥ)
+2.29	na kiṃcid adhyavasitam
+2.30	śārdūlavikrīḍitā [19: msjsttg]
+2.31	sragdharā [21: mrBnyyy] (? 2 eva pādāḥ yuktāḥ)
+2.32	śārdūlavikrīḍitā [19: msjsttg]
+2.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.34	mālinī [15: nnmyy] (? 2 eva pādāḥ yuktāḥ)
+2.35	śikhariṇī [17: ymnsBlg]
+2.35.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.36	ajñātasamavṛtta [9: ysj] (? 2 eva pādāḥ yuktāḥ)
+2.37	sragdharā [21: mrBnyyy]
+2.38	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.39	mālinī [15: nnmyy] (? 2 eva pādāḥ yuktāḥ)
+2.40	indravajrā [11: ttjgg]
+2.41	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.42	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.43	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+2.44	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.45	sragdharā [21: mrBnyyy] (? 3 eva pādāḥ yuktāḥ)
+2.46	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.47	na kiṃcid adhyavasitam
+2.47.1	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+2.48	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+2.49	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.51	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+2.52	hariṇī [17: nsmrslg] (? 2 eva pādāḥ yuktāḥ)
+2.53	vasantatilakā [14: tBjjgg]
+2.54	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.55	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+2.56	mālinī [15: nnmyy]
+2.57	śikhariṇī [17: ymnsBlg]
+2.58	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+2.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.60	āryā (12, 18, 12, 15)
+2.61	vasantatilakā [14: tBjjgg]
+2.62	mandākrāntā [17: mBnttgg]
+2.63	ajñātārdhasamavṛtta [ymnsBjg, mBnts]
+2.64	śārdūlavikrīḍitā [19: msjsttg]
+2.65	na kiṃcid adhyavasitam
+2.66	rathoddhatā [11: rnrlg]
+2.67	hariṇī [17: nsmrslg]
+2.68	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+2.69	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+2.70	rathoddhatā [11: rnrlg] (? 2 eva pādāḥ yuktāḥ)
+2.71	mālinī [15: nnmyy]
+2.72	āryā (12, 18, 12, 15)
+2.73	vasantatilakā [14: tBjjgg]
+2.74	sragdharā [21: mrBnyyy]
+2.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+2.76	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+2.77	mandākrāntā [17: mBnttgg]
+2.78	śikhariṇī [17: ymnsBlg]
+2.79	śārdūlavikrīḍitā [19: msjsttg]
+2.80	ajñātārdhasamavṛtta [msjsttt, Brnmylg]
+2.81	hariṇī [17: nsmrslg]
+2.82	drutavilambita [12: nBBr]
+2.83	śārdūlavikrīḍitā [19: msjsttg]
+2.84	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.85	na kiṃcid adhyavasitam
+2.86	na kiṃcid adhyavasitam
+2.87	vasantatilakā [14: tBjjgg]
+2.88	śikhariṇī [17: ymnsBlg]
+2.89	śikhariṇī [17: ymnsBlg]
+2.90	ajñātasamavṛtta [10: smsg] (? 2 eva pādāḥ yuktāḥ)
+2.91	mālinī [15: nnmyy]
+2.92	āryā (12, 18, 12, 15)
+2.93	śikhariṇī [17: ymnsBlg]
+2.94	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+2.95	śārdūlavikrīḍitā [19: msjsttg]
+2.96	sragdharā [21: mrBnyyy] (? 2 eva pādāḥ yuktāḥ)
+2.97	śārdūlavikrīḍitā [19: msjsttg]
+2.98	sragdharā [21: mrBnyyy] (? 3 eva pādāḥ yuktāḥ)
+2.99	sragdharā [21: mrBnyyy]
+2.100	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+2.101	āryā (12, 18, 12, 15)
+2.102	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+3.1	śārdūlavikrīḍitā [19: msjsttg]
+3.2	śārdūlavikrīḍitā [19: msjsttg]
+3.3	śārdūlavikrīḍitā [19: msjsttg]
+3.4	na kiṃcid adhyavasitam
+3.5	śikhariṇī [17: ymnsBlg]
+3.6	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.7	na kiṃcid adhyavasitam
+3.8	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+3.8.1	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+3.9	śikhariṇī [17: ymnsBlg]
+3.10	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.11	śikhariṇī [17: ymnsBlg]
+3.12	śikhariṇī [17: ymnsBlg]
+3.13	śārdūlavikrīḍitā [19: msjsttg]
+3.14	na kiṃcid adhyavasitam
+3.15	vasantatilakā [14: tBjjgg]
+3.16	śikhariṇī [17: ymnsBlg]
+3.17	śārdūlavikrīḍitā [19: msjsttg]
+3.18	śikhariṇī [17: ymnsBlg]
+3.19	śikhariṇī [17: ymnsBlg]
+3.20	śārdūlavikrīḍitā [19: msjsttg]
+3.21	śārdūlavikrīḍitā [19: msjsttg]
+3.22	hariṇī [17: nsmrslg] (? 2 eva pādāḥ yuktāḥ)
+3.23	sragdharā [21: mrBnyyy]
+3.24	vasantatilakā [14: tBjjgg]
+3.25	sragdharā [21: mrBnyyy]
+3.26	śārdūlavikrīḍitā [19: msjsttg]
+3.27	śikhariṇī [17: ymnsBlg]
+3.28	mandākrāntā [17: mBnttgg]
+3.29	śārdūlavikrīḍitā [19: msjsttg]
+3.30	śārdūlavikrīḍitā [19: msjsttg]
+3.31	upajāti atidhṛti: śārdūlavikrīḍitā [19: msjsttg], ajñātam [19: msjstBg], ajñātam [19: msjyttg] atha vā śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.32	śārdūlavikrīḍitā [19: msjsttg]
+3.33	śārdūlavikrīḍitā [19: msjsttg]
+3.34	śārdūlavikrīḍitā [19: msjsttg]
+3.35	śārdūlavikrīḍitā [19: msjsttg]
+3.36	sragdharā [21: mrBnyyy] (? 3 eva pādāḥ yuktāḥ)
+3.37	sragdharā [21: mrBnyyy]
+3.38	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+3.39	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.39.1	śikhariṇī [17: ymnsBlg]
+3.40	śārdūlavikrīḍitā [19: msjsttg]
+3.41	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.42	upajāti atyaṣṭi: ajñātam [17: mBnBtgg], mandākrāntā [17: mBnttgg], ajñātam [17: tBnttgg] atha vā mandākrāntā [17: mBnttgg] (? 2 eva pādāḥ yuktāḥ)
+3.43	śārdūlavikrīḍitā [19: msjsttg]
+3.44	śārdūlavikrīḍitā [19: msjsttg]
+3.45	śārdūlavikrīḍitā [19: msjsttg]
+3.46	śārdūlavikrīḍitā [19: msjsttg]
+3.47	śārdūlavikrīḍitā [19: msjsttg]
+3.48	śikhariṇī [17: ymnsBlg]
+3.49	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.50	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+3.51	śārdūlavikrīḍitā [19: msjsttg]
+3.52	sragdharā [21: mrBnyyy] (? 2 eva pādāḥ yuktāḥ)
+3.53	mālinī [15: nnmyy]
+3.54	mālinī [15: nnmyy] (? 2 eva pādāḥ yuktāḥ)
+3.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+3.56	ajñātasamavṛtta [11: sBrlg] (? 2 eva pādāḥ yuktāḥ)
+3.57	hariṇī [17: nsmrslg]
+3.58	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+3.59	śārdūlavikrīḍitā [19: msjsttg]
+3.60	śikhariṇī [17: ymnsBlg]
+3.61	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+3.61.1	sragdharā [21: mrBnyyy]
+3.62	pṛthvī [17: jsjsylg] (? 2 eva pādāḥ yuktāḥ)
+3.63	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.64	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.65	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.66	mandākrāntā [17: mBnttgg]
+3.67	vasantatilakā [14: tBjjgg]
+3.68	vasantatilakā [14: tBjjgg]
+3.69	vasantatilakā [14: tBjjgg] (? 2 eva pādāḥ yuktāḥ)
+3.70	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+3.71	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.71.1	śārdūlavikrīḍitā [19: msjsttg]
+3.72	śikhariṇī [17: ymnsBlg]
+3.73	śārdūlavikrīḍitā [19: msjsttg]
+3.74	vasantatilakā [14: tBjjgg]
+3.75	śārdūlavikrīḍitā [19: msjsttg]
+3.76	śikhariṇī [17: ymnsBlg]
+3.77	śikhariṇī [17: ymnsBlg]
+3.78	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.79	śārdūlavikrīḍitā [19: msjsttg]
+3.80	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.81	ajñātasamavṛtta [13: nsrrg] (? 2 eva pādāḥ yuktāḥ)
+3.82	śikhariṇī [17: ymnsBlg] (? 2 eva pādāḥ yuktāḥ)
+3.83	śārdūlavikrīḍitā [19: msjsttg] (? 3 eva pādāḥ yuktāḥ)
+3.84	vaṃśastha [12: jtjr]
+3.85	śikhariṇī [17: ymnsBlg] (? 3 eva pādāḥ yuktāḥ)
+3.0.1	na kiṃcid adhyavasitam
+3.86	śikhariṇī [17: ymnsBlg]
+3.87	śikhariṇī [17: ymnsBlg]
+3.0.2	śārdūlavikrīḍitā [19: msjsttg]
+3.88	sragdharā [21: mrBnyyy]
+3.89	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+3.90	śārdūlavikrīḍitā [19: msjsttg]
+3.91	śārdūlavikrīḍitā [19: msjsttg]
+3.92	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+3.93	śārdūlavikrīḍitā [19: msjsttg]
+3.94	śikhariṇī [17: ymnsBlg]
+3.95	śārdūlavikrīḍitā [19: msjsttg]
+3.96	śārdūlavikrīḍitā [19: msjsttg]
+3.97	śārdūlavikrīḍitā [19: msjsttg]
+3.98	mandākrāntā [17: mBnttgg]
+3.0.3	sragdharā [21: mrBnyyy]
+3.99	sragdharā [21: mrBnyyy]
+3.99.1	śārdūlavikrīḍitā [19: msjsttg]
+3.100	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.100.1	śārdūlavikrīḍitā [19: msjsttg] (? 2 eva pādāḥ yuktāḥ)
+3.100.2	śārdūlavikrīḍitā [19: msjsttg]
+3.100.3	śikhariṇī [17: ymnsBlg]
+samāptam: 0.229019s
