@@ -77,37 +77,120 @@
 
             <h1>scan GRETIL results</h1>
 
-            <p>In progress:</p>
-            <ul>
-                <li>Bhagavadgītā (in 700 verses): 
-                    (<a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw in</a>), 
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_input_cleaned.txt">clean in</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_output_raw.txt">raw out</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/BhG/BhG_output_cleaned.txt">clean out</a>), ...
-                </li>
-                <li>Rāmāyaṇa (in 19,354 verses): 
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_input_raw_(ram_1-7u_htm_Dec_2018_semicolons).htm">raw in</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_input_cleaned.txt">clean in</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_raw_none_lite_conditional.txt">raw out</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_cleaned_none_lite_conditional.txt">clean out</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Ramayana/R_output_breakdown_and_problems.txt">breakdown and problems</a>)
-                </li>
-                <li>Sattasaï (in 999 verses, Prakrit):
-                    (<a href="http://gretil.sub.uni-goettingen.de/gretil/2_prakrt/halsatsu.htm">raw in</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Sattasai/Sattasai_input_cleaned.txt">clean in</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Sattasai/Sattasai_output_raw_resplit_max_keep_mid.txt">raw out</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Sattasai/Sattasai_output_cleaned_resplit_max_keep_mid.txt">clean out</a>),
-                    (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/Sattasai/Sattasai_output_breakdown_and_problems.txt">breakdown and problems</a>)
-                </li>
-                <li>Pramāṇavārtika (in 1,452 verses): (in progress...)</li>
-            </ul>
+			<br/>
 
-            <p>(Compare also <a href="http://sanskritmetres.appspot.com/statistics">this similar effort</a> by Shreevatsa Rajagopalan
+           	<h2>summary table</h2>
+
+            <table class="table">
+			  <thead>
+			    <tr>
+			      <th scope="col"></th>
+			      <th scope="col">Bhagavadgītā</th>
+			      <th scope="col">Rāmāyaṇa</th>
+			      <th scope="col">Sattasaī</th>
+			      <th scope="col">Pramāṇavārtika</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+				<tr style="border-bottom: double;">
+			      <th scope="row">Verse Type</th>
+			      <td>700 verses</td>
+			      <td>19,354</td>
+			      <td>999 (Prakrit)</td>
+			      <td>1,452</td>
+			    </tr>
+			    <tr>
+			      <th scope="row">anuṣṭubh śloka</th>
+			      <td>0</td>
+			      <td>17,000</td>
+			      <td>0</td>
+			      <td>1400</td>
+			    </tr>
+			    <tr>
+			      <th scope="row">āryā</th>
+			      <td>0</td>
+			      <td>1</td>
+			      <td>956</td>
+			      <td>0</td>
+			    </tr>
+			  </tbody>
+			  
+			</table>
+
+			<br/>
+
+			<h2>downloads</h2>
+			<p>(see also <a href="https://github.com/tylergneill/skrutable_front_end/tree/main/assets/meter_analyses">GitHub source</a>)
+
+			<table class="table">
+				<thead>
+				    <tr style="border-bottom: double;">
+				      <th scope="col"></th>
+				      <th scope="col">ALL (zipped)</th>
+				      <th scope="col">Bhagavadgītā</th>
+				      <th scope="col">Rāmāyaṇa</th>
+				      <th scope="col">Sattasaī</th>
+				      <th scope="col">Pramāṇavārtika</th>
+				    </tr>
+			  	</thead>
+				<tbody>
+					<tr>
+				      <th scope="row">Input, raw</th>
+				      <td></td>
+				      <td><a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">BhG_in_raw</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm">Ram_in_raw<br />(Dec 2018 semicolons)</a></td>
+				      <td><a href="http://gretil.sub.uni-goettingen.de/gretil/2_prakrt/halsatsu.htm">SS_in_raw</a></td>
+				      <td></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Input, cleaned</th>
+				      <td></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG_in_cln</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt">Ram_in_cln</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/SS_input_cleaned.txt">SS_in_cln</a></td>
+				      <td></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Output, raw</th>
+				      <td></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">BhG_out_raw</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/Ram_output_raw.txt">Ram_out_raw</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/SS_output_raw.txt">SS_out_raw</a></td>
+				      <td></td>
+				    </tr>
+				  	<tr>
+				      <th scope="row">Output, cleaned</th>
+				      <td></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt">BhG_out_cln</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt">Ram_out_cln</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/SS_output_cleaned.txt">SS_out_cln</a></td>
+				      <td></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Verse Type Tallies</th>
+				      <td></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/BhG_output_tallies">BhG_tallies</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/Ram_output_tallies">Ram_tallies</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/SS_output_tallies">SS_tallies</a></td>
+				      <td></td>
+				    </tr>
+				    <tr>
+				      <th scope="row">Notes</th>
+				      <td></td>
+				      <td></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt">Ram_notes</a></td>
+				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/SS_notes.txt">SS_notes</a></td>
+				      <td></td>
+				    </tr>
+				</tbody>
+			</table>
+
+            <p>Compare also <a href="http://sanskritmetres.appspot.com/statistics">this similar effort</a> by Shreevatsa Rajagopalan
             [<a href="http://sanskritmetres.appspot.com/">1</a>
             <a href="http://shreevatsa.appspot.com/sanskrit/transliterate.html">2</a>
             <a href="https://shreevatsa.wordpress.com/">3</a>
             <a href="http://shreevatsa.appspot.com/">4</a>]
-            on 16,000+ verses of poetry.)</p>
+            on 16,000+ verses of poetry.</p>
 
 
         </div><!-- /.container -->
