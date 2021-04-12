@@ -1,0 +1,1638 @@
+1.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.5	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.6	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.7	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+1.8	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.9	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.10	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.11	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.12	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+1.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.15	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.16	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.17	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.18	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.20	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+1.21	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.22	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.23	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.25	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+1.26	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.27	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.29	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+1.30	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.31	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.34	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.34.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.35	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.36	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.37	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.38	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.39	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+1.40	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.41	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.42	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+1.43	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.44	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.46	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+1.47	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.49	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.52	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.53	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.54	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.56	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+1.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.60	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+1.61	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+1.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.63	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.64	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.65	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.66	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.67	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.70	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.71	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+1.72	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.73	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.76	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.77	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.78	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+1.79	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.80	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.81	anuṣṭubh (1,2: bha-vipulā, 3,4: asamīcīna)
+1.82	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.83	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.84	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.85	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.86	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.87	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+1.88	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.89	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.91	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.90	anuṣṭubh (1,2: ma-vipulā, 3,4: asamīcīna)
+1.92	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.93	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+1.94	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.95	praharṣiṇī [13: mnjrg]
+2.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.4	upendravajrā [11: jtjgg]
+2.5	ajñātasamavṛtta [10: ttjg] (? 2 eva pādāḥ yuktāḥ)
+2.6	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.7	indravajrā [11: ttjgg]
+2.8	upajāti triṣṭubh: ajñātam [11: jtjlg], ajñātam [11: stjgg], indravajrā [11: ttjgg]
+2.9	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.12	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+2.13	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+2.14	upajāti triṣṭubh: ajñātam [11: tmjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.15	upajāti triṣṭubh: ajñātam [11: tmjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.16	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.19	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.20	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+2.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.22	upajāti triṣṭubh: upendravajrā [11: jtjgg], ajñātam [11: ttngg], indravajrā [11: ttjgg]
+2.23	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.24	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.26	indravajrā [11: ttjgg]
+2.27	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.30	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.31	upajāti triṣṭubh: ajñātam [11: tttgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.32	indravajrā [11: ttjgg]
+2.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.34	upendravajrā [11: jtjgg]
+2.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.36	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.38	upajāti triṣṭubh: ajñātam [11: ttngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.39	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.42.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.43	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+2.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.45	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.47	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.50	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.51	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.52	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.53	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.54	upajāti triṣṭubh: ajñātam [11: tBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.57	upajāti triṣṭubh: ajñātam [11: tjjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.58	indravajrā [11: ttjgg]
+2.59	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.61	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.63	upajāti triṣṭubh: indravajrā [11: ttjgg], upendravajrā [11: jtjgg], ajñātam [11: ttyll]
+2.64	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.65	indravajrā [11: ttjgg]
+2.66	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+2.67	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.68	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.69	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.70	upajāti triṣṭubh: ajñātam [11: ttjll], indravajrā [11: ttjgg]
+2.71	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.72	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.73	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.74	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+2.75	mālinī [15: nnmyy]
+3.1	vaṃśastha [12: jtjr]
+3.2	vaṃśastha [12: jtjr]
+3.2.2	vaṃśastha [12: jtjr]
+3.2.3	vaṃśastha [12: jtjr]
+3.3	vaṃśastha [12: jtjr]
+3.4	vaṃśastha [12: jtjr]
+3.5	vaṃśastha [12: jtjr]
+3.6	vaṃśastha [12: jtjr]
+3.7	vaṃśastha [12: jtjr]
+3.8	vaṃśastha [12: jtjr]
+3.9	vaṃśastha [12: jtjr]
+3.10	vaṃśastha [12: jtjr]
+3.11	vaṃśastha [12: jtjr]
+3.12	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.13	vaṃśastha [12: jtjr]
+3.14	vaṃśastha [12: jtjr]
+3.15	vaṃśastha [12: jtjr]
+3.16	vaṃśastha [12: jtjr]
+3.16.2	vaṃśastha [12: jtjr]
+3.17	vaṃśastha [12: jtjr]
+3.18	vaṃśastha [12: jtjr]
+3.19	vaṃśastha [12: jtjr]
+3.20	vaṃśastha [12: jtjr]
+3.21	vaṃśastha [12: jtjr]
+3.22	vaṃśastha [12: jtjr]
+3.23	vaṃśastha [12: jtjr]
+3.24	vaṃśastha [12: jtjr]
+3.25	vaṃśastha [12: jtjr]
+3.26	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.27	vaṃśastha [12: jtjr]
+3.28	vaṃśastha [12: jtjr]
+3.29	vaṃśastha [12: jtjr]
+3.30	vaṃśastha [12: jtjr]
+3.31	vaṃśastha [12: jtjr]
+3.32	vaṃśastha [12: jtjr]
+3.33	vaṃśastha [12: jtjr]
+3.34	vaṃśastha [12: jtjr]
+3.35	vaṃśastha [12: jtjr]
+3.36	vaṃśastha [12: jtjr]
+3.37	vaṃśastha [12: jtjr]
+3.38	vaṃśastha [12: jtjr]
+3.39	vaṃśastha [12: jtjr]
+3.40	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.40.2	ajñātārdhasamavṛtta [ttjr, jtjr]
+3.41	vaṃśastha [12: jtjr]
+3.42	vaṃśastha [12: jtjr]
+3.43	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.44	vaṃśastha [12: jtjr]
+3.45	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.46	vaṃśastha [12: jtjr]
+3.47	vaṃśastha [12: jtjr]
+3.48	vaṃśastha [12: jtjr]
+3.49	vaṃśastha [12: jtjr]
+3.50	vaṃśastha [12: jtjr]
+3.51	vaṃśastha [12: jtjr]
+3.52	vaṃśastha [12: jtjr]
+3.53	vaṃśastha [12: jtjr]
+3.54	vaṃśastha [12: jtjr]
+3.55	vaṃśastha [12: jtjr]
+3.56	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.57	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.58	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.59	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.60	vaṃśastha [12: jtjr]
+3.61	vaṃśastha [12: jtjr]
+3.62	vaṃśastha [12: jtjr]
+3.63	vaṃśastha [12: jtjr]
+3.64	vaṃśastha [12: jtjr]
+3.65	vaṃśastha [12: jtjr]
+3.66	vaṃśastha [12: jtjr]
+3.67	vaṃśastha [12: jtjr]
+3.68	vaṃśastha [12: jtjr]
+3.69	vaṃśastha [12: jtjr] (? 3 eva pādāḥ yuktāḥ)
+3.70	hariṇī [17: nsmrslg] (? 2 eva pādāḥ yuktāḥ)
+4.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.1.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.5	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.6	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.7	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.8	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.9	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.10	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.11	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.12	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+4.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.15	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.15.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.17	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.18	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+4.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.20	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.21	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.22	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.23	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.25	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+4.26	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+4.27	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.29	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.30	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+4.31	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.31.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.34	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+4.35	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.36	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+4.37	anuṣṭubh (1,2: bha-vipulā, 3,4: asamīcīna)
+4.38	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+4.39	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.40	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.41	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+4.41.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.42	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.43	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.44	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.46	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.47	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+4.47.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.49	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.53	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.54	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.56	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.60	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+4.61	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.63	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.64	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.65	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.66	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+4.66.2	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+4.67	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+4.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.70	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.71	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.72	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+4.73	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.76	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.77	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.78	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.79	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.80	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.81	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+4.82	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.83	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.84	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.85	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.86	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+4.87	praharṣiṇī [13: mnjrg]
+4.87.2	praharṣiṇī [13: mnjrg]
+4.88	praharṣiṇī [13: mnjrg] (? 3 eva pādāḥ yuktāḥ)
+5.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.2	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+5.3	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+5.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.5	indravajrā [11: ttjgg]
+5.6	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.7	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.8	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.9	indravajrā [11: ttjgg]
+5.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.13	indravajrā [11: ttjgg]
+5.14	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.15	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.16	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.19	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.22	upajāti triṣṭubh: ajñātam [11: mtjgg], indravajrā [11: ttjgg]
+5.23	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+5.24	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.27	upendravajrā [11: jtjgg]
+5.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.30	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.32	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.35	indravajrā [11: ttjgg]
+5.36	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.38	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.39	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.40	indravajrā [11: ttjgg]
+5.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.43	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.44	indravajrā [11: ttjgg]
+5.45	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.45.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.46.2	upajāti triṣṭubh: ajñātam [11: ttygg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.47	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.49	upajāti triṣṭubh: ajñātam [11: tjjgg], indravajrā [11: ttjgg]
+5.50	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.51	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.52	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.53	upendravajrā [11: jtjgg]
+5.54	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.57	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.58	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.59	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.60	upajāti triṣṭubh: ajñātam [11: ttngg], indravajrā [11: ttjgg]
+5.61	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+5.63	vasantatilakā [14: tBjjgg] (? 2 eva pādāḥ yuktāḥ)
+5.64	vasantatilakā [14: tBjjgg]
+5.65	vasantatilakā [14: tBjjgg]
+5.66	vasantatilakā [14: tBjjgg]
+5.67	vasantatilakā [14: tBjjgg]
+5.68	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+5.69	vasantatilakā [14: tBjjgg]
+5.70	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+5.71	vasantatilakā [14: tBjjgg]
+5.72	vasantatilakā [14: tBjjgg]
+5.73	vasantatilakā [14: tBjjgg]
+5.74	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+5.75	mālinī [15: nnmyy]
+5.76	puṣpitāgrā = [12: nnry] 1,3 + [12: njjrg] 2,4
+6.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.6	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.7	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.8	upajāti triṣṭubh: ajñātam [11: tmjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.9	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.12	upajāti triṣṭubh: ajñātam [11: ytjgg], ajñātam [11: tBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.13	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.14	upajāti triṣṭubh: ajñātam [11: ttjlg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.15	indravajrā [11: ttjgg]
+6.16	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+6.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.19	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.22	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+6.23	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.24	upajāti triṣṭubh: ajñātam [11: mtjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.27	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.28	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+6.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.30	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+6.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.32	upajāti triṣṭubh: ajñātam [11: tmjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.36	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.38	upajāti triṣṭubh: ajñātam [11: rtjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.39	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.43	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+6.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.45	indravajrā [11: ttjgg]
+6.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.47	indravajrā [11: ttjgg]
+6.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.50	upajāti triṣṭubh: ajñātam [11: ttngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.51	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.52	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.53	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.54	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.55.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.57	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+6.58	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.58.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.59	na kiṃcid adhyavasitam
+6.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.61	indravajrā [11: ttjgg]
+6.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.63	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.64	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.65	indravajrā [11: ttjgg]
+6.66	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.67	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.68	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+6.69	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.70	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.71	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.72	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.73	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.74	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.75	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+6.76	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.77	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.78	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.79	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.80	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.81	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.82	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.83	indravajrā [11: ttjgg]
+6.84	upendravajrā [11: jtjgg]
+6.85	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+6.86	puṣpitāgrā = [12: nnry] 1,3 + [12: njjrg] 2,4
+7.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.2	indravajrā [11: ttjgg]
+7.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.6	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.7	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+7.8	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.9	indravajrā [11: ttjgg]
+7.10	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+7.10.2	upajāti triṣṭubh: ajñātam [11: jttgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.13	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.14	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.15	upajāti triṣṭubh: ajñātam [11: tjjgg], upendravajrā [11: jtjgg]
+7.16	indravajrā [11: ttjgg]
+7.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.19	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+7.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.22	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.23	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+7.24	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.27	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.30	ajñātasamavṛtta [10: ttjg] (? 2 eva pādāḥ yuktāḥ)
+7.31	ajñātasamavṛtta [12: yysy] (? 2 eva pādāḥ yuktāḥ)
+7.32	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.36	indravajrā [11: ttjgg]
+7.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.38	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.39	indravajrā [11: ttjgg]
+7.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.43	indravajrā [11: ttjgg]
+7.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.45	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.46	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+7.47	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.48	upendravajrā [11: jtjgg]
+7.49	upendravajrā [11: jtjgg]
+7.50	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.51	indravajrā [11: ttjgg]
+7.52	indravajrā [11: ttjgg]
+7.53	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.54	indravajrā [11: ttjgg]
+7.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.57	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.58	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.59	upajāti triṣṭubh: ajñātam [11: tmjgg], indravajrā [11: ttjgg]
+7.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.61	upajāti triṣṭubh: ajñātam [11: tBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.63	na kiṃcid adhyavasitam
+7.64	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.65	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.66	upajāti triṣṭubh: ajñātam [11: jtjlg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.67	upajāti triṣṭubh: ajñātam [11: ttjlg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.68	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.69	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.70	mālinī [15: nnmyy]
+7.71	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+8.1	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.2	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.3	gīti (12, 18, 12, 18)
+8.4	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.5	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.6	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.7	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.8	gīti (12, 18, 12, 18)
+8.9	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.10	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.11	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.12	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.13	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.14	ajñātasamavṛtta [10: ysjg] (? 2 eva pādāḥ yuktāḥ)
+8.15	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.16	ajñātārdhasamavṛtta [ssjBl, Brlg]
+8.17	ajñātasamavṛtta [10: ssjl] (? 2 eva pādāḥ yuktāḥ)
+8.17.2	gīti (12, 18, 12, 18)
+8.18	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.18.2	ajñātasamavṛtta [10: ssjl] (? 2 eva pādāḥ yuktāḥ)
+8.19	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.19.2	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.20	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.21	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.22	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.23	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.24	gīti (12, 18, 12, 18)
+8.25	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.26	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.27	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.28	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.29	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.30	gīti (12, 18, 12, 18)
+8.31	āryā (12, 18, 12, 15)
+8.32	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.33	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.34	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.35	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.36	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.37	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.38	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.38.2	ajñātasamavṛtta [11: sBrlg] (? 3 eva pādāḥ yuktāḥ)
+8.39	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.40	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.41	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.41.2	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.42	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.43	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.44	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.45	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.46	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.47	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.48	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.49	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.50	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.51	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.51.2	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.52	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.53	gīti (12, 18, 12, 18)
+8.54	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.55	ajñātasamavṛtta [9: tjr] (? 2 eva pādāḥ yuktāḥ)
+8.56	gīti (12, 18, 12, 18)
+8.57	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.58	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.59	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.60	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.61	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.62	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.63	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.64	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.65	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.66	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.67	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.68	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.69	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.70	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.71	na kiṃcid adhyavasitam
+8.72	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.73	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.74	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.75	gīti (12, 18, 12, 18)
+8.76	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.77	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.78	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.79	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.80	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.81	gīti (12, 18, 12, 18)
+8.82	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.83	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.84	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.85	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.85.2	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+8.86	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.87	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.88	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.89	ajñātasamavṛtta [11: ssjgl] (? 2 eva pādāḥ yuktāḥ)
+8.90	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+8.91	toṭaka [12: ssss]
+8.92	praharṣiṇī [13: mnjrg] (? 3 eva pādāḥ yuktāḥ)
+8.93	vasantatilakā [14: tBjjgg]
+8.94	vasantatilakā [14: tBjjgg]
+8.95	mandākrāntā [17: mBnttgg] (? 3 eva pādāḥ yuktāḥ)
+9.1	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.2	drutavilambita [12: nBBr]
+9.3	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.4	drutavilambita [12: nBBr]
+9.5	drutavilambita [12: nBBr]
+9.6	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.7	drutavilambita [12: nBBr]
+9.8	drutavilambita [12: nBBr]
+9.9	drutavilambita [12: nBBr]
+9.10	drutavilambita [12: nBBr]
+9.10.2	drutavilambita [12: nBBr]
+9.11	drutavilambita [12: nBBr]
+9.12	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.12.2	drutavilambita [12: nBBr]
+9.13	drutavilambita [12: nBBr]
+9.14	drutavilambita [12: nBBr]
+9.15	drutavilambita [12: nBBr]
+9.16	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.17	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.18	drutavilambita [12: nBBr]
+9.19	drutavilambita [12: nBBr]
+9.20	drutavilambita [12: nBBr]
+9.21	drutavilambita [12: nBBr]
+9.22	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.23	drutavilambita [12: nBBr]
+9.24	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.25	drutavilambita [12: nBBr]
+9.25.2	drutavilambita [12: nBBr]
+9.26	drutavilambita [12: nBBr]
+9.26.2	drutavilambita [12: nBBr]
+9.27	drutavilambita [12: nBBr]
+9.27.2	drutavilambita [12: nBBr]
+9.28	drutavilambita [12: nBBr]
+9.28.2	drutavilambita [12: nBBr]
+9.29	drutavilambita [12: nBBr]
+9.30	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.30.2	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.31	drutavilambita [12: nBBr]
+9.32	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.33	drutavilambita [12: nBBr]
+9.33.2	drutavilambita [12: nBBr]
+9.34	drutavilambita [12: nBBr]
+9.35	drutavilambita [12: nBBr]
+9.36	drutavilambita [12: nBBr]
+9.36.2	drutavilambita [12: nBBr]
+9.37	drutavilambita [12: nBBr]
+9.37.2	drutavilambita [12: nBBr]
+9.38	drutavilambita [12: nBBr]
+9.39	drutavilambita [12: nBBr]
+9.40	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.41	drutavilambita [12: nBBr]
+9.42	ajñātasamavṛtta [13: Bjjjg] (? 2 eva pādāḥ yuktāḥ)
+9.42.2	drutavilambita [12: nBBr]
+9.43	drutavilambita [12: nBBr]
+9.44	drutavilambita [12: nBBr]
+9.45	drutavilambita [12: nBBr]
+9.46	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.47	drutavilambita [12: nBBr]
+9.48	drutavilambita [12: nBBr]
+9.49	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.50	drutavilambita [12: nBBr]
+9.51	drutavilambita [12: nBBr]
+9.52	drutavilambita [12: nBBr]
+9.53	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.54	drutavilambita [12: nBBr] (? 3 eva pādāḥ yuktāḥ)
+9.55	vasantatilakā [14: tBjjgg]
+9.56	vasantatilakā [14: tBjjgg] (? 2 eva pādāḥ yuktāḥ)
+9.57	vasantatilakā [14: tBjjgg]
+9.58	vasantatilakā [14: tBjjgg]
+9.59	vasantatilakā [14: tBjjgg]
+9.60	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+9.61	vasantatilakā [14: tBjjgg]
+9.62	vasantatilakā [14: tBjjgg]
+9.63	vasantatilakā [14: tBjjgg]
+9.64	śālinī [11: mttgg]
+9.65	praharṣiṇī [13: mnjrg]
+9.65.2	praharṣiṇī [13: mnjrg]
+9.66	aupacchandasika = [11: ssjgg] 1,3 + [12: sBry] 2,4
+9.67	mālinī [15: nnmyy]
+9.68	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+9.69	mañjubhāṣiṇī [13: sjsjg]
+9.70	puṣpitāgrā = [12: nnry] 1,3 + [12: njjrg] 2,4
+9.71	ajñātārdhasamavṛtta [nnrynll, sjgg]
+9.72	aupacchandasika = [11: ssjgg] 1,3 + [12: sBry] 2,4
+9.73	āryāgīti (12, 20, 12, 20)
+9.74	viyoginī = [10: ssjg] 1,3 + [11: sBrlg] 2,4
+9.75	mattamayūra [13: mtysg]
+9.76	vasantatilakā [14: tBjjgg]
+9.77	vasantatilakā [14: tBjjgg]
+9.78	vasantatilakā [14: tBjjgg] (? 3 eva pādāḥ yuktāḥ)
+9.79	vasantatilakā [14: tBjjgg]
+9.80	vasantatilakā [14: tBjjgg]
+9.81	vasantatilakā [14: tBjjgg]
+9.82	vasantatilakā [14: tBjjgg]
+9.82.2	vaṃśastha [12: jtjr]
+9.82.3	rucirā [13: jBsjg] (? 3 eva pādāḥ yuktāḥ)
+10.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.2	anuṣṭubh (1,2: ma-vipulā, 3,4: ma-vipulā)
+10.2.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.5	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.6	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+10.7	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.8	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+10.9	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+10.10	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+10.11	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.12	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.13	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+10.14	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+10.15	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.17	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+10.18	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.20	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.21	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.22	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.23	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.25	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.26	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.27	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.29	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.30	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.31	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.32	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+10.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.34	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.35	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.36	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+10.37	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.38	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+10.39	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+10.40	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+10.41	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.42	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+10.43	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+10.44	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.46	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.47	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+10.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.49	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.50	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+10.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.52	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+10.53	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.54	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.55	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+10.56	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.60	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.61	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.63	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.64	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+10.65	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+10.66	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+10.67	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.70	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+10.71	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.72	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.73	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.76	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.77	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.78	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.79	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.80	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.81	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.82	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.83	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.84	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.85	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+10.86	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+10.87	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+11.1	rathoddhatā [11: rnrlg]
+11.2	rathoddhatā [11: rnrlg]
+11.3	rathoddhatā [11: rnrlg]
+11.4	rathoddhatā [11: rnrlg]
+11.5	rathoddhatā [11: rnrlg]
+11.6	rathoddhatā [11: rnrlg]
+11.6.2	rathoddhatā [11: rnrlg]
+11.7	rathoddhatā [11: rnrlg]
+11.8	rathoddhatā [11: rnrlg]
+11.9	rathoddhatā [11: rnrlg]
+11.10	rathoddhatā [11: rnrlg]
+11.11	rathoddhatā [11: rnrlg]
+11.12	rathoddhatā [11: rnrlg]
+11.13	rathoddhatā [11: rnrlg]
+11.14	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.15	rathoddhatā [11: rnrlg] (? 2 eva pādāḥ yuktāḥ)
+11.16	rathoddhatā [11: rnrlg]
+11.17	rathoddhatā [11: rnrlg]
+11.18	rathoddhatā [11: rnrlg]
+11.19	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.20	rathoddhatā [11: rnrlg]
+11.21	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.22	rathoddhatā [11: rnrlg]
+11.23	rathoddhatā [11: rnrlg]
+11.24	rathoddhatā [11: rnrlg] (? 2 eva pādāḥ yuktāḥ)
+11.25	rathoddhatā [11: rnrlg]
+11.26	rathoddhatā [11: rnrlg]
+11.27	rathoddhatā [11: rnrlg]
+11.28	rathoddhatā [11: rnrlg]
+11.29	rathoddhatā [11: rnrlg]
+11.30	rathoddhatā [11: rnrlg]
+11.31	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.32	rathoddhatā [11: rnrlg]
+11.33	rathoddhatā [11: rnrlg]
+11.34	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.35	rathoddhatā [11: rnrlg]
+11.36	rathoddhatā [11: rnrlg]
+11.37	upajāti triṣṭubh: ajñātam [11: rnmlg], rathoddhatā [11: rnrlg]
+11.38	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.39	rathoddhatā [11: rnrlg]
+11.40	rathoddhatā [11: rnrlg]
+11.41	rathoddhatā [11: rnrlg]
+11.42	rathoddhatā [11: rnrlg]
+11.43	ajñātasamavṛtta [10: rsjg] (? 2 eva pādāḥ yuktāḥ)
+11.44	upajāti triṣṭubh: ajñātam [11: rnmlg], rathoddhatā [11: rnrlg]
+11.45	rathoddhatā [11: rnrlg]
+11.46	rathoddhatā [11: rnrlg]
+11.47	rathoddhatā [11: rnrlg]
+11.48	rathoddhatā [11: rnrlg]
+11.49	rathoddhatā [11: rnrlg]
+11.49.2	rathoddhatā [11: rnrlg]
+11.50	rathoddhatā [11: rnrlg]
+11.51	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.52	upajāti triṣṭubh: ajñātam [11: snrlg], rathoddhatā [11: rnrlg]
+11.53	rathoddhatā [11: rnrlg]
+11.54	rathoddhatā [11: rnrlg]
+11.55	rathoddhatā [11: rnrlg]
+11.56	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.57	rathoddhatā [11: rnrlg]
+11.58	upajāti triṣṭubh: ajñātam [11: BBrlg], rathoddhatā [11: rnrlg]
+11.59	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.60	rathoddhatā [11: rnrlg]
+11.61	rathoddhatā [11: rnrlg]
+11.62	rathoddhatā [11: rnrlg]
+11.63	rathoddhatā [11: rnrlg]
+11.64	rathoddhatā [11: rnrlg]
+11.65	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.66	upajāti triṣṭubh: rathoddhatā [11: rnrlg], ajñātam [11: rnBlg]
+11.67	rathoddhatā [11: rnrlg]
+11.68	rathoddhatā [11: rnrlg]
+11.69	rathoddhatā [11: rnrlg]
+11.70	rathoddhatā [11: rnrlg]
+11.71	rathoddhatā [11: rnrlg]
+11.72	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+11.73	rathoddhatā [11: rnrlg]
+11.74	rathoddhatā [11: rnrlg]
+11.75	rathoddhatā [11: rnrlg]
+11.76	rathoddhatā [11: rnrlg]
+11.77	rathoddhatā [11: rnrlg]
+11.78	rathoddhatā [11: rnrlg]
+11.79	rathoddhatā [11: rnrlg]
+11.80	rathoddhatā [11: rnrlg]
+11.81	rathoddhatā [11: rnrlg]
+11.82	rathoddhatā [11: rnrlg]
+11.83	rathoddhatā [11: rnrlg]
+11.84	upajāti triṣṭubh: rathoddhatā [11: rnrlg], ajñātam [11: rnBlg]
+11.85	rathoddhatā [11: rnrlg]
+11.86	rathoddhatā [11: rnrlg]
+11.87	rathoddhatā [11: rnrlg]
+11.88	rathoddhatā [11: rnrlg]
+11.89	rathoddhatā [11: rnrlg]
+11.90	rathoddhatā [11: rnrlg]
+11.91	rathoddhatā [11: rnrlg]
+11.91.2	rathoddhatā [11: rnrlg]
+11.92	vasantatilakā [14: tBjjgg]
+11.93	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+12.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.5	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.6	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.7	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.8	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.9	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+12.10	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.11	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.12	anuṣṭubh (1,2: na-vipulā, 3,4: asamīcīna)
+12.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.15	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.17	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.18	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.20	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.21	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+12.22	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.22.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.23	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.25	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.26	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.27	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.29	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.30	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.31	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.34	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.35	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.36	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.37	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.38	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.39	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.40	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.41	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.42	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.43	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.44	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+12.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.46	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.47	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.49	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.52	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.53	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+12.54	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.56	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.57	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+12.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.60	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.61	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.63	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.64	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.65	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.66	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.67	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.70	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.71	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+12.72	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.73	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+12.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.76	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.77	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.78	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.79	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.79.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.79.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.80	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+12.81	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.82	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+12.83	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.84	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.85	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+12.86	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+12.87	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.88	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.89	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.90	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.91	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.92	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.93	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.94	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.95	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.96	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.97	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+12.98	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.99	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.100	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+12.101	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+12.102	mālinī [15: nnmyy]
+12.103	vasantatilakā [14: tBjjgg]
+12.104	nārāca [18: nnrrrr]
+13.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.2	indravajrā [11: ttjgg]
+13.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.6	upajāti triṣṭubh: ajñātam [11: jtylg], indravajrā [11: ttjgg]
+13.7	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.8	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.9	upendravajrā [11: jtjgg]
+13.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.13	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+13.14	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.15	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.16	indravajrā [11: ttjgg]
+13.17	indravajrā [11: ttjgg]
+13.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.19	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+13.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.22	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.23	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.24	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.26	na kiṃcid adhyavasitam
+13.27	upajāti triṣṭubh: ajñātam [11: Btjgg], indravajrā [11: ttjgg]
+13.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.30	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.32	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.34	upajāti triṣṭubh: ajñātam [11: Btjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.36	indravajrā [11: ttjgg]
+13.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.38	indravajrā [11: ttjgg]
+13.39	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.43	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.45	upajāti triṣṭubh: ajñātam [11: jtngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.47	indravajrā [11: ttjgg]
+13.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.50	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.51	upajāti triṣṭubh: ajñātam [11: jttgg], indravajrā [11: ttjgg]
+13.52	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.53	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.54	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.55	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+13.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.57	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.57.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.57.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.57.4	upajāti triṣṭubh: ajñātam [11: jBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.57.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.58	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.59	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.61	upajāti triṣṭubh: ajñātam [11: jtngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.62	indravajrā [11: ttjgg]
+13.63	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.64	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.65	indravajrā [11: ttjgg]
+13.66	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.67	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+13.68	vasantatilakā [14: tBjjgg]
+13.69	vasantatilakā [14: tBjjgg]
+13.70	vasantatilakā [14: tBjjgg]
+13.71	vasantatilakā [14: tBjjgg]
+13.72	vasantatilakā [14: tBjjgg]
+13.73	vasantatilakā [14: tBjjgg]
+13.74	vasantatilakā [14: tBjjgg]
+13.75	vasantatilakā [14: tBjjgg]
+13.76	vasantatilakā [14: tBjjgg]
+13.77	vasantatilakā [14: tBjjgg]
+13.78	vasantatilakā [14: tBjjgg]
+13.79	praharṣiṇī [13: mnjrg]
+14.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.3	upajāti triṣṭubh: ajñātam [11: ttylg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.6	indravajrā [11: ttjgg]
+14.7	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.8	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.9	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.12	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+14.13	indravajrā [11: ttjgg]
+14.14	upajāti triṣṭubh: ajñātam [11: tjjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.15	indravajrā [11: ttjgg]
+14.16	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.19	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.21	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.22	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.23	indravajrā [11: ttjgg]
+14.24	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.27	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.30	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.32	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.36	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.38	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+14.39	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.43	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.45	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.47	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.50	indravajrā [11: ttjgg]
+14.51	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.52	upajāti triṣṭubh: ajñātam [11: mtjgl], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.53	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.54	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.56	indravajrā [11: ttjgg]
+14.57	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.58	indravajrā [11: ttjgg]
+14.59	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.60	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.61	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.63	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.64	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.65	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.66	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.67	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.68	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.69	indravajrā [11: ttjgg]
+14.70	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.71	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.72	indravajrā [11: ttjgg]
+14.73	indravajrā [11: ttjgg]
+14.74	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.75	upajāti triṣṭubh: upendravajrā [11: jtjgg], ajñātam [11: jtsgg]
+14.76	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.77	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.78	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.79	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.80	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.81	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.82	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.83	upendravajrā [11: jtjgg]
+14.84	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.85	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.86	indravajrā [11: ttjgg]
+14.87	mandākrāntā [17: mBnttgg] (? 3 eva pādāḥ yuktāḥ)
+15.1	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.3	anuṣṭubh (1,2: ma-vipulā, 3,4: pathyā)
+15.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.5	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.6	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.7	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.8	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+15.9	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+15.10	anuṣṭubh (1,2: bha-vipulā, 3,4: asamīcīna)
+15.11	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+15.12	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.15	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.17	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.18	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.20	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.21	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.22	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+15.23	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.25	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.26	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.27	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.29	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+15.30	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+15.31	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.34	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.35	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.36	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.37	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.38	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.39	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.40	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+15.41	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.42	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.43	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+15.44	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.46	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.47	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+15.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.49	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.52	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.53	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.54	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+15.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.56	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.60	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.61	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+15.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.63	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+15.64	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.65	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.66	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.67	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.70	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+15.71	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.72	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.73	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.76	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.77	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.78	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+15.79	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.80	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.81	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.82	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.83	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.84	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.85	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.86	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.87	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.88	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.89	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.90	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+15.91	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.92	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.93	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.94	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+15.95	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.96	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.97	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.98	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+15.99	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.100	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.101	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.102	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.103	mandākrāntā [17: mBnttgg]
+16.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.2	indravajrā [11: ttjgg]
+16.3	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.4	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.5	indravajrā [11: ttjgg]
+16.6	upajāti triṣṭubh: ajñātam [11: ttngg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.7	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.8	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.9	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.13	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.16	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.19	indravajrā [11: ttjgg]
+16.20	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.21	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+16.22	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.23	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.24	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+16.25	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.27	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.28	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.30	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.32	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.33	upajāti triṣṭubh: ajñātam [11: ttygg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.35	indravajrā [11: ttjgg]
+16.36	indravajrā [11: ttjgg]
+16.37	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+16.38	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.39	upajāti triṣṭubh: ajñātam [11: ttngg], upendravajrā [11: jtjgg]
+16.40	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.41	indravajrā [11: ttjgg]
+16.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.43	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.44	upajāti triṣṭubh: ajñātam [11: tBjgg], upendravajrā [11: jtjgg]
+16.45	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.47	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+16.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.50	indravajrā [11: ttjgg]
+16.51	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+16.52	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.53	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+16.54	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.55	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.56	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.57	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.58	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.59	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.60	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+16.61	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.62	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.63	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.64	indravajrā [11: ttjgg]
+16.65	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.66	indravajrā [11: ttjgg]
+16.67	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.68	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.69	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.70	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.71	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.72	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.73	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.74	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.75	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.76	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.77	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.78	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.79	indravajrā [11: ttjgg]
+16.80	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.81	upajāti triṣṭubh: ajñātam [11: mtjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.82	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.83	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.84	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.85	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+16.86	vasantatilakā [14: tBjjgg]
+16.87	mandākrāntā [17: mBnttgg] (? 3 eva pādāḥ yuktāḥ)
+16.88	mandākrāntā [17: mBnttgg]
+17.1	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+17.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.3	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.4	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.5	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.6	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.7	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.8	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.9	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+17.10	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+17.11	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.12	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.13	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.14	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.15	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+17.16	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.17	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.18	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.19	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.20	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.21	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.22	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.23	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.24	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.25	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.26	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.27	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+17.28	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.29	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.30	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.31	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.32	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.33	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.34	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.35	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+17.36	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.37	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.38	anuṣṭubh (1,2: pathyā, 3,4: na-vipulā)
+17.39	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.40	anuṣṭubh (1,2: pathyā, 3,4: bha-vipulā)
+17.41	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.42	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.43	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.44	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.45	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.46	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.47	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.48	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.49	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.50	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.51	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.52	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+17.53	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.54	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+17.55	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.56	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.57	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.58	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.59	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.60	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.61	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.62	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.63	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.64	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.65	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+17.66	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.67	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.68	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.69	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.70	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.71	anuṣṭubh (1,2: pathyā, 3,4: asamīcīna)
+17.72	anuṣṭubh (1,2: na-vipulā, 3,4: pathyā)
+17.73	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.74	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.75	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.76	anuṣṭubh (1,2: bha-vipulā, 3,4: pathyā)
+17.77	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+17.78	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.79	anuṣṭubh (1,2: pathyā, 3,4: ma-vipulā)
+17.80	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+17.81	mandākrāntā [17: mBnttgg]
+18.1	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.3	indravajrā [11: ttjgg]
+18.4	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+18.5	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.6	indravajrā [11: ttjgg] (? 2 eva pādāḥ yuktāḥ)
+18.7	ajñātasamavṛtta [10: rBrg] (? 2 eva pādāḥ yuktāḥ)
+18.8	indravajrā [11: ttjgg]
+18.9	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.10	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.11	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.12	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.13	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.14	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.15	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+18.16	indravajrā [11: ttjgg]
+18.17	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.18	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.19	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.20	upajāti triṣṭubh: ajñātam [11: trtgl], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.21	upajāti triṣṭubh: ajñātam [11: jtngg], upendravajrā [11: jtjgg]
+18.22	indravajrā [11: ttjgg]
+18.23	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.24	indravajrā [11: ttjgg]
+18.25	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+18.26	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.27	indravajrā [11: ttjgg]
+18.28	indravajrā [11: ttjgg]
+18.29	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.30	indravajrā [11: ttjgg]
+18.31	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.32	indravajrā [11: ttjgg]
+18.33	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.34	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.35	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.36	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.37	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.38	indravajrā [11: ttjgg]
+18.39	upajāti triṣṭubh: ajñātam [11: tBjgg], indravajrā [11: ttjgg]
+18.40	indravajrā [11: ttjgg]
+18.41	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.42	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.43	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.44	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.45	upendravajrā [11: jtjgg] (? 3 eva pādāḥ yuktāḥ)
+18.46	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.47	indravajrā [11: ttjgg] (? 3 eva pādāḥ yuktāḥ)
+18.48	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.49	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.50	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.51	na kiṃcid adhyavasitam
+18.52	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+18.53	mālinī [15: nnmyy] (? 3 eva pādāḥ yuktāḥ)
+19.1	rathoddhatā [11: rnrlg]
+19.2	rathoddhatā [11: rnrlg]
+19.3	rathoddhatā [11: rnrlg]
+19.4	rathoddhatā [11: rnrlg]
+19.5	rathoddhatā [11: rnrlg]
+19.6	upajāti triṣṭubh: ajñātam [11: rnrgg], rathoddhatā [11: rnrlg]
+19.7	rathoddhatā [11: rnrlg]
+19.8	rathoddhatā [11: rnrlg]
+19.9	upajāti triṣṭubh: ajñātam [11: snrll], rathoddhatā [11: rnrlg]
+19.10	rathoddhatā [11: rnrlg]
+19.11	rathoddhatā [11: rnrlg]
+19.12	rathoddhatā [11: rnrlg]
+19.13	rathoddhatā [11: rnrlg]
+19.14	rathoddhatā [11: rnrlg]
+19.15	rathoddhatā [11: rnrlg]
+19.16	rathoddhatā [11: rnrlg]
+19.17	rathoddhatā [11: rnrlg]
+19.18	rathoddhatā [11: rnrlg]
+19.19	rathoddhatā [11: rnrlg]
+19.20	rathoddhatā [11: rnrlg]
+19.21	rathoddhatā [11: rnrlg]
+19.22	rathoddhatā [11: rnrlg]
+19.23	rathoddhatā [11: rnrlg]
+19.24	rathoddhatā [11: rnrlg]
+19.25	upajāti triṣṭubh: ajñātam [11: rjrlg], rathoddhatā [11: rnrlg]
+19.26	rathoddhatā [11: rnrlg]
+19.27	rathoddhatā [11: rnrlg]
+19.28	rathoddhatā [11: rnrlg]
+19.29	rathoddhatā [11: rnrlg]
+19.30	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+19.31	rathoddhatā [11: rnrlg]
+19.32	rathoddhatā [11: rnrlg]
+19.33	rathoddhatā [11: rnrlg]
+19.34	rathoddhatā [11: rnrlg]
+19.35	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+19.36	rathoddhatā [11: rnrlg]
+19.37	upajāti triṣṭubh: ajñātam [11: snrlg], rathoddhatā [11: rnrlg]
+19.38	rathoddhatā [11: rnrlg]
+19.39	rathoddhatā [11: rnrlg]
+19.40	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+19.41	ajñātārdhasamavṛtta [rnrl, ttrlg]
+19.42	rathoddhatā [11: rnrlg]
+19.43	rathoddhatā [11: rnrlg]
+19.44	rathoddhatā [11: rnrlg]
+19.45	rathoddhatā [11: rnrlg]
+19.46	rathoddhatā [11: rnrlg]
+19.47	rathoddhatā [11: rnrlg]
+19.48	rathoddhatā [11: rnrlg]
+19.49	rathoddhatā [11: rnrlg]
+19.50	rathoddhatā [11: rnrlg]
+19.51	rathoddhatā [11: rnrlg]
+19.52	rathoddhatā [11: rnrlg] (? 3 eva pādāḥ yuktāḥ)
+19.53	rathoddhatā [11: rnrlg]
+19.54	rathoddhatā [11: rnrlg]
+19.55	rathoddhatā [11: rnrlg]
+19.56	vasantatilakā [14: tBjjgg]
+19.57	mandākrāntā [17: mBnttgg]
+1.49.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.75.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+1.82.2	anuṣṭubh (1,2: asamīcīna, 3,4: pathyā)
+5.57.2	upendravajrā [11: jtjgg] (? 2 eva pādāḥ yuktāḥ)
+5.67.2	vasantatilakā [14: tBjjgg]
+5.69.2	vasantatilakā [14: tBjjgg]
+5.75.2	mālinī [15: nnmyy]
+6.1.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+6.67.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+7.38.2	upajāti triṣṭubh: ajñātam [11: jBjgg], upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+8.9.2	ajñātasamavṛtta [10: ssjg] (? 2 eva pādāḥ yuktāḥ)
+10.19.2	upajāti anuṣṭubh: ajñātam [8: mslg], ajñātam [8: mrlg], ajñātam [8: jsgl], ajñātam [8: jrgg]
+11.43.2	upajāti triṣṭubh: ajñātam [11: jBrlg], ajñātam [11: msjgl], rathoddhatā [11: rnrlg]
+13.15.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.1.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+14.69.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+15.71.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+15.94.2	anuṣṭubh (1,2: pathyā, 3,4: pathyā)
+18.16.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+18.19.2	upajāti : upendravajrā [11: jtjgg], indravajrā [11: ttjgg]
+samāptam: 10.415608s
