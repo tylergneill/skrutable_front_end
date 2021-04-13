@@ -415,4 +415,12 @@ def scanGRETIL_page():
 
 @app.route('/scanGRETILresults')
 def scanGRETILresults_page():
-	return render_template("scanGRETILresults.html")
+	return render_template("scanGRETILresults.html",
+	parent_dir = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/",
+    dir1 = "1_input_raw",
+    dir2 = "2_input_cleaned",
+    dir3 = "3_output_raw",
+    dir4 = "4_output_cleaned",
+    dir5 = "5_output_tallies",
+    dir6 = "6_notes"
+	)

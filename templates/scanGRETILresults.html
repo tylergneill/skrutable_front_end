@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+        <link rel="stylesheet" src="https://github.com/tylergneill/skrutable_front_end/tree/main/templates/custom.css">
 
         <title>skrutable</title>
 
@@ -76,12 +77,13 @@
         <div class="container">
 
             <h1>scan GRETIL results</h1>
-
 			<br/>
 
            	<h2>summary table</h2>
+			<p>(<a href="{{parent_dir}}/concise_freq_summary.pdf">download pdf</a>)</p>
 
-            <table class="table">
+           	<div class="col-md-12" style="overflow-x:auto">
+            <table class="table table-striped table-bordered table-dark">
 			  <thead>
 			    <tr>
 			      <th scope="col"></th>
@@ -93,7 +95,7 @@
 			  </thead>
 			  <tbody>
 				<tr style="border-bottom: double;">
-			      <th scope="row">Verse Type</th>
+			      <th scope="row"></th>
 			      <td>700 verses</td>
 			      <td>19,354</td>
 			      <td>999 (Prakrit)</td>
@@ -113,101 +115,213 @@
 			      <td>956</td>
 			      <td>0</td>
 			    </tr>
+			    <tr>
+			      <th scope="row">(table in progress...)</th>
+			      <td>1</td>
+			      <td>0</td>
+			      <td>1</td>
+			      <td>0</td>
+			    </tr>
 			  </tbody>
 			  
 			</table>
+			</div>
 
 			<br/>
 
 			<h2>downloads</h2>
-			<p>(see also <a href="https://github.com/tylergneill/skrutable_front_end/tree/main/assets/meter_analyses">GitHub source</a>)
+			<p>(<a href="https://github.com/tylergneill/skrutable_front_end/tree/main/assets/meter_analyses">on GitHub</a>)</p>
 
-			<table class="table">
+			<div class="col-md-12" style="overflow-x:auto;">
+			<table class="table table-striped table-bordered">
 				<thead>
 				    <tr style="border-bottom: double;">
-				      <th scope="col"></th>
-				      <th scope="col">ALL (zipped)</th>
-				      <th scope="col">Bhagavadgītā</th>
-				      <th scope="col">Rāmāyaṇa</th>
-				      <th scope="col">Sattasaī</th>
-				      <th scope="col">Pramāṇavārtika</th>
+						<th scope="col"></th>
+						<th scope="col">ALL (zipped)</th>
+						<th scope="col">Bhagavadgītā</th>
+						<th scope="col">Rāmāyaṇa</th>
+						<th scope="col">Sattasaī</th>
+						<th scope="col">Pramāṇavārtika</th>
+						<th scope="col">Bodhicāryāvatāra</th>
+						<th scope="col">Kathāsaritsāgara</th>
+						<th scope="col">Kirātārjunīya</th>
+						<th scope="col">Kumārasaṃbhava</th>
+						<th scope="col">Mahābhārata</th>
+						<th scope="col">Mahāsubhāṣita-<br/>saṃgraha</th>
+						<th scope="col">Mālatīmādhava</th>
+						<th scope="col">Mūlamadhyamaka-<br/>kārikā</th>
+						<th scope="col">Pañcatantra</th>
+						<th scope="col">Pramāṇavārtika</th>
+						<th scope="col">Pramāṇavārtika-<br/>alaṃkāra</th>
+						<th scope="col">Raghuvaṃśa</th>
+						<th scope="col">Rāmāyaṇa</th>
+						<th scope="col">Śatakatraya</th>
+						<th scope="col">Śiśupālavadha</th>
+						<th scope="col">Ślokavārtika</th>
+						<th scope="col">Tattvasaṃgraha</th>
 				    </tr>
 			  	</thead>
 				<tbody>
 					<tr>
-				      <th scope="row">Input, raw</th>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/all.zip">all_in_raw</a></td>
-				      <td><a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">BhG_in_raw</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm">Ram_in_raw<br />(Dec 2018 semicolons)</a></td>
-				      <td><a href="http://gretil.sub.uni-goettingen.de/gretil/2_prakrt/halsatsu.htm">SS_in_raw</a></td>
-				      <td></td>
+						<th scope="row">Input, raw</th>
+						<td><a href="{{parent_dir}}/{{dir1}}/all.zip">all_in_raw</a></td>
+						<td><a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">BhG_in_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir1}}/Ram_input_raw.htm">Ram_in_raw<br />(Dec 2018 semicolons)</a></td>
+						<td><a href="http://gretil.sub.uni-goettingen.de/gretil/2_prakrt/halsatsu.htm">SS_in_raw</a></td>
+						<td><a href="https://github.com/tylergneill/pramana-nlp/blob/master/data_prep/3_etext_cleaned/dharmak%C4%ABrti_pram%C4%81%E1%B9%87av%C4%81rttika.txt">PV_kk_in_raw</a></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
 				    </tr>
 				    <tr>
 						<th scope="row">Input, cleaned</th>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/all.zip">all_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt">Ram_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/SS_input_cleaned.txt">SS_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/BCA_input_cleaned.txt">BCA_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/KSS_input_cleaned.txt">KSS_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/Kir_input_cleaned.txt">Kir_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/KuS_input_cleaned.txt">KuS_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/MBh_input_cleaned.txt">MBh_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/MMK_input_cleaned.txt">MMK_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_vv_input_cleaned.txt/MM_vv_input_cleaned.txt">MM_vv_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/MSS_input_cleaned.txt">MSS_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/MgD_input_cleaned.txt">MgD_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_vv_input_cleaned.txt/PT_vv_input_cleaned.txt">PT_vv_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_kk_input_cleaned.txt/PVA_kk_input_cleaned.txt">PVA_kk_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_kk_input_cleaned.txt/PV_kk_input_cleaned.txt">PV_kk_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_kk_input_cleaned.txt/PVin_kk_input_cleaned.txt">PVin_kk_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/RVams_input_cleaned.txt">RVams_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/Ramod_input_cleaned.txt">Ramod_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/ST_input_cleaned.txt">ST_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/SV_input_cleaned.txt">SV_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/SpV_input_cleaned.txt">SpV_in_cln</a></td>
-						<td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned.txt/TS_input_cleaned.txt">TS_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/all.zip">all_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/BhG_input_cleaned.txt">BhG_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/Ram_input_cleaned.txt">Ram_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/SS_input_cleaned.txt">SS_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/PV_kk_input_cleaned.txt">PV_kk_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/BCA_input_cleaned.txt">BCA_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/KSS_input_cleaned.txt">KSS_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/Kir_input_cleaned.txt">Kir_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/KuS_input_cleaned.txt">KuS_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/MBh_input_cleaned.txt">MBh_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/MMK_input_cleaned.txt">MMK_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/MM_vv_input_cleaned.txt">MM_vv_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/MSS_input_cleaned.txt">MSS_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/MgD_input_cleaned.txt">MgD_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/PT_vv_input_cleaned.txt">PT_vv_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/PVA_kk_input_cleaned.txt">PVA_kk_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/PVin_kk_input_cleaned.txt">PVin_kk_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/RVams_input_cleaned.txt">RVams_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/Ramod_input_cleaned.txt">Ramod_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/ST_input_cleaned.txt">ST_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/SV_input_cleaned.txt">SV_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/SpV_input_cleaned.txt">SpV_in_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir2}}/TS_input_cleaned.txt">TS_in_cln</a></td>
 				    </tr>
 				    <tr>
-				      <th scope="row">Output, raw</th>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/all.zip">all_out_raw</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">BhG_out_raw</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/Ram_output_raw.txt">Ram_out_raw</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/SS_output_raw.txt">SS_out_raw</a></td>
-				      <td></td>
+						<th scope="row">Output, raw</th>
+						<td><a href="{{parent_dir}}/{{dir3}}/all.zip">all_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/BhG_output_raw.txt">BhG_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/Ram_output_raw.txt">Ram_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/SS_output_raw.txt">SS_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/PV_kk_output_raw.txt">PV_kk_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/BCA_output_raw.txt">BCA_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/KSS_output_raw.txt">KSS_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/Kir_output_raw.txt">Kir_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/KuS_output_raw.txt">KuS_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/MBh_output_raw.txt">MBh_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/MMK_output_raw.txt">MMK_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/MM_vv_output_raw.txt">MM_vv_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/MSS_output_raw.txt">MSS_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/MgD_output_raw.txt">MgD_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/PT_vv_output_raw.txt">PT_vv_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/PVA_kk_output_raw.txt">PVA_kk_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/PVin_kk_output_raw.txt">PVin_kk_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/RVams_output_raw.txt">RVams_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/Ramod_output_raw.txt">Ramod_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/ST_output_raw.txt">ST_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/SV_output_raw.txt">SV_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/SpV_output_raw.txt">SpV_out_raw</a></td>
+						<td><a href="{{parent_dir}}/{{dir3}}/TS_output_raw.txt">TS_out_raw</a></td>
 				    </tr>
 				  	<tr>
-				      <th scope="row">Output, cleaned</th>
-				      <td></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt">BhG_out_cln</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt">Ram_out_cln</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/SS_output_cleaned.txt">SS_out_cln</a></td>
-				      <td></td>
+						<th scope="row">Output, cleaned</th>
+						<td><a href="{{parent_dir}}/{{dir4}}/all.zip">all_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/BhG_output_cleaned.txt">BhG_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/Ram_output_cleaned.txt">Ram_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/SS_output_cleaned.txt">SS_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/PV_kk_output_cleaned.txt">PV_kk_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/BCA_output_cleaned.txt">BCA_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/KSS_output_cleaned.txt">KSS_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/Kir_output_cleaned.txt">Kir_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/KuS_output_cleaned.txt">KuS_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/MBh_output_cleaned.txt">MBh_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/MMK_output_cleaned.txt">MMK_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/MM_vv_output_cleaned.txt">MM_vv_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/MSS_output_cleaned.txt">MSS_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/MgD_output_cleaned.txt">MgD_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/PT_vv_output_cleaned.txt">PT_vv_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/PVA_kk_output_cleaned.txt">PVA_kk_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/PVin_kk_output_cleaned.txt">PVin_kk_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/RVams_output_cleaned.txt">RVams_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/Ramod_output_cleaned.txt">Ramod_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/ST_output_cleaned.txt">ST_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/SV_output_cleaned.txt">SV_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/SpV_output_cleaned.txt">SpV_out_cln</a></td>
+						<td><a href="{{parent_dir}}/{{dir4}}/TS_output_cleaned.txt">TS_out_cln</a></td>
 				    </tr>
 				    <tr>
-				      <th scope="row">Verse Type Tallies</th>
-				      <td></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/BhG_output_tallies.tsv">BhG_tallies</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/Ram_output_tallies.tsv">Ram_tallies</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_output_tallies/SS_output_tallies.tsv">SS_tallies</a></td>
-				      <td></td>
+						<th scope="row">Verse Type Tallies</th>
+						<td><a href="{{parent_dir}}/{{dir5}}/all.zip">all_tallies</a></td>
+						<td><a href="{{parent_dir}}/{{dir5}}/BhG_tallies.tsv">BhG_tallies</a></td>
+						<td><a href="{{parent_dir}}/{{dir5}}/Ram_tallies.tsv">Ram_tallies</a></td>
+						<td><a href="{{parent_dir}}/{{dir5}}/SS_tallies.tsv">SS_tallies</a></td>
+						<td><a href="{{parent_dir}}/{{dir5}}/PV_kk_tallies.tsv">PV_kk_tallies</a></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
 				    </tr>
 				    <tr>
-				      <th scope="row">Notes</th>
-				      <td></td>
-				      <td></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt">Ram_notes</a></td>
-				      <td><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/SS_notes.txt">SS_notes</a></td>
-				      <td></td>
+						<th scope="row">Notes</th>
+						<td><a href="{{parent_dir}}/{{dir6}}/all.zip">all_notes</a></td>
+						<td></td>
+						<td><a href="{{parent_dir}}/{{dir6}}/Ram_notes.txt">Ram_notes</a></td>
+						<td><a href="{{parent_dir}}/{{dir6}}/SS_notes.txt">SS_notes</a></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
 				    </tr>
 				</tbody>
 			</table>
+			</div>
 
             <p>Compare also <a href="http://sanskritmetres.appspot.com/statistics">this similar effort</a> by Shreevatsa Rajagopalan
             [<a href="http://sanskritmetres.appspot.com/">1</a>
-            <a href="http://shreevatsa.appspot.com/sanskrit/transliterate.html">2</a>
-            <a href="https://shreevatsa.wordpress.com/">3</a>
-            <a href="http://shreevatsa.appspot.com/">4</a>]
+            <a href="http://shreevatsa.appspot.com/">2</a>]
             on 16,000+ verses of poetry.</p>
 
 
