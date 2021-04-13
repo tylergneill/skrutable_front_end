@@ -421,6 +421,6 @@ def scanGRETILresults_page():
     dir2 = "2_input_cleaned",
     dir3 = "3_output_raw",
     dir4 = "4_output_cleaned",
-    dir5 = "5_output_tallies",
+    dir5 = "5_tallies",
     dir6 = "6_notes"
 	)
