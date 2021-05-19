@@ -429,5 +429,7 @@ def scanGRETILresults_page():
 def chicago_apte_iast():
 	iast_query = request.args.get('query')
 	dev_query = T.transliterate(iast_query, from_scheme='IAST', to_scheme='DEV')
+	# remove final Devanagari virāma(s) (U+094d)
+	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1]
 	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
 	return redirect(chicago_url)
