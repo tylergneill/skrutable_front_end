@@ -424,3 +424,10 @@ def scanGRETILresults_page():
     dir5 = "5_tallies",
     dir6 = "6_notes"
 	)
+
+@app.route('/ChicagoApteIAST')
+def chicago_apte_iast():
+	iast_query = request.args.get('query')
+	dev_query = T.transliterate(iast_query, from_scheme='IAST', to_scheme='DEV')
+	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
+	return redirect(chicago_url)
