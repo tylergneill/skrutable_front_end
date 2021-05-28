@@ -444,8 +444,7 @@ def pramana_NLP_main():
 def pramana_NLP_LDAvis():
 
 	import html
-	href = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/pramanaNLP/ldavis_prepared_10.html"
-	with open(href, 'r') as f_in:
+	with open("./assets/pramanaNLP/ldavis_prepared_10.html", 'r') as f_in:
 		topic_explorer_HTML = html.unescape(f_in.read())
 
 	return render_template("pramanaNLPtopicExplorer.html",
