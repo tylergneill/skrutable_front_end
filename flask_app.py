@@ -440,14 +440,14 @@ def pramana_NLP_main():
 	page_title="home"
 	)
 
-@app.route('/pramanaNLPtopicExplorer')
+@app.route('/pramanaNLP-topicExplorer')
 def pramana_NLP_LDAvis():
 
 	import html
 	with open("/home/skrutable/mysite/assets/pramanaNLP/ldavis_prepared_10.html", 'r') as f_in:
 		topic_explorer_HTML = html.unescape(f_in.read())
 
-	return render_template("pramanaNLPtopicExplorer.html",
+	return render_template("pramanaNLP-topicExplorer.html",
 	page_title="topics",
 	topic_explorer=topic_explorer_HTML
 	)
