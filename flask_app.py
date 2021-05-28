@@ -433,3 +433,21 @@ def chicago_apte_iast():
 	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1]
 	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
 	return redirect(chicago_url)
+
+@app.route('/pramanaNLP')
+def pramana_NLP_main():
+	return render_template("pramanaNLP.html",
+	page_title="home"
+	)
+
+@app.route('/pramanaNLPtopicExplorer')
+def pramana_NLP_LDAvis():
+
+	import html
+	with open("./templates/ldavis_prepared_10.html", 'r') as f_in:
+		topic_explorer_HTML = html.unescape(f_in.read())
+
+	return render_template("pramanaNLPtopicExplorer.html",
+	page_title="topics",
+	topic_explorer=topic_explorer_HTML
+	)
