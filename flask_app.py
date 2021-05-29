@@ -1,3 +1,8 @@
+import os
+import html
+
+from datetime import datetime, date
+
 from flask import Flask, redirect, render_template, request, url_for, session
 from flask import make_response
 
@@ -29,7 +34,7 @@ select_element_names = [
 	"skrutable_action",
 	"text_input", "text_output",
 	"from_scheme", "to_scheme",
-	"resplit_option"
+	"resplit_option",
 	]
 checkbox_element_names = [
 	"weights", "morae", "gaRas",
@@ -48,6 +53,7 @@ def process_form(form):
 
    # first do values of "select" elements
 	for var_name in select_element_names:
+		print(var_name, request.form[var_name])
 		session[var_name] = request.form[var_name]
 
 	# then do values of "checkbox" elements
@@ -59,6 +65,9 @@ def process_form(form):
 			session[var_name] = 0
 
 	session.modified = True
+
+	return
+
 
 @app.route("/testMelody", methods=["GET", "POST"])
 def testMelody():
@@ -302,7 +311,7 @@ def wholeFile():
 				)
 
 			# record starting time
-			from datetime import datetime, date
+
 			# now = datetime.now()
 			# timestamp1 = now.strftime("%H:%M:%S")
 			starting_time = datetime.now().time()
@@ -381,6 +390,7 @@ def reset_variables():
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["meter_label"] = ""
 	session["melody_options"] = []
+	session["doc_id_input"] = ""
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -443,11 +453,48 @@ def pramana_NLP_main():
 @app.route('/pramanaNLP-topicExplorer')
 def pramana_NLP_LDAvis():
 
-	import html
-	with open("/home/skrutable/mysite/assets/pramanaNLP/ldavis_prepared_10.html", 'r') as f_in:
+	current_folder = os.path.dirname(os.path.abspath(__file__))
+	full_path_to_lda_html = "assets/pramanaNLP/ldavis_prepared_10.html"
+	lda_html_fn = os.path.join(current_folder, full_path_to_lda_html)
+	with open(lda_html_fn, 'r') as f_in:
 		topic_explorer_HTML = html.unescape(f_in.read())
 
 	return render_template("pramanaNLP-topicExplorer.html",
 	page_title="topics",
 	topic_explorer=topic_explorer_HTML
 	)
+
+@app.route('/pramanaNLP-documentExplorer')
+def pramanaNLP_document_explorer():
+
+	return render_template("pramanaNLP-documentExplorer.html",
+	page_title="docs",
+	)
+
+@app.route('/doc_search', methods=["GET", "POST"])
+def doc_search():
+
+	import doc_search
+
+	if request.method == "GET":
+
+		return render_template("pramanaNLP-documentExplorer.html",
+		page_title="docs",
+		doc_id="",
+		doc_search_output=""
+		)
+
+	if request.method == "POST":
+
+		doc_id_input = request.form["doc_id_input"]
+		doc_ids = doc_search.doc_ids
+		if doc_id_input in doc_ids:
+			output = doc_search.compare_by_topic(doc_id_input) # results_HTML
+		else:
+			output = "<p>what's that? i only know about " + str(doc_ids[:3]) + " etc.</p>"
+
+		return render_template("pramanaNLP-documentExplorer.html",
+		page_title="docs",
+		doc_id_input=doc_id_input,
+		doc_search_output=output
+		)
