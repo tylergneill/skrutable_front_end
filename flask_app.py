@@ -12,6 +12,8 @@ from skrutable.meter_identification import MeterIdentifier
 from skrutable.meter_patterns import meter_melodies
 from skrutable.splitter.wrapper import Splitter
 
+import doc_search
+
 T = Transliterator()
 S = Scanner()
 MI = MeterIdentifier()
@@ -473,8 +475,6 @@ def pramanaNLP_document_explorer():
 
 @app.route('/doc_search', methods=["GET", "POST"])
 def doc_search():
-
-	import doc_search
 
 	if request.method == "GET":
 
