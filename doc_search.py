@@ -1,11 +1,15 @@
 import math
+import os
 import numpy as np
 from collections import OrderedDict, Counter
 from copy import copy
 from fastdist import fastdist
 
 # get theta data
-with open('theta.tsv','r') as f_in:
+current_folder = os.path.dirname(os.path.abspath(__file__))
+theta_fn = 'theta.tsv'
+theta_fn_full_path = os.path.join(current_folder, theta_fn)
+with open(theta_fn_full_path,'r') as f_in:
     theta_data = f_in.read()
 theta_data = theta_data.replace('*','') # very hacky, should be cleaned in data itself
 theta_rows = theta_data.split('\n')
@@ -37,7 +41,9 @@ corpus_vocab_reduced = copy(corpus_vocab)
 freq_w = Counter(corpus_words_list)
 
 # load phi data
-with open('phi.csv','r') as f_in:
+phi_fn = 'phi.csv'
+phi_fn_full_path = os.path.join(current_folder, phi_fn)
+with open(phi_fn_full_path,'r') as f_in:
     phi_data = f_in.read()
 phi_data = phi_data.replace('"','') # I think this here but not for theta because of way theta TSV was re-exported
 phi_rows = phi_data.split('\n')
