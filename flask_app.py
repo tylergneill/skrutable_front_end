@@ -12,7 +12,7 @@ from skrutable.meter_identification import MeterIdentifier
 from skrutable.meter_patterns import meter_melodies
 from skrutable.splitter.wrapper import Splitter
 
-import doc_search
+import IR_tools
 
 T = Transliterator()
 S = Scanner()
@@ -487,9 +487,9 @@ def doc_search():
 	if request.method == "POST":
 
 		doc_id_input = request.form["doc_id_input"]
-		doc_ids = doc_search.doc_ids
+		doc_ids = IR_tools.doc_ids
 		if doc_id_input in doc_ids:
-			output = doc_search.compare_by_topic(doc_id_input) # results_HTML
+			output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
 		else:
 			output = "<p>what's that? i only know about " + str(doc_ids[:3]) + " etc.</p>"
 
