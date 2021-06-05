@@ -199,5 +199,6 @@ def prepare_text_view(text_abbreviation):
 	text_HTML = re.sub("\[([^\]]*?)\]", "<h2 id='\\1'>\\1<h2>", text_HTML)
 
 	# (possibly escape characters like tab, <>, etc.)
+	# for example, anything tertiary note that begins <s ...> or <S ...> (e.g. 'Seite') will be interpreted as strikethrough
 
 	return text_HTML
