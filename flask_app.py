@@ -1,9 +1,10 @@
 import os
 import html
+import re
 
 from datetime import datetime, date
 
-from flask import Flask, redirect, render_template, request, url_for, session
+from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, send_file
 from flask import make_response
 
 from skrutable.transliteration import Transliterator
@@ -30,7 +31,9 @@ def parse_complex_resplit_option(complex_resplit_option):
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
-app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien"
+app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # not so secret
+
+CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 select_element_names = [
 	"skrutable_action",
@@ -260,6 +263,22 @@ def index():
 				to_scheme=session["to_scheme"]
 				)
 
+		elif session["skrutable_action"] == "apte links":
+
+			split_text = session["text_input"] # must already be split
+			output_HTML = prep_split_output_for_Apte(split_text)
+			return render_template(	"main_HTML_output.html",
+									skrutable_action=session["skrutable_action"],
+									text_input=session["text_input"],
+									output_HTML=output_HTML,
+									from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
+									weights=session["weights"],
+									morae=session["morae"],
+									gaRas=session["gaRas"],
+									alignment=session["alignment"],
+									resplit_option=session["resplit_option"]
+									)
+
 		session.modified = True
 
 		return redirect(url_for('index'))
@@ -393,6 +412,8 @@ def reset_variables():
 	session["meter_label"] = ""
 	session["melody_options"] = []
 	session["doc_id_input"] = ""
+	session["text_abbreviation_input"] = ""
+	session["local_doc_id_input"] = ""
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -427,74 +448,182 @@ def scanGRETIL_page():
 
 @app.route('/scanGRETILresults')
 def scanGRETILresults_page():
-	return render_template("scanGRETILresults.html",
-	parent_dir = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/",
-    dir1 = "1_input_raw",
-    dir2 = "2_input_cleaned",
-    dir3 = "3_output_raw",
-    dir4 = "4_output_cleaned",
-    dir5 = "5_tallies",
-    dir6 = "6_notes"
-	)
+	return render_template(	"scanGRETILresults.html",
+		parent_dir = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/",
+	    dir1 = "1_input_raw",
+	    dir2 = "2_input_cleaned",
+	    dir3 = "3_output_raw",
+	    dir4 = "4_output_cleaned",
+	    dir5 = "5_tallies",
+	    dir6 = "6_notes"
+		)
 
-@app.route('/ChicagoApteIAST')
+def prep_Apte_query(IAST_string):
+	dev_query = T.transliterate(IAST_string, from_scheme='IAST', to_scheme='DEV')
+	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1] # remove final Devanagari virāma(s) (U+094d)
+	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
+	return chicago_url
+
+@app.route('/ChicagoApteIAST') # hidden endpoint
 def chicago_apte_iast():
 	iast_query = request.args.get('query')
-	dev_query = T.transliterate(iast_query, from_scheme='IAST', to_scheme='DEV')
-	# remove final Devanagari virāma(s) (U+094d)
-	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1]
-	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
+	chicago_url = prep_Apte_query(iast_query)
 	return redirect(chicago_url)
+
+def prep_split_output_for_Apte(split_text):
+	split_words = split_text.split() # would be nice to retain original whitespace (tab etc.)
+	output_HTML = "<p>"
+	for word in split_words:
+		if re.sub('[,\|।—\?!\.\d\s]', '', word) == "": # expand punctuation set ...
+			output_HTML += word + " "
+		else:
+			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
+	output_HTML += "</p>"
+	return output_HTML
 
 @app.route('/pramanaNLP')
 def pramana_NLP_main():
 	return render_template("pramanaNLP.html",
-	page_title="home"
+	page_subtitle="🏠"
 	)
 
-@app.route('/pramanaNLP-topicExplorer')
+@app.route('/topicExplorer')
 def pramana_NLP_LDAvis():
 
-	current_folder = os.path.dirname(os.path.abspath(__file__))
-	full_path_to_lda_html = "assets/pramanaNLP/ldavis_prepared_10.html"
-	lda_html_fn = os.path.join(current_folder, full_path_to_lda_html)
-	with open(lda_html_fn, 'r') as f_in:
-		topic_explorer_HTML = html.unescape(f_in.read())
+	relative_path_to_LDAvis_HTML_fn = "assets/pramanaNLP/ldavis_prepared_10.html"
+	LDAvis_HTML_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_LDAvis_HTML_fn)
+	with open(LDAvis_HTML_full_fn, 'r') as f_in:
+		LDAvis_HTML = html.unescape(f_in.read())
 
 	return render_template("pramanaNLP-topicExplorer.html",
-	page_title="topics",
-	topic_explorer=topic_explorer_HTML
+	page_subtitle="topic",
+	LDAvis_HTML=LDAvis_HTML
 	)
 
-@app.route('/pramanaNLP-documentExplorer')
+@app.route('/documentExplorer')
 def pramanaNLP_document_explorer():
 
 	return render_template("pramanaNLP-documentExplorer.html",
-	page_title="docs",
+	page_subtitle="doc",
 	)
 
 @app.route('/doc_search', methods=["GET", "POST"])
 def doc_search():
 
-	if request.method == "GET":
+	if request.method == "POST" or 'doc_id_input' in request.args:
 
-		return render_template("pramanaNLP-documentExplorer.html",
-		page_title="docs",
-		doc_id="",
-		doc_search_output=""
-		)
+		if 'doc_id_input' in request.form:
+			doc_id_input = request.form.get("doc_id_input")
+		elif 'doc_id_input' in request.args:
+			doc_id_input = request.args.get("doc_id_input")
 
-	if request.method == "POST":
-
-		doc_id_input = request.form["doc_id_input"]
-		doc_ids = IR_tools.doc_ids
-		if doc_id_input in doc_ids:
+		valid_doc_ids = IR_tools.doc_ids
+		if doc_id_input in valid_doc_ids:
 			output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
 		else:
-			output = "<p>what's that? i only know about " + str(doc_ids[:3]) + " etc.</p>"
+			output = "<p>what's that? i only know about " + str(valid_doc_ids[:3])[1:-1] + " etc. (<a href='assets/pramanaNLP/doc_id_list.txt' target='_blank'>see list</a>)</p>"
 
-		return render_template("pramanaNLP-documentExplorer.html",
-		page_title="docs",
-		doc_id_input=doc_id_input,
-		doc_search_output=output
+		return render_template(	"pramanaNLP-documentExplorer.html",
+								page_subtitle="doc",
+								doc_id_input=doc_id_input,
+								doc_search_output=output
+								)
+
+	else: # request.method == "GET" or URL query malformed
+
+		return render_template(	"pramanaNLP-documentExplorer.html",
+								page_subtitle="doc",
+								doc_id="",
+								doc_search_output=""
+								)
+
+@app.route('/assets/<path:name>')
+def serve_files(name):
+	return send_from_directory('assets', name)
+
+# @app.route('/assets/')
+# def serve_files():
+# 	return send_file('assets/index.html')
+
+@app.route('/textViewer', methods=["GET", "POST"])
+def pramanaNLP_text_viewer():
+
+	if request.method == "POST" or 'text_abbrv' in request.args:
+
+		if 'text_abbreviation_input' in request.form:
+			text_abbreviation_input = request.form.get("text_abbreviation_input")
+		elif 'text_abbrv' in request.args:
+			text_abbreviation_input = request.args.get("text_abbrv")
+
+		# can't render this properly at all yet
+		local_doc_id_input=''
+		if 'local_doc_id_input' in request.form:
+			local_doc_id_input = request.form.get("local_doc_id_input")
+		elif 'doc_id' in request.args:
+			local_doc_id_input = request.args.get("doc_id")
+
+		valid_text_abbrvs = list(IR_tools.text_abbrev2fn.keys())
+		disallowed = ['PVin','HB','PSṬ','NV']
+		if text_abbreviation_input in disallowed:
+			text_HTML = "<p>sorry, fulltext is not available for these texts at present: " + str(disallowed)[1:-1] + " (see <a href='https://github.com/tylergneill/pramana-nlp/tree/master/data_prep/1_etext_originals' target='_blank'>note</a> for more info)</p>"
+		elif text_abbreviation_input in valid_text_abbrvs:
+			text_HTML = IR_tools.prepare_text_view(text_abbreviation_input)
+		else:
+			text_HTML = "<p>what's that? i only know about " + str(valid_text_abbrvs[:3])[1:-1] + " etc. (<a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>see list</a>)</p>"
+
+		return render_template("pramanaNLP-textViewer.html",
+		page_subtitle="text",
+		text_abbreviation=text_abbreviation_input,
+		local_doc_id=local_doc_id_input,
+		text_HTML=text_HTML
 		)
+
+	else: # request.method == "GET" or no URL params
+
+		return render_template(	"pramanaNLP-textViewer.html",
+								page_subtitle="text",
+								text_abbreviation="",
+								local_doc_id="",
+								text_HTML=""
+								)
+
+@app.route('/alignSimilar', methods=["GET", "POST"])
+def pramanaNLP_align_similar():
+
+	if request.method == "POST" or 'doc_id_1' in request.args:
+
+		# if 'doc_id_1' in request.form:
+		# 	text_abbreviation_input = request.form.get("doc_id_1_input")
+		# elif 'doc_id_1' in request.args:
+		# 	text_abbreviation_input = request.args.get("doc_id_1")
+		# if 'doc_id_2' in request.form:
+		# 	local_doc_id_input = request.form.get("doc_id_2_input")
+		# elif 'doc_id_2' in request.args:
+		# 	local_doc_id_input = request.args.get("doc_id_2")
+
+		# valid_text_abbrvs = IR_tools.doc_ids # or list of pre-prepared HTML...
+		# if doc_id_1 in valid_text_abbrvs and doc_id_2 in valid_text_abbrvs:
+		# 	text_HTML = IR_tools.prepare_text_view(text_abbreviation_input)
+		# else:
+		# 	text_HTML = "<p>what's that? i only know about " + str(valid_text_abbrvs[:3])[1:-1] + " etc. (<a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>see list</a>)</p>"
+
+		return render_template("pramanaNLP-alignSimilar.html",
+		page_subtitle="align",
+		# doc_id_1=doc_id_1,
+		# doc_id_2=doc_id_2,
+		Brucheion_HTML=Brucheion_HTML
+		)
+
+	else: # request.method == "GET" or no URL params
+
+		relative_path_to_Brucheion_HTML_fn = "assets/pramanaNLP/Brucheion.html"
+		Brucheion_HTML_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_Brucheion_HTML_fn)
+		with open(Brucheion_HTML_full_fn, 'r') as f_in:
+			Brucheion_HTML = html.unescape(f_in.read())
+
+		return render_template(	"pramanaNLP-alignSimilar.html",
+								page_subtitle="align",
+								# doc_id_1=doc_id_1,
+								# doc_id_2=doc_id_2,
+								Brucheion_HTML=Brucheion_HTML
+								)

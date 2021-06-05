@@ -5,13 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<meta property='og:title' content='skrutable'/>
-		<meta property='og:image' content='/static/ui_screenshot.png'/>
-		<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
-		<meta property='og:url' content='https://skrutable.pythonanywhere.com/'/>
-
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-        <link rel="shortcut icon" href="#">
 
         <title>pramāṇa NLP</title>
 
@@ -37,8 +31,8 @@
 							</div>
 
 							<div class="col-md-8 col-xs-8">
-			                    <div class="navbar-header" id="hiddenActionTitle">
-			                        <a class="navbar-brand">: {{ page_title }}</a>
+			                    <div class="navbar-header">
+			                        <a class="navbar-brand">: {{ page_subtitle }}</a>
 			                    </div>
 							</div>
 
@@ -81,27 +75,25 @@
 
         <div class="container">
 
-           <h1>Document Explorer<h1>
-           <br>
 
-
+        	<h1>Document Explorer</h1>
+        	<br>
+        	
            <form id="doc_search" action="/doc_search" method="POST">
 
                 <!-- input -->
                 <div class="row">
-                    <textarea id="doc_id_input" name="doc_id_input" class="form-control" rows="1" spellcheck="false" placeholder="Enter doc id here">{{ doc_id }}</textarea>
-	                <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
-                </div>
-
-                <!-- output -->
-                <div class="row well blue-border-focus">
-                    <!-- <textarea id="doc_search_output" name="doc_search_output" class="form-control" rows="15" spellcheck="false">{{ doc_search_output }}</textarea> -->
-
-					{{ doc_search_output | safe }}                    
+                	<div class="col-md-3">
+	                    <input id="doc_id_input" name="doc_id_input" type="text" class="form-control" placeholder="Enter doc id here" size="30">{{ doc_id }}</textarea> 
+	                </div>
+	                <div class="col-md-2">
+		                <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
+		            </div>
                 </div>
 
             </form>
 
+            {{ doc_search_output | safe }}
 
         </div><!-- container -->
 
