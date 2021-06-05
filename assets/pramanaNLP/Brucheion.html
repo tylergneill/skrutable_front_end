@@ -1,4 +1,4 @@
-<html>
+<!-- <html>
 
 <head>
     <title>Brucheion</title>
@@ -48,7 +48,7 @@
     </style>
 </head>
 
-<body>
+<body> -->
 
     <div class="tile is-ancestor">
         <div class="tile is-parent column is-6">
@@ -98,47 +98,52 @@
             }
         });
     </script>
+
+    <script>
+        var newid = "crit1";
+        $("span[alignment='0']").css("color", "lightgrey");
+
+        $('span').hover(function () {
+            $("div[lnum]").children("[id='" + $(this).attr("alignment") + "']").addClass('yourClass');
+        }, function () {
+            $("span").removeClass('yourClass');
+        });
+
+        $('span').click(function () {
+            $('.yourClass2').removeClass('yourClass2');;
+            document.getElementById(newid).style.display = "none";
+            var num = this.id;
+            var n = num.toString();
+            newid = "crit" + n;
+            document.getElementById(newid).removeAttribute("style");
+            $(this).addClass('yourClass2');
+        });
+        var source_id = "";
+        var target_id = "";
+        var side = "";
+
+    </script>
+    
+    <script>
+        function highlfunc(linkElement) {
+            var loc = $(linkElement).attr('href')
+            var splitted = loc.split("#");
+            if (splitted[1] == null) {
+                return;
+            };
+
+            var header = document.getElementById("trmenu");
+            var current = header.getElementsByClassName("is-primary");
+            if (current.length != 0) {
+                current[0].className = current[0].className.replace(" is-primary", "");
+            };
+            var linkid = "button_" + splitted[1];
+            document.getElementById(linkid).className += " is-primary";
+        };
+    </script>
+
+<!-- 
 </body>
-<script>
-    var newid = "crit1";
-    $("span[alignment='0']").css("color", "lightgrey");
-
-    $('span').hover(function () {
-        $("div[lnum]").children("[id='" + $(this).attr("alignment") + "']").addClass('yourClass');
-    }, function () {
-        $("span").removeClass('yourClass');
-    });
-
-    $('span').click(function () {
-        $('.yourClass2').removeClass('yourClass2');;
-        document.getElementById(newid).style.display = "none";
-        var num = this.id;
-        var n = num.toString();
-        newid = "crit" + n;
-        document.getElementById(newid).removeAttribute("style");
-        $(this).addClass('yourClass2');
-    });
-    var source_id = "";
-    var target_id = "";
-    var side = "";
-
-</script>
-<script>
-    function highlfunc(linkElement) {
-        var loc = $(linkElement).attr('href')
-        var splitted = loc.split("#");
-        if (splitted[1] == null) {
-            return;
-        };
-
-        var header = document.getElementById("trmenu");
-        var current = header.getElementsByClassName("is-primary");
-        if (current.length != 0) {
-            current[0].className = current[0].className.replace(" is-primary", "");
-        };
-        var linkid = "button_" + splitted[1];
-        document.getElementById(linkid).className += " is-primary";
-    };
-</script>
 
 </html>
+ -->

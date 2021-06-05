@@ -616,14 +616,18 @@ def pramanaNLP_align_similar():
 
 	else: # request.method == "GET" or no URL params
 
-		relative_path_to_Brucheion_HTML_fn = "assets/pramanaNLP/Brucheion.html"
-		Brucheion_HTML_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_Brucheion_HTML_fn)
-		with open(Brucheion_HTML_full_fn, 'r') as f_in:
-			Brucheion_HTML = html.unescape(f_in.read())
+		relative_path_to_assets = "assets"
+		full_path_to_assets = os.path.join(CURRENT_FOLDER, relative_path_to_assets)
+
+		relative_path_to_Brucheion_HTML_body_fn = "assets/pramanaNLP/Brucheion.html"
+		Brucheion_HTML_body_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_Brucheion_HTML_body_fn)
+		with open(Brucheion_HTML_body_full_fn, 'r') as f_in:
+			Brucheion_HTML_body = html.unescape(f_in.read())
 
 		return render_template(	"pramanaNLP-alignSimilar.html",
+								assets_path=relative_path_to_assets,
 								page_subtitle="align",
 								# doc_id_1=doc_id_1,
 								# doc_id_2=doc_id_2,
-								Brucheion_HTML=Brucheion_HTML
+								Brucheion_HTML_body=Brucheion_HTML_body
 								)
