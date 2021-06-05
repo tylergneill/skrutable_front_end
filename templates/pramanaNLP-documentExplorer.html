@@ -79,19 +79,19 @@
         	<h1>Document Explorer</h1>
         	<br>
         	
-           <form id="doc_search" action="/doc_search" method="POST">
+			<form id="doc_search" action="/doc_search" method="POST">
 
-                <!-- input -->
-                <div class="row">
-                	<div class="col-md-3">
-	                    <input id="doc_id_input" name="doc_id_input" type="text" class="form-control" placeholder="Enter doc id here" size="30">{{ doc_id }}</textarea> 
-	                </div>
-	                <div class="col-md-2">
-		                <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
-		            </div>
-                </div>
+			    <!-- input -->
+			    <div class="row">
+			    	<div class="col-md-3">
+			            <input id="doc_id_input" name="doc_id_input" type="text" class="form-control" placeholder="Enter doc id here" size="30"/>
+			        </div>
+			        <div class="col-md-2">
+			            <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
+			        </div>
+			    </div>
 
-            </form>
+			</form>
 
             {{ doc_search_output | safe }}
 
