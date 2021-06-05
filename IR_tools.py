@@ -89,7 +89,10 @@ for i in range(1, len(doc_ids)-1):
 doc_links[doc_ids[len(doc_ids)-1]] = {'prev': doc_ids[len(doc_ids)-2], 'next': doc_ids[0]}
 
 text_abbrev2fn = load_dict_from_json("assets/pramanaNLP/text_abbreviations.json")
-with open("assets/pramanaNLP/corpus_texts.txt", 'w') as f_out:
+
+corpus_texts_list_relative_path_fn = 'assets/pramanaNLP/corpus_texts.txt'
+corpus_texts_list_full_fn = os.path.join(CURRENT_FOLDER, corpus_texts_list_relative_path_fn)
+with open(corpus_texts_list_full_fn,'w') as f_out:
 	f_out.write('\n'.join([abbrv+'\t'+fn for (abbrv, fn) in text_abbrev2fn.items()]))
 
 section_labels = load_dict_from_json("assets/pramanaNLP/section_labels.json")
@@ -184,7 +187,6 @@ def prepare_text_view(text_abbreviation):
 	text_fn = text_abbrev2fn[text_abbreviation] + '.txt'
 	relative_path_to_text = "assets/pramanaNLP/texts"
 	text_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_text, text_fn)
-
 	with open(text_full_fn,'r') as f_in:
 		text_string = f_in.read()
 
