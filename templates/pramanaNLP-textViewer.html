@@ -79,14 +79,22 @@
 			<br>
 			<form id="textViewer_input" action="/textViewer" method="POST">
 
-			    <!-- input -->
-			    <div class="row">
-			        <textarea id="text_abbreviation_input" name="text_abbreviation_input" class="form-control" rows="1" spellcheck="false" placeholder="Enter text abbreviation here">{{ text_abbreviation }}</textarea>
-			        <textarea id="local_doc_id_input" name="local_doc_id_input" class="form-control" rows="1" spellcheck="false" placeholder="Enter text-internal identifier here">{{ local_doc_id }}</textarea>
-			        <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
-			    </div>
+				<!-- input -->
+                <div class="row">
+                	<div class="col-md-3">
+	                    <input id="text_abbreviation_input" name="text_abbreviation_input" type="text" class="form-control" placeholder="Enter text abbreviation here" size="30"/>
+	                </div>
+	                <div class="col-md-3">
+	                    <input id="local_doc_id_input" name="local_doc_id_input" type="text" class="form-control" placeholder="Enter doc id here" size="30"/>
+	                </div>
+	                <div class="col-md-2">
+		                <input id="text_view_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
+		            </div>
+                </div>
 
 			</form>
+
+            <h1>{{ text_title }}</h1>
 
 			{{ text_HTML | safe }}
 

@@ -521,7 +521,7 @@ def doc_search():
 		if doc_id_input in valid_doc_ids:
 			output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
 		else:
-			output = "<p>what's that? i only know about " + str(valid_doc_ids[:3])[1:-1] + " etc. (<a href='assets/pramanaNLP/doc_id_list.txt' target='_blank'>see list</a>)</p>"
+			output = "<p>what's that? i only know about " + str(valid_doc_ids[:3])[1:-1] + " etc. (see <a href='assets/pramanaNLP/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>corpus text list</a>)</p>"
 
 		return render_template(	"pramanaNLP-documentExplorer.html",
 								page_subtitle="doc",
@@ -562,19 +562,20 @@ def pramanaNLP_text_viewer():
 		elif 'doc_id' in request.args:
 			local_doc_id_input = request.args.get("doc_id")
 
+		text_title = ""
 		valid_text_abbrvs = list(IR_tools.text_abbrev2fn.keys())
 		disallowed = ['PVin','HB','PSṬ','NV']
 		if text_abbreviation_input in disallowed:
 			text_HTML = "<p>sorry, fulltext is not available for these texts at present: " + str(disallowed)[1:-1] + " (see <a href='https://github.com/tylergneill/pramana-nlp/tree/master/data_prep/1_etext_originals' target='_blank'>note</a> for more info)</p>"
 		elif text_abbreviation_input in valid_text_abbrvs:
+			text_title = IR_tools.text_abbrev2fn[text_abbreviation_input]
 			text_HTML = IR_tools.prepare_text_view(text_abbreviation_input)
 		else:
-			text_HTML = "<p>what's that? i only know about " + str(valid_text_abbrvs[:3])[1:-1] + " etc. (<a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>see list</a>)</p>"
+			text_HTML = "<p>what's that? i only know about " + str(valid_text_abbrvs[:3])[1:-1] + " etc. (see <a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>corpus texts list</a>)</p>"
 
 		return render_template("pramanaNLP-textViewer.html",
 		page_subtitle="text",
-		text_abbreviation=text_abbreviation_input,
-		local_doc_id=local_doc_id_input,
+		text_title=text_title,
 		text_HTML=text_HTML
 		)
 
