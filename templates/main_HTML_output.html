@@ -1,0 +1,335 @@
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<meta property='og:title' content='skrutable'/>
+		<meta property='og:image' content='/static/ui_screenshot.png'/>
+		<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
+		<meta property='og:url' content='https://skrutable.pythonanywhere.com/'/>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+        <link rel="shortcut icon" href="#">
+
+        <title>skrutable</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+
+				<!-- entire top navbar -->
+				<div class="row">
+
+					<!-- skrutable brand/reset button and conditionally visibile action title -->
+	                <div class="col-md-4">
+
+						<div class="row">
+
+							<div class="col-md-4 col-xs-4">
+			                    <div class="navbar-header">
+			                        <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
+		                    	</div>
+							</div>
+
+							<div class="col-md-8 col-xs-8">
+			                    <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
+			                        <a class="navbar-brand">: {{ skrutable_action }}</a>
+			                    </div>
+							</div>
+
+						</div>
+
+					</div>
+
+					<!-- about, tutorial, and conditionally visibile example links -->
+					<div class="col-md-4">
+
+						<div class="row">
+
+							<div class="col-md-4 col-xs-4">
+								<div class="navbar-header">
+		                    		<a class="navbar-brand float-right" href="./about">about</a>
+								</div>
+		                	</div>
+
+			                <div class="col-md-4 col-xs-4">
+		                        <div class="navbar-header">
+		                        	<a class="navbar-brand" href="./tutorial">tutorial</a>
+		                        </div>
+			                </div>
+
+							<div class="col-md-4 col-xs-4">
+								<div class="navbar-header" id="hiddenExample" style="visibility: hidden">
+									<a class="navbar-brand" href="./ex1">(example)</a>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+
+                </div><!-- entire top navbar row -->
+
+            </div><!-- container -->
+            
+        </nav>
+
+        <div class="container">
+
+            <form id="overall_form" action="/" method="POST">
+
+                <!-- input -->
+                <div class="row">
+                    <textarea id="text_input" name="text_input" class="form-control" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
+                </div>
+
+                <!-- output -->
+                <div class="row well blue-border-focus">
+                    {{ output_HTML | safe }}                    
+                </div>
+
+                <!-- controls -->
+                <div class="row">
+
+                    <!-- input and output schemes, and swap buttons -->
+                    <div class="col-md-4">
+                    	<div class="col-md-12">
+                    	
+	                    	<div class="row">
+	                        
+	                        	<div class="col-md-6">
+		                            <label for="from_scheme">Input Scheme</label>
+		                            </br>
+		                            <select name="from_scheme" id="from_scheme" class="btn-block">
+		                                <optgroup label="Romanizations">
+		                                    <option value="IAST">IAST</option>
+		                                    <option value="HK">HK</option>
+		                                    <option value="SLP">SLP</option>
+		                                    <option value="ITRANS">ITRANS</option>
+		                                    <option value="VH">VH</option>
+		                                    <option value="WX">WX</option>
+		                                    <option value="IASTREDUCED" disabled>IAST reduced</option>
+		                                </optgroup>
+		                                <optgroup label="Indic Scripts">
+		                                    <option value="DEV">DEV</option>
+		                                    <option value="BENGALI">BENGALI</option>
+		                                    <option value="GUJARATI">GUJARATI</option>
+		                                </optgroup>
+		                            </select>
+	                        	</div>
+
+	                        	<div hidden class="col-md-6">
+	                        		<label for="to_scheme">Virāma Option</label>
+		                            </br>
+		                            <select name="virAma_option" id="virAma_option" class="btn-block">
+		                                <option value="preserve_space">default: preserve</option>
+		                                <option value="break_clusters">more virāmas</option>
+		                                <option value="combine">less virāmas</option>
+		                            </select>
+		                        </div>
+	                        
+	                        </div>
+							
+							</br>
+	                       	
+	                       	<div class="row">
+
+								<div class="col-md-3">
+		                            <!-- <label>Swap</label> -->
+		                            <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Txt ⇅" onclick="swapTexts();"/>
+		                        </div>
+		                        <div class="col-md-5">
+		                            <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
+	                            </div>
+	                            <div class="col-md-4">
+		                            <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
+	                        	</div>
+	                    	</div>
+                        	</br>
+
+                       	</div>
+                    </div><!-- input and output schemes, and swap buttons -->
+
+                    <!-- swap buttons -->
+                    <!-- <div class="col-md-2"> -->
+                        
+                    <!-- </div> -->
+
+
+                    <!-- submission -->
+                    <div class="col-md-8">
+
+                        <!-- transliteration -->
+                        <div class="col-md-3">
+                            <input id="transliterate_button" type="submit" class="btn btn-block btn-primary" value="Transliterate" onclick="set_action('transliterate');"/>
+                            <label for="to_scheme">Output Scheme</label>
+                            </br>
+                            <select name="to_scheme" id="to_scheme" class="btn-block">
+                                <optgroup label="Romanizations">
+                                    <option value="IAST">IAST</option>
+                                    <option value="HK">HK</option>
+                                    <option value="SLP">SLP</option>
+                                    <option value="ITRANS">ITRANS</option>
+                                    <option value="VH">VH</option>
+                                    <option value="WX">WX</option>
+                                    <option value="IASTREDUCED">IAST reduced</option>
+                                </optgroup>
+                                <optgroup label="Indic Scripts">
+                                    <option value="DEV">DEV</option>
+                                    <option value="BENGALI">BENGALI</option>
+                                    <option value="GUJARATI">GUJARATI</option>
+                                </optgroup>
+                            </select>
+                            </br>
+                            <input id="transliterate_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('transliterate');" formaction="./wholeFile"/>
+                            </br>
+                        </div>
+
+                        <!-- scansion -->
+                        <div class="col-md-3">
+                            <input id="scan_button" type="submit" class="btn btn-block btn-primary" value="Scan" onclick="set_action('scan')"/>
+                            <label>Scansion Detail</label>
+                            </br>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="checkbox" id="weights" name="scan_detail" value="weights" checked/>
+                                    <label for="weights">lglgl</label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="checkbox" id="morae" name="scan_detail" value="morae" checked/>
+                                    <label for="morae">{mora}</label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="checkbox" id="gaRas" name="scan_detail" value="gaRas" checked/>
+                                    <label for="gaRas">[gaṇa]</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="checkbox" id="alignment" name="scan_detail" value="alignment" checked/>
+                                    <label for="alignment">align</label>
+                                </div>
+                            </div>
+                            </br>
+                        </div>
+
+                        <!-- meter identification -->
+                        <div class="col-md-3">
+                            <input id="identify_meter_button" type="submit" class="btn btn-block btn-primary" value="Identify Meter" onclick="set_action('identify meter');"/>
+                            <label for="resplit_option">Re-Split Pādas</label>
+                            </br>
+                            <select id="resplit_option" name="resplit_option" class="btn-block">
+                                <option value="none">none</option>
+                                <option value="resplit_lite">resplit lite</option>
+                                <option value="resplit_lite_keep_mid" checked>resplit lite keep mid</option>
+                                <option value="resplit_max">resplit max</option>
+                                <option value="resplit_max_keep_mid">resplit max keep mid</option>
+                            </select>
+                            </br>
+                            <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/wholeFile"/>
+                        	</br>
+                        </div>
+
+                    	<!-- splitting -->
+                        <div class="col-md-3">
+                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Sandhi & Cpds" data-toggle="tooltip" title="Sansplit! 💃" onclick="set_action('split');"/>
+                            </br>
+                        <!--<label for="split">Punctuation</label>
+                            </br>
+                            <select name="prsrv_punc" id="prsrv_punc" class="btn-block">
+                                <option value="preserve">preserve</option>
+                                <option value="preserve">discard</option>
+                            </select>
+                            </br>-->
+                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value=">> Apte links" onclick="set_action('apte links');"/>
+                            </br>
+                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" data-toggle="tooltip" title="🤯"onclick="set_action('split');" formaction="./wholeFile"/>
+                            </br>
+                        </div>
+
+                    </div><!-- submission -->
+
+                </div><!-- controls -->
+
+                <select hidden name="skrutable_action" id="skrutable_action">
+                    <option value="transliterate">transliterate</option>
+                    <option value="scan">scan</option>
+                    <option value="identify meter">identify meter</option>
+                    <option value="split">split</option>
+                    <option value="apte links">apte links</option>
+                </select>
+
+            </form>
+
+        </div><!-- container -->
+
+        <script>
+
+            function swapElementValues(e_1, e_2) {
+                var tmp = e_1.value;
+                e_1.value = e_2.value;
+                e_2.value = tmp;
+            }
+            function swapTexts() {
+                swapElementValues( document.getElementById('text_input'), document.getElementById('text_output') );
+            }
+            function swapSchemes() {
+                if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
+                    swapElementValues( document.getElementById('from_scheme'), document.getElementById('to_scheme') );
+                }
+            }
+            function swapBoth() {
+                if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
+                    swapTexts();
+                    swapSchemes();
+                }
+            }
+
+            function initialize_choices() {
+                document.getElementById("skrutable_action").value = "{{ skrutable_action }}";
+                document.getElementById("from_scheme").value = "{{ from_scheme }}";
+                document.getElementById("to_scheme").value = "{{ to_scheme }}";
+                if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
+                if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
+                if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
+                if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
+                document.getElementById("resplit_option").value = "{{ resplit_option }}";
+
+
+            }
+
+            function conditionally_display_examples() {
+
+								// for some reason value == "..." does not work...
+                if (document.getElementById("skrutable_action").value != "transliterate" &&
+                    document.getElementById("skrutable_action").value != "scan" &&
+                    document.getElementById("skrutable_action").value != "identify meter" &&
+                    document.getElementById("skrutable_action").value != "split") {
+
+                    document.getElementById("hiddenExample").style.visibility = "visible";
+
+                }
+				else {
+						document.getElementById("hiddenActionTitle").style.visibility = "visible";
+				}
+            }
+
+            window.onload = function() {
+                initialize_choices();
+                conditionally_display_examples();
+            }
+
+            function set_action(new_skr_act) {
+                document.getElementById("skrutable_action").value = new_skr_act;
+            }
+
+        </script>
+
+    </body>
+
+</html>
