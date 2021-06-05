@@ -37,7 +37,9 @@ for row in theta_rows:
     doc_fulltext[doc_id] = doc_text
     thetas[doc_id] = [ float(th) for th in theta_values ]
 
-with open('assets/pramanaNLP/doc_id_list.txt','w') as f_out:
+doc_id_list_relative_path_fn = 'assets/pramanaNLP/doc_id_list.txt'
+doc_id_list_full_fn = os.path.join(CURRENT_FOLDER, doc_id_list_relative_path_fn)
+with open(doc_id_list_full_fn,'w') as f_out:
 	f_out.write('\n'.join(doc_ids))
 
 # overall corpus string and list of all words
