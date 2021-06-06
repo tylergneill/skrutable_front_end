@@ -490,7 +490,7 @@ def pramana_NLP_main():
 @app.route('/topicExplorer')
 def pramana_NLP_LDAvis():
 
-	relative_path_to_LDAvis_HTML_fn = "assets/pramanaNLP/ldavis_prepared_10.html"
+	relative_path_to_LDAvis_HTML_fn = "assets/pramanaNLP/ldavis_prepared_50.html"
 	LDAvis_HTML_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_LDAvis_HTML_fn)
 	with open(LDAvis_HTML_full_fn, 'r') as f_in:
 		LDAvis_HTML = html.unescape(f_in.read())
