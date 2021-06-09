@@ -519,7 +519,8 @@ def doc_search():
 
 		valid_doc_ids = IR_tools.doc_ids
 		if doc_id_input in valid_doc_ids:
-			output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
+			output = IR_tools.get_closest_docs(doc_id_input) # results_HTML
+			# output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
 		else:
 			output = "<p>what's that? i only know about " + str(valid_doc_ids[:3])[1:-1] + " etc. (see <a href='assets/pramanaNLP/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>corpus text list</a>)</p>"
 
@@ -569,7 +570,7 @@ def pramanaNLP_text_viewer():
 			text_HTML = "<p>sorry, fulltext is not available for these texts at present: " + str(disallowed)[1:-1] + " (see <a href='https://github.com/tylergneill/pramana-nlp/tree/master/data_prep/1_etext_originals' target='_blank'>note</a> for more info)</p>"
 		elif text_abbreviation_input in valid_text_abbrvs:
 			text_title = IR_tools.text_abbrev2fn[text_abbreviation_input]
-			text_HTML = IR_tools.prepare_text_view(text_abbreviation_input)
+			text_HTML = IR_tools.format_text_view(text_abbreviation_input)
 		else:
 			text_HTML = "<p>what's that? i only know about " + str(valid_text_abbrvs[:3])[1:-1] + " etc. (see <a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>corpus texts list</a>)</p>"
 
