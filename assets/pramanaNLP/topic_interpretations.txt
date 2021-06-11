@@ -11,12 +11,12 @@ language 1
 inference 3
 inference 4
 fire as inferred
-veda + pronouns
+Veda + pronouns
 śāstra
 prāmāṇya
 pramāṇa
-vaiśeṣika
-buddhist ideals
+vViśeṣika
+Buddhist ideals
 dialectic 5
 (qualification and practice)
 causation examples
@@ -27,14 +27,14 @@ exclusion and appearance
 sensation
 debate
 difference
-mīmāṃsā
+Mīmāṃsā
 emptiness
 conceptuality
-sāṃkhya-yoga
+Sāṃkhya-Yoga
 universals
 mereology
 action
-yoga
+Yoga
 soteriology 2
 mind, body, agency
 language as causal 1
