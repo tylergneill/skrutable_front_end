@@ -97,7 +97,8 @@ with open(topic_interpretation_fn_full_path,'r') as f_in:
     topic_interpretations = f_in.readlines()
 
 topic_wordclouds_relative_path = 'assets/pramanaNLP/topic_wordclouds' # only relative for src
-topic_wordcloud_fns = [ os.path.join(topic_wordclouds_relative_path, img_fn)
+topic_wordclouds_full_path = os.path.join(CURRENT_FOLDER, topic_wordclouds_relative_path)
+topic_wordcloud_fns = [ os.path.join(topic_wordclouds_full_path, img_fn)
 							for img_fn in os.listdir(topic_wordclouds_relative_path)
 							if os.path.isfile(os.path.join(topic_wordclouds_relative_path, img_fn))
 							and img_fn != '.DS_Store'
