@@ -411,9 +411,9 @@ def reset_variables():
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["meter_label"] = ""
 	session["melody_options"] = []
-	session["doc_id_input"] = ""
+	session["doc_id"] = ""
 	session["text_abbreviation_input"] = ""
-	session["local_doc_id_input"] = ""
+	session["local_doc_id"] = ""
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -510,23 +510,23 @@ def pramanaNLP_document_explorer():
 @app.route('/doc_search', methods=["GET", "POST"])
 def doc_search():
 
-	if request.method == "POST" or 'doc_id_input' in request.args:
+	if request.method == "POST" or 'doc_id' in request.args:
 
-		if 'doc_id_input' in request.form:
-			doc_id_input = request.form.get("doc_id_input")
-		elif 'doc_id_input' in request.args:
-			doc_id_input = request.args.get("doc_id_input")
+		if 'doc_id' in request.form:
+			doc_id = request.form.get("doc_id")
+		elif 'doc_id' in request.args:
+			doc_id = request.args.get("doc_id")
 
 		valid_doc_ids = IR_tools.doc_ids
-		if doc_id_input in valid_doc_ids:
-			output = IR_tools.get_closest_docs(doc_id_input) # results_HTML
-			# output = IR_tools.compare_by_topic(doc_id_input) # results_HTML
+		if doc_id in valid_doc_ids:
+			output = IR_tools.get_closest_docs(doc_id) # results_HTML
+			# output = IR_tools.compare_by_topic(doc_id) # results_HTML
 		else:
 			output = "<p>what's that? i only know about " + str(valid_doc_ids[:3])[1:-1] + " etc. (see <a href='assets/pramanaNLP/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/pramanaNLP/corpus_texts.txt' target='_blank'>corpus text list</a>)</p>"
 
 		return render_template(	"pramanaNLP-documentExplorer.html",
 								page_subtitle="doc",
-								doc_id_input=doc_id_input,
+								doc_id=doc_id,
 								doc_search_output=output
 								)
 
@@ -557,11 +557,11 @@ def pramanaNLP_text_viewer():
 			text_abbreviation_input = request.args.get("text_abbrv")
 
 		# can't render this properly at all yet
-		local_doc_id_input=''
-		if 'local_doc_id_input' in request.form:
-			local_doc_id_input = request.form.get("local_doc_id_input")
+		local_doc_id=''
+		if 'local_doc_id' in request.form:
+			local_doc_id = request.form.get("local_doc_id")
 		elif 'doc_id' in request.args:
-			local_doc_id_input = request.args.get("doc_id")
+			local_doc_id = request.args.get("doc_id")
 
 		text_title = ""
 		valid_text_abbrvs = list(IR_tools.text_abbrev2fn.keys())
@@ -599,9 +599,9 @@ def pramanaNLP_align_similar():
 		# elif 'doc_id_1' in request.args:
 		# 	text_abbreviation_input = request.args.get("doc_id_1")
 		# if 'doc_id_2' in request.form:
-		# 	local_doc_id_input = request.form.get("doc_id_2_input")
+		# 	local_doc_id = request.form.get("doc_id_2_input")
 		# elif 'doc_id_2' in request.args:
-		# 	local_doc_id_input = request.args.get("doc_id_2")
+		# 	local_doc_id = request.args.get("doc_id_2")
 
 		# valid_text_abbrvs = IR_tools.doc_ids # or list of pre-prepared HTML...
 		# if doc_id_1 in valid_text_abbrvs and doc_id_2 in valid_text_abbrvs:

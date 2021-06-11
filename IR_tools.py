@@ -84,7 +84,27 @@ for row in phi_rows:
     word, phi_values = cells[0], cells[1:]
     phis[word] = [ float(ph) for ph in phi_values ]
 
-# count document frequencies
+# load three illustrations of topic meaning (topic_top_words, topic_interpretations, topic_wordclouds)
+
+topic_top_words_fn = 'assets/pramanaNLP/topic_top_words.txt'
+topic_top_words_fn_full_path = os.path.join(CURRENT_FOLDER, topic_top_words_fn)
+with open(topic_top_words_fn_full_path,'r') as f_in:
+    topic_top_words = f_in.readlines()
+
+topic_interpretation_fn = 'assets/pramanaNLP/topic_interpretations.txt'
+topic_interpretation_fn_full_path = os.path.join(CURRENT_FOLDER, topic_interpretation_fn)
+with open(topic_interpretation_fn_full_path,'r') as f_in:
+    topic_interpretations = f_in.readlines()
+
+topic_wordclouds_relative_path = 'assets/pramanaNLP/topic_wordclouds' # only relative for src
+topic_wordcloud_fns = [ os.path.join(topic_wordclouds_relative_path, img_fn)
+							for img_fn in os.listdir(topic_wordclouds_relative_path)
+							if os.path.isfile(os.path.join(topic_wordclouds_relative_path, img_fn))
+							and img_fn != '.DS_Store'
+						]
+topic_wordcloud_fns.sort()
+
+# count each term's document frequency
 docs_containing = {} # e.g. docs_containing[WORD] = INT for each word in vocab
 for doc_id in doc_ids:
     doc_text = doc_fulltext[doc_id]
@@ -170,10 +190,9 @@ def get_top_topic_indices(doc_id, max_N=5, threshold=0.03):
     indices_of_dominant_N_topics = indices_of_top_N_elements(L=thetas[doc_id], N=max_N)
     qualifying_indices = [  i
                             for i in indices_of_dominant_N_topics
-                            if thetas[query_id][i] >= threshold
+                            if thetas[doc_id][i] >= threshold
                             ]
     return qualifying_indices
-# NEEDS OWN HTML FORMATTING FUNCTION TOO...
 
 def get_N_candidates_by_topic_similarity(query_id, N=500):
 	query_vector = np.array(thetas[query_id])
@@ -271,9 +290,25 @@ def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 
 # HTML formatting functions
 
+def format_top_topic_summary(doc_id, top_topic_indices):
+	top_topic_summary_HTML = "<div class='container'>"
+	top_topic_summary_HTML += ''.join(
+		[ "<h2><small>{:.1%} <span title='{}'>{}</span> (<a href='topicExplorer#topic={}&lambda=0.8&term=' target='_blank'>#{:02}</a> <a href='{}' target='_wordcloud'>☁️</a>)</small></h2>".format(
+				thetas[doc_id][i],
+				topic_top_words[i],
+				topic_interpretations[i],
+				i+1,
+				i+1,
+				topic_wordcloud_fns[i]
+				)
+		for i in top_topic_indices
+		] )
+	top_topic_summary_HTML += "</div>"
+	return top_topic_summary_HTML
+
 def format_docView_link(doc_id):
 	# looks like doc_id
-	return "<a href='doc_search?doc_id_input=%s'>%s</a>" % (doc_id, doc_id)
+	return "<a href='doc_search?doc_id=%s'>%s</a>" % (doc_id, doc_id)
 
 def format_textView_link(doc_id):
 	# looks like fixed string "textView"
@@ -395,6 +430,10 @@ def get_closest_docs(query_id):
 						next_doc_id = doc_links[query_id]['next'],
 						query_original_fulltext = doc_original_fulltext[query_id],
 						query_segmented_fulltext = doc_fulltext[query_id],
+						top_topics_summary=format_top_topic_summary(
+							query_id,
+							get_top_topic_indices(query_id, max_N=5, threshold=0.03)
+							),
 						priority_results_list_content = primary_col_HTML,
 						secondary_results_list_content = secondary_col_HTML,
 						)
