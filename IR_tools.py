@@ -96,8 +96,6 @@ topic_interpretation_fn_full_path = os.path.join(CURRENT_FOLDER, topic_interpret
 with open(topic_interpretation_fn_full_path,'r') as f_in:
     topic_interpretations = f_in.readlines()
 
-import pdb; pdb.set_trace()
-
 topic_wordclouds_relative_path = 'assets/pramanaNLP/topic_wordclouds' # only relative for src
 topic_wordclouds_full_path = os.path.join(CURRENT_FOLDER, topic_wordclouds_relative_path)
 topic_wordcloud_fns = [ os.path.join(topic_wordclouds_full_path, img_fn)
