@@ -1,5 +1,4 @@
 {
-
 	"AvNir" : "asoka_avayavinirakarana",
 	"NBhū" : "bhasarvajna_nyayabhusana",
 	"PPad" : "candrakirti_prasannapada",
@@ -15,6 +14,8 @@
 	"NBṬ" : "dharmottara_nyayabindutika",
 	"AP" : "dignaga_alambanapariksavrtti",
 	"PSV" : "dignaga_pramanasamuccayavrtti",
+	"MV" : "gadadhara_muktivada",
+	"TCM" : "gangesa_tattvacintamani",
 	"NS" : "gautama_nyayasutra",
 	"SK" : "isvarakrsna_samkhyakarika",
 	"MS" : "jaimini_mimamsasutra",
@@ -36,6 +37,6 @@
 	"NV" : "uddyotakara_nyayavartika",
 	"ViṃśV" : "vasubandhu_vimsikavrtti",
 	"NBh" : "vatsyayana_nyayabhasya",
+	"SŚP" : "vidyanandin_satyasasanapariksa",
 	"VyV" : "vyomasiva_vyomavati"
-
 }
