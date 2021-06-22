@@ -78,8 +78,10 @@ for row in theta_rows:
 	thetas[doc_id] = [ float(th) for th in theta_values ]
 num_docs = len(doc_ids)
 
+
 def new_full_vector(size, val):
 	return np.full( size, val )
+
 topic_weights_default = new_full_vector(K, 1.0)
 
 ex_doc_ids = ['NBhū_104,6^1', 'SŚP_2.21', 'MV_1,i_5,i^1']
@@ -189,6 +191,7 @@ corpus_vocab_reduced = [
 #         if not (word in (stopwords + error_words) or freq_w[word] < 3)
 # ]
 
+
 # prepare dict of doc_links
 # (generalized because same structure used for similarity results, too)
 def create_doc_link_series(doc_ids_to_do):
@@ -253,7 +256,8 @@ def get_top_topic_indices(doc_id, max_N=5, threshold=0.03):
                             ]
     return qualifying_indices
 
-def get_N_candidates_by_topic_similarity(query_id, N=500, topic_weights=topic_weights_default):
+
+def rank_N_candidates_by_topic_similarity(query_id, N=500, topic_weights=topic_weights_default):
 
 	if doc_fulltext[query_id] == '': return {}
 
@@ -310,6 +314,7 @@ period_4_works = ['ŚVK', 'AvNir']
 # pre-NBhū
 preferred_works = period_1_works + period_2_works
 
+
 def divide_doc_id_list_by_work_priority(list_of_doc_ids_to_prune, priority_works):
 	prioritized = []
 	secondary = []
@@ -321,12 +326,9 @@ def divide_doc_id_list_by_work_priority(list_of_doc_ids_to_prune, priority_works
 	return prioritized, secondary
 
 
-# 2) compare by TF.IDF score
-
-# first prepare function for calculating tf.idf vector for any given doc
-
 def get_TF_IDF_vector(doc_id):
-	# returns numpy array
+	# calculates tf.idf vector for any given doc
+	# returns as numpy array
 
 	doc_text = doc_fulltext[doc_id]
 	doc_words = doc_text.split()
@@ -349,6 +351,7 @@ def get_TF_IDF_vector(doc_id):
 
 	return TF_IDF_vector
 
+
 def load_stored_TF_IDF_results(work_name):
 	work_pickle_relative_fn = 'assets/vatayana/tf-idf_pickles/{}.p'.format(work_name)
 	work_pickle_fn = os.path.join(CURRENT_FOLDER, work_pickle_relative_fn)
@@ -366,43 +369,49 @@ def save_updated_TF_IDF_results(updated_results, work_name):
 		P = pickle.Pickler(f_out)
 		P.dump(updated_results)
 
+
 def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 
 	work_name = parse_complex_doc_id(query_id)[0]
 
-	# NEED TO ALSO ENCODE VECTOR SIZE IN FILENAME
+	# load any available previously calculated results from disk
 	cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name)
 	if query_id in cumulative_results_for_this_work.keys():
-		# candidate_ids can be of any size because of time prioritization
-		# but len(cumulative_results_for_this_work) is always the full N (e.g. 1000)
-		# so it's necessary to reduce which ones are sent back
 		ks = list(cumulative_results_for_this_work[query_id])
-		relevant_cumulative_results = { k: cumulative_results_for_this_work[query_id][k]
-										for k in ks
-										if k in candidate_ids
-										}
-		# print("RETURNING OLD TF_IDF RESULTS")
-		return relevant_cumulative_results
+		candidates_already_done = [ k for k in ks if k in candidate_ids ]
+	else:
+		candidates_already_done = []
 
 	# else contine to perform new calculation
 
 	query_vector = get_TF_IDF_vector(query_id)
 	TF_IDF_comparison_scores = {} # e.g. tf_idf_score[DOC_ID] = FLOAT
+	new_TF_IDF_comparison_scores = {} # for saving new results
 
 	for doc_id in candidate_ids:
-		candidate_vector = get_TF_IDF_vector(doc_id)
-		if np.all(candidate_vector == 0): continue # skip empties to avoid div_by_zero in cosine calculation
-		# cp. skipping of empties in theta step by doc_fulltext
-		TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
+		if doc_id in candidates_already_done:
+			TF_IDF_comparison_scores[doc_id] = cumulative_results_for_this_work[query_id][doc_id]
+		else:
+			candidate_vector = get_TF_IDF_vector(doc_id)
+			if np.all(candidate_vector == 0):
+				 # basically skip empties to avoid div_by_zero in cosine calculation (could also use doc_fulltext)
+				new_TF_IDF_comparison_scores[doc_id] = 0
+			else:
+				new_TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
+			TF_IDF_comparison_scores[doc_id] = new_TF_IDF_comparison_scores[doc_id]
 
-	sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
-	candidate_ranking_results_dict = { res[0]: res[1] for res in sorted_results }
-
-	# save new result
-	cumulative_results_for_this_work[query_id] = candidate_ranking_results_dict
+	# merge new dict into old cumulative results dict and save to disk
+	if query_id in cumulative_results_for_this_work.keys():
+		cumulative_results_for_this_work[query_id].update(new_TF_IDF_comparison_scores)
+	else:
+		cumulative_results_for_this_work[query_id] = new_TF_IDF_comparison_scores
 	save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
 
+	# sort and return ranked results
+	sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
+	candidate_ranking_results_dict = { res[0]: res[1] for res in sorted_results }
 	return candidate_ranking_results_dict
+
 
 def group_doc_ids_by_work(*doc_ids_to_do):
 	doc_ids_grouped_by_work = {}
@@ -412,6 +421,7 @@ def group_doc_ids_by_work(*doc_ids_to_do):
 			doc_ids_grouped_by_work[work_name] = []
 		doc_ids_grouped_by_work[work_name].append(doc_id)
 	return doc_ids_grouped_by_work
+
 
 # currently for back-end use only
 def conditionally_do_batch_tf_idf_comparisons(*doc_ids_to_do, N=500):
@@ -446,6 +456,7 @@ def conditionally_do_batch_tf_idf_comparisons(*doc_ids_to_do, N=500):
 
 	pbar.close()
 	return
+
 
 # HTML formatting functions
 
@@ -525,7 +536,7 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 
 	# get N preliminary candidates by topic score (dimensionality = K, fast)
 	N = 1000
-	preliminary_N_candidates = get_N_candidates_by_topic_similarity(query_id, N, topic_weights)
+	preliminary_N_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
 	# prioritize candidates
 	# (for now, just by fixed time periods, later can generalize)
@@ -568,6 +579,7 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 						secondary_col_content = secondary_col_HTML
 						)
 	return results_HTML
+
 
 def score_to_color(score):
 	alpha = score # both [0,1]
@@ -814,42 +826,6 @@ def get_text_view(text_abbreviation):
 			f_out.write(viewText_HTML)
 		return viewText_HTML
 
-# import pdb; pdb.set_trace()
-# conditionally_do_batch_tf_idf_comparisons(*doc_ids[:5], N=1000)
-
-# for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
-# 	if txt_abbrv not in disallowed_fulltexts:
-# 		get_text_view(txt_abbrv)
-
-
-# def make_slider_with_updating_label(i, wt):
-#
-# 	topic_slider_HTML = """
-# <div class='row'>
-# 	<div class='col-md-3'>
-# 		<p>Topic #{}</p>
-# 	</div>
-# 	<div class='col-md-3'>
-# 		<div class='range'>
-# 			<input type='range' class='form-range topic_wt_slider' id='topic_wt_slider_{}' min='0' max='1' step='0.05' value='{:.2f}'/>
-# 		</div>
-# 	</div>
-# 	<div class="col-md-1">
-# 		<p id="topic_wt_curr_val_{}"></p>
-# 	</div>
-# </div>""".format(i+1, i+1, wt, i)
-
-# 	topic_slider_HTML += """
-# <script>
-# 	var slider = document.getElementById("topic_wt_slider_{}");
-# 	var output = document.getElementById("topic_weights_all_curr_val");
-# 	output.innerHTML = slider.value; // Display the default slider value
-# 	// Update the current slider value (each time you drag the slider handle)
-# 	slider.oninput = function() {
-# 	  output.innerHTML = this.value;
-# 	}
-#
-# </script>""".format()
 
 def format_topic_adjust_output(topic_weight_input, topic_label_input):
 
@@ -909,3 +885,14 @@ slider_{}.oninput = function() {{
 								slider_and_label_HTML=overall_buffer
 								)
 	return topicAdjustOutput_HTML
+
+# for offline use
+
+# build more tf-idf pickles
+# import pdb; pdb.set_trace()
+# conditionally_do_batch_tf_idf_comparisons(*doc_ids[:5], N=1000)
+
+# build (all) textView HTML pages
+# for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
+# 	if txt_abbrv not in disallowed_fulltexts:
+# 		get_text_view(txt_abbrv)
