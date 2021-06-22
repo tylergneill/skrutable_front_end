@@ -7,7 +7,7 @@
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
-        <title>pramāṇa NLP</title>
+        <title>vātāyana: docCompare</title>
 
     </head>
 
@@ -26,7 +26,7 @@
 
 							<div class="col-md-4 col-xs-4">
 			                    <div class="navbar-header">
-			                        <a class="navbar-brand" style="background-color: #000;" href="./pramanaNLP">pr-NLP</a>
+			                        <a class="navbar-brand" style="background-color: #000;" href="./vatayana">vātāyana</a>
 		                    	</div>
 							</div>
 
@@ -76,26 +76,56 @@
         <div class="container">
 
 
-        	<h1>Document Explorer</h1>
+        	<h1>Compare Docs</h1>
         	<br>
         	
-			<form id="doc_search" action="/doc_search" method="POST">
+			<div class="row">
 
-			    <div class="row">
-			    	<div class="col-md-3">
-			            <input id="doc_id" name="doc_id" type="text" class="form-control" placeholder="Enter doc id here" size="30"/>
-			        </div>
-			        <div class="col-md-2">
-			            <input id="doc_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
-			        </div>
+				<form id="doc_compare_search_bar" action="/docCompare" method="POST">
+
+				<div class="col-md-3">
+		            <input id="doc_id_1" name="doc_id_1" type="text" class="form-control" placeholder="Enter doc id 1" value="{{ doc_id_1 }}" size="30"/>
+		        </div>
+
+		        <div class="col-md-3">
 			    </div>
 
-			</form>
+		    	<div class="col-md-3">
+		            <input id="doc_id_2" name="doc_id_2" type="text" class="form-control" placeholder="Enter doc id 2" value="{{ doc_id_2 }}" size="30"/>
+		        </div>
 
-            {{ doc_search_output | safe }}
+		        <div class="col-md-1">
+			    </div>
+
+		        <div class="col-md-2">
+		            <input id="doc_compare_search_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
+			    </div>
+
+			    </form>
+
+			</div>
+
+
+            {{ doc_compare_output | safe }}
 
         </div><!-- container -->
 
+        <script>
+        	function conditionally_display_similar_doc_link_buttons() {
+                sim_btn_left = "{{ activate_similar_link_buttons_left }}";
+                if ( sim_btn_left.length > 0 ) {
+                    document.getElementById("similar_doc_link_btns_left").style.visibility = "visible";
+                }
+                sim_btn_right = "{{ activate_similar_link_buttons_right }}";
+                if ( sim_btn_right.length > 0 ) {
+                    document.getElementById("similar_doc_link_btns_right").style.visibility = "visible";
+                }
+            }
+
+         	window.onload = function() {
+                conditionally_display_similar_doc_link_buttons();
+            }
+        </script>
 
     </body>
 

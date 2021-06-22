@@ -1,16 +1,16 @@
-<h1>$query_id <small>($query_section)</small></h1>
+<h1>$query_id <small><small>($query_section)</small></small></h1>
 
 <div class="row">
 
 	<div class="col-md-2">
-		<form method="get" action="doc_search">
+		<form method="get" action="docExplore">
 			<input type="hidden" name="doc_id" value="$prev_doc_id" />
 			<input type="submit" class="btn btn-block btn-primary" value="<< $prev_doc_id" />
 		</form>
 	</div>
 
 	<div class="col-md-2">
-		<form method="get" action="doc_search">
+		<form method="get" action="docExplore">
 			<input type="hidden" name="doc_id" value="$next_doc_id" />
 			<input type="submit" class="btn btn-block btn-primary" value="$next_doc_id >>" />
 		</form>
@@ -34,22 +34,22 @@
 
 <div class="row">
 
-	<div class="col-md-4">
+	<div class="col-md-5">
 		<h2>Topic Analysis</h2>
-		<img id="plot" src="/assets/pramanaNLP/doc_plot_pngs/$query_id.png" alt="oops" width="400" height="280">
+		<img id="plot" src="/assets/vatayana/doc_plot_pngs/$query_id.png" alt="oops" width="500" height="350">
 		$top_topics_summary
 	</div>
 
-	<div class="col-md-5">
+	<div class="col-md-4">
 		<h2>Most Similar<span title='by topic, tf-idf'>*</span> and Older<span title='pre-NBhū only'>*</span></h2>
 		<br>
-		$priority_results_list_content
+		$priority_col_content
 	</div>
 
 	<div class="col-md-3">
 		<h2>Also Similar<span title='by topic'>*</span></h2>
 		<br>
-		$secondary_results_list_content
+		$secondary_col_content
 	</div>
 
 </div>

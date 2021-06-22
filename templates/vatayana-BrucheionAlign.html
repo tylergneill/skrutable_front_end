@@ -1,7 +1,7 @@
 <html>
     <head>
 
-        <title>pramāṇa NLP</title>
+        <title>vātāyana: BrucheionAlign</title>
 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -57,20 +57,20 @@
 
     <body>
 
-        <nav class="navbar navbar-inverse">
+        <!-- <nav class="navbar navbar-inverse">
             <div class="container">
 
-				<!-- entire top navbar -->
+				<!- - entire top navbar - ->
 				<div class="row">
 
-					<!-- skrutable brand/reset button and conditionally visibile action title -->
+					<!- - skrutable brand/reset button and conditionally visibile action title - ->
 	                <div class="col-md-4">
 
 						<div class="row">
 
 							<div class="col-md-4 col-xs-4">
 			                    <div class="navbar-header">
-			                        <a class="navbar-brand" style="background-color: #000;" href="./pramanaNLP">pr-NLP</a>
+			                        <a class="navbar-brand" style="background-color: #000;" href="./pramanaNLP">vātāyana</a>
 		                    	</div>
 							</div>
 
@@ -84,7 +84,7 @@
 
 					</div>
 
-					<!-- about, tutorial, and conditionally visibile example links -->
+					<!- - about, tutorial, and conditionally visibile example links - ->
 					<div class="col-md-4">
 
 						<div class="row">
@@ -111,19 +111,58 @@
 
 					</div>
 
-                </div><!-- entire top navbar row -->
+                </div><!- - entire top navbar row - ->
 
-            </div><!-- container -->
+            </div><!- - container - ->
             
-        </nav>
+        </nav> -->
 
         <div class="container-fluid">
 
-
-        	<p>Demo of Needleman-Wunsch Alignment (= Brucheion Multicompare) for NBhū 113,2;1,
-        	with Yogindrananda 1968 as base text (left)
-        	and Neill (forthcoming), P1, P2, and VS for comparison (right)</p>
         	<br>
+
+        	<div class="row">
+        		<div class="col-md-12">
+        			
+        		</div>
+        	</div>
+
+        	<br>
+
+        	<div class="row">
+        		
+        		<div class="col-md-1"></div>
+
+        		<div class="col-md-4">
+        			<p style="text-align: justify;">
+        				This is a simple fixed demo of the Needleman-Wunsch alignment 
+        				with nice color and interactivity features, 
+        				as implemented in the “Multicompare” feature of Brucheion by Thomas Koentges 
+        				(<a href="https://github.com/Brucheion/Brucheion" target="_blank">see on GitHub</a>).
+        			</p>
+        			<br>
+        			<p style="text-align: justify;">
+        				The text is that of passage “NBhū 113,2;1" (i.e., first chunk of paragraph starting at page 113, line 2), with printed edition Yogindrananda 1968 as the base text (left) and critical edition (Neill, forthcoming) and manuscripts P1, P2, and VS as comparands (right).
+        			</p>
+        		</div>
+        		
+        		<div class="col-md-1"></div>
+
+        		<div class="col-md-4">
+        			<p style="text-align: justify;">
+        				Green color on the right indicates pairwise difference of the individual comparand on the right with the base-text the left. Yellow color on the left is a measure of cumulative difference between the base-text on the left and all comparands on the right taken together. Darker color indicates more difference.
+        			</p>
+        			<br>
+        			<p style="text-align: justify;">
+        				Sanskrit orthography (punctuation, gemination, etc.) has been normalized so that the alignment's color highlighting can show more meaningful differences.
+        			</p>
+        		</div>
+
+        		<div class="col-md-2"></div>
+
+        	</div>
+
+        	<br><br>
 
             {{ Brucheion_HTML_body | safe }}
 

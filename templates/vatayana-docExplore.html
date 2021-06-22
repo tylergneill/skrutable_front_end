@@ -7,7 +7,7 @@
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
-        <title>pramāṇa NLP</title>
+        <title>vātāyana: docExplore</title>
 
     </head>
 
@@ -26,12 +26,12 @@
 
 							<div class="col-md-4 col-xs-4">
 			                    <div class="navbar-header">
-			                        <a class="navbar-brand" style="background-color: #000;" href="./pramanaNLP">pr-NLP</a>
+			                        <a class="navbar-brand" style="background-color: #000;" href="./vatayana">vātāyana</a>
 		                    	</div>
 							</div>
 
 							<div class="col-md-8 col-xs-8">
-			                    <div class="navbar-header" id="hiddenActionTitle">
+			                    <div class="navbar-header">
 			                        <a class="navbar-brand">: {{ page_subtitle }}</a>
 			                    </div>
 							</div>
@@ -75,10 +75,24 @@
 
         <div class="container">
 
-           <h1>LDAvis Topic Explorer</h1>
-           <br>
 
-           {{ LDAvis_HTML | safe }}
+        	<h1>Explore Docs</h1>
+        	<br>
+        	
+			<form id="doc_explore_search_bar" action="/docExplore" method="POST">
+
+			    <div class="row">
+			    	<div class="col-md-3">
+			            <input id="doc_id" name="doc_id" type="text" class="form-control" placeholder="Enter doc id" size="30"/>
+			        </div>
+			        <div class="col-md-2">
+			            <input id="doc_explore_submit_button" type="submit" class="btn btn-block btn-primary" value="Submit"/>
+			        </div>
+			    </div>
+
+			</form>
+
+            {{ doc_explore_output | safe }}
 
         </div><!-- container -->
 
