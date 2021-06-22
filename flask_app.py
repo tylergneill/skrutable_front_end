@@ -428,6 +428,10 @@ def prep_split_output_for_Apte(split_text):
 	output_HTML += "</p>"
 	return output_HTML
 
+@app.route('/pramanaNLP')
+def pramanaNLP_main():
+	return redirect(url_for('vatayana_main'))
+
 @app.route('/vatayana')
 def vatayana_main():
 	return render_template("vatayana.html",
