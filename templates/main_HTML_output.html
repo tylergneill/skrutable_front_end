@@ -5,10 +5,10 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<meta property='og:title' content='skrutable'/>
-		<meta property='og:image' content='/static/ui_screenshot.png'/>
-		<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
-		<meta property='og:url' content='https://skrutable.pythonanywhere.com/'/>
+        <meta property='og:title' content='skrutable'/>
+        <meta property='og:image' content='/static/ui_screenshot.png'/>
+        <meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
+        <meta property='og:url' content='https://skrutable.pythonanywhere.com/'/>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
         <link rel="shortcut icon" href="#">
@@ -22,56 +22,56 @@
         <nav class="navbar navbar-inverse">
             <div class="container">
 
-				<!-- entire top navbar -->
-				<div class="row">
+                <!-- entire top navbar -->
+                <div class="row">
 
-					<!-- skrutable brand/reset button and conditionally visibile action title -->
-	                <div class="col-md-4">
+                    <!-- skrutable brand/reset button and conditionally visibile action title -->
+                    <div class="col-md-4">
 
-						<div class="row">
+                        <div class="row">
 
-							<div class="col-md-4 col-xs-4">
-			                    <div class="navbar-header">
-			                        <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
-		                    	</div>
-							</div>
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
+                                </div>
+                            </div>
 
-							<div class="col-md-8 col-xs-8">
-			                    <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
-			                        <a class="navbar-brand">: {{ skrutable_action }}</a>
-			                    </div>
-							</div>
+                            <div class="col-md-8 col-xs-8">
+                                <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
+                                    <a class="navbar-brand">: {{ skrutable_action }}</a>
+                                </div>
+                            </div>
 
-						</div>
+                        </div>
 
-					</div>
+                    </div>
 
-					<!-- about, tutorial, and conditionally visibile example links -->
-					<div class="col-md-4">
+                    <!-- about, tutorial, and conditionally visibile example links -->
+                    <div class="col-md-4">
 
-						<div class="row">
+                        <div class="row">
 
-							<div class="col-md-4 col-xs-4">
-								<div class="navbar-header">
-		                    		<a class="navbar-brand float-right" href="./about">about</a>
-								</div>
-		                	</div>
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand float-right" href="./about">about</a>
+                                </div>
+                            </div>
 
-			                <div class="col-md-4 col-xs-4">
-		                        <div class="navbar-header">
-		                        	<a class="navbar-brand" href="./tutorial">tutorial</a>
-		                        </div>
-			                </div>
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" href="./tutorial">tutorial</a>
+                                </div>
+                            </div>
 
-							<div class="col-md-4 col-xs-4">
-								<div class="navbar-header" id="hiddenExample" style="visibility: hidden">
-									<a class="navbar-brand" href="./ex1">(example)</a>
-								</div>
-							</div>
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header" id="hiddenExample" style="visibility: hidden">
+                                    <a class="navbar-brand" href="./ex1">(example)</a>
+                                </div>
+                            </div>
 
-						</div>
+                        </div>
 
-					</div>
+                    </div>
 
                 </div><!-- entire top navbar row -->
 
@@ -83,85 +83,80 @@
 
             <form id="overall_form" action="/" method="POST">
 
-                <!-- input -->
+                <!-- input row -->
                 <div class="row">
                     <textarea id="text_input" name="text_input" class="form-control" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
                 </div>
 
-                <!-- output -->
-                <div class="row well blue-border-focus">
-                    {{ output_HTML | safe }}                    
+                <!-- output row -->
+                <div class="row well blue-border-focus" style="height:350px;">
+                    {{ output_HTML | safe }}
+                    <input type="hidden" name="text_output" value="" />
                 </div>
 
-                <!-- controls -->
+                <!-- controls row -->
                 <div class="row">
 
                     <!-- input and output schemes, and swap buttons -->
                     <div class="col-md-4">
-                    	<div class="col-md-12">
-                    	
-	                    	<div class="row">
-	                        
-	                        	<div class="col-md-6">
-		                            <label for="from_scheme">Input Scheme</label>
-		                            </br>
-		                            <select name="from_scheme" id="from_scheme" class="btn-block">
-		                                <optgroup label="Romanizations">
-		                                    <option value="IAST">IAST</option>
-		                                    <option value="HK">HK</option>
-		                                    <option value="SLP">SLP</option>
-		                                    <option value="ITRANS">ITRANS</option>
-		                                    <option value="VH">VH</option>
-		                                    <option value="WX">WX</option>
-		                                    <option value="IASTREDUCED" disabled>IAST reduced</option>
-		                                </optgroup>
-		                                <optgroup label="Indic Scripts">
-		                                    <option value="DEV">DEV</option>
-		                                    <option value="BENGALI">BENGALI</option>
-		                                    <option value="GUJARATI">GUJARATI</option>
-		                                </optgroup>
-		                            </select>
-	                        	</div>
+                        <div class="col-md-12">
+                        
+                            <div class="row">
+                            
+                                <div class="col-md-6">
+                                    <label for="from_scheme">Input Scheme</label>
+                                    </br>
+                                    <select name="from_scheme" id="from_scheme" class="btn-block">
+                                        <optgroup label="Romanizations">
+                                            <option value="IAST">IAST</option>
+                                            <option value="HK">HK</option>
+                                            <option value="SLP">SLP</option>
+                                            <option value="ITRANS">ITRANS</option>
+                                            <option value="VH">VH</option>
+                                            <option value="WX">WX</option>
+                                            <option value="IASTREDUCED" disabled>IAST reduced</option>
+                                        </optgroup>
+                                        <optgroup label="Indic Scripts">
+                                            <option value="DEV">DEV</option>
+                                            <option value="BENGALI">BENGALI</option>
+                                            <option value="GUJARATI">GUJARATI</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
 
-	                        	<div hidden class="col-md-6">
-	                        		<label for="to_scheme">Virāma Option</label>
-		                            </br>
-		                            <select name="virAma_option" id="virAma_option" class="btn-block">
-		                                <option value="preserve_space">default: preserve</option>
-		                                <option value="break_clusters">more virāmas</option>
-		                                <option value="combine">less virāmas</option>
-		                            </select>
-		                        </div>
-	                        
-	                        </div>
-							
-							</br>
-	                       	
-	                       	<div class="row">
+                                <div hidden class="col-md-6">
+                                    <label for="to_scheme">Virāma Option</label>
+                                    </br>
+                                    <select name="virAma_option" id="virAma_option" class="btn-block">
+                                        <option value="preserve_space">default: preserve</option>
+                                        <option value="break_clusters">more virāmas</option>
+                                        <option value="combine">less virāmas</option>
+                                    </select>
+                                </div>
+                            
+                            </div>
+                            
+                            </br>
+                            
+                            <div class="row">
 
-								<div class="col-md-3">
-		                            <!-- <label>Swap</label> -->
-		                            <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Txt ⇅" onclick="swapTexts();"/>
-		                        </div>
-		                        <div class="col-md-5">
-		                            <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
-	                            </div>
-	                            <div class="col-md-4">
-		                            <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
-	                        	</div>
-	                    	</div>
-                        	</br>
+                                <div class="col-md-3">
+                                    <!-- <label>Swap</label> -->
+                                    <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Txt ⇅" onclick="swapTexts();"/>
+                                </div>
+                                <div class="col-md-5">
+                                    <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
+                                </div>
+                            </div>
+                            </br>
 
-                       	</div>
+                        </div>
                     </div><!-- input and output schemes, and swap buttons -->
 
-                    <!-- swap buttons -->
-                    <!-- <div class="col-md-2"> -->
-                        
-                    <!-- </div> -->
-
-
-                    <!-- submission -->
+                    <!-- actions -->
                     <div class="col-md-8">
 
                         <!-- transliteration -->
@@ -232,10 +227,10 @@
                             </select>
                             </br>
                             <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/wholeFile"/>
-                        	</br>
+                            </br>
                         </div>
 
-                    	<!-- splitting -->
+                        <!-- splitting -->
                         <div class="col-md-3">
                             <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Sandhi & Cpds" data-toggle="tooltip" title="Sansplit! 💃" onclick="set_action('split');"/>
                             </br>
@@ -252,10 +247,37 @@
                             </br>
                         </div>
 
-                    </div><!-- submission -->
+                    </div><!-- actions -->
 
-                </div><!-- controls -->
+                </div><!-- controls row -->
+            
 
+                <!-- melody player row -->
+                <div class="row" id="melodyPlayer" style="visibility: hidden">
+                <!-- <div class="row" id="melodyPlayer"> -->
+                    
+                    <!-- line up below actions -->
+                    <div class="col-md-4">
+                    </div>
+
+                    <div class="col-md-4">
+                        <audio id="audio" controls>
+                            <source type="audio/mp3">
+                        </audio>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="melody_option">Meter Melody Type Recited by</label>
+                        <select id="melody_option" name="melody_option" class="btn-block">
+                            {% for melody_option in melody_options %}
+                            <option value= "{{melody_option}}">{{melody_option}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div><!-- melody player row -->
+
+                <!-- hidden action menu -->
                 <select hidden name="skrutable_action" id="skrutable_action">
                     <option value="transliterate">transliterate</option>
                     <option value="scan">scan</option>
@@ -299,29 +321,57 @@
                 if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
                 if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
                 document.getElementById("resplit_option").value = "{{ resplit_option }}";
-
-
+                testArray = "{{ melody_options }}";
+                if ( testArray.length > 2) {
+                    document.getElementById("melody_option").value = "{{ melody_options[0] }}";
+                }
             }
 
             function conditionally_display_examples() {
 
-								// for some reason value == "..." does not work...
+                                // for some reason value == "..." does not work...
                 if (document.getElementById("skrutable_action").value != "transliterate" &&
                     document.getElementById("skrutable_action").value != "scan" &&
                     document.getElementById("skrutable_action").value != "identify meter" &&
-                    document.getElementById("skrutable_action").value != "split") {
+                    document.getElementById("skrutable_action").value != "split" &&
+                    document.getElementById("skrutable_action").value != "apte links") {
 
                     document.getElementById("hiddenExample").style.visibility = "visible";
 
                 }
-				else {
-						document.getElementById("hiddenActionTitle").style.visibility = "visible";
-				}
+                else {
+                    document.getElementById("hiddenActionTitle").style.visibility = "visible";
+                }
+            }
+
+            var melodySelectElement = document.getElementById("melody_option");
+            const audio_prefix = "/assets/melodies/"
+            melodySelectElement.addEventListener("change", update_melody);
+            function update_melody() {
+              var audioElement = document.getElementById("audio");
+              var audio_src_selection = melodySelectElement.value
+              audio_src_selection = audio_src_selection.replace(/ /g, "-");
+              audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
+              var audio_src_str = audio_prefix + 
+                                "{{ meter_label }}" + 
+                                "-" + 
+                                audio_src_selection + 
+                                ".mp3";
+              audioElement.src = audio_src_str
+            }
+
+            function conditionally_display_melody_player() {
+                testArray = "{{ melody_options }}";
+                if ( testArray.length > 2 ) {
+                    document.getElementById("melodyPlayer").style.visibility = "visible";
+                }
             }
 
             window.onload = function() {
                 initialize_choices();
                 conditionally_display_examples();
+                update_melody();
+                conditionally_display_melody_player();
             }
 
             function set_action(new_skr_act) {
