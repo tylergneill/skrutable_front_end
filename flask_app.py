@@ -405,6 +405,35 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 	session.modified = True
 	return redirect(url_for('index'))
 
+@app.route('/ex3')
+def ex3():
+	session["text_input"] = """tava karakamalasthāṃ sphāṭikīmakṣamālāṃ , nakhakiraṇavibhinnāṃ dāḍimībījabuddhyā |
+pratikalam anukarṣan yena kīro niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te mandahāsaḥ ||"""
+	session["text_output"] = """llllllggglgglgg    {m: 22}    [15: nnmyy]
+llllllggglgglgg    {m: 22}    [15: nnmyy]
+llllllggglgglgg    {m: 22}    [15: nnmyy]
+llllllggglgglgg    {m: 22}    [15: nnmyy]
+
+     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ
+      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
+     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā
+      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
+    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ
+      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
+     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ
+      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
+
+mālinī [15: nnmyy]"""
+	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
+	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
+	session["alignment"] = 1
+	session["resplit_option"] = "resplit_lite_keep_mid"
+	session["skrutable_action"] = "identify meter"
+	session["meter_label"] = "mAlinI"
+	session["melody_options"] = ['Madhura Godbole', 'Sadananda Das', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh']
+	session.modified = True
+	return redirect(url_for('index'))
+
 @app.route('/about')
 def about_page():
 	return render_template("about.html")
