@@ -377,6 +377,34 @@ def ex1():
 	session.modified = True
 	return redirect(url_for('index'))
 
+@app.route('/ex2')
+def ex2():
+	session["text_input"] = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+	session["text_output"] = """gggglggg    {m: 15}    [8: mrgg]
+llgglglg    {m: 12}    [8: srlg]
+glgglggl    {m: 13}    [8: rrgl]
+llgllgll    {m: 10}    [8: ssll]
+
+   dha   rma   kṣe   tre    ku    ru   kṣe   tre
+     g     g     g     g     l     g     g     g
+    sa    ma    ve    tā    yu    yu   tsa   vaḥ
+     l     l     g     g     l     g     l     g
+    mā    ma   kāḥ    pā   ṇḍa    vā  ścai    va
+     g     l     g     g     l     g     g     l
+    ki    ma    ku   rva    ta    sa   ñja    ya
+     l     l     g     l     l     g     l     l
+
+anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
+	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
+	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
+	session["alignment"] = 1
+	session["resplit_option"] = "resplit_lite_keep_mid"
+	session["skrutable_action"] = "identify meter"
+	session["meter_label"] = "anuSTubh"
+	session["melody_options"] = ['Madhura Godbole', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh',  'Diwakar Acarya']
+	session.modified = True
+	return redirect(url_for('index'))
+
 @app.route('/about')
 def about_page():
 	return render_template("about.html")
