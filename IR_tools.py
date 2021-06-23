@@ -14,7 +14,7 @@ from lxml import etree
 from difflib import SequenceMatcher
 
 # global variables (needed only for purposes of documentation and convenience in PDB)
-global CURRENT_FOLDER, text_abbrev2fn
+global CURRENT_FOLDER, text_abbrev2fn, text_abbrev2title
 global doc_ids, ex_doc_ids, doc_fulltext, doc_original_fulltext, disallowed_fulltexts
 global num_docs, doc_links, section_labels
 global thetas, phis
@@ -22,6 +22,7 @@ global K, topic_weights_default
 global topic_top_words, topic_interpretations, topic_wordcloud_fns
 global stopwords, error_words, too_common_doc_freq_cutoff, too_rare_doc_freq_cutoff, corpus_vocab_reduced
 global doc_freq, IDF, stored_topic_comparison_scores, preferred_works
+global current_tf_idf_data_work_name, current_tf_idf_data
 global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_template, topicAdjustOutput_results_HTML_template
 
 # set up paths and load main output template
@@ -207,14 +208,15 @@ def create_doc_link_series(doc_ids_to_do):
 doc_links = create_doc_link_series(doc_ids)
 
 # load lookup table of filenames by conventional text abbreviation
-text_abbrev2fn = load_dict_from_json("assets/vatayana/text_abbreviations.json")
+text_abbrev2fn = load_dict_from_json("assets/vatayana/text_abbreviations_IASTreduced.json") # for accessing files
+text_abbrev2title = load_dict_from_json("assets/vatayana/text_abbreviations.json") # for human eyes
 # e.g. text_abbrev2fn[TEXT_ABBRV] = STRING
 
 # save fresh corpus text list to file
 corpus_texts_list_relative_path_fn = 'assets/vatayana/corpus_texts.txt'
 corpus_texts_list_full_fn = os.path.join(CURRENT_FOLDER, corpus_texts_list_relative_path_fn)
 with open(corpus_texts_list_full_fn,'w') as f_out:
-	f_out.write('\n'.join([abbrv+'\t'+fn for (abbrv, fn) in text_abbrev2fn.items()]))
+	f_out.write('\n'.join([abbrv+'\t'+fn for (abbrv, fn) in text_abbrev2title.items()]))
 
 # load lookup table of section headers by doc_id
 section_labels = load_dict_from_json("assets/vatayana/section_labels.json")
@@ -360,6 +362,13 @@ def load_stored_TF_IDF_results(work_name):
 			stored_results = pickle.load(f_in)
 	except FileNotFoundError:
 		stored_results = {}
+
+	# probably tried to load again too quickly before previous load finished
+	except EOFError:
+		stored_results = {}
+	except _pickle.UnpicklingError:
+		stored_results = {}
+
 	return stored_results
 
 def save_updated_TF_IDF_results(updated_results, work_name):
@@ -369,13 +378,21 @@ def save_updated_TF_IDF_results(updated_results, work_name):
 		P = pickle.Pickler(f_out)
 		P.dump(updated_results)
 
-
+current_tf_idf_data_work_name = "" # only before first query
+current_tf_idf_data = {}
 def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 
 	work_name = parse_complex_doc_id(query_id)[0]
 
-	# load any available previously calculated results from disk
-	cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name)
+	# make sure relevant tf-idf data in memory
+	global current_tf_idf_data_work_name, current_tf_idf_data
+	if work_name != current_tf_idf_data_work_name or current_tf_idf_data_work_name == "":
+		# switched works or first query, load relevant data from disk into memory
+		current_tf_idf_data = load_stored_TF_IDF_results(work_name)
+		current_tf_idf_data_work_name = work_name
+	cumulative_results_for_this_work = current_tf_idf_data
+	# cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name)
+
 	if query_id in cumulative_results_for_this_work.keys():
 		ks = list(cumulative_results_for_this_work[query_id])
 		candidates_already_done = [ k for k in ks if k in candidate_ids ]
@@ -400,12 +417,15 @@ def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 				new_TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
 			TF_IDF_comparison_scores[doc_id] = new_TF_IDF_comparison_scores[doc_id]
 
-	# merge new dict into old cumulative results dict and save to disk
+	# merge new dict into old cumulative results dict and save both to memory and to disk
 	if query_id in cumulative_results_for_this_work.keys():
 		cumulative_results_for_this_work[query_id].update(new_TF_IDF_comparison_scores)
 	else:
 		cumulative_results_for_this_work[query_id] = new_TF_IDF_comparison_scores
+	current_tf_idf_data = cumulative_results_for_this_work
 	save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
+
+	# i.e., always save to disk, but only load from disk when switching works, to save some time but still reliably save
 
 	# sort and return ranked results
 	sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
@@ -445,8 +465,16 @@ def conditionally_do_batch_tf_idf_comparisons(*doc_ids_to_do, N=500):
 				continue
 
 			else: # do needed comparisons
-				top_N_candidates_results_dict = stored_topic_comparison_scores[N][doc_id] # topic filtering
+
+				 # topic filtering
+				if doc_id in stored_topic_comparison_scores[N]:
+					top_N_candidates_results_dict = stored_topic_comparison_scores[N][doc_id]
+				else:
+					top_N_candidates_results_dict = rank_N_candidates_by_topic_similarity(doc_id, N, topic_weights=topic_weights_default)
 				ids_for_closest_N_docs_by_topics = top_N_candidates_results_dict.keys()
+
+				# don't do prioritization
+
 				cumulative_results_for_this_work[doc_id] = rank_N_candidates_by_TF_IDF_similarity(doc_id, ids_for_closest_N_docs_by_topics)
 
 			pbar.update()
@@ -540,7 +568,11 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 
 	# prioritize candidates
 	# (for now, just by fixed time periods, later can generalize)
-	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), preferred_works )
+	if parse_complex_doc_id(query_id)[0] == 'NBhū':
+		priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), preferred_works )
+	else:
+		priority_candidate_ids = preliminary_N_candidates
+		secondary_candidate_ids = []
 
 	priority_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in priority_candidate_ids }
 	secondary_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in secondary_candidate_ids }
@@ -719,8 +751,8 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 
 	# finally, also do one-off topic and tf-idf comparisons
 
-	doc_1_topic_vector = np.array(thetas[doc_id_1])
-	doc_2_topic_vector = np.array(thetas[doc_id_2])
+	doc_1_topic_vector = np.array(thetas[doc_id_1]) * topic_weights
+	doc_2_topic_vector = np.array(thetas[doc_id_2]) * topic_weights
 	topic_similiarity_score = fastdist.cosine(doc_1_topic_vector, doc_2_topic_vector)
 
 	doc_1_TF_IDF_vector = get_TF_IDF_vector(doc_id_1)
@@ -803,6 +835,7 @@ def format_text_view(text_abbreviation):
 		try:
 			text_HTML = re.sub("\[({})\]".format(h2), "<h2 id='\\1'>\\1 {}</h2>".format(links_addendum), text_HTML)
 		except:
+			# this detects encoding errors in the original text which mess up the HTML formatting
 			import pdb; pdb.set_trace()
 
 	# (possibly escape characters like tab, <>, etc.)
@@ -891,6 +924,8 @@ slider_{}.oninput = function() {{
 # build more tf-idf pickles
 # import pdb; pdb.set_trace()
 # conditionally_do_batch_tf_idf_comparisons(*doc_ids[:5], N=1000)
+# NBhu_doc_ids = [ di for di in doc_ids if parse_complex_doc_id(di)[0] == 'NBhū' ]
+# conditionally_do_batch_tf_idf_comparisons(*NBhu_doc_ids, N=1000)
 
 # build (all) textView HTML pages
 # for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
