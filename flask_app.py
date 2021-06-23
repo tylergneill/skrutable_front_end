@@ -379,20 +379,21 @@ def ex1():
 
 @app.route('/ex2')
 def ex2():
-	session["text_input"] = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-	session["text_output"] = """gggglggg    {m: 15}    [8: mrgg]
-llgglglg    {m: 12}    [8: srlg]
-glgglggl    {m: 13}    [8: rrgl]
-llgllgll    {m: 10}    [8: ssll]
+	session["text_input"] = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
+तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
+	session["text_output"] = """gggglggl    {m: 14}    [8: mrgl]
+gglllglg    {m: 12}    [8: tslg]
+lglllggl    {m: 11}    [8: jsgl]
+llgllglg    {m: 11}    [8: sslg]
 
-   dha   rma   kṣe   tre    ku    ru   kṣe   tre
-     g     g     g     g     l     g     g     g
-    sa    ma    ve    tā    yu    yu   tsa   vaḥ
-     l     l     g     g     l     g     l     g
-    mā    ma   kāḥ    pā   ṇḍa    vā  ścai    va
-     g     l     g     g     l     g     g     l
-    ki    ma    ku   rva    ta    sa   ñja    ya
-     l     l     g     l     l     g     l     l
+    dhā    tva  rthaṃ     bā    dha     te     ka    ści
+      g      g      g      g      l      g      g      l
+    tka    ści    tta     ma     nu     va    rta     te
+      g      g      l      l      l      g      l      g
+     ta     me     va     vi     śi     na   ṣṭya    nya
+      l      g      l      l      l      g      g      l
+      u     pa     sa    rga     ga     ti   stri    dhā
+      l      l      g      l      l      g      l      g
 
 anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
@@ -407,8 +408,8 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 
 @app.route('/ex3')
 def ex3():
-	session["text_input"] = """tava karakamalasthāṃ sphāṭikīmakṣamālāṃ , nakhakiraṇavibhinnāṃ dāḍimībījabuddhyā |
-pratikalam anukarṣan yena kīro niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te mandahāsaḥ ||"""
+	session["text_input"] = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
+प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
 	session["text_output"] = """llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
