@@ -211,6 +211,7 @@ doc_links = create_doc_link_series(doc_ids)
 text_abbrev2fn = load_dict_from_json("assets/vatayana/text_abbreviations_IASTreduced.json") # for accessing files
 text_abbrev2title = load_dict_from_json("assets/vatayana/text_abbreviations.json") # for human eyes
 # e.g. text_abbrev2fn[TEXT_ABBRV] = STRING
+# don't sort these yet because they're in chronological order for presenting prioritization options
 
 # save fresh corpus text list to file
 corpus_texts_list_relative_path_fn = 'assets/vatayana/corpus_texts.txt'
@@ -528,26 +529,28 @@ def format_docCompare_link(doc_id_1, doc_id_2):
 def format_similarity_result_columns(query_id, priority_results_list_content, secondary_results_list_content):
 
 	# priority
-	priority_result_HTML_template = "<p>%s (%.2f, %.2f) (%s) (%s)</p>"
+	priority_result_HTML_template = "<p>%d: %s (%.2f, %.2f) (%s) (%s)</p>"
 	priority_col_HTML = ''.join( [
 		priority_result_HTML_template % (
+			i+1,
 			format_docView_link(doc_id),
-			results[0], results[1],
+			results[0], results[1], # topic, tf-idf
 			format_textView_link(doc_id),
 			format_docCompare_link(query_id, doc_id)
 			)
-		for doc_id, results in priority_results_list_content.items()
+		for i, (doc_id, results) in enumerate(priority_results_list_content.items())
 		] )
 
 	# secondary
-	secondary_result_HTML_template = "<p>%s (%.2f) (%s)</p>"
+	secondary_result_HTML_template = "<p>%d: %s (%.2f) (%s)</p>"
 	secondary_col_HTML = ''.join( [
 		secondary_result_HTML_template % (
+			i+1,
 			format_docView_link(doc_id),
-			result,
+			result, # topic only
 			format_textView_link(doc_id)
 			)
-		for doc_id, result in secondary_results_list_content.items()
+		for i, (doc_id, result) in enumerate(secondary_results_list_content.items())
 		] )
 
 	return priority_col_HTML, secondary_col_HTML
