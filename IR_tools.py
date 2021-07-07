@@ -21,9 +21,9 @@ global thetas, phis
 global K, topic_weights_default
 global topic_top_words, topic_interpretations, topic_wordcloud_fns
 global stopwords, error_words, too_common_doc_freq_cutoff, too_rare_doc_freq_cutoff, corpus_vocab_reduced
-global doc_freq, IDF, stored_topic_comparison_scores, preferred_works
+global doc_freq, IDF, stored_topic_comparison_scores #, preferred_works
 global current_tf_idf_data_work_name, current_tf_idf_data
-global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_template, topicAdjustOutput_results_HTML_template
+global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_template, topicAdjustOutput_results_HTML_template, textPrioritizeOutput_HTML_template
 
 # set up paths and load main output template
 
@@ -49,6 +49,11 @@ topicAdjustOutput_results_HTML_template_relative_path = 'templates/vatayana-topi
 topicAdjustOutput_results_HTML_template_fn = os.path.join(CURRENT_FOLDER, topicAdjustOutput_results_HTML_template_relative_path)
 with open(topicAdjustOutput_results_HTML_template_fn,'r') as f_in:
 	topicAdjustOutput_results_HTML_template = Template(f_in.read())
+
+textPrioritizeOutput_HTML_template_relative_path = 'templates/vatayana-textPrioritizeOutput.html'
+textPrioritizeOutput_HTML_template_fn = os.path.join(CURRENT_FOLDER, textPrioritizeOutput_HTML_template_relative_path)
+with open(textPrioritizeOutput_HTML_template_fn,'r') as f_in:
+	textPrioritizeOutput_HTML_template = Template(f_in.read())
 
 ##########################################################
 # on server start, load corpus and statistics into memory
@@ -300,22 +305,22 @@ try:
 		stored_topic_comparison_scores[1000] = pickle.load(f_in)
 except FileNotFoundError: pass
 
-# set up groups for chronological work prioritization
-
-# pre-Dharmakīrti
-period_1_works = ['AP', 'PSV', 'NS', 'SK', 'MS', 'VS', 'MMK', 'ViVy', 'YSBh', 'PDhS', 'YD', 'NPS', 'TriṃśBh', 'NV', 'ViṃśV', 'NBh']
-
-# from Candrakīrti and Dharmakīrti to Prajñākaragupta and Jayarāśi
-period_2_works = ['PPad', 'HB', 'NB', 'PV', 'PVSV', 'PVin', 'SAS', 'SP', 'VN', 'NBṬ', 'TUS', 'PSṬ', 'ŚV', 'PVA', 'YD']
-
-# around same time as NBhū, no mutual quoting
-period_3_works = ['NBhū', 'VSṬ', 'NyKal', 'NM', 'VyV']
-
-# definitely after NBhū
-period_4_works = ['ŚVK', 'AvNir']
-
-# pre-NBhū
-preferred_works = period_1_works + period_2_works
+# # set up groups for chronological work prioritization
+#
+# # pre-Dharmakīrti
+# period_1_works = ['AP', 'PSV', 'NS', 'SK', 'MS', 'VS', 'MMK', 'ViVy', 'YSBh', 'PDhS', 'YD', 'NPS', 'TriṃśBh', 'NV', 'ViṃśV', 'NBh']
+#
+# # from Candrakīrti and Dharmakīrti to Prajñākaragupta and Jayarāśi
+# period_2_works = ['PPad', 'HB', 'NB', 'PV', 'PVSV', 'PVin', 'SAS', 'SP', 'VN', 'NBṬ', 'TUS', 'PSṬ', 'ŚV', 'PVA', 'YD']
+#
+# # around same time as NBhū, no mutual quoting
+# period_3_works = ['NBhū', 'VSṬ', 'NyKal', 'NM', 'VyV']
+#
+# # definitely after NBhū
+# period_4_works = ['ŚVK', 'AvNir']
+#
+# # pre-NBhū
+# preferred_works = period_1_works + period_2_works
 
 
 def divide_doc_id_list_by_work_priority(list_of_doc_ids_to_prune, priority_works):
@@ -556,12 +561,14 @@ def format_similarity_result_columns(query_id, priority_results_list_content, se
 	return priority_col_HTML, secondary_col_HTML
 
 
-def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels=topic_interpretations, results_as_links_only=False):
+def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys()), results_as_links_only=False):
+
+	non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
 
 	if doc_fulltext[query_id] == '':
 		results_HTML = docExploreOutput_results_HTML_template.substitute(
 			query_id = query_id, query_section = section_labels[query_id], prev_doc_id = doc_links[query_id]['prev'], next_doc_id = doc_links[query_id]['next'],
-			query_original_fulltext = doc_original_fulltext[query_id], query_segmented_fulltext = '', top_topics_summary='', priority_results_list_content = '', secondary_results_list_content = ''
+			query_original_fulltext = doc_original_fulltext[query_id], query_segmented_fulltext = '', top_topics_summary='', priority_results_list_content = '', secondary_results_list_content = '', priority_texts=str(priority_texts), non_priority_texts=str(non_priority_texts)
 			)
 		return results_HTML
 
@@ -570,12 +577,13 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 	preliminary_N_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
 	# prioritize candidates
-	# (for now, just by fixed time periods, later can generalize)
-	if parse_complex_doc_id(query_id)[0] == 'NBhū':
-		priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), preferred_works )
-	else:
-		priority_candidate_ids = preliminary_N_candidates
-		secondary_candidate_ids = []
+	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
+	# # (for now, just by fixed time periods, later can generalize)
+	# if parse_complex_doc_id(query_id)[0] == 'NBhū':
+	# 	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
+	# else:
+	# 	priority_candidate_ids = preliminary_N_candidates
+	# 	secondary_candidate_ids = []
 
 	priority_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in priority_candidate_ids }
 	secondary_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in secondary_candidate_ids }
@@ -611,7 +619,9 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 							topic_labels=topic_labels
 							),
 						priority_col_content = priority_col_HTML,
-						secondary_col_content = secondary_col_HTML
+						secondary_col_content = secondary_col_HTML,
+						priority_texts=str(priority_texts),
+						non_priority_texts=str(non_priority_texts)
 						)
 	return results_HTML
 
@@ -645,7 +655,7 @@ def remove_stopwords(reading):
 	return ' '.join( [ word for word in reading_words
 						if word not in stopwords ] )
 
-def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations):
+def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys())):
 
 	# align and highlight doc_fulltexts
 
@@ -724,8 +734,8 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 
 	# also prepare similar_doc_links
 
-	similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, results_as_links_only=True)
-	similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, results_as_links_only=True)
+	similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
+	similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
 
 	# make similar doc buttons show up and populate
 	# also anticipate needing numerical position in (ordered) dict (see index() below)
@@ -930,7 +940,53 @@ slider_{}.oninput = function() {{
 # NBhu_doc_ids = [ di for di in doc_ids if parse_complex_doc_id(di)[0] == 'NBhū' ]
 # conditionally_do_batch_tf_idf_comparisons(*NBhu_doc_ids, N=1000)
 
-# build (all) textView HTML pages
+# build textView HTML pages
 # for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
 # 	if txt_abbrv not in disallowed_fulltexts:
 # 		get_text_view(txt_abbrv)
+
+
+def format_text_prioritize_output(*priority_texts_input):
+
+	overall_buffer = ""
+	for abbrev, title in text_abbrev2title.items():
+
+		# doing with templating
+		checked_string = "checked" * (abbrev in priority_texts_input)
+		overall_buffer += """
+		<div class="row">
+			<div class='col-md-1'>
+				<input type='checkbox' id="checkbox_{}" name="priority_checkboxes" value="{}" {}/>
+			</div>
+			<div class='col-md-1'>
+				<p>{}</p>
+			</div>
+			<div class='col-md-2'>
+				<p>{}</p>
+			</div>
+		</div>
+		""".format(abbrev, abbrev, checked_string, abbrev, title)
+
+# """
+# <input type="checkbox" id="{}" name="scan_detail" value="morae" checked/>
+# """.format(abbrev, title)
+#
+		# doing with JavaScript
+		# <script>
+		# function initialize_choices() {
+        #     if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
+        #     if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
+        #     if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
+        #     if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
+        # }
+		#
+        # window.onload = function() {
+        #     initialize_choices();
+        # }
+		# </script>
+
+	textPrioritizeOutput_HTML = textPrioritizeOutput_HTML_template.substitute(
+									text_priority_HTML=overall_buffer
+									)
+
+	return textPrioritizeOutput_HTML
