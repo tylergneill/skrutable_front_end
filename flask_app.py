@@ -45,14 +45,15 @@ select_element_names = [
 	]
 checkbox_element_names = [
 	"weights", "morae", "gaRas",
-	"alignment"
-	]
+	"alignment",
+	] # to be extended with corpus text abbreviations for textPrioritize
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
 vatayana_variable_names = [
 	"topic_weights",
 	"topic_labels",
+	"priority_texts"
 	]
 session_variable_names = (
 	select_element_names +
@@ -361,6 +362,7 @@ def reset_variables():
 	session["local_doc_id"] = ""
 	session["topic_weights"] = IR_tools.topic_weights_default.tolist()
 	session["topic_labels"] = IR_tools.topic_interpretations
+	session["priority_texts"] = list(IR_tools.text_abbrev2fn.keys())
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -526,7 +528,8 @@ def vatayana_doc_explore():
 			output_HTML = IR_tools.get_closest_docs(
 				doc_id,
 				topic_weights=session['topic_weights'],
-				topic_labels=session['topic_labels']
+				topic_labels=session['topic_labels'],
+				priority_texts=session["priority_texts"]
 				)
 		else:
 			output_HTML = "<br><p>Please enter valid doc ids like " + str(IR_tools.ex_doc_ids)[1:-1] + " etc.</p><p>See <a href='assets/vatayana/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/vatayana/corpus_texts.txt' target='_blank'>corpus text list</a> for hints to get started.</p>"
@@ -570,7 +573,8 @@ def vatayana_doc_compare():
 				doc_id_1,
 				doc_id_2,
 				topic_weights=session['topic_weights'],
-				topic_labels=session['topic_labels']
+				topic_labels=session['topic_labels'],
+				priority_texts=session["priority_texts"]
 				)
 		else:
 			output_HTML = "<br><p>Please enter two valid doc ids like " + str(IR_tools.ex_doc_ids)[1:-1] + " etc.</p><p>See <a href='assets/vatayana/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/vatayana/corpus_texts.txt' target='_blank'>corpus text list</a> for hints to get started.</p>"
@@ -596,19 +600,24 @@ def vatayana_doc_compare():
 @app.route('/textView', methods=["GET", "POST"])
 def vatayana_text_view():
 
-	if request.method == "POST" or 'text_abbrv' in request.args:
+	if request.method == "POST" or 'text_abbrv' in request.args or 'doc_id' in request.args:
 
-		if 'text_abbreviation_input' in request.form:
-			text_abbreviation_input = request.form.get("text_abbreviation_input")
+		if 'doc_id' in request.args:
+			doc_id = request.args.get("doc_id")
+			text_abbreviation_input, local_doc_id_input = IR_tools.parse_complex_doc_id(doc_id)
+			return redirect('/textView?text_abbrv={}#{}'.format(text_abbreviation_input, local_doc_id_input))
 		elif 'text_abbrv' in request.args:
-			text_abbreviation_input = request.args.get("text_abbrv")
-
-		# can't render this properly at all yet
-		local_doc_id=''
-		if 'local_doc_id' in request.form:
-			local_doc_id = request.form.get("local_doc_id")
-		elif 'doc_id' in request.args:
-			local_doc_id = request.args.get("doc_id")
+			text_abbreviation_input =  request.args.get('text_abbrv')
+			local_doc_id_input = ""
+		else:
+			text_abbreviation_input = request.form.get("text_abbreviation_input")
+			local_doc_id_input = request.form.get("local_doc_id_input")
+			if local_doc_id_input != "":
+				# re-parse to discard unwanted parts of local_doc_id_input
+				import pdb; pdb.set_trace()
+				doc_id = text_abbreviation_input + '_' + local_doc_id_input
+				text_abbreviation_input, local_doc_id_input = IR_tools.parse_complex_doc_id(doc_id)
+			return redirect('/textView?text_abbrv={}#{}'.format(text_abbreviation_input, local_doc_id_input))
 
 		text_title = ""
 		valid_text_abbrvs = list(IR_tools.text_abbrev2fn.keys())
@@ -622,10 +631,12 @@ def vatayana_text_view():
 			text_HTML = "<br><p>Please enter valid doc ids like " + str(IR_tools.ex_doc_ids)[1:-1] + " etc.</p><p>See <a href='assets/vatayana/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/vatayana/corpus_texts.txt' target='_blank'>corpus text list</a> for hints to get started.</p>"
 
 		return render_template("vatayana-textView.html",
-		page_subtitle="textView",
-		text_title=text_title,
-		text_HTML=text_HTML
-		)
+								page_subtitle="textView",
+								text_abbreviation=text_abbreviation_input,
+								local_doc_id=local_doc_id_input,
+								text_title=text_title,
+								text_HTML=text_HTML
+								)
 
 	else: # request.method == "GET" or no URL params
 
@@ -633,6 +644,7 @@ def vatayana_text_view():
 								page_subtitle="textView",
 								text_abbreviation="",
 								local_doc_id="",
+								text_title="",
 								text_HTML=""
 								)
 
@@ -674,6 +686,7 @@ def vatayana_topic_adjust():
 
 		session["topic_weights"] = topic_weight_input
 		session["topic_labels"] = topic_label_input
+		session.modified = True
 
 	else:
 		pass
@@ -686,4 +699,54 @@ def vatayana_topic_adjust():
 	return render_template(	"vatayana-topicAdjust.html",
 							page_subtitle="topicAdjust",
 							topicAdjustOutput_HTML=topicAdjustOutput_HTML
+							)
+
+
+@app.route('/textPrioritize', methods=["GET", "POST"])
+def vatayana_text_prioritize():
+
+	ensure_keys()
+
+	if request.method == "POST":
+
+		priority_texts_input = []
+		one_text = ""
+		all_texts = list(IR_tools.text_abbrev2fn.keys())
+		for key, val in request.form.items():
+			if key == "prioritize_all_texts":
+				# reset to all in default chronological order
+				priority_texts_input = all_texts
+			# elif key == "prioritize_none":
+			# 	# string for current text prepared in form
+			# 	priority_texts_input = [ val ]
+
+			elif key == "priority_checkboxes": # list
+				priority_texts_input = request.form.getlist("priority_checkboxes")
+
+			elif key == "prioritize_one_text":
+				one_text = val
+				if one_text in all_texts:
+					priority_texts_input = [ one_text ]
+				else:
+					priority_texts_input = session["priority_texts"]
+					break
+			elif key == "prioritize_earlier_checkbox": # checkbox
+				priority_texts_input = all_texts[:all_texts.index(one_text)] + priority_texts_input
+			elif key == "prioritize_later_checkbox": # checkbox
+				priority_texts_input = priority_texts_input + all_texts[all_texts.index(one_text)+1:]
+
+
+		session["priority_texts"] = priority_texts_input
+		session.modified = True
+
+	else:
+		pass
+
+	textPrioritizeOutput_HTML = IR_tools.format_text_prioritize_output(
+		*session["priority_texts"]
+		)
+
+	return render_template(	"vatayana-textPrioritize.html",
+							page_subtitle="textPrioritize",
+							textPrioritizeOutput_HTML=textPrioritizeOutput_HTML
 							)
