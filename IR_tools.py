@@ -506,16 +506,21 @@ href='{}' title='{}' target='_wordcloud'>☁️</a>""".format(
 		)
 
 def format_top_topic_summary(doc_id, top_topic_indices, topic_labels):
-	top_topic_summary_HTML = "<div class='container' style='margin-left: 40px;'>"
+	top_topic_summary_HTML = "<style type='text/css'>td {padding:0 15px;}</style>"
+	top_topic_summary_HTML += "<div class='container' style='margin-left: 40px;'><table>"
 	top_topic_summary_HTML += ''.join(
-		[ """<h2><small>{:.1%} {} ({})</small></h2>""".format(
+		[ """<tr>
+				<td><h2><small>{:.1%}</small></h2></td>
+				<td><h2><small>{}</small></h2></td>
+				<td><h2><small>({})</small></h2></td>
+			</tr>""".format(
 				thetas[doc_id][i],
 				topic_labels[i],
 				format_topic_explore_links(i)
 				)
 		for i in top_topic_indices
 		] )
-	top_topic_summary_HTML += "</div>"
+	top_topic_summary_HTML += "</table></div>"
 	return top_topic_summary_HTML
 
 def format_docView_link(doc_id):
@@ -534,8 +539,20 @@ def format_docCompare_link(doc_id_1, doc_id_2):
 def format_similarity_result_columns(query_id, priority_results_list_content, secondary_results_list_content):
 
 	# priority
-	priority_result_HTML_template = "<p>%d: %s (%.2f, %.2f) (%s) (%s)</p>"
-	priority_col_HTML = ''.join( [
+	priority_result_HTML_template = "<tr><td>%d</td><td>%s</td><td>%.2f</td><td>%.2f</td><td>%s&nbsp;&nbsp;%s</td></tr>"
+
+	priority_col_HTML = """<table id="priority_col_table" class="display">
+								<thead>
+									<tr>
+										<th>rank</th>
+										<th>doc_id</th>
+										<th>topic</th>
+										<th>tf-idf</th>
+										<th>links</th>
+									</tr>
+								</thead>
+								<tbody>"""
+	priority_col_HTML += ''.join( [
 		priority_result_HTML_template % (
 			i+1,
 			format_docView_link(doc_id),
@@ -545,18 +562,32 @@ def format_similarity_result_columns(query_id, priority_results_list_content, se
 			)
 		for i, (doc_id, results) in enumerate(priority_results_list_content.items())
 		] )
+	priority_col_HTML += "</tbody></table>"
 
 	# secondary
-	secondary_result_HTML_template = "<p>%d: %s (%.2f) (%s)</p>"
-	secondary_col_HTML = ''.join( [
+	secondary_result_HTML_template = "<tr><td>%d</td><td>%s</td><td>%.2f</td><td></td><td>%s&nbsp;&nbsp;%s</td></tr>"
+	secondary_col_HTML = """<table id="secondary_col_table" class="display">
+								<thead>
+									<tr>
+										<th>rank</th>
+										<th>doc_id</th>
+										<th>topic</th>
+										<th>tf-idf</th>
+										<th>links</th>
+									</tr>
+								</thead>
+								<tbody>"""
+	secondary_col_HTML += ''.join( [
 		secondary_result_HTML_template % (
 			i+1,
 			format_docView_link(doc_id),
 			result, # topic only
-			format_textView_link(doc_id)
+			format_textView_link(doc_id),
+			format_docCompare_link(query_id, doc_id)
 			)
 		for i, (doc_id, result) in enumerate(secondary_results_list_content.items())
 		] )
+	secondary_col_HTML += "</tbody></table>"
 
 	return priority_col_HTML, secondary_col_HTML
 
@@ -606,6 +637,8 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 		priority_ranked_results_complete,
 		secondary_candidates
 		)
+	if priority_col_HTML == "": priority_col_HTML = "<p>(none)</p>"
+	if secondary_col_HTML == "": secondary_col_HTML = "<p>(none)</p>"
 	results_HTML = docExploreOutput_results_HTML_template.substitute(
 						query_id = query_id,
 						query_section = section_labels[query_id],
