@@ -7,6 +7,9 @@
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.css"/>
+		<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.js"></script>
+
         <title>vātāyana: docExplore</title>
 
     </head>
@@ -96,6 +99,12 @@
 
         </div><!-- container -->
 
+    <script>
+		$(document).ready( function () {
+	    	$('#priority_col_table').DataTable();
+	    	$('#secondary_col_table').DataTable();
+		} );
+	</script>
 
     </body>
 
