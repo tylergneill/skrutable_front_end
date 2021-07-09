@@ -101,8 +101,10 @@
 
     <script>
 		$(document).ready( function () {
-	    	$('#priority_col_table').DataTable();
-	    	$('#secondary_col_table').DataTable();
+
+	    	$('#priority_col_table').DataTable( {"pageLength": 25} );
+	    	$('#secondary_col_table').DataTable( {"pageLength": 25} );
+
 		} );
 	</script>
 
