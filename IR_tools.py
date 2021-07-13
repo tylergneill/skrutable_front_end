@@ -539,24 +539,35 @@ def format_docCompare_link(doc_id_1, doc_id_2):
 def format_similarity_result_columns(query_id, priority_results_list_content, secondary_results_list_content):
 
 	# priority
-	priority_result_HTML_template = "<tr><td>%d</td><td>%s</td><td>%.2f</td><td>%.2f</td><td>%s&nbsp;&nbsp;%s</td></tr>"
+	table_header_row = 	"""<thead>
+								<tr>
+									<th>rank</th>
+									<th>doc_id</th>
+									<th>topic</th>
+									<th>tf-idf</th>
+									<th>align</th>
+									<th>links</th>
+								</tr>
+							</thead>"""
+	table_row_template = 	"""<tr>
+									<td>%d</td>
+									<td>%s</td>
+									<td>%.2f</td>
+									<td>%s</td>
+									<td>%s</td>
+									<td>%s&nbsp;&nbsp;%s</td>
+								</tr>"""
 
-	priority_col_HTML = """<table id="priority_col_table" class="display">
-								<thead>
-									<tr>
-										<th>rank</th>
-										<th>doc_id</th>
-										<th>topic</th>
-										<th>tf-idf</th>
-										<th>links</th>
-									</tr>
-								</thead>
-								<tbody>"""
+	priority_col_HTML = "<table id='priority_col_table' class='display'>"
+	priority_col_HTML += table_header_row + "<tbody>"
+
 	priority_col_HTML += ''.join( [
-		priority_result_HTML_template % (
+		table_row_template % (
 			i+1,
 			format_docView_link(doc_id),
-			results[0], results[1], # topic, tf-idf
+			results[0], # topic score
+			"{:.2f}".format(results[1]), # tf-idf score
+			results[2], # alignment score
 			format_textView_link(doc_id),
 			format_docCompare_link(query_id, doc_id)
 			)
@@ -565,23 +576,17 @@ def format_similarity_result_columns(query_id, priority_results_list_content, se
 	priority_col_HTML += "</tbody></table>"
 
 	# secondary
-	secondary_result_HTML_template = "<tr><td>%d</td><td>%s</td><td>%.2f</td><td></td><td>%s&nbsp;&nbsp;%s</td></tr>"
-	secondary_col_HTML = """<table id="secondary_col_table" class="display">
-								<thead>
-									<tr>
-										<th>rank</th>
-										<th>doc_id</th>
-										<th>topic</th>
-										<th>tf-idf</th>
-										<th>links</th>
-									</tr>
-								</thead>
-								<tbody>"""
+
+	secondary_col_HTML = "<table id='secondary_col_table' class='display'>"
+	secondary_col_HTML += table_header_row + "<tbody>"
+
 	secondary_col_HTML += ''.join( [
-		secondary_result_HTML_template % (
+		table_row_template % (
 			i+1,
 			format_docView_link(doc_id),
 			result, # topic only
+			"", # no tf-idf
+			"", # no alignment
 			format_textView_link(doc_id),
 			format_docCompare_link(query_id, doc_id)
 			)
@@ -592,10 +597,24 @@ def format_similarity_result_columns(query_id, priority_results_list_content, se
 	return priority_col_HTML, secondary_col_HTML
 
 
+def get_N_sw_w_alignment_scores(query_id, doc_ids_to_align_against, N):
+	sw_w_alignment_scores = {}
+	for i, doc_id in enumerate(doc_ids_to_align_against):
+		if i < N:
+			_, _, sw_w_alignment_scores[doc_id], _ = sw_align(doc_fulltext[query_id], doc_fulltext[doc_id], words=True)
+			# only use third output, which here is length of successful alignment within query doc
+		else:
+			sw_w_alignment_scores[doc_id] = 0
+	sorted_results = sorted(sw_w_alignment_scores.items(), key=lambda item: item[1], reverse=True)
+	ranked_results_dict = { res[0]: res[1] for res in sorted_results }
+	for k,v in ranked_results_dict.items():
+		if v == 0: ranked_results_dict[k] = ""
+	return ranked_results_dict
+
+
 def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys()), results_as_links_only=False):
 
-	non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
-
+	# handle blank
 	if doc_fulltext[query_id] == '':
 		results_HTML = docExploreOutput_results_HTML_template.substitute(
 			query_id = query_id, query_section = section_labels[query_id], prev_doc_id = doc_links[query_id]['prev'], next_doc_id = doc_links[query_id]['next'],
@@ -603,12 +622,16 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 			)
 		return results_HTML
 
+	# manage prioritization and weighting
+
+	non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
+
 	# get N preliminary candidates by topic score (dimensionality = K, fast)
 	N = 1000
-	preliminary_N_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
+	preliminary_N_topic_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
 	# prioritize candidates
-	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
+	priority_topic_candidate_ids, secondary_topic_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_topic_candidates.keys()), priority_texts )
 	# # (for now, just by fixed time periods, later can generalize)
 	# if parse_complex_doc_id(query_id)[0] == 'NBhū':
 	# 	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
@@ -616,26 +639,35 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
 	# 	priority_candidate_ids = preliminary_N_candidates
 	# 	secondary_candidate_ids = []
 
-	priority_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in priority_candidate_ids }
-	secondary_candidates = { doc_id: preliminary_N_candidates[doc_id] for doc_id in secondary_candidate_ids }
+	priority_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in priority_topic_candidate_ids }
+	secondary_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in secondary_topic_candidate_ids }
 
 	# further rank priority candidates by tf-idf (dimensionality = len(corpus_vocab_reduced), slow)
-	priority_ranked_results = rank_N_candidates_by_TF_IDF_similarity(query_id, priority_candidates)
+	tf_idf_candidates = rank_N_candidates_by_TF_IDF_similarity(query_id, priority_topic_candidates)
+
+	# and also get alignment scores for very top hits (for now: 20)
+	sw_w_alignment_scores = get_N_sw_w_alignment_scores(
+		query_id,
+		list(tf_idf_candidates.keys()),
+		N=200
+		)
+
+	priority_ranked_results_ids = list(sw_w_alignment_scores.keys())[:200]
+	priority_ranked_results_ids += list(tf_idf_candidates.keys())[200:]
 
 	if results_as_links_only:
-		priority_ranked_results_ids = list(priority_ranked_results.keys())
 		similarity_result_doc_links = create_doc_link_series(priority_ranked_results_ids)
 		return similarity_result_doc_links
 
 	priority_ranked_results_complete = {
-		k: (priority_candidates[k], v)
-		for k,v in priority_ranked_results.items()
+		k: (priority_topic_candidates[k], tf_idf_candidates[k], sw_w_alignment_scores[k])
+		for k in priority_ranked_results_ids
 	}
 
 	priority_col_HTML, secondary_col_HTML = format_similarity_result_columns(
 		query_id,
 		priority_ranked_results_complete,
-		secondary_candidates
+		secondary_topic_candidates
 		)
 	if priority_col_HTML == "": priority_col_HTML = "<p>(none)</p>"
 	if secondary_col_HTML == "": secondary_col_HTML = "<p>(none)</p>"
@@ -688,11 +720,9 @@ def remove_stopwords(reading):
 	return ' '.join( [ word for word in reading_words
 						if word not in stopwords ] )
 
-def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys())):
+def nw_align(text_1, text_2):
 
-	# align and highlight doc_fulltexts
-
-	text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
+	num_score = 0
 
 	collation = Collation()
 	collation.add_plain_witness("A", text_1)
@@ -711,12 +741,13 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 
 			shared_reading = node
 
-			shared_reading = remove_stopwords(shared_reading)
-			if shared_reading in ["", " "]:
+			tmp_shared_reading = remove_stopwords(shared_reading)
+			if tmp_shared_reading in ["", " "]:
 				highlight_score = 0
-				shared_reading = " "
 			else:
 				highlight_score = 1
+				if len(tmp_shared_reading) > 10:
+					num_score += len(tmp_shared_reading)-10
 			# highlight_score = 1
 
 			color = score_to_color(highlight_score)
@@ -764,6 +795,46 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 				highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), reading_B)
 
 	highlighted_HTML_1 += '</p>'; highlighted_HTML_2 += '</p>'
+
+	return highlighted_HTML_1, highlighted_HTML_2, num_score # no longer use this num_score
+
+
+from radaniba import sw as sw_align
+
+def sw_nw_align(seq1, seq2):
+
+	# split docs in half based on central alignment feature as determined by sw on char-level
+
+    seq1_matchpoint, seq2_matchpoint, _, _ = sw_align(seq1, seq2) # char-level
+
+    first_half_of_seq1, second_half_of_seq1 = seq1[:seq1_matchpoint], seq1[seq1_matchpoint:]
+    first_half_of_seq2, second_half_of_seq2 = seq2[:seq2_matchpoint], seq2[seq2_matchpoint:]
+
+	# now do nw on each pair (provided both are non-empty)
+
+    if first_half_of_seq1 == "" or first_half_of_seq2 == "":
+        # beginning of one lines up with middle/end of other
+        res1, res2, score_1_2 = "<p>%s</p>" % first_half_of_seq1, "<p>%s</p>" % first_half_of_seq2, 0
+    else:
+        res1, res2, score_1_2 = nw_align(first_half_of_seq1, first_half_of_seq2)
+
+    if second_half_of_seq1 == "" or second_half_of_seq2 == "":
+        res3, res4, score_3_4 = "<p>%s</p>" % second_half_of_seq1, "<p>%s</p>" % second_half_of_seq2, 0
+    else:
+        res3, res4, score_3_4 = nw_align(second_half_of_seq1, second_half_of_seq2)
+
+	# piece back together and return
+
+    return res1[:-4]+res3[3:], res2[:-4]+res4[3:], score_1_2+score_3_4
+
+
+def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys())):
+
+	# align and highlight doc_fulltexts
+
+	text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
+
+	highlighted_HTML_1, highlighted_HTML_2, num_score = sw_nw_align(text_1, text_2)
 
 	# also prepare similar_doc_links
 
@@ -1023,3 +1094,15 @@ def format_text_prioritize_output(*priority_texts_input):
 									)
 
 	return textPrioritizeOutput_HTML
+
+def auto_reweight_topics(doc_id):
+	doc_topic_vector = thetas[doc_id]
+	topic_weights_vector = new_full_vector(K, 1.0).tolist() # no need for np here
+	for i, wt in enumerate(doc_topic_vector):
+		if 0.2 <= wt < 1.0: # major topic
+			pass # keep 100% weight
+		elif 0.03 <= wt < 0.2: # medium-importance topic
+			topic_weights_vector[i] = 0.2 # downweight to 20%
+		elif 0.0 < wt < 0.03: # minor topic
+			topic_weights_vector[i] = 0.05 # downweight to 5%
+	return topic_weights_vector

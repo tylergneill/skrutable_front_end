@@ -525,6 +525,13 @@ def vatayana_doc_explore():
 
 		valid_doc_ids = IR_tools.doc_ids
 		if doc_id in valid_doc_ids:
+
+			auto_reweight_topics_option = False
+			if auto_reweight_topics_option:
+				topic_weights = IR_tools.auto_reweight_topics(doc_id)
+				session['topic_weights'] = topic_weights
+				session.modified = True
+
 			output_HTML = IR_tools.get_closest_docs(
 				doc_id,
 				topic_weights=session['topic_weights'],
@@ -569,6 +576,13 @@ def vatayana_doc_compare():
 			output_HTML = "<br><p>Those are the same, please enter two different doc ids to compare.</p>"
 		elif doc_id_1 in valid_doc_ids and doc_id_2 in valid_doc_ids:
 			# output_HTML = "<br><p>Good, those are valid.</p>"
+
+			auto_reweight_topics_option = False
+			if auto_reweight_topics_option:
+				topic_weights = IR_tools.auto_reweight_topics(doc_id_1)
+				session['topic_weights'] = topic_weights
+				session.modified = True
+
 			output_HTML, sim_btn_left, sim_btn_right = IR_tools.compare_doc_pair(
 				doc_id_1,
 				doc_id_2,
