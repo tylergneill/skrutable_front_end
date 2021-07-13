@@ -30,30 +30,30 @@ global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_tem
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 def load_dict_from_json(relative_path_fn):
-	json_full_fn = os.path.join(CURRENT_FOLDER, relative_path_fn)
-	with open(json_full_fn,'r') as f_in:
-		loaded_dict = json.loads( f_in.read() )
-	return loaded_dict
+    json_full_fn = os.path.join(CURRENT_FOLDER, relative_path_fn)
+    with open(json_full_fn,'r') as f_in:
+        loaded_dict = json.loads( f_in.read() )
+    return loaded_dict
 
 docExploreOutput_results_HTML_template_relative_path = 'templates/vatayana-docExploreOutput.html'
 docExploreOutput_results_HTML_template_fn = os.path.join(CURRENT_FOLDER, docExploreOutput_results_HTML_template_relative_path)
 with open(docExploreOutput_results_HTML_template_fn,'r') as f_in:
-	docExploreOutput_results_HTML_template = Template(f_in.read())
+    docExploreOutput_results_HTML_template = Template(f_in.read())
 
 docCompareOutput_results_HTML_template_relative_path = 'templates/vatayana-docCompareOutput.html'
 docCompareOutput_results_HTML_template_fn = os.path.join(CURRENT_FOLDER, docCompareOutput_results_HTML_template_relative_path)
 with open(docCompareOutput_results_HTML_template_fn,'r') as f_in:
-	docCompareOutput_results_HTML_template = Template(f_in.read())
+    docCompareOutput_results_HTML_template = Template(f_in.read())
 
 topicAdjustOutput_results_HTML_template_relative_path = 'templates/vatayana-topicAdjustOutput.html'
 topicAdjustOutput_results_HTML_template_fn = os.path.join(CURRENT_FOLDER, topicAdjustOutput_results_HTML_template_relative_path)
 with open(topicAdjustOutput_results_HTML_template_fn,'r') as f_in:
-	topicAdjustOutput_results_HTML_template = Template(f_in.read())
+    topicAdjustOutput_results_HTML_template = Template(f_in.read())
 
 textPrioritizeOutput_HTML_template_relative_path = 'templates/vatayana-textPrioritizeOutput.html'
 textPrioritizeOutput_HTML_template_fn = os.path.join(CURRENT_FOLDER, textPrioritizeOutput_HTML_template_relative_path)
 with open(textPrioritizeOutput_HTML_template_fn,'r') as f_in:
-	textPrioritizeOutput_HTML_template = Template(f_in.read())
+    textPrioritizeOutput_HTML_template = Template(f_in.read())
 
 ##########################################################
 # on server start, load corpus and statistics into memory
@@ -75,18 +75,18 @@ doc_ids = []
 doc_fulltext = OrderedDict() # e.g. doc_fulltext[DOC_ID]
 thetas = {} # e.g. theta[DOC_ID]
 for row in theta_rows:
-	cells = row.split('\t') # must have been converted to TSV first!
-	doc_id, doc_text, theta_values = cells[1], cells[2], cells[3:]
-	# don't need cells[0] which would be doc_num
-	K = len(cells) - 3
-	doc_ids.append(doc_id)
-	doc_fulltext[doc_id] = doc_text
-	thetas[doc_id] = [ float(th) for th in theta_values ]
+    cells = row.split('\t') # must have been converted to TSV first!
+    doc_id, doc_text, theta_values = cells[1], cells[2], cells[3:]
+    # don't need cells[0] which would be doc_num
+    K = len(cells) - 3
+    doc_ids.append(doc_id)
+    doc_fulltext[doc_id] = doc_text
+    thetas[doc_id] = [ float(th) for th in theta_values ]
 num_docs = len(doc_ids)
 
 
 def new_full_vector(size, val):
-	return np.full( size, val )
+    return np.full( size, val )
 
 topic_weights_default = new_full_vector(K, 1.0)
 
@@ -98,7 +98,7 @@ disallowed_fulltexts = ['PVin','HB','PSṬ','NV']
 doc_id_list_relative_path_fn = 'assets/vatayana/doc_id_list.txt'
 doc_id_list_full_fn = os.path.join(CURRENT_FOLDER, doc_id_list_relative_path_fn)
 with open(doc_id_list_full_fn,'w') as f_out:
-	f_out.write('\n'.join(doc_ids))
+    f_out.write('\n'.join(doc_ids))
 
 # make copies of overall corpus as single long string and as list of all tokens
 corpus_long_string = ' '.join( doc_fulltext.values() )
@@ -142,10 +142,10 @@ with open(topic_interpretation_fn_full_path,'r') as f_in:
 topic_wordclouds_relative_path = 'assets/vatayana/topic_wordclouds'
 topic_wordclouds_full_path = os.path.join(CURRENT_FOLDER, topic_wordclouds_relative_path)
 topic_wordcloud_fns = [ os.path.join(topic_wordclouds_relative_path, img_fn) # relative for img src
-							for img_fn in os.listdir(topic_wordclouds_full_path) # full to reach img_fn here
-							if os.path.isfile(os.path.join(topic_wordclouds_full_path, img_fn))
-							and img_fn != '.DS_Store'
-						]
+                            for img_fn in os.listdir(topic_wordclouds_full_path) # full to reach img_fn here
+                            if os.path.isfile(os.path.join(topic_wordclouds_full_path, img_fn))
+                            and img_fn != '.DS_Store'
+                        ]
 topic_wordcloud_fns.sort()
 
 # count each term's document frequency
@@ -201,13 +201,13 @@ corpus_vocab_reduced = [
 # prepare dict of doc_links
 # (generalized because same structure used for similarity results, too)
 def create_doc_link_series(doc_ids_to_do):
-	doc_link_series = {}
-	dL = len(doc_ids_to_do)
-	doc_link_series[doc_ids_to_do[0]] = {'prev': doc_ids_to_do[dL-1], 'next': doc_ids_to_do[1]}
-	for i in range(1, dL-1):
-		doc_link_series[doc_ids_to_do[i]] = {'prev': doc_ids_to_do[i-1], 'next': doc_ids_to_do[i+1]}
-	doc_link_series[doc_ids_to_do[dL-1]] = {'prev': doc_ids_to_do[dL-2], 'next': doc_ids_to_do[0]}
-	return doc_link_series
+    doc_link_series = {}
+    dL = len(doc_ids_to_do)
+    doc_link_series[doc_ids_to_do[0]] = {'prev': doc_ids_to_do[dL-1], 'next': doc_ids_to_do[1]}
+    for i in range(1, dL-1):
+        doc_link_series[doc_ids_to_do[i]] = {'prev': doc_ids_to_do[i-1], 'next': doc_ids_to_do[i+1]}
+    doc_link_series[doc_ids_to_do[dL-1]] = {'prev': doc_ids_to_do[dL-2], 'next': doc_ids_to_do[0]}
+    return doc_link_series
 
 # e.g. doc_links[DOC_ID]['prev'] = another DOC_ID string
 doc_links = create_doc_link_series(doc_ids)
@@ -222,7 +222,7 @@ text_abbrev2title = load_dict_from_json("assets/vatayana/text_abbreviations.json
 corpus_texts_list_relative_path_fn = 'assets/vatayana/corpus_texts.txt'
 corpus_texts_list_full_fn = os.path.join(CURRENT_FOLDER, corpus_texts_list_relative_path_fn)
 with open(corpus_texts_list_full_fn,'w') as f_out:
-	f_out.write('\n'.join([abbrv+'\t'+fn for (abbrv, fn) in text_abbrev2title.items()]))
+    f_out.write('\n'.join([abbrv+'\t'+fn for (abbrv, fn) in text_abbrev2title.items()]))
 
 # load lookup table of section headers by doc_id
 section_labels = load_dict_from_json("assets/vatayana/section_labels.json")
@@ -236,18 +236,18 @@ stored_textView_HTML_relative_path = "assets/vatayana/textView_HTML"
 stored_textView_HTML_full_path = os.path.join(CURRENT_FOLDER, stored_textView_HTML_relative_path)
 
 stored_textView_HTML_fns = [ os.path.join(stored_textView_HTML_full_path, HTML_fn)
-							for HTML_fn in os.listdir(stored_textView_HTML_full_path)
-							if os.path.isfile(os.path.join(stored_textView_HTML_full_path, HTML_fn))
-							and HTML_fn != '.DS_Store'
-							]
+                            for HTML_fn in os.listdir(stored_textView_HTML_full_path)
+                            if os.path.isfile(os.path.join(stored_textView_HTML_full_path, HTML_fn))
+                            and HTML_fn != '.DS_Store'
+                            ]
 
 
 def parse_complex_doc_id(doc_id):
 # NB: returns only first original doc id from any resizing modifications
-	first_underscore_pos = doc_id.find('_')
-	work_abbrv = doc_id[:first_underscore_pos]
-	local_doc_id = re.search('[^_\^:]+', doc_id[first_underscore_pos+1:]).group()
-	return work_abbrv, local_doc_id
+    first_underscore_pos = doc_id.find('_')
+    work_abbrv = doc_id[:first_underscore_pos]
+    local_doc_id = re.search('[^_\^:]+', doc_id[first_underscore_pos+1:]).group()
+    return work_abbrv, local_doc_id
 
 # handy general function for getting max values of list in descending order
 def indices_of_top_N_elements(L, N):
@@ -267,33 +267,33 @@ def get_top_topic_indices(doc_id, max_N=5, threshold=0.03):
 
 def rank_N_candidates_by_topic_similarity(query_id, N=500, topic_weights=topic_weights_default):
 
-	if doc_fulltext[query_id] == '': return {}
+    if doc_fulltext[query_id] == '': return {}
 
-	# use previously calculated result if available
-	# disable for now while implementing topic weighting
-	# if 	(	N in stored_topic_comparison_scores.keys() and
-	# 		query_id in stored_topic_comparison_scores[N].keys()
-	# 	):
-	# 	# print("RETURNING OLD TOPIC RESULTS")
-	# 	return stored_topic_comparison_scores[N][query_id]
+    # use previously calculated result if available
+    # disable for now while implementing topic weighting
+    # if     (    N in stored_topic_comparison_scores.keys() and
+    #         query_id in stored_topic_comparison_scores[N].keys()
+    #     ):
+    #     # print("RETURNING OLD TOPIC RESULTS")
+    #     return stored_topic_comparison_scores[N][query_id]
 
-	# else contine to perform new calculation
+    # else contine to perform new calculation
 
-	query_vector = np.array(thetas[query_id]) * topic_weights
-	topic_similiarity_score = {} # e.g. topic_similiarity_score[DOC_ID] = FLOAT
-	for doc_id in doc_ids:
-		candidate_vector = np.array(thetas[doc_id]) * topic_weights # dimensionality = k, number of topics
-		# use doc_fulltext to check if empty bc exact empty theta vector depends on alpha type (asymmetric etc.)
-		if doc_fulltext[doc_id] == '':
-			topic_similiarity_score[doc_id] = 0
-		else:
-			topic_similiarity_score[doc_id] = fastdist.cosine(query_vector, candidate_vector)
-	sorted_results = sorted(topic_similiarity_score.items(), key=lambda item: item[1], reverse=True)
-	pruned_results = sorted_results[ 1 : N+1 ] # also omit first which is query itself
-	top_N_candidates_score_dict = { res[0]: res[1] for res in pruned_results }
-	# e.g. top_N_candidates_score_dict[doc_id_2 STRING] = score_1 FLOAT
+    query_vector = np.array(thetas[query_id]) * topic_weights
+    topic_similiarity_score = {} # e.g. topic_similiarity_score[DOC_ID] = FLOAT
+    for doc_id in doc_ids:
+        candidate_vector = np.array(thetas[doc_id]) * topic_weights # dimensionality = k, number of topics
+        # use doc_fulltext to check if empty bc exact empty theta vector depends on alpha type (asymmetric etc.)
+        if doc_fulltext[doc_id] == '':
+            topic_similiarity_score[doc_id] = 0
+        else:
+            topic_similiarity_score[doc_id] = fastdist.cosine(query_vector, candidate_vector)
+    sorted_results = sorted(topic_similiarity_score.items(), key=lambda item: item[1], reverse=True)
+    pruned_results = sorted_results[ 1 : N+1 ] # also omit first which is query itself
+    top_N_candidates_score_dict = { res[0]: res[1] for res in pruned_results }
+    # e.g. top_N_candidates_score_dict[doc_id_2 STRING] = score_1 FLOAT
 
-	return top_N_candidates_score_dict
+    return top_N_candidates_score_dict
 
 # load whatever done ahead of time and feasible to keep in memory
 
@@ -301,8 +301,8 @@ stored_topic_comparison_scores = {1000:{}}
 topic_scores_1000_pickle_relative_fn = 'assets/vatayana/topic_scores_1000.p'
 topic_scores_1000_pickle_fn = os.path.join(CURRENT_FOLDER, topic_scores_1000_pickle_relative_fn)
 try:
-	with open(topic_scores_1000_pickle_fn,'rb') as f_in:
-		stored_topic_comparison_scores[1000] = pickle.load(f_in)
+    with open(topic_scores_1000_pickle_fn,'rb') as f_in:
+        stored_topic_comparison_scores[1000] = pickle.load(f_in)
 except FileNotFoundError: pass
 
 # # set up groups for chronological work prioritization
@@ -324,687 +324,705 @@ except FileNotFoundError: pass
 
 
 def divide_doc_id_list_by_work_priority(list_of_doc_ids_to_prune, priority_works):
-	prioritized = []
-	secondary = []
-	for doc_id in list_of_doc_ids_to_prune:
-		if parse_complex_doc_id(doc_id)[0] in priority_works:
-			prioritized.append(doc_id)
-		else:
-			secondary.append(doc_id)
-	return prioritized, secondary
+    prioritized = []
+    secondary = []
+    for doc_id in list_of_doc_ids_to_prune:
+        if parse_complex_doc_id(doc_id)[0] in priority_works:
+            prioritized.append(doc_id)
+        else:
+            secondary.append(doc_id)
+    return prioritized, secondary
 
 
 def get_TF_IDF_vector(doc_id):
-	# calculates tf.idf vector for any given doc
-	# returns as numpy array
+    # calculates tf.idf vector for any given doc
+    # returns as numpy array
 
-	doc_text = doc_fulltext[doc_id]
-	doc_words = doc_text.split()
-	unique_doc_words = list(set(doc_words))
+    doc_text = doc_fulltext[doc_id]
+    doc_words = doc_text.split()
+    unique_doc_words = list(set(doc_words))
 
-	total_doc_word_len = len(doc_words)
+    total_doc_word_len = len(doc_words)
 
-	TF_IDF_dict = {} # e.g. TF_IDF_dict[WORD] = [FLOAT, FLOAT, FLOAT, FLOAT, ... FLOAT]
-	for word in unique_doc_words:
-		TF_d_w = doc_words.count(word) / total_doc_word_len
-		TF_IDF_dict[word] = TF_d_w * IDF[word]
+    TF_IDF_dict = {} # e.g. TF_IDF_dict[WORD] = [FLOAT, FLOAT, FLOAT, FLOAT, ... FLOAT]
+    for word in unique_doc_words:
+        TF_d_w = doc_words.count(word) / total_doc_word_len
+        TF_IDF_dict[word] = TF_d_w * IDF[word]
 
-	TF_IDF_vector = np.zeros( len(corpus_vocab_reduced) )
-	# e.g. TF_IDF_vector[WORD] = [0, 0, 0, ... FLOAT, 0, 0, ... FLOAT, 0, ... 0]
+    TF_IDF_vector = np.zeros( len(corpus_vocab_reduced) )
+    # e.g. TF_IDF_vector[WORD] = [0, 0, 0, ... FLOAT, 0, 0, ... FLOAT, 0, ... 0]
 
-	for word in TF_IDF_dict.keys():
-		if word in corpus_vocab_reduced:
-			i = corpus_vocab_reduced.index(word) # alphabetical index
-			TF_IDF_vector[i] = TF_IDF_dict[word]
+    for word in TF_IDF_dict.keys():
+        if word in corpus_vocab_reduced:
+            i = corpus_vocab_reduced.index(word) # alphabetical index
+            TF_IDF_vector[i] = TF_IDF_dict[word]
 
-	return TF_IDF_vector
+    return TF_IDF_vector
 
 
 def load_stored_TF_IDF_results(work_name):
-	work_pickle_relative_fn = 'assets/vatayana/tf-idf_pickles/{}.p'.format(work_name)
-	work_pickle_fn = os.path.join(CURRENT_FOLDER, work_pickle_relative_fn)
-	try:
-		with open(work_pickle_fn,'rb') as f_in:
-			stored_results = pickle.load(f_in)
-	except FileNotFoundError:
-		stored_results = {}
+    work_pickle_relative_fn = 'assets/vatayana/tf-idf_pickles/{}.p'.format(work_name)
+    work_pickle_fn = os.path.join(CURRENT_FOLDER, work_pickle_relative_fn)
+    try:
+        with open(work_pickle_fn,'rb') as f_in:
+            stored_results = pickle.load(f_in)
+    except FileNotFoundError:
+        stored_results = {}
 
-	# probably tried to load again too quickly before previous load finished
-	except EOFError:
-		stored_results = {}
-	except _pickle.UnpicklingError:
-		stored_results = {}
+    # probably tried to load again too quickly before previous load finished
+    except EOFError:
+        stored_results = {}
+    except _pickle.UnpicklingError:
+        stored_results = {}
 
-	return stored_results
+    return stored_results
 
 def save_updated_TF_IDF_results(updated_results, work_name):
-	work_pickle_relative_fn = 'assets/vatayana/tf-idf_pickles/{}.p'.format(work_name)
-	work_pickle_fn = os.path.join(CURRENT_FOLDER, work_pickle_relative_fn)
-	with open(work_pickle_fn,'wb') as f_out:
-		P = pickle.Pickler(f_out)
-		P.dump(updated_results)
+    work_pickle_relative_fn = 'assets/vatayana/tf-idf_pickles/{}.p'.format(work_name)
+    work_pickle_fn = os.path.join(CURRENT_FOLDER, work_pickle_relative_fn)
+    with open(work_pickle_fn,'wb') as f_out:
+        P = pickle.Pickler(f_out)
+        P.dump(updated_results)
 
 current_tf_idf_data_work_name = "" # only before first query
 current_tf_idf_data = {}
 def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 
-	work_name = parse_complex_doc_id(query_id)[0]
+    work_name = parse_complex_doc_id(query_id)[0]
 
-	# make sure relevant tf-idf data in memory
-	global current_tf_idf_data_work_name, current_tf_idf_data
-	if work_name != current_tf_idf_data_work_name or current_tf_idf_data_work_name == "":
-		# switched works or first query, load relevant data from disk into memory
-		current_tf_idf_data = load_stored_TF_IDF_results(work_name)
-		current_tf_idf_data_work_name = work_name
-	cumulative_results_for_this_work = current_tf_idf_data
-	# cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name)
+    # make sure relevant tf-idf data in memory
+    global current_tf_idf_data_work_name, current_tf_idf_data
+    if work_name != current_tf_idf_data_work_name or current_tf_idf_data_work_name == "":
+        # switched works or first query, load relevant data from disk into memory
+        current_tf_idf_data = load_stored_TF_IDF_results(work_name)
+        current_tf_idf_data_work_name = work_name
+    cumulative_results_for_this_work = current_tf_idf_data
+    # cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name)
 
-	if query_id in cumulative_results_for_this_work.keys():
-		ks = list(cumulative_results_for_this_work[query_id])
-		candidates_already_done = [ k for k in ks if k in candidate_ids ]
-	else:
-		candidates_already_done = []
+    if query_id in cumulative_results_for_this_work.keys():
+        ks = list(cumulative_results_for_this_work[query_id])
+        candidates_already_done = [ k for k in ks if k in candidate_ids ]
+    else:
+        candidates_already_done = []
 
-	# else contine to perform new calculation
+    # else contine to perform new calculation
 
-	query_vector = get_TF_IDF_vector(query_id)
-	TF_IDF_comparison_scores = {} # e.g. tf_idf_score[DOC_ID] = FLOAT
-	new_TF_IDF_comparison_scores = {} # for saving new results
+    query_vector = get_TF_IDF_vector(query_id)
+    TF_IDF_comparison_scores = {} # e.g. tf_idf_score[DOC_ID] = FLOAT
+    new_TF_IDF_comparison_scores = {} # for saving new results
 
-	for doc_id in candidate_ids:
-		if doc_id in candidates_already_done:
-			TF_IDF_comparison_scores[doc_id] = cumulative_results_for_this_work[query_id][doc_id]
-		else:
-			candidate_vector = get_TF_IDF_vector(doc_id)
-			if np.all(candidate_vector == 0):
-				 # basically skip empties to avoid div_by_zero in cosine calculation (could also use doc_fulltext)
-				new_TF_IDF_comparison_scores[doc_id] = 0
-			else:
-				new_TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
-			TF_IDF_comparison_scores[doc_id] = new_TF_IDF_comparison_scores[doc_id]
+    for doc_id in candidate_ids:
+        if doc_id in candidates_already_done:
+            TF_IDF_comparison_scores[doc_id] = cumulative_results_for_this_work[query_id][doc_id]
+        else:
+            candidate_vector = get_TF_IDF_vector(doc_id)
+            if np.all(candidate_vector == 0):
+                 # basically skip empties to avoid div_by_zero in cosine calculation (could also use doc_fulltext)
+                new_TF_IDF_comparison_scores[doc_id] = 0
+            else:
+                new_TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
+            TF_IDF_comparison_scores[doc_id] = new_TF_IDF_comparison_scores[doc_id]
 
-	# merge new dict into old cumulative results dict and save both to memory and to disk
-	if query_id in cumulative_results_for_this_work.keys():
-		cumulative_results_for_this_work[query_id].update(new_TF_IDF_comparison_scores)
-	else:
-		cumulative_results_for_this_work[query_id] = new_TF_IDF_comparison_scores
-	current_tf_idf_data = cumulative_results_for_this_work
-	save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
+    # merge new dict into old cumulative results dict and save both to memory and to disk
+    if query_id in cumulative_results_for_this_work.keys():
+        cumulative_results_for_this_work[query_id].update(new_TF_IDF_comparison_scores)
+    else:
+        cumulative_results_for_this_work[query_id] = new_TF_IDF_comparison_scores
+    current_tf_idf_data = cumulative_results_for_this_work
+    save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
 
-	# i.e., always save to disk, but only load from disk when switching works, to save some time but still reliably save
+    # i.e., always save to disk, but only load from disk when switching works, to save some time but still reliably save
 
-	# sort and return ranked results
-	sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
-	candidate_ranking_results_dict = { res[0]: res[1] for res in sorted_results }
-	return candidate_ranking_results_dict
+    # sort and return ranked results
+    sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
+    candidate_ranking_results_dict = { res[0]: res[1] for res in sorted_results }
+    return candidate_ranking_results_dict
 
 
 def group_doc_ids_by_work(*doc_ids_to_do):
-	doc_ids_grouped_by_work = {}
-	for doc_id in doc_ids_to_do:
-		work_name = parse_complex_doc_id(doc_id)[0]
-		if work_name not in doc_ids_grouped_by_work.keys():
-			doc_ids_grouped_by_work[work_name] = []
-		doc_ids_grouped_by_work[work_name].append(doc_id)
-	return doc_ids_grouped_by_work
+    doc_ids_grouped_by_work = {}
+    for doc_id in doc_ids_to_do:
+        work_name = parse_complex_doc_id(doc_id)[0]
+        if work_name not in doc_ids_grouped_by_work.keys():
+            doc_ids_grouped_by_work[work_name] = []
+        doc_ids_grouped_by_work[work_name].append(doc_id)
+    return doc_ids_grouped_by_work
 
 
 # currently for back-end use only
 def conditionally_do_batch_tf_idf_comparisons(*doc_ids_to_do, N=500):
 
-	pbar = tqdm(total=len(doc_ids_to_do))
+    pbar = tqdm(total=len(doc_ids_to_do))
 
-	# argument is an unspecified number of strings, NOT a list
-	# so if desiring to pass in a list, unpack it first, e.g., do_batch(*desired_doc_ids)
-	doc_ids_grouped_by_work = group_doc_ids_by_work(*doc_ids_to_do) # dict
+    # argument is an unspecified number of strings, NOT a list
+    # so if desiring to pass in a list, unpack it first, e.g., do_batch(*desired_doc_ids)
+    doc_ids_grouped_by_work = group_doc_ids_by_work(*doc_ids_to_do) # dict
 
-	for work_name, work_doc_ids in doc_ids_grouped_by_work.items():
+    for work_name, work_doc_ids in doc_ids_grouped_by_work.items():
 
-		# load x1
-		cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name) # {} if file not found
+        # load x1
+        cumulative_results_for_this_work = load_stored_TF_IDF_results(work_name) # {} if file not found
 
-		for doc_id in work_doc_ids:
+        for doc_id in work_doc_ids:
 
-			#check if already done, if so skip
-			if doc_id in cumulative_results_for_this_work.keys():
-				pbar.update()
-				continue
+            #check if already done, if so skip
+            if doc_id in cumulative_results_for_this_work.keys():
+                pbar.update()
+                continue
 
-			else: # do needed comparisons
+            else: # do needed comparisons
 
-				 # topic filtering
-				if doc_id in stored_topic_comparison_scores[N]:
-					top_N_candidates_results_dict = stored_topic_comparison_scores[N][doc_id]
-				else:
-					top_N_candidates_results_dict = rank_N_candidates_by_topic_similarity(doc_id, N, topic_weights=topic_weights_default)
-				ids_for_closest_N_docs_by_topics = top_N_candidates_results_dict.keys()
+                 # topic filtering
+                if doc_id in stored_topic_comparison_scores[N]:
+                    top_N_candidates_results_dict = stored_topic_comparison_scores[N][doc_id]
+                else:
+                    top_N_candidates_results_dict = rank_N_candidates_by_topic_similarity(doc_id, N, topic_weights=topic_weights_default)
+                ids_for_closest_N_docs_by_topics = top_N_candidates_results_dict.keys()
 
-				# don't do prioritization
+                # don't do prioritization
 
-				cumulative_results_for_this_work[doc_id] = rank_N_candidates_by_TF_IDF_similarity(doc_id, ids_for_closest_N_docs_by_topics)
+                cumulative_results_for_this_work[doc_id] = rank_N_candidates_by_TF_IDF_similarity(doc_id, ids_for_closest_N_docs_by_topics)
 
-			pbar.update()
+            pbar.update()
 
-		# save x1
-		save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
+        # save x1
+        save_updated_TF_IDF_results(cumulative_results_for_this_work, work_name)
 
-	pbar.close()
-	return
+    pbar.close()
+    return
 
 
 # HTML formatting functions
 
 def format_topic_explore_links(topic_index):
-	return """<a
+    return """<a
 href='topicExplore#topic={}&lambda=0.8&term=' target='_blank'>#{:02}</a> <a
 href='{}' title='{}' target='_wordcloud'>☁️</a>""".format(
-		# topic_interpretations[topic_index],
-		topic_index+1,
-		topic_index+1,
-		topic_wordcloud_fns[topic_index],
-		topic_top_words[topic_index]
-		)
+        # topic_interpretations[topic_index],
+        topic_index+1,
+        topic_index+1,
+        topic_wordcloud_fns[topic_index],
+        topic_top_words[topic_index]
+        )
 
 def format_top_topic_summary(doc_id, top_topic_indices, topic_labels):
-	top_topic_summary_HTML = "<style type='text/css'>td {padding:0 15px;}</style>"
-	top_topic_summary_HTML += "<div class='container' style='margin-left: 40px;'><table>"
-	top_topic_summary_HTML += ''.join(
-		[ """<tr>
-				<td><h2><small>{:.1%}</small></h2></td>
-				<td><h2><small>{}</small></h2></td>
-				<td><h2><small>({})</small></h2></td>
-			</tr>""".format(
-				thetas[doc_id][i],
-				topic_labels[i],
-				format_topic_explore_links(i)
-				)
-		for i in top_topic_indices
-		] )
-	top_topic_summary_HTML += "</table></div>"
-	return top_topic_summary_HTML
+    top_topic_summary_HTML = "<style type='text/css'>td {padding:0 15px;}</style>"
+    top_topic_summary_HTML += "<div class='container' style='margin-left: 40px;'><table>"
+    top_topic_summary_HTML += ''.join(
+        [ """<tr>
+                <td><h2><small>{:.1%}</small></h2></td>
+                <td><h2><small>{}</small></h2></td>
+                <td><h2><small>({})</small></h2></td>
+            </tr>""".format(
+                thetas[doc_id][i],
+                topic_labels[i],
+                format_topic_explore_links(i)
+                )
+        for i in top_topic_indices
+        ] )
+    top_topic_summary_HTML += "</table></div>"
+    return top_topic_summary_HTML
 
 def format_docView_link(doc_id):
-	# looks like doc_id
-	return "<a href='docExplore?doc_id=%s' title='%s'>%s</a>" % (doc_id, section_labels[doc_id], doc_id)
+    # looks like doc_id
+    return "<a href='docExplore?doc_id=%s' title='%s'>%s</a>" % (doc_id, section_labels[doc_id], doc_id)
 
 def format_textView_link(doc_id):
-	# each one looks like fixed string "txtVw"
-	work_abbrv, local_doc_id = parse_complex_doc_id(doc_id)
-	return "<a href='textView?text_abbrv=%s#%s' target='textView%s'>txtVw</a>" % (work_abbrv, local_doc_id, work_abbrv)
+    # each one looks like fixed string "txtVw"
+    work_abbrv, local_doc_id = parse_complex_doc_id(doc_id)
+    return "<a href='textView?text_abbrv=%s#%s' target='textView%s'>txtVw</a>" % (work_abbrv, local_doc_id, work_abbrv)
 
 def format_docCompare_link(doc_id_1, doc_id_2):
-	# each one looks like fixed string "dcCp"
-	return "<a href='docCompare?doc_id_1=%s&doc_id_2=%s' target='docCompare'>dcCp</a>" % (doc_id_1, doc_id_2)
+    # each one looks like fixed string "dcCp"
+    return "<a href='docCompare?doc_id_1=%s&doc_id_2=%s' target='docCompare'>dcCp</a>" % (doc_id_1, doc_id_2)
 
 def format_similarity_result_columns(query_id, priority_results_list_content, secondary_results_list_content):
 
-	# priority
-	table_header_row = 	"""<thead>
-								<tr>
-									<th>rank</th>
-									<th>doc_id</th>
-									<th>topic</th>
-									<th>tf-idf</th>
-									<th>align</th>
-									<th>links</th>
-								</tr>
-							</thead>"""
-	table_row_template = 	"""<tr>
-									<td>%d</td>
-									<td>%s</td>
-									<td>%.2f</td>
-									<td>%s</td>
-									<td>%s</td>
-									<td>%s&nbsp;&nbsp;%s</td>
-								</tr>"""
+    # priority
+    table_header_row =     """<thead>
+                                <tr>
+                                    <th>rank</th>
+                                    <th>doc_id</th>
+                                    <th>topic</th>
+                                    <th>tf-idf</th>
+                                    <th>align</th>
+                                    <th>links</th>
+                                </tr>
+                            </thead>"""
+    table_row_template =     """<tr>
+                                    <td>%d</td>
+                                    <td>%s</td>
+                                    <td>%.2f</td>
+                                    <td>%s</td>
+                                    <td>%s</td>
+                                    <td>%s&nbsp;&nbsp;%s</td>
+                                </tr>"""
 
-	priority_col_HTML = "<table id='priority_col_table' class='display'>"
-	priority_col_HTML += table_header_row + "<tbody>"
+    priority_col_HTML = "<table id='priority_col_table' class='display'>"
+    priority_col_HTML += table_header_row + "<tbody>"
 
-	priority_col_HTML += ''.join( [
-		table_row_template % (
-			i+1,
-			format_docView_link(doc_id),
-			results[0], # topic score
-			"{:.2f}".format(results[1]), # tf-idf score
-			results[2], # alignment score
-			format_textView_link(doc_id),
-			format_docCompare_link(query_id, doc_id)
-			)
-		for i, (doc_id, results) in enumerate(priority_results_list_content.items())
-		] )
-	priority_col_HTML += "</tbody></table>"
+    priority_col_HTML += ''.join( [
+        table_row_template % (
+            i+1,
+            format_docView_link(doc_id),
+            results[0], # topic score
+            "{:.2f}".format(results[1]), # tf-idf score
+            results[2], # alignment score
+            format_textView_link(doc_id),
+            format_docCompare_link(query_id, doc_id)
+            )
+        for i, (doc_id, results) in enumerate(priority_results_list_content.items())
+        ] )
+    priority_col_HTML += "</tbody></table>"
 
-	# secondary
+    # secondary
 
-	secondary_col_HTML = "<table id='secondary_col_table' class='display'>"
-	secondary_col_HTML += table_header_row + "<tbody>"
+    secondary_col_HTML = "<table id='secondary_col_table' class='display'>"
+    secondary_col_HTML += table_header_row + "<tbody>"
 
-	secondary_col_HTML += ''.join( [
-		table_row_template % (
-			i+1,
-			format_docView_link(doc_id),
-			result, # topic only
-			"", # no tf-idf
-			"", # no alignment
-			format_textView_link(doc_id),
-			format_docCompare_link(query_id, doc_id)
-			)
-		for i, (doc_id, result) in enumerate(secondary_results_list_content.items())
-		] )
-	secondary_col_HTML += "</tbody></table>"
+    secondary_col_HTML += ''.join( [
+        table_row_template % (
+            i+1,
+            format_docView_link(doc_id),
+            result, # topic only
+            "", # no tf-idf
+            "", # no alignment
+            format_textView_link(doc_id),
+            format_docCompare_link(query_id, doc_id)
+            )
+        for i, (doc_id, result) in enumerate(secondary_results_list_content.items())
+        ] )
+    secondary_col_HTML += "</tbody></table>"
 
-	return priority_col_HTML, secondary_col_HTML
+    return priority_col_HTML, secondary_col_HTML
 
 
 def get_N_sw_w_alignment_scores(query_id, doc_ids_to_align_against, N):
-	sw_w_alignment_scores = {}
-	for i, doc_id in enumerate(doc_ids_to_align_against):
-		if i < N:
-			_, _, sw_w_alignment_scores[doc_id], _ = sw_align(doc_fulltext[query_id], doc_fulltext[doc_id], words=True)
-			# only use third output, which here is length of successful alignment within query doc
-		else:
-			sw_w_alignment_scores[doc_id] = 0
-	sorted_results = sorted(sw_w_alignment_scores.items(), key=lambda item: item[1], reverse=True)
-	ranked_results_dict = { res[0]: res[1] for res in sorted_results }
-	for k,v in ranked_results_dict.items():
-		if v == 0: ranked_results_dict[k] = ""
-	return ranked_results_dict
+    sw_alignment_scores = {}
+    for i, doc_id in enumerate(doc_ids_to_align_against):
+        if i < N:
+            text_1, text_2 = doc_fulltext[query_id], doc_fulltext[doc_id]
+            subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, _ = sw_align(text_1, text_2, words=True)
+            subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
+            subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
+            _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
+            sw_alignment_scores[doc_id] = score / 10
+        else:
+            sw_alignment_scores[doc_id] = 0.0
+    sorted_results = sorted(sw_alignment_scores.items(), key=lambda item: item[1], reverse=True)
+    ranked_results_dict = { res[0]: res[1] for res in sorted_results }
+    for k,v in ranked_results_dict.items():
+        if v == 0.0: ranked_results_dict[k] = ""
+    return ranked_results_dict
 
 
 def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys()), results_as_links_only=False):
 
-	# handle blank
-	if doc_fulltext[query_id] == '':
-		results_HTML = docExploreOutput_results_HTML_template.substitute(
-			query_id = query_id, query_section = section_labels[query_id], prev_doc_id = doc_links[query_id]['prev'], next_doc_id = doc_links[query_id]['next'],
-			query_original_fulltext = doc_original_fulltext[query_id], query_segmented_fulltext = '', top_topics_summary='', priority_results_list_content = '', secondary_results_list_content = '', priority_texts=str(priority_texts), non_priority_texts=str(non_priority_texts)
-			)
-		return results_HTML
+    # handle blank
+    if doc_fulltext[query_id] == '':
+        results_HTML = docExploreOutput_results_HTML_template.substitute(
+            query_id = query_id, query_section = section_labels[query_id], prev_doc_id = doc_links[query_id]['prev'], next_doc_id = doc_links[query_id]['next'],
+            query_original_fulltext = doc_original_fulltext[query_id], query_segmented_fulltext = '', top_topics_summary='', priority_results_list_content = '', secondary_results_list_content = '', priority_texts=str(priority_texts), non_priority_texts=str(non_priority_texts)
+            )
+        return results_HTML
 
-	# manage prioritization and weighting
+    # manage prioritization and weighting
 
-	non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
+    non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
 
-	# get N preliminary candidates by topic score (dimensionality = K, fast)
-	N = 1000
-	preliminary_N_topic_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
+    # get N preliminary candidates by topic score (dimensionality = K, fast)
+    N = 1000
+    preliminary_N_topic_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
-	# prioritize candidates
-	priority_topic_candidate_ids, secondary_topic_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_topic_candidates.keys()), priority_texts )
-	# # (for now, just by fixed time periods, later can generalize)
-	# if parse_complex_doc_id(query_id)[0] == 'NBhū':
-	# 	priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
-	# else:
-	# 	priority_candidate_ids = preliminary_N_candidates
-	# 	secondary_candidate_ids = []
+    # prioritize candidates
+    priority_topic_candidate_ids, secondary_topic_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_topic_candidates.keys()), priority_texts )
+    # # (for now, just by fixed time periods, later can generalize)
+    # if parse_complex_doc_id(query_id)[0] == 'NBhū':
+    #     priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
+    # else:
+    #     priority_candidate_ids = preliminary_N_candidates
+    #     secondary_candidate_ids = []
 
-	priority_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in priority_topic_candidate_ids }
-	secondary_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in secondary_topic_candidate_ids }
+    priority_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in priority_topic_candidate_ids }
+    secondary_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in secondary_topic_candidate_ids }
 
-	# further rank priority candidates by tf-idf (dimensionality = len(corpus_vocab_reduced), slow)
-	tf_idf_candidates = rank_N_candidates_by_TF_IDF_similarity(query_id, priority_topic_candidates)
+    # further rank priority candidates by tf-idf (dimensionality = len(corpus_vocab_reduced), slow)
+    tf_idf_candidates = rank_N_candidates_by_TF_IDF_similarity(query_id, priority_topic_candidates)
 
-	# and also get alignment scores for very top hits (for now: 20)
-	sw_w_alignment_scores = get_N_sw_w_alignment_scores(
-		query_id,
-		list(tf_idf_candidates.keys()),
-		N=200
-		)
+    # and also get alignment scores for very top hits (for now: 200)
+    sw_w_alignment_scores = get_N_sw_w_alignment_scores(
+        query_id,
+        list(tf_idf_candidates.keys()),
+        N=200
+        )
 
-	priority_ranked_results_ids = list(sw_w_alignment_scores.keys())[:200]
-	priority_ranked_results_ids += list(tf_idf_candidates.keys())[200:]
+    priority_ranked_results_ids = list(sw_w_alignment_scores.keys())[:200]
+    priority_ranked_results_ids += list(tf_idf_candidates.keys())[200:]
 
-	if results_as_links_only:
-		similarity_result_doc_links = create_doc_link_series(priority_ranked_results_ids)
-		return similarity_result_doc_links
+    if results_as_links_only:
+        similarity_result_doc_links = create_doc_link_series(priority_ranked_results_ids)
+        return similarity_result_doc_links
 
-	priority_ranked_results_complete = {
-		k: (priority_topic_candidates[k], tf_idf_candidates[k], sw_w_alignment_scores[k])
-		for k in priority_ranked_results_ids
-	}
+    priority_ranked_results_complete = {
+        k: (priority_topic_candidates[k], tf_idf_candidates[k], sw_w_alignment_scores[k])
+        for k in priority_ranked_results_ids
+    }
 
-	priority_col_HTML, secondary_col_HTML = format_similarity_result_columns(
-		query_id,
-		priority_ranked_results_complete,
-		secondary_topic_candidates
-		)
-	if priority_col_HTML == "": priority_col_HTML = "<p>(none)</p>"
-	if secondary_col_HTML == "": secondary_col_HTML = "<p>(none)</p>"
-	results_HTML = docExploreOutput_results_HTML_template.substitute(
-						query_id = query_id,
-						query_section = section_labels[query_id],
-						prev_doc_id = doc_links[query_id]['prev'],
-						next_doc_id = doc_links[query_id]['next'],
-						query_original_fulltext = doc_original_fulltext[query_id],
-						query_segmented_fulltext = doc_fulltext[query_id],
-						top_topics_summary=format_top_topic_summary(
-							query_id,
-							get_top_topic_indices(query_id, max_N=5, threshold=0.03),
-							topic_labels=topic_labels
-							),
-						priority_col_content = priority_col_HTML,
-						secondary_col_content = secondary_col_HTML,
-						priority_texts=str(priority_texts),
-						non_priority_texts=str(non_priority_texts)
-						)
-	return results_HTML
+    priority_col_HTML, secondary_col_HTML = format_similarity_result_columns(
+        query_id,
+        priority_ranked_results_complete,
+        secondary_topic_candidates
+        )
+    if priority_col_HTML == "": priority_col_HTML = "<p>(none)</p>"
+    if secondary_col_HTML == "": secondary_col_HTML = "<p>(none)</p>"
+    results_HTML = docExploreOutput_results_HTML_template.substitute(
+                        query_id = query_id,
+                        query_section = section_labels[query_id],
+                        prev_doc_id = doc_links[query_id]['prev'],
+                        next_doc_id = doc_links[query_id]['next'],
+                        query_original_fulltext = doc_original_fulltext[query_id],
+                        query_segmented_fulltext = doc_fulltext[query_id],
+                        top_topics_summary=format_top_topic_summary(
+                            query_id,
+                            get_top_topic_indices(query_id, max_N=5, threshold=0.03),
+                            topic_labels=topic_labels
+                            ),
+                        priority_col_content = priority_col_HTML,
+                        secondary_col_content = secondary_col_HTML,
+                        priority_texts=str(priority_texts),
+                        non_priority_texts=str(non_priority_texts)
+                        )
+    return results_HTML
 
 
 def score_to_color(score):
-	alpha = score # both [0,1]
-	color = (165, 204, 107, alpha) # this is a nice green
-	return str(color) # return tuple with parentheses
+    alpha = score # both [0,1]
+    color = (165, 204, 107, alpha) # this is a nice green
+    return str(color) # return tuple with parentheses
 
 def compare_readings(reading_A, reading_B):
 
-	score = SequenceMatcher(a=reading_A, b=reading_B).ratio()
-	score = int(score*100)/100 # hard round to two decimal places
-	if   (0.00 < score <= 0.25): return 0.0
-	elif (0.25 < score <= 0.50): return 0.1
-	elif (0.50 < score <= 0.75): return 0.3
-	elif (0.75 < score <= 1.00): return 0.7
+    score = SequenceMatcher(a=reading_A, b=reading_B).ratio()
+    score = int(score*100)/100 # hard round to two decimal places
+    if   (0.00 < score <= 0.25): return 0.0
+    elif (0.25 < score <= 0.50): return 0.1
+    elif (0.50 < score <= 0.75): return 0.3
+    elif (0.75 < score <= 1.00): return 0.7
 
-	# for comparison: trivially by len
-	# diff = abs(len(reading_A) - len(reading_B))
-	# penalty = diff / max(len(reading_A), len(reading_B))
-	# score = int((1 - penalty)*100)/100 # [0,1] where 1 is more similar
-	# if   (0.00 < score <= 0.25): return 0.2
-	# elif (0.25 < score <= 0.50): return 0.4
-	# elif (0.50 < score <= 0.75): return 0.5
-	# elif (0.75 < score <= 1.00): return 0.6
+    # for comparison: trivially by len
+    # diff = abs(len(reading_A) - len(reading_B))
+    # penalty = diff / max(len(reading_A), len(reading_B))
+    # score = int((1 - penalty)*100)/100 # [0,1] where 1 is more similar
+    # if   (0.00 < score <= 0.25): return 0.2
+    # elif (0.25 < score <= 0.50): return 0.4
+    # elif (0.50 < score <= 0.75): return 0.5
+    # elif (0.75 < score <= 1.00): return 0.6
 
 
 def remove_stopwords(reading):
-	reading_words = reading.split(' ') # explicit so as to preserve initial and final spaces
-	return ' '.join( [ word for word in reading_words
-						if word not in stopwords ] )
+    reading_words = reading.split(' ') # explicit so as to preserve initial and final spaces
+    return ' '.join( [ word for word in reading_words
+                        if word not in stopwords ] )
 
 def nw_align(text_1, text_2):
 
-	num_score = 0
+    # using CollateX algorithm (actually not exactly NW)
 
-	collation = Collation()
-	collation.add_plain_witness("A", text_1)
-	collation.add_plain_witness("B", text_2)
-	alignment_tei_xml = collate(collation, segmentation=True, near_match=False, output='tei')
-	root = etree.fromstring(alignment_tei_xml)
+    num_score = 0
 
-	highlighted_HTML_1 = '<p>'; highlighted_HTML_2 = '<p>'
-	highlight_score = 0
-	# style = "style='background-color: rgb(255, 255, {})'" # [0,255]
-	style = "style='background-color: rgba{}'" # to be formatted with help of score_to_color()
+    collation = Collation()
+    collation.add_plain_witness("A", text_1)
+    collation.add_plain_witness("B", text_2)
+    alignment_tei_xml = collate(collation, segmentation=True, near_match=False, output='tei')
+    root = etree.fromstring(alignment_tei_xml)
 
-	for node in root.xpath("child::node()"):
+    highlighted_HTML_1 = '<p>'; highlighted_HTML_2 = '<p>'
+    highlight_score = 0
+    # style = "style='background-color: rgb(255, 255, {})'" # [0,255]
+    style = "style='background-color: rgba{}'" # to be formatted with help of score_to_color()
 
-		if isinstance(node, etree._ElementUnicodeResult): # a shared reading
+    for node in root.xpath("child::node()"):
 
-			shared_reading = node
+        if isinstance(node, etree._ElementUnicodeResult): # a shared reading
 
-			tmp_shared_reading = remove_stopwords(shared_reading)
-			if tmp_shared_reading in ["", " "]:
-				highlight_score = 0
-			else:
-				highlight_score = 1
-				if len(tmp_shared_reading) > 10:
-					num_score += len(tmp_shared_reading)-10
-			# highlight_score = 1
+            shared_reading = node
 
-			color = score_to_color(highlight_score)
-			highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), shared_reading)
-			highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), shared_reading)
+            tmp_shared_reading = remove_stopwords(shared_reading)
+            if tmp_shared_reading in ["", " "]:
+                highlight_score = 0
+            else:
+                highlight_score = 1
+                if len(tmp_shared_reading) > 10:
+                    num_score += len(tmp_shared_reading)-10
+            # highlight_score = 1
 
-		elif isinstance(node, etree._Element): # only <app> possible
+            color = score_to_color(highlight_score)
+            highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), shared_reading)
+            highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), shared_reading)
 
-			num_children = len(node.getchildren()) # either 1 or 2
+        elif isinstance(node, etree._Element): # only <app> possible
 
-			if num_children == 1: # one unique reading
+            num_children = len(node.getchildren()) # either 1 or 2
 
-				rdg_element = list(node.getchildren())[0]
-				unique_reading = rdg_element.xpath("text()")[0]
+            if num_children == 1: # one unique reading
 
-				highlight_score = 0
-				color = score_to_color(highlight_score)
+                rdg_element = list(node.getchildren())[0]
+                unique_reading = rdg_element.xpath("text()")[0]
 
-				if rdg_element.get("wit") == "#A":
-					highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), unique_reading)
-				elif rdg_element.get("wit") == "#B":
-					highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), unique_reading)
+                highlight_score = 0
+                color = score_to_color(highlight_score)
 
-			elif num_children == 2: # two different readings
+                if rdg_element.get("wit") == "#A":
+                    highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), unique_reading)
+                elif rdg_element.get("wit") == "#B":
+                    highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), unique_reading)
 
-				rdg_elements = list(node.getchildren())
-				reading_A = rdg_elements[0].xpath("text()")[0]
-				reading_B = rdg_elements[1].xpath("text()")[0]
+            elif num_children == 2: # two different readings
 
-				reading_A = remove_stopwords(reading_A)
-				reading_B = remove_stopwords(reading_B)
-				if reading_A in ["", " "]: reading_A = " "
-				if reading_B in ["", " "]: reading_B = " "
+                rdg_elements = list(node.getchildren())
+                reading_A = rdg_elements[0].xpath("text()")[0]
+                reading_B = rdg_elements[1].xpath("text()")[0]
 
-				highlight_score = compare_readings(reading_A, reading_B)
-				# print("reading_A")
-				# print(reading_A)
-				# print("reading_B")
-				# print(reading_B)
-				# print(highlight_score)
-				# print()
-				color = score_to_color(highlight_score)
+                reading_A = remove_stopwords(reading_A)
+                reading_B = remove_stopwords(reading_B)
+                if reading_A in ["", " "]: reading_A = " "
+                if reading_B in ["", " "]: reading_B = " "
 
-				highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), reading_A)
-				highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), reading_B)
+                highlight_score = compare_readings(reading_A, reading_B)
+                # print("reading_A")
+                # print(reading_A)
+                # print("reading_B")
+                # print(reading_B)
+                # print(highlight_score)
+                # print()
+                color = score_to_color(highlight_score)
 
-	highlighted_HTML_1 += '</p>'; highlighted_HTML_2 += '</p>'
+                highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), reading_A)
+                highlighted_HTML_2 += "<span {}'>{}</span>".format( style.format(color), reading_B)
 
-	return highlighted_HTML_1, highlighted_HTML_2, num_score # no longer use this num_score
+    highlighted_HTML_1 += '</p>'; highlighted_HTML_2 += '</p>'
+
+    return highlighted_HTML_1, highlighted_HTML_2, num_score # no longer use this num_score
 
 
 from radaniba import sw as sw_align
 
 def sw_nw_align(seq1, seq2):
 
-	# split docs in half based on central alignment feature as determined by sw on char-level
+    # split docs in thirds based on central alignment feature as determined by local sw on char-level
 
-    seq1_matchpoint, seq2_matchpoint, _, _ = sw_align(seq1, seq2) # char-level
+    seq1_pos, seq2_pos, subseq1_len, subseq2_len, _ = sw_align(seq1, seq2) # char-level
 
-    first_half_of_seq1, second_half_of_seq1 = seq1[:seq1_matchpoint], seq1[seq1_matchpoint:]
-    first_half_of_seq2, second_half_of_seq2 = seq2[:seq2_matchpoint], seq2[seq2_matchpoint:]
+    # now do global nw on each pair A-B-C (provided both are non-empty)
 
-	# now do nw on each pair (provided both are non-empty)
+    seq1_A, seq1_B, seq1_C = seq1[:seq1_pos], seq1[seq1_pos:seq1_pos+subseq1_len], seq1[seq1_pos+subseq1_len:]
+    seq2_A, seq2_B, seq2_C = seq2[:seq2_pos], seq2[seq2_pos:seq2_pos+subseq2_len], seq2[seq2_pos+subseq2_len:]
 
-    if first_half_of_seq1 == "" or first_half_of_seq2 == "":
-        # beginning of one lines up with middle/end of other
-        res1, res2, score_1_2 = "<p>%s</p>" % first_half_of_seq1, "<p>%s</p>" % first_half_of_seq2, 0
+    if seq1_A == "" or seq2_A == "":
+        # i.e., beginning of one lines up with middle/end of other
+        res1_A, res2_A, score_A = "<p>%s</p>" % seq1_A, "<p>%s</p>" % seq2_A, 0
     else:
-        res1, res2, score_1_2 = nw_align(first_half_of_seq1, first_half_of_seq2)
+        res1_A, res2_A, score_A = nw_align(seq1_A, seq2_A)
 
-    if second_half_of_seq1 == "" or second_half_of_seq2 == "":
-        res3, res4, score_3_4 = "<p>%s</p>" % second_half_of_seq1, "<p>%s</p>" % second_half_of_seq2, 0
+    res1_B, res2_B, score_B = nw_align(seq1_B, seq2_B)
+
+    if seq1_C == "" or seq2_C == "":
+        res1_C, res2_C, score_C = "<p>%s</p>" % seq1_C, "<p>%s</p>" % seq2_C, 0
     else:
-        res3, res4, score_3_4 = nw_align(second_half_of_seq1, second_half_of_seq2)
+        res1_C, res2_C, score_C = nw_align(seq1_C, seq2_C)
 
-	# piece back together and return
+    # piece back together and return
 
-    return res1[:-4]+res3[3:], res2[:-4]+res4[3:], score_1_2+score_3_4
+    res1 = res1_A[:-4] + res1_B[3:-4] + res1_C[3:]
+    res2 = res2_A[:-4] + res2_B[3:-4] + res2_C[3:]
+    full_score =  score_A + score_B + score_C
+
+    return res1, res2, full_score
 
 
 def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys())):
 
-	# align and highlight doc_fulltexts
+    text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
 
-	text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
+    # align and highlight doc_fulltexts
 
-	_, _, sw_w_align_score, _ = sw_align(text_1, text_2, words=True)
-	highlighted_HTML_1, highlighted_HTML_2, sw_nw_score = sw_nw_align(text_1, text_2)
+    # first obtain sw_w alignment score which docExplore ranking based on, for later
+    subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, _ = sw_align(text_1, text_2, words=True)
+    subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
+    subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
+    _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
+    sw_w_align_score = score / 10
 
-	# also prepare similar_doc_links
+    # do actual overall alignment
+    highlighted_HTML_1, highlighted_HTML_2, sw_nw_score = sw_nw_align(text_1, text_2)
 
-	similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
-	similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
+    # also prepare similar_doc_links
+    similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
+    similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
 
-	# make similar doc buttons show up and populate
-	# also anticipate needing numerical position in (ordered) dict (see index() below)
-	if doc_id_2 in similar_doc_links_for_1: # then want buttons to show up on right
-		activate_similar_link_buttons_right = 1
-		ks_1 = list(similar_doc_links_for_1.keys())
-		prev_sim_doc_id_for_1 = similar_doc_links_for_1[doc_id_2]['prev']
-		next_sim_doc_id_for_1 = similar_doc_links_for_1[doc_id_2]['next']
-		sim_rank_of_prev_for_1 = ks_1.index(similar_doc_links_for_1[doc_id_2]['prev']) + 1
-		sim_rank_of_2_for_1 = ks_1.index(doc_id_2) + 1
-		sim_rank_of_next_for_1 = ks_1.index(similar_doc_links_for_1[doc_id_2]['next']) + 1
-	else:
-		activate_similar_link_buttons_right = ""
-		prev_sim_doc_id_for_1 = next_sim_doc_id_for_1 = sim_rank_of_prev_for_1 = sim_rank_of_2_for_1 = sim_rank_of_next_for_1 = ""
-	if doc_id_1 in similar_doc_links_for_2: # then want buttons to show up on left
-		activate_similar_link_buttons_left = 1
-		ks_2 = list(similar_doc_links_for_2.keys())
-		prev_sim_doc_id_for_2 = similar_doc_links_for_2[doc_id_1]['prev']
-		next_sim_doc_id_for_2 = similar_doc_links_for_2[doc_id_1]['next']
-		sim_rank_of_prev_for_2 = ks_2.index(similar_doc_links_for_2[doc_id_1]['prev']) + 1
-		sim_rank_of_1_for_2 = ks_2.index(doc_id_1) + 1
-		sim_rank_of_next_for_2 = ks_2.index(similar_doc_links_for_2[doc_id_1]['next']) + 1
-	else:
-		activate_similar_link_buttons_left = ""
-		prev_sim_doc_id_for_2 = next_sim_doc_id_for_2 = sim_rank_of_prev_for_2 = sim_rank_of_1_for_2 = sim_rank_of_next_for_2 = ""
+    # make similar doc buttons show up and populate
+    # also anticipate needing numerical position in (ordered) dict (see index() below)
+    if doc_id_2 in similar_doc_links_for_1: # then want buttons to show up on right
+        activate_similar_link_buttons_right = 1
+        ks_1 = list(similar_doc_links_for_1.keys())
+        prev_sim_doc_id_for_1 = similar_doc_links_for_1[doc_id_2]['prev']
+        next_sim_doc_id_for_1 = similar_doc_links_for_1[doc_id_2]['next']
+        sim_rank_of_prev_for_1 = ks_1.index(similar_doc_links_for_1[doc_id_2]['prev']) + 1
+        sim_rank_of_2_for_1 = ks_1.index(doc_id_2) + 1
+        sim_rank_of_next_for_1 = ks_1.index(similar_doc_links_for_1[doc_id_2]['next']) + 1
+    else:
+        activate_similar_link_buttons_right = ""
+        prev_sim_doc_id_for_1 = next_sim_doc_id_for_1 = sim_rank_of_prev_for_1 = sim_rank_of_2_for_1 = sim_rank_of_next_for_1 = ""
+    if doc_id_1 in similar_doc_links_for_2: # then want buttons to show up on left
+        activate_similar_link_buttons_left = 1
+        ks_2 = list(similar_doc_links_for_2.keys())
+        prev_sim_doc_id_for_2 = similar_doc_links_for_2[doc_id_1]['prev']
+        next_sim_doc_id_for_2 = similar_doc_links_for_2[doc_id_1]['next']
+        sim_rank_of_prev_for_2 = ks_2.index(similar_doc_links_for_2[doc_id_1]['prev']) + 1
+        sim_rank_of_1_for_2 = ks_2.index(doc_id_1) + 1
+        sim_rank_of_next_for_2 = ks_2.index(similar_doc_links_for_2[doc_id_1]['next']) + 1
+    else:
+        activate_similar_link_buttons_left = ""
+        prev_sim_doc_id_for_2 = next_sim_doc_id_for_2 = sim_rank_of_prev_for_2 = sim_rank_of_1_for_2 = sim_rank_of_next_for_2 = ""
 
-	# finally, also do one-off topic and tf-idf comparisons
+    # finally, also do one-off topic and tf-idf comparisons
 
-	doc_1_topic_vector = np.array(thetas[doc_id_1]) * topic_weights
-	doc_2_topic_vector = np.array(thetas[doc_id_2]) * topic_weights
-	topic_similiarity_score = fastdist.cosine(doc_1_topic_vector, doc_2_topic_vector)
+    doc_1_topic_vector = np.array(thetas[doc_id_1]) * topic_weights
+    doc_2_topic_vector = np.array(thetas[doc_id_2]) * topic_weights
+    topic_similiarity_score = fastdist.cosine(doc_1_topic_vector, doc_2_topic_vector)
 
-	doc_1_TF_IDF_vector = get_TF_IDF_vector(doc_id_1)
-	doc_2_TF_IDF_vector = get_TF_IDF_vector(doc_id_2)
-	TF_IDF_comparison_score = fastdist.cosine(doc_1_TF_IDF_vector, doc_2_TF_IDF_vector)
+    doc_1_TF_IDF_vector = get_TF_IDF_vector(doc_id_1)
+    doc_2_TF_IDF_vector = get_TF_IDF_vector(doc_id_2)
+    TF_IDF_comparison_score = fastdist.cosine(doc_1_TF_IDF_vector, doc_2_TF_IDF_vector)
 
-	results_HTML = docCompareOutput_results_HTML_template.substitute(
-					doc_id_1=doc_id_1, doc_id_2=doc_id_2,
+    results_HTML = docCompareOutput_results_HTML_template.substitute(
+                    doc_id_1=doc_id_1, doc_id_2=doc_id_2,
 
-					doc_id_1_work_name=parse_complex_doc_id(doc_id_1)[0],
-					doc_id_2_work_name=parse_complex_doc_id(doc_id_2)[0],
+                    doc_id_1_work_name=parse_complex_doc_id(doc_id_1)[0],
+                    doc_id_2_work_name=parse_complex_doc_id(doc_id_2)[0],
 
-					doc_section_1=section_labels[doc_id_1],
-					doc_section_2=section_labels[doc_id_2],
+                    doc_section_1=section_labels[doc_id_1],
+                    doc_section_2=section_labels[doc_id_2],
 
-					prev_doc_id_1=doc_links[doc_id_1]['prev'], prev_doc_id_2=doc_links[doc_id_2]['prev'],
-					next_doc_id_1=doc_links[doc_id_1]['next'], next_doc_id_2=doc_links[doc_id_2]['next'],
+                    prev_doc_id_1=doc_links[doc_id_1]['prev'], prev_doc_id_2=doc_links[doc_id_2]['prev'],
+                    next_doc_id_1=doc_links[doc_id_1]['next'], next_doc_id_2=doc_links[doc_id_2]['next'],
 
-					prev_sim_doc_id_for_2=prev_sim_doc_id_for_2, # left
-					next_sim_doc_id_for_2=next_sim_doc_id_for_2,
-					sim_rank_of_prev_for_2=sim_rank_of_prev_for_2,
-					sim_rank_of_1_for_2=sim_rank_of_1_for_2,
-					sim_rank_of_next_for_2=sim_rank_of_next_for_2,
+                    prev_sim_doc_id_for_2=prev_sim_doc_id_for_2, # left
+                    next_sim_doc_id_for_2=next_sim_doc_id_for_2,
+                    sim_rank_of_prev_for_2=sim_rank_of_prev_for_2,
+                    sim_rank_of_1_for_2=sim_rank_of_1_for_2,
+                    sim_rank_of_next_for_2=sim_rank_of_next_for_2,
 
-					prev_sim_doc_id_for_1=prev_sim_doc_id_for_1, # right
-					next_sim_doc_id_for_1=next_sim_doc_id_for_1,
-					sim_rank_of_prev_for_1=sim_rank_of_prev_for_1,
-					sim_rank_of_2_for_1=sim_rank_of_2_for_1,
-					sim_rank_of_next_for_1=sim_rank_of_next_for_1,
+                    prev_sim_doc_id_for_1=prev_sim_doc_id_for_1, # right
+                    next_sim_doc_id_for_1=next_sim_doc_id_for_1,
+                    sim_rank_of_prev_for_1=sim_rank_of_prev_for_1,
+                    sim_rank_of_2_for_1=sim_rank_of_2_for_1,
+                    sim_rank_of_next_for_1=sim_rank_of_next_for_1,
 
-					doc_segmented_highlighted_fulltext_1=highlighted_HTML_1,
-					doc_segmented_highlighted_fulltext_2=highlighted_HTML_2,
-					top_topics_summary_1=format_top_topic_summary(
-						doc_id_1,
-						get_top_topic_indices(doc_id_1, max_N=5, threshold=0.03),
-						topic_labels=topic_labels
-						),
-					top_topics_summary_2=format_top_topic_summary(
-						doc_id_2,
-						get_top_topic_indices(doc_id_2, max_N=5, threshold=0.03),
-						topic_labels=topic_labels
-						),
+                    doc_segmented_highlighted_fulltext_1=highlighted_HTML_1,
+                    doc_segmented_highlighted_fulltext_2=highlighted_HTML_2,
+                    top_topics_summary_1=format_top_topic_summary(
+                        doc_id_1,
+                        get_top_topic_indices(doc_id_1, max_N=5, threshold=0.03),
+                        topic_labels=topic_labels
+                        ),
+                    top_topics_summary_2=format_top_topic_summary(
+                        doc_id_2,
+                        get_top_topic_indices(doc_id_2, max_N=5, threshold=0.03),
+                        topic_labels=topic_labels
+                        ),
 
-					topic_similiarity_score=round(topic_similiarity_score,2),
-					topic_weights=str(topic_weights),
-					TF_IDF_comparison_score=round(TF_IDF_comparison_score,2),
-					sw_w_align_score=sw_w_align_score,
-					sw_nw_score=sw_nw_score
-					)
+                    topic_similiarity_score=round(topic_similiarity_score,2),
+                    topic_weights=str(topic_weights),
+                    TF_IDF_comparison_score=round(TF_IDF_comparison_score,2),
+                    sw_w_align_score=sw_w_align_score,
+                    sw_nw_score=sw_nw_score
+                    )
 
-	return results_HTML, activate_similar_link_buttons_left, activate_similar_link_buttons_right
+    return results_HTML, activate_similar_link_buttons_left, activate_similar_link_buttons_right
 
 
 def format_text_view(text_abbreviation):
 
-	# use text_abbreviation to read in text string
-	text_fn = text_abbrev2fn[text_abbreviation] + '.txt'
-	relative_path_to_text = "assets/vatayana/texts"
-	text_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_text, text_fn)
-	with open(text_full_fn,'r') as f_in:
-		text_string = f_in.read()
+    # use text_abbreviation to read in text string
+    text_fn = text_abbrev2fn[text_abbreviation] + '.txt'
+    relative_path_to_text = "assets/vatayana/texts"
+    text_full_fn = os.path.join(CURRENT_FOLDER, relative_path_to_text, text_fn)
+    with open(text_full_fn,'r') as f_in:
+        text_string = f_in.read()
 
-	# wrap in <div>
-	text_HTML = "<div>%s</div>" % text_string
+    # wrap in <div>
+    text_HTML = "<div>%s</div>" % text_string
 
-	# use re to wrap {...} content in <h1> and [...] in <h2>
-	# for each, also make content into id attribute for tag (>> # link)
-	text_HTML = re.sub("{([^}]*?)}", "<h1 id='\\1'>\\1</h1>", text_HTML)
+    # use re to wrap {...} content in <h1> and [...] in <h2>
+    # for each, also make content into id attribute for tag (>> # link)
+    text_HTML = re.sub("{([^}]*?)}", "<h1 id='\\1'>\\1</h1>", text_HTML)
 
-	h2s = re.findall("\[([^\]]*?)\]", text_HTML)
-	work_doc_ids = [	doc_id
-						for doc_id in doc_ids
-						if parse_complex_doc_id(doc_id)[0] == text_abbreviation
-						]
-	for h2 in h2s:
-		links_addendum = "<small><small>"
-		relevant_work_doc_ids = [	doc_id for doc_id in work_doc_ids
-									if parse_complex_doc_id(doc_id)[1] == h2
-								]
-		links_addendum += '  '.join( [ "(<a href='docExplore?doc_id={}'>{}</a>)".format(doc_id, doc_id) for doc_id in relevant_work_doc_ids ] )
-		links_addendum += "</small></small>"
-		try:
-			text_HTML = re.sub("\[({})\]".format(h2), "<h2 id='\\1'>\\1 {}</h2>".format(links_addendum), text_HTML)
-		except:
-			# this detects encoding errors in the original text which mess up the HTML formatting
-			import pdb; pdb.set_trace()
+    h2s = re.findall("\[([^\]]*?)\]", text_HTML)
+    work_doc_ids = [    doc_id
+                        for doc_id in doc_ids
+                        if parse_complex_doc_id(doc_id)[0] == text_abbreviation
+                        ]
+    for h2 in h2s:
+        links_addendum = "<small><small>"
+        relevant_work_doc_ids = [    doc_id for doc_id in work_doc_ids
+                                    if parse_complex_doc_id(doc_id)[1] == h2
+                                ]
+        links_addendum += '  '.join( [ "(<a href='docExplore?doc_id={}'>{}</a>)".format(doc_id, doc_id) for doc_id in relevant_work_doc_ids ] )
+        links_addendum += "</small></small>"
+        try:
+            text_HTML = re.sub("\[({})\]".format(h2), "<h2 id='\\1'>\\1 {}</h2>".format(links_addendum), text_HTML)
+        except:
+            # this detects encoding errors in the original text which mess up the HTML formatting
+            import pdb; pdb.set_trace()
 
-	# (possibly escape characters like tab, <>, etc.)
-	# for example, anything tertiary note that begins <s ...> or <S ...> (e.g. 'Seite') will be interpreted as strikethrough
+    # (possibly escape characters like tab, <>, etc.)
+    # for example, anything tertiary note that begins <s ...> or <S ...> (e.g. 'Seite') will be interpreted as strikethrough
 
-	return text_HTML
+    return text_HTML
 
 def get_text_view(text_abbreviation):
 
-	viewText_HTML_fn = text_abbrev2fn[text_abbreviation] + '.html'
-	viewText_HTML_fn_full_path = os.path.join(stored_textView_HTML_full_path, viewText_HTML_fn)
-	if viewText_HTML_fn_full_path in stored_textView_HTML_fns:
-		# print("FOUND STORED HTML")
-		with open(viewText_HTML_fn_full_path, 'r') as f_in:
-			viewText_HTML = f_in.read()
-			return viewText_HTML
-	else:
-		# print("MAKING NEW HTML")
-		viewText_HTML = format_text_view(text_abbreviation)
-		with open(viewText_HTML_fn_full_path, 'w') as f_out:
-			f_out.write(viewText_HTML)
-		return viewText_HTML
+    viewText_HTML_fn = text_abbrev2fn[text_abbreviation] + '.html'
+    viewText_HTML_fn_full_path = os.path.join(stored_textView_HTML_full_path, viewText_HTML_fn)
+    if viewText_HTML_fn_full_path in stored_textView_HTML_fns:
+        # print("FOUND STORED HTML")
+        with open(viewText_HTML_fn_full_path, 'r') as f_in:
+            viewText_HTML = f_in.read()
+            return viewText_HTML
+    else:
+        # print("MAKING NEW HTML")
+        viewText_HTML = format_text_view(text_abbreviation)
+        with open(viewText_HTML_fn_full_path, 'w') as f_out:
+            f_out.write(viewText_HTML)
+        return viewText_HTML
 
 
 def format_topic_adjust_output(topic_weight_input, topic_label_input):
 
-	overall_buffer = ""
-	topic_slider_JS_buffer = """
+    overall_buffer = ""
+    topic_slider_JS_buffer = """
 <script>"""
 
-	for i, wt in enumerate(topic_weight_input):
+    for i, wt in enumerate(topic_weight_input):
 
-		topic_row_buffer = """
+        topic_row_buffer = """
 <div class='row'>"""
 
-		# add topic slider with current value display (updated with JS)
-		topic_row_buffer += """
-	<div class='col-md-3'>
-		<div class='range'>
-			<input type='range' class='form-range' name='topic_wt_slider_{}' id='topic_wt_slider_{}' min='0.0' max='1.0' step='0.05' value='{:.2f}'/>
-		</div>
-	</div>
-	<div class="col-md-1">
-		<p id="topic_wt_curr_val_{}"></p>
-	</div>
-	<div class="col-md-1"></div>""".format(i+1, i+1, wt, i+1)
+        # add topic slider with current value display (updated with JS)
+        topic_row_buffer += """
+    <div class='col-md-3'>
+        <div class='range'>
+            <input type='range' class='form-range' name='topic_wt_slider_{}' id='topic_wt_slider_{}' min='0.0' max='1.0' step='0.05' value='{:.2f}'/>
+        </div>
+    </div>
+    <div class="col-md-1">
+        <p id="topic_wt_curr_val_{}"></p>
+    </div>
+    <div class="col-md-1"></div>""".format(i+1, i+1, wt, i+1)
 
-		# this is awful Javascript coding practice, but it works for now
-		topic_slider_JS_buffer += """
+        # this is awful Javascript coding practice, but it works for now
+        topic_slider_JS_buffer += """
 var slider_{} = document.getElementById("topic_wt_slider_{}");
 var curr_val_{} = document.getElementById("topic_wt_curr_val_{}");
 curr_val_{}.innerHTML = (Math.round(slider_{}.value * 100) / 100).toFixed(2);
@@ -1012,32 +1030,32 @@ slider_{}.oninput = function() {{
   curr_val_{}.innerHTML = (Math.round(this.value * 100) / 100).toFixed(2);
 }}""".format(i+1, i+1, i+1, i+1, i+1, i+1, i+1, i+1)
 
-		# add topic_explore_links and label edit field
-		topic_row_buffer += """
-	<div class="col-md-1">
-		<p><big>{}</big></p>
-	</div>""".format(format_topic_explore_links(i))
-		topic_row_buffer += """
-	<div class="col-md-4">
-		<input id="topic_label_{}" name="topic_label_{}" type="text" class="form-control" value="{}" size="30"/>
-	</div>
-	<div class="col-md-2"></div>""".format(i+1, i+1, topic_label_input[i] )
+        # add topic_explore_links and label edit field
+        topic_row_buffer += """
+    <div class="col-md-1">
+        <p><big>{}</big></p>
+    </div>""".format(format_topic_explore_links(i))
+        topic_row_buffer += """
+    <div class="col-md-4">
+        <input id="topic_label_{}" name="topic_label_{}" type="text" class="form-control" value="{}" size="30"/>
+    </div>
+    <div class="col-md-2"></div>""".format(i+1, i+1, topic_label_input[i] )
 
-		topic_row_buffer += """
+        topic_row_buffer += """
 </div><!-- topic row -->"""
 
-		overall_buffer += topic_row_buffer
+        overall_buffer += topic_row_buffer
 
-	topic_slider_JS_buffer += """
+    topic_slider_JS_buffer += """
 </script>"""
 
-	overall_buffer = overall_buffer + topic_slider_JS_buffer
-	# this isn't the bottom of the HTML body, but oh well for now
+    overall_buffer = overall_buffer + topic_slider_JS_buffer
+    # this isn't the bottom of the HTML body, but oh well for now
 
-	topicAdjustOutput_HTML = topicAdjustOutput_results_HTML_template.substitute(
-								slider_and_label_HTML=overall_buffer
-								)
-	return topicAdjustOutput_HTML
+    topicAdjustOutput_HTML = topicAdjustOutput_results_HTML_template.substitute(
+                                slider_and_label_HTML=overall_buffer
+                                )
+    return topicAdjustOutput_HTML
 
 # for offline use
 
@@ -1049,63 +1067,63 @@ slider_{}.oninput = function() {{
 
 # build textView HTML pages
 # for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
-# 	if txt_abbrv not in disallowed_fulltexts:
-# 		get_text_view(txt_abbrv)
+#     if txt_abbrv not in disallowed_fulltexts:
+#         get_text_view(txt_abbrv)
 
 
 def format_text_prioritize_output(*priority_texts_input):
 
-	overall_buffer = ""
-	for abbrev, title in text_abbrev2title.items():
+    overall_buffer = ""
+    for abbrev, title in text_abbrev2title.items():
 
-		# doing with templating
-		checked_string = "checked" * (abbrev in priority_texts_input)
-		overall_buffer += """
-		<div class="row">
-			<div class='col-md-1'>
-				<input type='checkbox' id="checkbox_{}" name="priority_checkboxes" value="{}" {}/>
-			</div>
-			<div class='col-md-1'>
-				<p>{}</p>
-			</div>
-			<div class='col-md-2'>
-				<p>{}</p>
-			</div>
-		</div>
-		""".format(abbrev, abbrev, checked_string, abbrev, title)
+        # doing with templating
+        checked_string = "checked" * (abbrev in priority_texts_input)
+        overall_buffer += """
+        <div class="row">
+            <div class='col-md-1'>
+                <input type='checkbox' id="checkbox_{}" name="priority_checkboxes" value="{}" {}/>
+            </div>
+            <div class='col-md-1'>
+                <p>{}</p>
+            </div>
+            <div class='col-md-2'>
+                <p>{}</p>
+            </div>
+        </div>
+        """.format(abbrev, abbrev, checked_string, abbrev, title)
 
 # """
 # <input type="checkbox" id="{}" name="scan_detail" value="morae" checked/>
 # """.format(abbrev, title)
 #
-		# doing with JavaScript
-		# <script>
-		# function initialize_choices() {
+        # doing with JavaScript
+        # <script>
+        # function initialize_choices() {
         #     if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
         #     if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
         #     if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
         #     if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
         # }
-		#
+        #
         # window.onload = function() {
         #     initialize_choices();
         # }
-		# </script>
+        # </script>
 
-	textPrioritizeOutput_HTML = textPrioritizeOutput_HTML_template.substitute(
-									text_priority_HTML=overall_buffer
-									)
+    textPrioritizeOutput_HTML = textPrioritizeOutput_HTML_template.substitute(
+                                    text_priority_HTML=overall_buffer
+                                    )
 
-	return textPrioritizeOutput_HTML
+    return textPrioritizeOutput_HTML
 
 def auto_reweight_topics(doc_id):
-	doc_topic_vector = thetas[doc_id]
-	topic_weights_vector = new_full_vector(K, 1.0).tolist() # no need for np here
-	for i, wt in enumerate(doc_topic_vector):
-		if 0.2 <= wt < 1.0: # major topic
-			pass # keep 100% weight
-		elif 0.03 <= wt < 0.2: # medium-importance topic
-			topic_weights_vector[i] = 0.2 # downweight to 20%
-		elif 0.0 < wt < 0.03: # minor topic
-			topic_weights_vector[i] = 0.05 # downweight to 5%
-	return topic_weights_vector
+    doc_topic_vector = thetas[doc_id]
+    topic_weights_vector = new_full_vector(K, 1.0).tolist() # no need for np here
+    for i, wt in enumerate(doc_topic_vector):
+        if 0.2 <= wt < 1.0: # major topic
+            pass # keep 100% weight
+        elif 0.03 <= wt < 0.2: # medium-importance topic
+            topic_weights_vector[i] = 0.2 # downweight to 20%
+        elif 0.0 < wt < 0.03: # minor topic
+            topic_weights_vector[i] = 0.05 # downweight to 5%
+    return topic_weights_vector

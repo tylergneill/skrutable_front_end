@@ -21,16 +21,16 @@ def sw(seq1, seq2, words=False):
 	rows = len(seq1) + 1
 	cols = len(seq2) + 1
 	# Initialize the scoring matrix.
-	score_matrix, start_pos = create_score_matrix(rows, cols, seq1, seq2)
+	score_matrix, (x,y) = create_score_matrix(rows, cols, seq1, seq2)
 	# Traceback. Find the optimal path through the scoring matrix. This path
 	# corresponds to the optimal local sequence alignment.
-	seq1_aligned, seq2_aligned, delta_x, delta_y = traceback(score_matrix, start_pos, seq1, seq2)
+	seq1_aligned, seq2_aligned, delta_x, delta_y = traceback(score_matrix, (x,y), seq1, seq2)
 	assert len(seq1_aligned) == len(seq2_aligned), 'aligned strings are not the same size'
 
 	# print("starting position in seq1 of optimal alignment:", delta_x)
 	# print("original optimally matching segment:", seq1[start_pos[0]-delta_x-1:start_pos[0]-1])
 	# print("aligned bits:\n" + seq1_aligned + '\n' + seq2_aligned)
-	return start_pos[0]-delta_x-1, start_pos[1]-delta_y-1, delta_x, delta_y
+	return x-delta_x, y-delta_y, delta_x, delta_y, score_matrix[x][y]
 
 	# STOP
 
@@ -90,6 +90,7 @@ def create_score_matrix(rows, cols, seq1, seq2):
 			score = calc_score(score_matrix, i, j, seq1, seq2)
 			if score > max_score:
 				max_score = score
+				# print("max_score now: ", max_score)
 				max_pos   = (i, j)
 			score_matrix[i][j] = score
 		# if i % 5 == 0:
@@ -132,24 +133,32 @@ def traceback(score_matrix, start_pos, seq1, seq2):
 	while move != END:
 		if move == DIAG:
 			aligned_seq1.append(seq1[x - 1])
+			# print("seq1 word appended: ", seq1[x - 1])
 			delta_x += 1
 			aligned_seq2.append(seq2[y - 1])
+			# print("seq2 word appended: ", seq2[y - 1])
 			delta_y += 1
 			x -= 1
 			y -= 1
 		elif move == UP:
 			aligned_seq1.append(seq1[x - 1])
+			# print("seq1 word appended: ", seq1[x - 1])
 			aligned_seq2.append('-')
 			x -= 1
 			delta_x += 1
 		else:
 			aligned_seq1.append('-')
 			aligned_seq2.append(seq2[y - 1])
+			# print("seq2 word appended: ", seq2[y - 1])
 			y -= 1
 			delta_y += 1
 		move = next_move(score_matrix, x, y)
 	aligned_seq1.append(seq1[x - 1])
 	aligned_seq2.append(seq2[y - 1])
+	# print("seq1 word appended: ", seq1[x - 1])
+	# print("seq2 word appended: ", seq2[y - 1])
+	delta_x += 1
+	delta_y += 1
 
 	if isinstance(seq1, list):
 		return list(reversed(aligned_seq1)), list(reversed(aligned_seq2)), delta_x, delta_y
