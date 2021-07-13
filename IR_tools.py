@@ -834,7 +834,8 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 
 	text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
 
-	highlighted_HTML_1, highlighted_HTML_2, num_score = sw_nw_align(text_1, text_2)
+	_, _, sw_w_align_score, _ = sw_align(text_1, text_2, words=True)
+	highlighted_HTML_1, highlighted_HTML_2, sw_nw_score = sw_nw_align(text_1, text_2)
 
 	# also prepare similar_doc_links
 
@@ -914,8 +915,10 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
 						),
 
 					topic_similiarity_score=round(topic_similiarity_score,2),
+					topic_weights=str(topic_weights),
 					TF_IDF_comparison_score=round(TF_IDF_comparison_score,2),
-
+					sw_w_align_score=sw_w_align_score,
+					sw_nw_score=sw_nw_score
 					)
 
 	return results_HTML, activate_similar_link_buttons_left, activate_similar_link_buttons_right
