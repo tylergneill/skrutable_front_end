@@ -602,11 +602,14 @@ def get_N_sw_w_alignment_scores(query_id, doc_ids_to_align_against, N):
     for i, doc_id in enumerate(doc_ids_to_align_against):
         if i < N:
             text_1, text_2 = doc_fulltext[query_id], doc_fulltext[doc_id]
-            subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, _ = sw_align(text_1, text_2, words=True)
-            subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
-            subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
-            _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
-            sw_alignment_scores[doc_id] = score / 10
+            subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, score = sw_align(text_1, text_2, words=True)
+            if (subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, score) == (0, 0, 0, 0, 0):
+                sw_alignment_scores[doc_id] = 0.0
+            else:
+                subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
+                subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
+                _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
+                sw_alignment_scores[doc_id] = score / 10
         else:
             sw_alignment_scores[doc_id] = 0.0
     sorted_results = sorted(sw_alignment_scores.items(), key=lambda item: item[1], reverse=True)
@@ -704,10 +707,12 @@ def compare_readings(reading_A, reading_B):
 
     score = SequenceMatcher(a=reading_A, b=reading_B).ratio()
     score = int(score*100)/100 # hard round to two decimal places
-    if   (0.00 < score <= 0.25): return 0.0
+    if   (0.00 <= score <= 0.25): return 0.0
     elif (0.25 < score <= 0.50): return 0.1
     elif (0.50 < score <= 0.75): return 0.3
     elif (0.75 < score <= 1.00): return 0.7
+    else: import pdb; pdb.set_trace()
+
 
     # for comparison: trivially by len
     # diff = abs(len(reading_A) - len(reading_B))
@@ -728,7 +733,7 @@ def nw_align(text_1, text_2):
 
     # using CollateX algorithm (actually not exactly NW)
 
-    num_score = 0
+    num_score = 0.0
 
     collation = Collation()
     collation.add_plain_witness("A", text_1)
@@ -752,8 +757,7 @@ def nw_align(text_1, text_2):
                 highlight_score = 0
             else:
                 highlight_score = 1
-                if len(tmp_shared_reading) > 10:
-                    num_score += len(tmp_shared_reading)-10
+                num_score += len(tmp_shared_reading) * highlight_score
             # highlight_score = 1
 
             color = score_to_color(highlight_score)
@@ -783,18 +787,13 @@ def nw_align(text_1, text_2):
                 reading_A = rdg_elements[0].xpath("text()")[0]
                 reading_B = rdg_elements[1].xpath("text()")[0]
 
-                reading_A = remove_stopwords(reading_A)
-                reading_B = remove_stopwords(reading_B)
-                if reading_A in ["", " "]: reading_A = " "
-                if reading_B in ["", " "]: reading_B = " "
+                tmp_reading_A = remove_stopwords(reading_A)
+                tmp_reading_B = remove_stopwords(reading_B)
+                if tmp_reading_A in ["", " "]: tmp_reading_A = " "
+                if tmp_reading_B in ["", " "]: tmp_reading_B = " "
 
-                highlight_score = compare_readings(reading_A, reading_B)
-                # print("reading_A")
-                # print(reading_A)
-                # print("reading_B")
-                # print(reading_B)
-                # print(highlight_score)
-                # print()
+                highlight_score = compare_readings(tmp_reading_A, tmp_reading_B)
+                num_score += len(tmp_reading_A) * highlight_score
                 color = score_to_color(highlight_score)
 
                 highlighted_HTML_1 += "<span {}'>{}</span>".format( style.format(color), reading_A)
@@ -802,16 +801,19 @@ def nw_align(text_1, text_2):
 
     highlighted_HTML_1 += '</p>'; highlighted_HTML_2 += '</p>'
 
-    return highlighted_HTML_1, highlighted_HTML_2, num_score # no longer use this num_score
+    return highlighted_HTML_1, highlighted_HTML_2, num_score
 
 
 from radaniba import sw as sw_align
 
 def sw_nw_align(seq1, seq2):
+    # returns 2 strings of HTML with color formatted plus numerical score
 
     # split docs in thirds based on central alignment feature as determined by local sw on char-level
 
-    seq1_pos, seq2_pos, subseq1_len, subseq2_len, _ = sw_align(seq1, seq2) # char-level
+    seq1_pos, seq2_pos, subseq1_len, subseq2_len, score = sw_align(seq1, seq2) # char-level
+    if (seq1_pos, seq2_pos, subseq1_len, subseq2_len, score) == (0, 0, 0, 0, 0):
+        return "<p>%s</p>" % seq1, "<p>%s</p>" % seq2, 0
 
     # now do global nw on each pair A-B-C (provided both are non-empty)
 
@@ -847,14 +849,18 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
     # align and highlight doc_fulltexts
 
     # first obtain sw_w alignment score which docExplore ranking based on, for later
-    subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, _ = sw_align(text_1, text_2, words=True)
-    subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
-    subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
-    _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
-    sw_w_align_score = score / 10
+    subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, score = sw_align(text_1, text_2, words=True)
+    if (subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, score) == (0, 0, 0, 0, 0):
+        sw_w_align_score = 0
+    else:
+        subseq1 = ' '.join( text_1.split(' ')[subseq1_pos:subseq1_pos+subseq1_len] )
+        subseq2 = ' '.join( text_2.split(' ')[subseq2_pos:subseq2_pos+subseq2_len] )
+        _, _, _, _, score = sw_align(subseq1, subseq2, words=False)
+        sw_w_align_score = str(score / 10)
 
     # do actual overall alignment
-    highlighted_HTML_1, highlighted_HTML_2, sw_nw_score = sw_nw_align(text_1, text_2)
+    highlighted_HTML_1, highlighted_HTML_2, score = sw_nw_align(text_1, text_2)
+    sw_nw_score = "{:.1f}".format(score)
 
     # also prepare similar_doc_links
     similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
