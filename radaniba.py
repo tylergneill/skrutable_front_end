@@ -22,6 +22,8 @@ def sw(seq1, seq2, words=False):
 	cols = len(seq2) + 1
 	# Initialize the scoring matrix.
 	score_matrix, (x,y) = create_score_matrix(rows, cols, seq1, seq2)
+	if (x,y) == (0,0): # no match found whatsoever, likely with words==True
+		return 0, 0, 0, 0, 0
 	# Traceback. Find the optimal path through the scoring matrix. This path
 	# corresponds to the optimal local sequence alignment.
 	seq1_aligned, seq2_aligned, delta_x, delta_y = traceback(score_matrix, (x,y), seq1, seq2)
@@ -97,7 +99,10 @@ def create_score_matrix(rows, cols, seq1, seq2):
 		# 	with open('out.txt','w') as f_out: f_out.write(format_matrix(score_matrix, seq1, seq2))
 		# 	sleep(0.2)
 
-	assert max_pos is not None, 'the x, y position with the highest score was not found'
+	# assert max_pos is not None, 'the x, y position with the highest score was not found'
+	if max_pos is None:
+		return score_matrix, (0,0)
+		# print('the x, y position with the highest score was not found')
 	return score_matrix, max_pos
 
 def calc_score(matrix, x, y, seq1, seq2):
