@@ -64,7 +64,6 @@ theta_fn = 'assets/vatayana/theta.tsv'
 theta_fn_full_path = os.path.join(CURRENT_FOLDER, theta_fn)
 with open(theta_fn_full_path,'r') as f_in:
     theta_data = f_in.read()
-theta_data = theta_data.replace('*',''); theta_data = theta_data.replace('=','') # HACK, should be cleaned in data itself
 theta_rows = theta_data.split('\n')
 theta_rows.pop(-1); # blank final row
 theta_rows.pop(0); # unwanted header row with topic abbreviations (store same from phi data)
@@ -80,7 +79,7 @@ for row in theta_rows:
     # don't need cells[0] which would be doc_num
     K = len(cells) - 3
     doc_ids.append(doc_id)
-    doc_fulltext[doc_id] = doc_text
+    doc_fulltext[doc_id] = doc_text.replace('*','') # HACK, should be cleaned in data itself
     thetas[doc_id] = [ float(th) for th in theta_values ]
 num_docs = len(doc_ids)
 
@@ -386,7 +385,7 @@ def save_updated_TF_IDF_results(updated_results, work_name):
 
 current_tf_idf_data_work_name = "" # only before first query
 current_tf_idf_data = {}
-def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
+def rank_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
 
     work_name = parse_complex_doc_id(query_id)[0]
 
@@ -439,6 +438,48 @@ def rank_N_candidates_by_TF_IDF_similarity(query_id, candidate_ids):
     return candidate_ranking_results_dict
 
 
+# new solution! results aren't quite the same, but perhaps actually better...
+
+def get_tiny_TF_IDF_vectors(doc_id_1, doc_id_2):
+    # returns numpy arrays
+
+    doc_text_1 = doc_fulltext[doc_id_1]
+    doc_text_2 = doc_fulltext[doc_id_2]
+
+    doc_text_1_words = doc_text_1.split()
+    doc_text_2_words = doc_text_2.split()
+
+    mini_vocab = list(set(doc_text_1_words + doc_text_2_words))
+    mini_vocab.sort()
+
+    TF_IDF_vector_1 = np.zeros( len(mini_vocab) )
+    TF_IDF_vector_2 = np.zeros( len(mini_vocab) )
+
+    for i, word in enumerate(mini_vocab):
+
+        TF_1 = doc_text_1_words.count(word) / len(doc_text_1_words)
+        TF_2 = doc_text_2_words.count(word) / len(doc_text_2_words)
+
+        TF_IDF_vector_1[i] = TF_1 * IDF[word]
+        TF_IDF_vector_2[i] = TF_2 * IDF[word]
+
+    return TF_IDF_vector_1, TF_IDF_vector_2
+
+def rank_candidates_by_tiny_TF_IDF_similarity(query_id, candidate_ids):
+
+    if doc_fulltext[query_id] == '': return {}
+
+    TF_IDF_comparison_scores = {} # e.g. TF_IDF_comparison_scores[DOC_ID] = FLOAT
+    for doc_id in candidate_ids:
+        query_vector, candidate_vector = get_tiny_TF_IDF_vectors(query_id, doc_id)
+        TF_IDF_comparison_scores[doc_id] = fastdist.cosine(query_vector, candidate_vector)
+
+    sorted_results = sorted(TF_IDF_comparison_scores.items(), key=lambda item: item[1], reverse=True)
+    candidate_ranking_results_dict = { res[0]: res[1] for res in sorted_results }
+
+    return candidate_ranking_results_dict
+
+
 def group_doc_ids_by_work(*doc_ids_to_do):
     doc_ids_grouped_by_work = {}
     for doc_id in doc_ids_to_do:
@@ -481,7 +522,7 @@ def conditionally_do_batch_tf_idf_comparisons(*doc_ids_to_do, N=500):
 
                 # don't do prioritization
 
-                cumulative_results_for_this_work[doc_id] = rank_N_candidates_by_TF_IDF_similarity(doc_id, ids_for_closest_N_docs_by_topics)
+                cumulative_results_for_this_work[doc_id] = rank_candidates_by_tiny_TF_IDF_similarity(doc_id, ids_for_closest_N_docs_by_topics)
 
             pbar.update()
 
@@ -597,9 +638,9 @@ def format_similarity_result_columns(query_id, priority_results_list_content, se
     return priority_col_HTML, secondary_col_HTML
 
 
-def get_N_sw_w_alignment_scores(query_id, doc_ids_to_align_against, N):
+def rank_N_candidates_by_sw_w_alignment_score(query_id, candidate_ids, N):
     sw_alignment_scores = {}
-    for i, doc_id in enumerate(doc_ids_to_align_against):
+    for i, doc_id in enumerate(candidate_ids):
         if i < N:
             text_1, text_2 = doc_fulltext[query_id], doc_fulltext[doc_id]
             subseq1_pos, subseq2_pos, subseq1_len, subseq2_len, score = sw_align(text_1, text_2, words=True)
@@ -634,7 +675,7 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
     non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
 
     # get N preliminary candidates by topic score (dimensionality = K, fast)
-    N = 1000
+    N = int( len(doc_ids) * 0.15)
     preliminary_N_topic_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
     # prioritize candidates
@@ -650,16 +691,16 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
     secondary_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in secondary_topic_candidate_ids }
 
     # further rank priority candidates by tf-idf (dimensionality = len(corpus_vocab_reduced), slow)
-    tf_idf_candidates = rank_N_candidates_by_TF_IDF_similarity(query_id, priority_topic_candidates)
+    tf_idf_candidates = rank_candidates_by_tiny_TF_IDF_similarity(query_id, priority_topic_candidates)
 
     # and also get alignment scores for very top hits (for now: 200)
-    sw_w_alignment_scores = get_N_sw_w_alignment_scores(
+    sw_w_alignment_candidates = rank_N_candidates_by_sw_w_alignment_score(
         query_id,
         list(tf_idf_candidates.keys()),
         N=200
         )
 
-    priority_ranked_results_ids = list(sw_w_alignment_scores.keys())[:200]
+    priority_ranked_results_ids = list(sw_w_alignment_candidates.keys())[:200]
     priority_ranked_results_ids += list(tf_idf_candidates.keys())[200:]
 
     if results_as_links_only:
@@ -667,7 +708,7 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
         return similarity_result_doc_links
 
     priority_ranked_results_complete = {
-        k: (priority_topic_candidates[k], tf_idf_candidates[k], sw_w_alignment_scores[k])
+        k: (priority_topic_candidates[k], tf_idf_candidates[k], sw_w_alignment_candidates[k])
         for k in priority_ranked_results_ids
     }
 
@@ -897,8 +938,7 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
     doc_2_topic_vector = np.array(thetas[doc_id_2]) * topic_weights
     topic_similiarity_score = fastdist.cosine(doc_1_topic_vector, doc_2_topic_vector)
 
-    doc_1_TF_IDF_vector = get_TF_IDF_vector(doc_id_1)
-    doc_2_TF_IDF_vector = get_TF_IDF_vector(doc_id_2)
+    doc_1_TF_IDF_vector, doc_2_TF_IDF_vector = get_tiny_TF_IDF_vectors(doc_id_1, doc_id_2)
     TF_IDF_comparison_score = fastdist.cosine(doc_1_TF_IDF_vector, doc_2_TF_IDF_vector)
 
     results_HTML = docCompareOutput_results_HTML_template.substitute(
@@ -1069,6 +1109,7 @@ slider_{}.oninput = function() {{
 # import pdb; pdb.set_trace()
 # conditionally_do_batch_tf_idf_comparisons(*doc_ids[:5], N=1000)
 # NBhu_doc_ids = [ di for di in doc_ids if parse_complex_doc_id(di)[0] == 'NBhū' ]
+# print(len(NBhu_doc_ids))
 # conditionally_do_batch_tf_idf_comparisons(*NBhu_doc_ids, N=1000)
 
 # build textView HTML pages
