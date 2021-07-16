@@ -53,7 +53,8 @@ melody_variable_names = [
 vatayana_variable_names = [
 	"topic_weights",
 	"topic_labels",
-	"priority_texts"
+	"priority_texts",
+	"topic_toggle_value"
 	]
 session_variable_names = (
 	select_element_names +
@@ -363,6 +364,7 @@ def reset_variables():
 	session["topic_weights"] = IR_tools.topic_weights_default.tolist()
 	session["topic_labels"] = IR_tools.topic_interpretations
 	session["priority_texts"] = list(IR_tools.text_abbrev2fn.keys())
+	session["topic_toggle_value"] = True
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -536,7 +538,8 @@ def vatayana_doc_explore():
 				doc_id,
 				topic_weights=session['topic_weights'],
 				topic_labels=session['topic_labels'],
-				priority_texts=session["priority_texts"]
+				priority_texts=session["priority_texts"],
+				topic_toggle_value=session["topic_toggle_value"]
 				)
 		else:
 			output_HTML = "<br><p>Please enter valid doc ids like " + str(IR_tools.ex_doc_ids)[1:-1] + " etc.</p><p>See <a href='assets/vatayana/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/vatayana/corpus_texts.txt' target='_blank'>corpus text list</a> for hints to get started.</p>"
@@ -588,7 +591,8 @@ def vatayana_doc_compare():
 				doc_id_2,
 				topic_weights=session['topic_weights'],
 				topic_labels=session['topic_labels'],
-				priority_texts=session["priority_texts"]
+				priority_texts=session["priority_texts"],
+				topic_toggle_value=session["topic_toggle_value"]
 				)
 		else:
 			output_HTML = "<br><p>Please enter two valid doc ids like " + str(IR_tools.ex_doc_ids)[1:-1] + " etc.</p><p>See <a href='assets/vatayana/doc_id_list.txt' target='_blank'>doc id list</a> and <a href='assets/vatayana/corpus_texts.txt' target='_blank'>corpus text list</a> for hints to get started.</p>"
@@ -763,4 +767,28 @@ def vatayana_text_prioritize():
 	return render_template(	"vatayana-textPrioritize.html",
 							page_subtitle="textPrioritize",
 							textPrioritizeOutput_HTML=textPrioritizeOutput_HTML
+							)
+
+@app.route('/topicToggle', methods=["GET", "POST"])
+def vatayana_topic_toggle():
+
+	ensure_keys()
+
+	if request.method == "POST":
+
+		if "topic_toggle_checkbox" in request.form:
+			topic_toggle_value = True
+		else:
+			topic_toggle_value = False
+
+		session["topic_toggle_value"] = topic_toggle_value
+		session.modified = True
+
+	topicToggleOutput_HTML = IR_tools.format_topic_toggle_output(
+		session["topic_toggle_value"]
+		)
+
+	return render_template(	"vatayana-topicToggle.html",
+							page_subtitle="topicToggle",
+							topicToggleOutput_HTML=topicToggleOutput_HTML
 							)
