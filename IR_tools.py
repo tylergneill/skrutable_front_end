@@ -16,14 +16,14 @@ from difflib import SequenceMatcher
 # global variables (needed only for purposes of documentation and convenience in PDB)
 global CURRENT_FOLDER, text_abbrev2fn, text_abbrev2title
 global doc_ids, ex_doc_ids, doc_fulltext, doc_original_fulltext, disallowed_fulltexts
-global num_docs, doc_links, section_labels
+global num_docs, doc_links, section_labels, num_docs_by_text
 global thetas, phis
 global K, topic_weights_default
 global topic_top_words, topic_interpretations, topic_wordcloud_fns
 global stopwords, error_words, too_common_doc_freq_cutoff, too_rare_doc_freq_cutoff, corpus_vocab_reduced
 global doc_freq, IDF, stored_topic_comparison_scores #, preferred_works
 global current_tf_idf_data_work_name, current_tf_idf_data
-global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_template, topicAdjustOutput_results_HTML_template, textPrioritizeOutput_HTML_template
+global docExploreOutput_results_HTML_template, docCompareOutput_results_HTML_template, topicAdjustOutput_results_HTML_template, textPrioritizeOutput_HTML_template, topicToggleOutput_HTML
 
 # set up paths and load main output template
 
@@ -54,6 +54,11 @@ textPrioritizeOutput_HTML_template_relative_path = 'templates/vatayana-textPrior
 textPrioritizeOutput_HTML_template_fn = os.path.join(CURRENT_FOLDER, textPrioritizeOutput_HTML_template_relative_path)
 with open(textPrioritizeOutput_HTML_template_fn,'r') as f_in:
     textPrioritizeOutput_HTML_template = Template(f_in.read())
+
+topicToggleOutput_HTML_template_relative_path = 'templates/vatayana-topicToggleOutput.html'
+topicToggleOutput_HTML_template_fn = os.path.join(CURRENT_FOLDER, topicToggleOutput_HTML_template_relative_path)
+with open(topicToggleOutput_HTML_template_fn,'r') as f_in:
+    topicToggleOutput_HTML_template = Template(f_in.read())
 
 ##########################################################
 # on server start, load corpus and statistics into memory
@@ -660,7 +665,13 @@ def rank_N_candidates_by_sw_w_alignment_score(query_id, candidate_ids, N):
     return ranked_results_dict
 
 
-def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys()), results_as_links_only=False):
+def get_closest_docs(   query_id,
+                        topic_weights=topic_weights_default,
+                        topic_labels=topic_interpretations,
+                        priority_texts=list(text_abbrev2fn.keys()),
+                        topic_toggle_value=True,
+                        results_as_links_only=False
+                        ):
 
     # handle blank
     if doc_fulltext[query_id] == '':
@@ -670,30 +681,27 @@ def get_closest_docs(query_id, topic_weights=topic_weights_default, topic_labels
             )
         return results_HTML
 
-    # manage prioritization and weighting
+    # prioritize by text and by topic similarity
 
     non_priority_texts = [ text for text in list(text_abbrev2fn.keys()) if text not in priority_texts ]
 
     # get N preliminary candidates by topic score (dimensionality = K, fast)
-    N = int( len(doc_ids) * 0.15)
+    # if not using topic comparison as filter, still do it, and keep the entire ranking
+    if topic_toggle_value == True:
+        N = int( len(doc_ids) * 0.15)
+    else:
+        N = len(doc_ids) # i.e., do not discard any of ranked list
     preliminary_N_topic_candidates = rank_N_candidates_by_topic_similarity(query_id, N, topic_weights)
 
-    # prioritize candidates
+    # prioritize doc candidates by text
     priority_topic_candidate_ids, secondary_topic_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_topic_candidates.keys()), priority_texts )
-    # # (for now, just by fixed time periods, later can generalize)
-    # if parse_complex_doc_id(query_id)[0] == 'NBhū':
-    #     priority_candidate_ids, secondary_candidate_ids = divide_doc_id_list_by_work_priority( list(preliminary_N_candidates.keys()), priority_texts )
-    # else:
-    #     priority_candidate_ids = preliminary_N_candidates
-    #     secondary_candidate_ids = []
-
     priority_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in priority_topic_candidate_ids }
     secondary_topic_candidates = { doc_id: preliminary_N_topic_candidates[doc_id] for doc_id in secondary_topic_candidate_ids }
 
-    # further rank priority candidates by tf-idf (dimensionality = len(corpus_vocab_reduced), slow)
+    # (further) rank priority candidates by tf-idf)
     tf_idf_candidates = rank_candidates_by_tiny_TF_IDF_similarity(query_id, priority_topic_candidates)
 
-    # and also get alignment scores for very top hits (for now: 200)
+    # further rank top (currently 200) tf-idf candidates by sw_w
     sw_w_alignment_candidates = rank_N_candidates_by_sw_w_alignment_score(
         query_id,
         list(tf_idf_candidates.keys()),
@@ -883,7 +891,12 @@ def sw_nw_align(seq1, seq2):
     return res1, res2, full_score
 
 
-def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, topic_labels=topic_interpretations, priority_texts=list(text_abbrev2fn.keys())):
+def compare_doc_pair(   doc_id_1, doc_id_2,
+                        topic_weights=topic_weights_default,
+                        topic_labels=topic_interpretations,
+                        priority_texts=list(text_abbrev2fn.keys()),
+                        topic_toggle_value=True
+                        ):
 
     text_1, text_2 = doc_fulltext[doc_id_1], doc_fulltext[doc_id_2]
 
@@ -904,8 +917,8 @@ def compare_doc_pair(doc_id_1, doc_id_2, topic_weights=topic_weights_default, to
     sw_nw_score = "{:.1f}".format(score)
 
     # also prepare similar_doc_links
-    similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
-    similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, priority_texts, results_as_links_only=True)
+    similar_doc_links_for_1 = get_closest_docs(doc_id_1, topic_weights, topic_labels, priority_texts, topic_toggle_value, results_as_links_only=True)
+    similar_doc_links_for_2 = get_closest_docs(doc_id_2, topic_weights, topic_labels, priority_texts, topic_toggle_value, results_as_links_only=True)
 
     # make similar doc buttons show up and populate
     # also anticipate needing numerical position in (ordered) dict (see index() below)
@@ -1103,6 +1116,13 @@ slider_{}.oninput = function() {{
                                 )
     return topicAdjustOutput_HTML
 
+num_docs_by_text = {}
+for txt_abbrv in tqdm(list(text_abbrev2fn.keys())):
+    num_docs_by_text[txt_abbrv] = len([ doc_id
+                                for doc_id in doc_ids
+                                if parse_complex_doc_id(doc_id)[0] == txt_abbrv
+                           ])
+
 # for offline use
 
 # build more tf-idf pickles
@@ -1133,17 +1153,20 @@ def format_text_prioritize_output(*priority_texts_input):
             <div class='col-md-1'>
                 <p>{}</p>
             </div>
-            <div class='col-md-2'>
+            <div class='col-md-3'>
                 <p>{}</p>
             </div>
+            <div class='col-md-2'>
+                <p>[{}]</p>
+            </div>
         </div>
-        """.format(abbrev, abbrev, checked_string, abbrev, title)
+        """.format(abbrev, abbrev, checked_string, abbrev, title, num_docs_by_text[abbrev])
 
 # """
 # <input type="checkbox" id="{}" name="scan_detail" value="morae" checked/>
 # """.format(abbrev, title)
 #
-        # doing with JavaScript
+        # material for doing with JavaScript
         # <script>
         # function initialize_choices() {
         #     if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
@@ -1174,3 +1197,15 @@ def auto_reweight_topics(doc_id):
         elif 0.0 < wt < 0.03: # minor topic
             topic_weights_vector[i] = 0.05 # downweight to 5%
     return topic_weights_vector
+
+def format_topic_toggle_output(topic_toggle_value):
+
+    if topic_toggle_value:
+        topic_toggle_checkbox_status = "checked"
+    else:
+        topic_toggle_checkbox_status = ""
+    topicToggleOutput_HTML = topicToggleOutput_HTML_template.substitute(
+                                    topic_toggle_checkbox_status=topic_toggle_checkbox_status
+                                    )
+
+    return topicToggleOutput_HTML
