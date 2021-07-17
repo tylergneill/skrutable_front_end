@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 skrutable/
 note*
+assets/vatayana/tf-idf_pickles/
 
 # C extensions
 *.so

@@ -71,7 +71,7 @@
                 </div><!-- entire top navbar row -->
 
             </div><!-- container -->
-            
+
         </nav>
 
         <div class="container">
@@ -213,7 +213,7 @@
                         <!-- melody player -->
                     	<div class="row" id="melodyPlayer" style="visibility: hidden">
                         <!-- <div class="row" id="melodyPlayer"> -->
-                    		
+
                         	<div class="col-md-1">
                         	</div>
 
@@ -287,7 +287,7 @@
 
             function conditionally_display_examples() {
 
-								// for some reason value == "..." does not work...
+				// for some reason more straightforward value == "..." does not work...
                 if (document.getElementById("skrutable_action").value != "transliterate" &&
                     document.getElementById("skrutable_action").value != "scan" &&
                     document.getElementById("skrutable_action").value != "identify meter") {
@@ -308,10 +308,10 @@
               var audio_src_selection = melodySelectElement.value
               audio_src_selection = audio_src_selection.replace(/ /g, "-");
               audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
-              var audio_src_str = audio_prefix + 
-              					"{{ meter_label }}" + 
-              					"-" + 
-              					audio_src_selection + 
+              var audio_src_str = audio_prefix +
+              					"{{ meter_label }}" +
+              					"-" +
+              					audio_src_selection +
               					".mp3";
               audioElement.src = audio_src_str
             }
