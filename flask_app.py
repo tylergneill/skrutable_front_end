@@ -384,7 +384,7 @@ llgllglg    {m: 11}    [8: sslg]
       l      l      g      l      l      g      l      g
 
 anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
-	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
+	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
@@ -413,7 +413,7 @@ llllllggglgglgg    {m: 22}    [15: nnmyy]
       l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
 
 mālinī [15: nnmyy]"""
-	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
+	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
