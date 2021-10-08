@@ -451,6 +451,10 @@ def scanGRETILresults_page():
 	    dir6 = "6_notes"
 		)
 
+@app.route('/reciters')
+def reciters_page():
+	return render_template("reciters.html")
+
 def prep_Apte_query(IAST_string):
 	dev_query = T.transliterate(IAST_string, from_scheme='IAST', to_scheme='DEV')
 	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1] # remove final Devanagari virāma(s) (U+094d)
