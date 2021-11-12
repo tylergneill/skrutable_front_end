@@ -231,8 +231,8 @@
 
                         <!-- splitting -->
                         <div class="col-md-3">
-                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Sandhi & Cpds" data-toggle="tooltip" title="Sansplit! 💃" onclick="set_action('split');"/>
-                            </br>
+                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Words" onclick="set_action('split');"/>
+                            <br>
                         <!--<label for="split">Punctuation</label>
                             </br>
                             <select name="prsrv_punc" id="prsrv_punc" class="btn-block">
@@ -240,9 +240,9 @@
                                 <option value="preserve">discard</option>
                             </select>
                             </br>-->
-                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value=">> Apte links" onclick="set_action('apte links');"/>
+                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('split');" formaction="./wholeFile"/>
                             </br>
-                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" data-toggle="tooltip" title="🤯"onclick="set_action('split');" formaction="./wholeFile"/>
+                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value="DSAL-Apte links" onclick="set_action('apte links');"/>
                             </br>
                         </div>
 
