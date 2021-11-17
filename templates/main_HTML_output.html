@@ -76,7 +76,7 @@
                 </div><!-- entire top navbar row -->
 
             </div><!-- container -->
-            
+
         </nav>
 
         <div class="container">
@@ -100,9 +100,9 @@
                     <!-- input and output schemes, and swap buttons -->
                     <div class="col-md-4">
                         <div class="col-md-12">
-                        
+
                             <div class="row">
-                            
+
                                 <div class="col-md-6">
                                     <label for="from_scheme">Input Scheme</label>
                                     </br>
@@ -133,11 +133,11 @@
                                         <option value="combine">less virāmas</option>
                                     </select>
                                 </div>
-                            
+
                             </div>
-                            
+
                             </br>
-                            
+
                             <div class="row">
 
                                 <div class="col-md-3">
@@ -227,13 +227,13 @@
                             </select>
                             </br>
                             <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/wholeFile"/>
-                            </br>
+                        	</br>
                         </div>
 
                         <!-- splitting -->
                         <div class="col-md-3">
-                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Sandhi & Cpds" data-toggle="tooltip" title="Sansplit! 💃" onclick="set_action('split');"/>
-                            </br>
+                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Words" onclick="set_action('split');"/>
+                            <br>
                         <!--<label for="split">Punctuation</label>
                             </br>
                             <select name="prsrv_punc" id="prsrv_punc" class="btn-block">
@@ -241,21 +241,21 @@
                                 <option value="preserve">discard</option>
                             </select>
                             </br>-->
-                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value=">> Apte links" onclick="set_action('apte links');"/>
+                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('split');" formaction="./wholeFile"/>
                             </br>
-                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" data-toggle="tooltip" title="🤯"onclick="set_action('split');" formaction="./wholeFile"/>
+                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value="DSAL-Apte links" onclick="set_action('apte links');"/>
                             </br>
                         </div>
 
                     </div><!-- actions -->
 
                 </div><!-- controls row -->
-            
+
 
                 <!-- melody player row -->
                 <div class="row" id="melodyPlayer" style="visibility: hidden">
                 <!-- <div class="row" id="melodyPlayer"> -->
-                    
+
                     <!-- line up below actions -->
                     <div class="col-md-4">
                     </div>
@@ -352,10 +352,10 @@
               var audio_src_selection = melodySelectElement.value
               audio_src_selection = audio_src_selection.replace(/ /g, "-");
               audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
-              var audio_src_str = audio_prefix + 
-                                "{{ meter_label }}" + 
-                                "-" + 
-                                audio_src_selection + 
+              var audio_src_str = audio_prefix +
+                                "{{ meter_label }}" +
+                                "-" +
+                                audio_src_selection +
                                 ".mp3";
               audioElement.src = audio_src_str
             }
