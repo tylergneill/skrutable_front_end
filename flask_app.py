@@ -458,7 +458,8 @@ def reciters_page():
 def prep_Apte_query(IAST_string):
 	dev_query = T.transliterate(IAST_string, from_scheme='IAST', to_scheme='DEV')
 	while dev_query[-1] == chr(0x94d): dev_query = dev_query[:-1] # remove final Devanagari virāma(s) (U+094d)
-	chicago_url = "http://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
+	chicago_url = "https://dsal.uchicago.edu/cgi-bin/app/apte_query.py?qs=%s&searchhws=yes&matchtype=default" % dev_query
+	import pdb; pdb.set_trace()
 	return chicago_url
 
 @app.route('/ChicagoApteIAST') # hidden endpoint
@@ -477,3 +478,7 @@ def prep_split_output_for_Apte(split_text):
 			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
 	output_HTML += "</p>"
 	return output_HTML
+
+
+if __name__ == '__main__':
+	app.run(host='0.0.0.0',port=5000)
