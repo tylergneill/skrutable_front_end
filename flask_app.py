@@ -316,9 +316,6 @@ def wholeFile():
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST'
 				)
-
-			print("at whole file")
-			import pdb; pdb.set_trace()
 			
 			split_result = Spl.split(
 				IAST_input,
