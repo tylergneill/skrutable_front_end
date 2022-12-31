@@ -317,9 +317,13 @@ def wholeFile():
 				to_scheme='IAST'
 				)
 
+			print("at whole file")
+			import pdb; pdb.set_trace()
+			
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=True
+				prsrv_punc=True,
+				wholeFile=True
 				)
 
 			output_data = T.transliterate(
