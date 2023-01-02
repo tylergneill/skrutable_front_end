@@ -1,0 +1,164 @@
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+        <title>skrutable</title>
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+
+                <!-- entire top navbar -->
+                <div class="row">
+
+                    <!-- skrutable brand/reset button and conditionally visibile action title -->
+                    <div class="col-md-4">
+
+                        <div class="row">
+
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8 col-xs-8">
+                                <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
+                                    <a class="navbar-brand">: {{ skrutable_action }}</a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- about, tutorial, and conditionally visibile example links -->
+                    <div class="col-md-4">
+
+                        <div class="row">
+
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand float-right" href="./about">about</a>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" href="./tutorial">tutorial</a>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 col-xs-4">
+                                <div class="navbar-header" id="hiddenExample" style="visibility: hidden">
+                                    <a class="navbar-brand" href="./ex1">(example)</a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div><!-- entire top navbar row -->
+
+            </div><!-- container -->
+
+        </nav>
+
+        <div class="container">
+
+            <h1>Application Programming Interface (API)</h1>
+
+            <p>The <b>skrutable</b> server can also be queried programmatically with four API endpoints:</p>
+            <ul>
+                <li>https://www.skrutable.info/api/transliterate</li>
+                <li>https://www.skrutable.info/api/scan</li>
+                <li>https://www.skrutable.info/api/identify-meter</li>
+                <li>https://www.skrutable.info/api/split</li>
+            </ul>
+
+            <p>These endpoints accept POST requests only.</p>
+            <div class="col-md-12" style="overflow-x:auto;">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr style="border-bottom: double;">
+                        <th scope="col">endpoint URL</th>
+                        <th scope="col">example single-line request with cURL</th>
+                        <th scope="col">example multi-line (whole-file) request with cURL</th>
+                        <th scope="col">example single-line request with Python</th>
+                        <th scope="col">example multi-line (whole-file) request with Python</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">https://www.skrutable.info/api/transliterate</th>
+                        <td>curl ENDPOINT_URL </br>
+                            -F input_text=rājapuruṣaḥ </br>
+                            -F from_scheme=IAST </br>
+                            -F to_scheme=HK</br>
+                            or</br>
+                            curl ENDPOINT_URL -d '{</br>
+                                "input_text":"rājapuruṣaḥ", </br>
+                                "from_scheme":"IAST", </br>
+                                "to_scheme":"HK"</br>
+                            }' </br>
+                            -H 'Content-Type: application/json'</td>
+                        <td>curl ENDPOINT_URL </br>
+                            -F input_file=@/local/path/to/file/ </br>
+                            -F from_scheme=IAST </br>
+                            -F to_scheme=HK</td>
+                        <td>import requests</br>
+                            result = requests.post(</br>
+                            SERVER_URL, </br>
+                            json={</br>
+                                'input_text': your_input_text,</br>
+                                'from_scheme': 'IAST',</br>
+                                'to_scheme': 'HK'</br>
+                            })</td>
+                        <td>import requests</br>
+                            result = requests.post(</br>
+                            SERVER_URL, </br>
+                            files={</br>
+                                "input_file": open(your_input_filename, 'rb'),
+                                'from_scheme': 'IAST',</br>
+                                'to_scheme': 'HK'</br>
+                            })</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">https://www.skrutable.info/api/scan</th>
+                        <td>b</td>
+                        <td>b</td>
+                        <td>b</td>
+                        <td>b</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">https://www.skrutable.info/api/identify-meter</th>
+                        <td>c</td>
+                        <td>c</td>
+                        <td>c</td>
+                        <td>c</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">https://www.skrutable.info/api/split</th>
+                        <td>d</td>
+                        <td>d</td>
+                        <td>d</td>
+                        <td>d</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+        </div><!-- /.container -->
+
+    </body>
+
+</html>
