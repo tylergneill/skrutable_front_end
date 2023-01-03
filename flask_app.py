@@ -316,7 +316,7 @@ def wholeFile():
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST'
 				)
-			
+
 			split_result = Spl.split(
 				IAST_input,
 				prsrv_punc=True,
@@ -339,6 +339,185 @@ def wholeFile():
 		response = make_response( output_data )
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
+
+@app.route('/api', methods=["GET"])
+def api_landing():
+	return render_template("api.html")
+
+def get_inputs(required_args, request):
+
+	if required_args[0] != "input_text":
+		return "The variable input_text should always be first in required_arg_list"
+
+	if not (request.form or request.json):
+		return "Received neither form nor json input."
+
+	data_source = dict(request.form or request.json)
+	error_msg = (
+		"Couldn't get all fields:\n" +
+		f"required_args: {required_args}\n" +
+		f"request.files {request.files}\n" +
+  		"data_source (" + ("json" if request.json else "form") + f") {data_source}"
+	)
+
+	try:
+		if request.files:
+			input_file = request.files["input_file"]
+			input_fn = input_file.filename
+			input_text = input_file.stream.read().decode('utf-8')
+		else: # should all be in either form or json
+			input_text = data_source["input_text"]
+	except:
+		return error_msg
+
+	inputs = {"input_text": input_text}
+
+	for arg in required_args[1:]:
+
+		if arg not in data_source:
+			return error_msg
+
+		# convert boolean strings to real booleans
+		if data_source[arg].lower() == 'true':
+			data_source[arg] = True
+		elif data_source[arg].lower() == 'false':
+			data_source[arg] = False
+
+		inputs[arg] = data_source[arg]
+
+	return inputs
+
+@app.route('/api/transliterate', methods=["GET", "POST"])
+def api_transliterate():
+
+	# assume that GET request is person surfing in browser
+	if request.method == "GET":
+		return render_template("POSTonly.html")
+
+	inputs = get_inputs(["input_text", "from_scheme", "to_scheme"], request)
+	if isinstance(inputs, str):
+		return inputs # == error_msg
+
+	result = T.transliterate(
+		inputs["input_text"],
+		from_scheme=inputs["from_scheme"],
+		to_scheme=inputs["to_scheme"],
+	)
+	return result
+
+@app.route('/api/scan', methods=["GET", "POST"])
+def api_scan():
+
+	if request.method == "GET":
+		return render_template("POSTonly.html")
+
+	inputs = get_inputs(
+		[	"input_text",
+			"from_scheme",
+			"show_weights",
+			"show_morae",
+			"show_gaRas",
+			"show_alignment"
+		],
+		request
+	)
+	if isinstance(inputs, str):
+		return inputs # == error_msg
+
+	V = S.scan(
+		inputs["input_text"],
+		from_scheme=inputs["from_scheme"],
+	)
+
+	result = V.summarize(
+		show_weights=inputs["show_weights"],
+		show_morae=inputs["show_morae"],
+		show_gaRas=inputs["show_gaRas"],
+		show_alignment=inputs["show_alignment"],
+		show_label=False
+	)
+
+	return result
+
+@app.route('/api/identify-meter', methods=["GET", "POST"])
+def api_identify_meter():
+
+	if request.method == "GET":
+		return render_template("POSTonly.html")
+
+	inputs = get_inputs(
+		[	"input_text",
+			"from_scheme",
+			"show_weights",
+			"show_morae",
+			"show_gaRas",
+			"show_alignment",
+			"resplit_option"
+		],
+		request
+	)
+
+	if isinstance(inputs, str):
+		return inputs # == error_msg
+
+	r_o, r_k_m = parse_complex_resplit_option(
+		complex_resplit_option=inputs["resplit_option"]
+	)
+
+	V = MI.identify_meter(
+		inputs["input_text"] ,
+		resplit_option=r_o,
+		resplit_keep_midpoint=r_k_m,
+		from_scheme=inputs["from_scheme"]
+	)
+
+	result = V.summarize(
+		show_weights=inputs["show_weights"],
+		show_morae=inputs["show_morae"],
+		show_gaRas=inputs["show_gaRas"],
+		show_alignment=inputs["show_alignment"],
+		show_label=True
+	)
+
+	return result
+
+
+@app.route('/api/split', methods=["GET", "POST"])
+def api_split():
+
+	if request.method == "GET":
+		return render_template("POSTonly.html")
+
+	inputs = get_inputs(
+		[	"input_text",
+			"from_scheme",
+			"to_scheme",
+		],
+		request
+	)
+
+	if isinstance(inputs, str):
+		return inputs # == error_msg
+
+	IAST_input = T.transliterate(
+		inputs["input_text"],
+		from_scheme=inputs["from_scheme"],
+		to_scheme='IAST'
+	)
+
+	split_result = Spl.split(
+		IAST_input,
+		prsrv_punc=True,
+		)
+
+	result = T.transliterate(
+		split_result,
+		from_scheme='IAST',
+		to_scheme=inputs["to_scheme"]
+		)
+
+	return result
+
 
 @app.route('/reset')
 def reset_variables():
