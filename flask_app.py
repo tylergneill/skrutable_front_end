@@ -344,19 +344,22 @@ def wholeFile():
 def api_landing():
 	return render_template("api.html")
 
-def get_inputs(arg_list, request):
+def get_inputs(required_args, request):
+
+	if required_args[0] != "input_text":
+		return "The variable input_text should always be first in required_arg_list"
 
 	if not (request.form or request.json):
 		return "Received neither form nor json input."
 
-	data_source = request.form or request.json
+	data_source = dict(request.form or request.json)
 	error_msg = (
-		"Couldn't get input_text:\n" +
+		"Couldn't get all fields:\n" +
+		f"required_args: {required_args}\n" +
 		f"request.files {request.files}\n" +
   		"data_source (" + ("json" if request.json else "form") + f") {data_source}"
 	)
 
-	# input_text always required
 	try:
 		if request.files:
 			input_file = request.files["input_file"]
@@ -368,11 +371,18 @@ def get_inputs(arg_list, request):
 		return error_msg
 
 	inputs = {"input_text": input_text}
-	arg_list.remove("input_text")
 
-	for arg in arg_list:
+	for arg in required_args[1:]:
+
 		if arg not in data_source:
 			return error_msg
+
+		# convert boolean strings to real booleans
+		if data_source[arg].lower() == 'true':
+			data_source[arg] = True
+		elif data_source[arg].lower() == 'false':
+			data_source[arg] = False
+
 		inputs[arg] = data_source[arg]
 
 	return inputs
