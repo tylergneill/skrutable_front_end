@@ -70,36 +70,33 @@
                 </div><!-- entire top navbar row -->
 
             </div><!-- container -->
-            
+
         </nav>
 
         <div class="container">
 
             <h1>next tasks</h1>
 
-            <p>Here's what's next:</p>
             <ul>
-                <li>enabling meter identification for viṣamavṛtta</b></li>
-                <li>adding TSV summary output options for meter identification</li>
-                <li>expanding and transliteration virāma-avoidance and adding toggle in front end</li>
                 <li>adding toggle for Splitter preserve-punctuation in front end</li>
-                
-                <li>adding alphabetization function to front-end</li>
-                <li>repairing scheme-detection functionality</li>
-                <li>adding encoding-standardization function to front-end</li>
-                <li>adding number-exclusion option to transliteration</li>
-
-                <li>releasing melody player with multiple voice options</li>
-                <li>enabling more partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
-
                 <li>fix bug 🐞: Splitter cuts off buffer-final numbers</li>
 
-                <li>adding progress bar to estimate whole-file processing time</li>
-                <li>adding multi-file upload, analysis, and summary</li>
+                <li>expanding transliteration virāma-avoidance and adding toggle in front end</li>
+                <li>adding number-exclusion option to transliteration</li>
+                <li>adding encoding-standardization function to front-end</li>
+                <li>repairing scheme-detection functionality</li>
+                <li>adding alphabetization function to front-end</li>
+
+                <li>enabling meter identification for viṣamavṛtta</b></li>
+                <li>enabling more partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
+                <li>adding TSV summary output options for meter identification</li>
 
                 <li>adding PyPi (e.g. pip) install functionality for library</li>
-                <li>API endpoints with JSON and plain-text output options</li>
+
+                <li>adding progress bar to estimate whole-file processing time</li>
+
                 <li>implementing metrical material detection (long-term)</li>
+
                 <li>cleaning up code and improving documentation (ongoing)</li>
                 <li>implementing comprehensive testing with pytest (ongoing)</li>
             </ul>
@@ -108,41 +105,67 @@
 
             <br>
 
-            <h1>done previously</h1>
+            <h1>history of significant changes</h1>
 
-            <p>(Dec '22)</p>
+            <p>(Jan '23)</p>
             <ul>
-                <li>fixed hidden /ChicagoApteIAST endpoint (https)</li>
-                <li>switch to using new <a href="https://github.com/tylergneill/splitter_server">separate splitter_server API</a></li>
+                <li>presentating project a second time for <a href="https://kaigi.eventsair.com/cmspreview/world-sanskrit-conference/program-information">18th WSC</a></li>
+                <li>added <a href="./api">API endpoints</a></li>
             </ul>
 
-            <p>(Feb–Mar '21)</p>
+            <p>(Dec 2022)</p>
             <ul>
+                <li>switched to using new <a href="https://github.com/tylergneill/splitter_server">separate splitter_server API</a></li>
+                <li>fixed broken hidden /ChicagoApteIAST endpoint (https)</li>
+            </ul>
+
+            <p>(May 2022)</p>
+            <ul>
+                <li>added hidden /ChicagoApteIAST endpoint to support DSAL online Apte</li>
+            </ul>
+
+
+            <p>(Jan 2022)</p>
+            <ul>
+                <li>presented project a first time for <a href="https://sanskrit.uohyd.ac.in/18WSC/programme_schedule.html">18th WSC</a></li>
+            </ul>
+
+            <p>(Nov 2021)</p>
+            <ul>
+                <li><a href="https://github.com/tylergneill/skrutable/releases/tag/v1.0.0">Zenodo package release v1.0.0</a></li>
+            </ul>
+
+            <p>(Feb–Mar 2021)</p>
+            <ul>
+                <li>incorporated recitation melodies with multiple voice options</li>
+                <li>wrote up project for <a href="https://www.wsc2021.com.au/">18th WSC (2021/2023)</a></li>
                 <li>implemented basic wrapper for
                 <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Splitter</a></li>
-                <li>wrote up project for <a href="https://www.wsc2021.com.au/">18th WSC (2021/2023)</a></li>
             </ul>
 
-            <p>(Jan '21)</p>
+            <p>(Jan–Feb 2021)</p>
             <ul>
-                <li>adjusted relative scores for meter identification with resplit</li>
-                <li>enabled meter identification for ardhasamavṛtta</li>
-                <li>added many more meters from Apte</li>
-                <li>implemented resplit_lite (including with option to keep midpoint)</li>
-                <li>enabled wider interpretation of pāda breaks (e.g. with semicolon)</li>
-                <li>enabled meter identification options (scansion detail, resplit option) for whole-file analysis</li>
-                <li>updated manual on GitHub</li>
+                <li>added whole-file analysis to front end (transliteration, meter identification)</li>
+                <li>improved pāda resplitting ("resplit lite", keep midpoint)</li>
                 <li>enabled mix-and-match scansion detail</li>
-                <li>added whole-file analysis to front end: transliteration, meter identification</li>
-                <li>added partial meter identification: anuṣṭubh half-verses</li>
-                <li>improved meter identification for samavṛtta edge case: upajāti</li>
-                <li>added Prakrit support (so far just ï and ü, e.g., saï >> सइ)</li>
-                <li>added transliteration scheme support: ITRANS, WX, "IAST reduced"</li>
-                <li>fixed line-end vowel-truncation error for transliteration from Indic (e.g., चातुर >> cātur)</li>
+                <li>added many more meters from Apte</li>
+                <li>improved various meter identification categories (upajāti, ardhasamavṛtta, half-anuṣṭubh, etc.)</li>
+                <li>added Prakrit support (ï and ü)</li>
+                <li>further expanded transliteration (ITRANS, WX, "IAST reduced")</li>
+                <li>created mature front end in Flask as separate but coordinated repo, deployed on PythonAnywhere</li>
             </ul>
-            <p>(Dec '20)</p>
+
+            <p>(2018–2020)</p>
             <ul>
-                <li>created front end</li>
+                <li>created front end prototype with <b>wx</b> Python library</li>
+                <li>invented "wiggle iterator" for resplitting verse lines</li>
+                <li>rebrand from "SkritHub" to Skrutable</li>
+                <li>gradual expansion of three main functions</li>
+            </ul>
+
+            <p>(2015–2017)</p>
+            <ul>
+                <li>early development on underlying library with transliteration, scansion, meter identification</li>
             </ul>
 
 
