@@ -1,2 +1,5 @@
 flask
+gunicorn
 skrutable
+numpy # via skrutable
+requests # via skrutable
