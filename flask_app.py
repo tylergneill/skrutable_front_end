@@ -91,6 +91,11 @@ def ensure_keys():
 		if var_name not in session:
 			reset_variables()
 
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return render_template('errors/413.html', max_size=MAX_CONTENT_LENGTH_MB), 413
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
 
