@@ -14,6 +14,8 @@ from skrutable.splitter.wrapper import Splitter
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
+MAX_CONTENT_LENGTH_MB = 64
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
 
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
