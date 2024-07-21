@@ -95,8 +95,25 @@ def ensure_keys():
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    return render_template('errors/413.html', max_size=MAX_CONTENT_LENGTH_MB), 413
+	return render_template('errors/413.html', max_size=MAX_CONTENT_LENGTH_MB), 413
 
+@app.errorhandler(500)
+def internal_server_error(error):
+	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
+	text_input = session.get('text_input', '')
+	text_output = session.get('text_output', '')
+
+	context = {
+        'path': request.path,
+        'method': request.method,
+        'text_input_length': len(text_input),
+        'text_output_length': len(text_output),
+        'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
+        'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
+        'user_session_data': user_session_data
+    }
+
+	return render_template('errors/500.html', **context), 500
 
 @app.route("/", methods=["GET", "POST"])
 def index():
