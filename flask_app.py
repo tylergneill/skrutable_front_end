@@ -37,43 +37,45 @@ MI = MeterIdentifier()
 Spl = Splitter()
 
 # variable names for flask.session() object
-select_element_names = [
+SELECT_ELEMENT_NAMES = [
 	"skrutable_action",
-	"text_input", "text_output",
 	"from_scheme", "to_scheme",
 	"resplit_option",
 	]
-checkbox_element_names = [
+CHECKBOX_ELEMENT_NAMES = [
 	"weights", "morae", "gaRas",
 	"alignment",
 	] # to be extended with corpus text abbreviations for textPrioritize
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
-session_variable_names = (
-	select_element_names +
-	checkbox_element_names +
+SESSION_VARIABLE_NAMES = (
+	SELECT_ELEMENT_NAMES +
+	CHECKBOX_ELEMENT_NAMES +
 	melody_variable_names
 	)
 
-# for updating session variables
-def process_form(form):
+# for updating session variables and input
+def process_form(form) -> str:
 
-   # first do values of "select" elements (i.e. dropdowns)
-	for var_name in select_element_names:
+	# get text input
+	text_input = request.form.get('text_input', '')
+
+	# first do values of "select" elements (i.e. dropdowns)
+	for var_name in SELECT_ELEMENT_NAMES:
 		# print(var_name, request.form[var_name])
 		session[var_name] = request.form[var_name]
 
 	# then do values of "checkbox" elements for scansion detail
 	scan_detail_option_choices = request.form.getlist("scan_detail")
-	for var_name in checkbox_element_names:
+	for var_name in CHECKBOX_ELEMENT_NAMES:
 		if var_name in scan_detail_option_choices:
 			session[var_name] = 1
 		else:
 			session[var_name] = 0
 
 	session.modified = True
-	return
+	return text_input
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
@@ -87,7 +89,7 @@ def parse_complex_resplit_option(complex_resplit_option):
 
 def ensure_keys():
 	# just in case, make sure all keys in session
-	for var_name in session_variable_names:
+	for var_name in SESSION_VARIABLE_NAMES:
 		if var_name not in session:
 			reset_variables()
 
@@ -102,31 +104,23 @@ def index():
 	ensure_keys()
 
 	if request.method == "GET":
-
 		return render_template(
-			"main.html",
-			skrutable_action=session["skrutable_action"],
-			text_input=session["text_input"], text_output=session["text_output"],
-			from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-			weights=session["weights"],
-			morae=session["morae"],
-			gaRas=session["gaRas"],
-			alignment=session["alignment"],
-			resplit_option=session["resplit_option"],
-			meter_label=session["meter_label"],
-			melody_options=session["melody_options"]
-			)
+			'main.html',
+			text_input="",
+			text_output="",
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 	if request.method == "POST":
 
-		process_form(request.form)
+		text_input = process_form(request.form)
 
 		# carry out chosen action
 
 		if session["skrutable_action"] == "transliterate":
 
-			session["text_output"] = T.transliterate(
-				session["text_input"],
+			text_output = T.transliterate(
+				text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
 				)
@@ -136,11 +130,11 @@ def index():
 		elif session["skrutable_action"] == "scan":
 
 			V = S.scan(
-				session["text_input"] ,
+				text_input,
 				from_scheme=session["from_scheme"]
 				)
 
-			session["text_output"] = V.summarize(
+			text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
@@ -157,13 +151,13 @@ def index():
 				)
 
 			V = MI.identify_meter(
-				session["text_input"] ,
+				text_input,
 				resplit_option=r_o,
 				resplit_keep_midpoint=r_k_m,
 				from_scheme=session["from_scheme"]
 				)
 
-			session["text_output"] = V.summarize(
+			text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
@@ -185,7 +179,7 @@ def index():
 		elif session["skrutable_action"] == "split":
 
 			IAST_input = T.transliterate(
-				session["text_input"],
+				text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST'
 				)
@@ -195,7 +189,7 @@ def index():
 				prsrv_punc=True
 				)
 
-			session["text_output"] = T.transliterate(
+			text_output = T.transliterate(
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
@@ -207,24 +201,23 @@ def index():
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
-			split_text = session["text_input"] # must already be split
+			split_text = text_input # must already be split
 			output_HTML = prep_split_output_for_Apte(split_text)
-			return render_template(	"main_HTML_output.html",
-									skrutable_action=session["skrutable_action"],
-									text_input=session["text_input"],
-									output_HTML=output_HTML,
-									from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-									weights=session["weights"],
-									morae=session["morae"],
-									gaRas=session["gaRas"],
-									alignment=session["alignment"],
-									resplit_option=session["resplit_option"],
-									melody_options=session["melody_options"]
-									)
+			return render_template(
+				"main_HTML_output.html",
+				text_input=text_input,
+				output_HTML=output_HTML,
+				**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			)
 
 		session.modified = True
 
-		return redirect(url_for('index'))
+		return render_template(
+			'main.html',
+			text_input=text_input,
+			text_output=text_output,
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 
 @app.route("/wholeFile", methods=["POST"])
@@ -235,18 +228,14 @@ def wholeFile():
 	# when form sent from GUI ("whole file" button clicked)
 	if request.form != {}:
 
-		process_form(request.form)
+		text_input = process_form(request.form)
 
 		# send onward to upload form
 		return render_template(
 			"wholeFile.html",
-			skrutable_action=session["skrutable_action"],
-			text_input=session["text_input"], text_output=session["text_output"],
-			from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-			weights=session["weights"], morae=session["morae"], gaRas=session["gaRas"],
-			alignment=session["alignment"],
-			resplit_option=session["resplit_option"]
-			)
+			text_input=text_input,
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 	# when file chosen for upload
 	elif request.files != {}:
@@ -529,7 +518,6 @@ def api_split():
 @app.route('/reset')
 def reset_variables():
 	session["skrutable_action"] = "..."
-	session["text_input"] = ""; session["text_output"] = ""
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -541,8 +529,8 @@ def reset_variables():
 
 @app.route('/ex1')
 def ex1():
-	session["text_input"] = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-	session["text_output"] = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
+	text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+	text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
 मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
@@ -550,13 +538,18 @@ def ex1():
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["skrutable_action"] = "transliterate"
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k:session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/ex2')
 def ex2():
-	session["text_input"] = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
+	text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	session["text_output"] = """gggglggl    {m: 14}    [8: mrgl]
+	text_output = """gggglggl    {m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
 llgllglg    {m: 11}    [8: sslg]
@@ -579,13 +572,18 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 	session["meter_label"] = "anuSTubh"
 	session["melody_options"] = ['Madhura Godbole', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh',  'Diwakar Acarya']
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/ex3')
 def ex3():
-	session["text_input"] = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
+	text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
 प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
-	session["text_output"] = """llllllggglgglgg    {m: 22}    [15: nnmyy]
+	text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
@@ -608,7 +606,12 @@ mālinī [15: nnmyy]"""
 	session["meter_label"] = "mAlinI"
 	session["melody_options"] = ['Madhura Godbole', 'Sadananda Das', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh']
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/about')
 def about_page():
