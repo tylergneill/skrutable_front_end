@@ -388,7 +388,7 @@ def api_transliterate():
 
 	# assume that GET request is person surfing in browser
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(["input_text", "from_scheme", "to_scheme"], request)
 	if isinstance(inputs, str):
@@ -405,7 +405,7 @@ def api_transliterate():
 def api_scan():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
@@ -439,7 +439,7 @@ def api_scan():
 def api_identify_meter():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
@@ -482,7 +482,7 @@ def api_identify_meter():
 def api_split():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
