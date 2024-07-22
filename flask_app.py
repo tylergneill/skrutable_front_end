@@ -266,6 +266,7 @@ def wholeFile():
 		input_file = request.files["input_file"]
 		input_fn = input_file.filename
 		input_data = input_file.stream.read().decode('utf-8')
+		g.text_input = input_data
 
 		# carry out chosen action
 
