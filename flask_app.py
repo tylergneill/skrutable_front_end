@@ -2,7 +2,7 @@ import os
 import re
 
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response
+from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
 
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
@@ -54,6 +54,7 @@ def process_form(form) -> str:
 
 	# get text input
 	text_input = form.get('text_input', '')
+	g.text_input = text_input
 
 	# first do values of "select" elements (i.e. dropdowns)
 	for var_name in SELECT_ELEMENT_NAMES:
@@ -94,8 +95,8 @@ def request_entity_too_large(error):
 @app.errorhandler(500)
 def internal_server_error(error):
 	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
-	text_input = session.get('text_input', '')
-	text_output = session.get('text_output', '')
+	text_input = g.get("text_input") or ""
+	text_output = g.get("text_output") or ""
 
 	context = {
         'path': request.path,
@@ -125,6 +126,7 @@ def index():
 	if request.method == "POST":
 
 		text_input = process_form(request.form)
+		g.text_input = text_input
 
 		# carry out chosen action
 
@@ -135,6 +137,7 @@ def index():
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -152,6 +155,7 @@ def index():
 				show_alignment=session["alignment"],
 				show_label=False
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -175,6 +179,7 @@ def index():
 				show_alignment=session["alignment"],
 				show_label=True
 				)
+			g.text_output = text_output
 
 			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
 			if short_meter_label in meter_melodies:
@@ -205,6 +210,7 @@ def index():
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -240,6 +246,7 @@ def wholeFile():
 	if request.form != {}:
 
 		text_input = process_form(request.form)
+		g.text_input = text_input
 
 		# send onward to upload form
 		return render_template(
@@ -538,8 +545,10 @@ def reset_variables():
 @app.route('/ex1')
 def ex1():
 	text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+	g.text_input = text_input
 	text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
 मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
+	g.text_output = text_output
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -557,6 +566,7 @@ def ex1():
 def ex2():
 	text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
+	g.text_input = text_input
 	text_output = """gggglggl    {m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
@@ -572,6 +582,7 @@ llgllglg    {m: 11}    [8: sslg]
       l      l      g      l      l      g      l      g
 
 anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
+	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -591,6 +602,7 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 def ex3():
 	text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
 प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
+	g.text_input = text_input
 	text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
@@ -606,6 +618,7 @@ llllllggglgglgg    {m: 22}    [15: nnmyy]
       l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
 
 mālinī [15: nnmyy]"""
+	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
