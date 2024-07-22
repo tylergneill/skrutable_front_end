@@ -1,9 +1,8 @@
 import os
-import html
 import re
 
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, send_file, make_response
+from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response
 
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
@@ -22,12 +21,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
 def serve_files(name):
 	return send_from_directory('assets', name)
 
-# attempt at serving entire folder at once (not yet successful)
-# @app.route('/assets/')
-# def serve_files():
-# 	return send_file('assets/index.html')
-
-# this helps app work both publically (e.g. on PythonAnywhere) and locally
+# this helps app work both publicly (e.g. on PythonAnywhere) and locally
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Skrutable main objects
@@ -59,12 +53,12 @@ SESSION_VARIABLE_NAMES = (
 def process_form(form) -> str:
 
 	# get text input
-	text_input = request.form.get('text_input', '')
+	text_input = form.get('text_input', '')
 
 	# first do values of "select" elements (i.e. dropdowns)
 	for var_name in SELECT_ELEMENT_NAMES:
 		# print(var_name, request.form[var_name])
-		session[var_name] = request.form[var_name]
+		session[var_name] = form[var_name]
 
 	# then do values of "checkbox" elements for scansion detail
 	scan_detail_option_choices = request.form.getlist("scan_detail")
@@ -284,13 +278,10 @@ def wholeFile():
 
 			# record starting time
 
-			# now = datetime.now()
-			# timestamp1 = now.strftime("%H:%M:%S")
 			starting_time = datetime.now().time()
 
 			verses = input_data.splitlines() # during post \n >> \r\n
 			output_data = ''
-			# output_data = "%s\n\n" % timestamp1
 			for verse in verses:
 
 				result = MI.identify_meter(
