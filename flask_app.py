@@ -1,8 +1,10 @@
 import os
 import re
+import unicodedata
 
 from datetime import datetime, date
 from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
+from werkzeug.utils import secure_filename
 
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
@@ -343,10 +345,22 @@ def wholeFile():
 			output_fn_suffix = '_split'
 
 		# prepare and return output file
-		output_fn = (	input_fn[:input_fn.find('.')] +
-						output_fn_suffix +
-						input_fn[input_fn.find('.'):]
-					)
+
+		def remove_diacritics(filename):
+			normalized = unicodedata.normalize('NFD', filename)
+			without_diacritics = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+			return secure_filename(without_diacritics)
+
+
+		file_extension = input_fn[input_fn.find('.') + 1:]
+		cleaned_input_fn = remove_diacritics(input_fn)
+		if cleaned_input_fn == file_extension:
+			output_fn = f"skrutable_result{output_fn_suffix}.{file_extension}"
+		else:
+			output_fn = (	cleaned_input_fn[:input_fn.find('.')] +
+							f"{output_fn_suffix}.{file_extension}"
+						)
+
 		response = make_response( output_data )
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
