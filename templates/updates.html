@@ -75,41 +75,36 @@
 
         <div class="container">
 
-            <h1>next tasks</h1>
+            <h1>significant past updates</h1>
 
+            <p>(Jul '24)</p>
             <ul>
-                <li>adding toggle for Splitter preserve-punctuation in front end</li>
-                <li>fix bug 🐞: Splitter cuts off buffer-final numbers</li>
-
-                <li>expanding transliteration virāma-avoidance and adding toggle in front end</li>
-                <li>adding number-exclusion option to transliteration</li>
-                <li>adding encoding-standardization function to front-end</li>
-                <li>repairing scheme-detection functionality</li>
-                <li>adding alphabetization function to front-end</li>
-
-                <li>enabling meter identification for viṣamavṛtta</b></li>
-                <li>enabling more partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
-                <li>adding TSV summary output options for meter identification</li>
-
-                <li>adding progress bar to estimate whole-file processing time</li>
-
-                <li>implementing metrical material detection (long-term)</li>
-
-                <li>cleaning up code and improving documentation (ongoing)</li>
-                <li>implementing comprehensive testing with pytest (ongoing)</li>
+                <li>completed server migration by deactivating on PythonAnywhere (except separate splitter server)</li>
+                <li>massively expanded amount of text UI input box can handle (64mb rather than 4kb)</li>
+                <li>partially fixed upload problem with non-ASCII filenames</li>
             </ul>
 
-            <p>And maybe something you have in mind? <a href="https://uni-leipzig1.academia.edu/TylerNeill">Contact me</a> and let me know what you think.</p>
+            <p>(May '24)</p>
+            <ul>
+                <li>completed PyPi refactor of library</li>
+                <li>added single-pāda samavṛtta identification (API only)</li>
+                <li>released <a href="https://pypi.org/project/skrutable/1.3.0/">v1.3.0 on PyPi</a></li>
+                <li>completed Dockerization of front end</li>
+                <li>deployed duplicate server on Digital Ocean Droplet (ultimately kept)</li>
+            </ul>
 
-            <br>
-
-            <h1>history of significant changes</h1>
+            <p>(Mar '24)</p>
+            <ul>
+                <li>began Dockerization of front end</li>
+                <li>experimented with serving on Heroku (ultimately did not pursue)</li>
+            </ul>
 
             <p>(Jan '23)</p>
             <ul>
-                <li>presenting project a second time for <a href="https://kaigi.eventsair.com/cmspreview/world-sanskrit-conference/program-information">18th WSC</a></li>
-                <li>added PyPi (e.g. pip) install functionality for library</li>
                 <li>added <a href="./api">API endpoints</a></li>
+                <li>added PyPi (e.g. pip) install functionality for library, <a href="https://pypi.org/project/skrutable/1.2.0/">v1.2.0</a></li>
+                <li>released <a href="https://github.com/tylergneill/skrutable/releases/tag/v1.2.0">v1.2.0 on Zenodo</a></li>
+                <li>prepared second presentation for <a href="https://kaigi.eventsair.com/cmspreview/world-sanskrit-conference/program-information">18th WSC</a> (recording only due to time zone mishap)</li>
             </ul>
 
             <p>(Dec '22)</p>
@@ -136,6 +131,7 @@
 
             <p>(Feb–Mar '21)</p>
             <ul>
+                <li>implemented basic viṣamavṛtta meter identification</li>
                 <li>incorporated recitation melodies with multiple voice options</li>
                 <li>wrote up project for <a href="https://www.wsc2021.com.au/">18th WSC (2021/2023)</a></li>
                 <li>implemented basic wrapper for
@@ -166,6 +162,41 @@
             <ul>
                 <li>did early development on underlying library with transliteration, scansion, meter identification</li>
             </ul>
+
+            <br>
+
+            <h1>ideas for future updates</h1>
+
+            <p>Transliteration</p>
+            <ul>
+                <li>expand transliteration virāma-avoidance and adding toggle in front end</li>
+                <li>add number-exclusion option to transliteration</li>
+                <li>add encoding-standardization function to front-end</li>
+                <li>repair scheme-detection functionality</li>
+                <li>add alphabetization function to front-end</li>
+            </ul>
+
+            <p>Meter</p>
+            <ul>
+                <li>improve partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
+                <li>add TSV summary output options for meter identification</li>
+                <li>implement metrical material detection (long-term)</li>
+            </ul>
+
+            <p>Splitting</p>
+            <ul>
+                <li>add toggle for Splitter preserve-punctuation in front end</li>
+                <li>fix small bug: Splitter cuts off buffer-final numbers</li>
+            </ul>
+
+            <p>General</p>
+            <ul>
+                <li>add progress bar to estimate whole-file processing time</li>
+                <li>continue cleaning up code and improving documentation</li>
+                <li>implement more comprehensive testing with pytest</li>
+            </ul>
+
+            <p>And maybe something you have in mind? Gmail me at tyler.g.neill and share your ideas.</p>
 
 
         </div><!-- /.container -->
