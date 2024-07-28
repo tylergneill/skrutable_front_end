@@ -1,9 +1,10 @@
 import os
-import html
 import re
+import unicodedata
 
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, send_file, make_response
+from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
+from werkzeug.utils import secure_filename
 
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
@@ -14,18 +15,15 @@ from skrutable.splitter.wrapper import Splitter
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
+MAX_CONTENT_LENGTH_MB = 64
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
 
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
 def serve_files(name):
 	return send_from_directory('assets', name)
 
-# attempt at serving entire folder at once (not yet successful)
-# @app.route('/assets/')
-# def serve_files():
-# 	return send_file('assets/index.html')
-
-# this helps app work both publically (e.g. on PythonAnywhere) and locally
+# this helps app work both publicly (e.g. on PythonAnywhere) and locally
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Skrutable main objects
@@ -35,43 +33,46 @@ MI = MeterIdentifier()
 Spl = Splitter()
 
 # variable names for flask.session() object
-select_element_names = [
+SELECT_ELEMENT_NAMES = [
 	"skrutable_action",
-	"text_input", "text_output",
 	"from_scheme", "to_scheme",
 	"resplit_option",
 	]
-checkbox_element_names = [
+CHECKBOX_ELEMENT_NAMES = [
 	"weights", "morae", "gaRas",
 	"alignment",
 	] # to be extended with corpus text abbreviations for textPrioritize
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
-session_variable_names = (
-	select_element_names +
-	checkbox_element_names +
+SESSION_VARIABLE_NAMES = (
+	SELECT_ELEMENT_NAMES +
+	CHECKBOX_ELEMENT_NAMES +
 	melody_variable_names
 	)
 
-# for updating session variables
-def process_form(form):
+# for updating session variables and input
+def process_form(form) -> str:
 
-   # first do values of "select" elements (i.e. dropdowns)
-	for var_name in select_element_names:
+	# get text input
+	text_input = form.get('text_input', '')
+	g.text_input = text_input
+
+	# first do values of "select" elements (i.e. dropdowns)
+	for var_name in SELECT_ELEMENT_NAMES:
 		# print(var_name, request.form[var_name])
-		session[var_name] = request.form[var_name]
+		session[var_name] = form[var_name]
 
 	# then do values of "checkbox" elements for scansion detail
 	scan_detail_option_choices = request.form.getlist("scan_detail")
-	for var_name in checkbox_element_names:
+	for var_name in CHECKBOX_ELEMENT_NAMES:
 		if var_name in scan_detail_option_choices:
 			session[var_name] = 1
 		else:
 			session[var_name] = 0
 
 	session.modified = True
-	return
+	return text_input
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
@@ -85,9 +86,31 @@ def parse_complex_resplit_option(complex_resplit_option):
 
 def ensure_keys():
 	# just in case, make sure all keys in session
-	for var_name in session_variable_names:
+	for var_name in SESSION_VARIABLE_NAMES:
 		if var_name not in session:
 			reset_variables()
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+	return render_template('errors/413.html', max_size=MAX_CONTENT_LENGTH_MB), 413
+
+@app.errorhandler(500)
+def internal_server_error(error):
+	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
+	text_input = g.get("text_input") or ""
+	text_output = g.get("text_output") or ""
+
+	context = {
+        'path': request.path,
+        'method': request.method,
+        'text_input_length': len(text_input),
+        'text_output_length': len(text_output),
+        'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
+        'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
+        'user_session_data': user_session_data
+    }
+
+	return render_template('errors/500.html', **context), 500
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -95,51 +118,46 @@ def index():
 	ensure_keys()
 
 	if request.method == "GET":
-
 		return render_template(
-			"main.html",
-			skrutable_action=session["skrutable_action"],
-			text_input=session["text_input"], text_output=session["text_output"],
-			from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-			weights=session["weights"],
-			morae=session["morae"],
-			gaRas=session["gaRas"],
-			alignment=session["alignment"],
-			resplit_option=session["resplit_option"],
-			meter_label=session["meter_label"],
-			melody_options=session["melody_options"]
-			)
+			'main.html',
+			text_input="",
+			text_output="",
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 	if request.method == "POST":
 
-		process_form(request.form)
+		text_input = process_form(request.form)
+		g.text_input = text_input
 
 		# carry out chosen action
 
 		if session["skrutable_action"] == "transliterate":
 
-			session["text_output"] = T.transliterate(
-				session["text_input"],
+			text_output = T.transliterate(
+				text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
 		elif session["skrutable_action"] == "scan":
 
 			V = S.scan(
-				session["text_input"] ,
+				text_input,
 				from_scheme=session["from_scheme"]
 				)
 
-			session["text_output"] = V.summarize(
+			text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
 				show_alignment=session["alignment"],
 				show_label=False
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -150,19 +168,20 @@ def index():
 				)
 
 			V = MI.identify_meter(
-				session["text_input"] ,
+				text_input,
 				resplit_option=r_o,
 				resplit_keep_midpoint=r_k_m,
 				from_scheme=session["from_scheme"]
 				)
 
-			session["text_output"] = V.summarize(
+			text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
 				show_alignment=session["alignment"],
 				show_label=True
 				)
+			g.text_output = text_output
 
 			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
 			if short_meter_label in meter_melodies:
@@ -178,7 +197,7 @@ def index():
 		elif session["skrutable_action"] == "split":
 
 			IAST_input = T.transliterate(
-				session["text_input"],
+				text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST'
 				)
@@ -188,11 +207,12 @@ def index():
 				prsrv_punc=True
 				)
 
-			session["text_output"] = T.transliterate(
+			text_output = T.transliterate(
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
 				)
+			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -200,24 +220,23 @@ def index():
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
-			split_text = session["text_input"] # must already be split
+			split_text = text_input # must already be split
 			output_HTML = prep_split_output_for_Apte(split_text)
-			return render_template(	"main_HTML_output.html",
-									skrutable_action=session["skrutable_action"],
-									text_input=session["text_input"],
-									output_HTML=output_HTML,
-									from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-									weights=session["weights"],
-									morae=session["morae"],
-									gaRas=session["gaRas"],
-									alignment=session["alignment"],
-									resplit_option=session["resplit_option"],
-									melody_options=session["melody_options"]
-									)
+			return render_template(
+				"main_HTML_output.html",
+				text_input=text_input,
+				output_HTML=output_HTML,
+				**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			)
 
 		session.modified = True
 
-		return redirect(url_for('index'))
+		return render_template(
+			'main.html',
+			text_input=text_input,
+			text_output=text_output,
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 
 @app.route("/wholeFile", methods=["POST"])
@@ -228,18 +247,15 @@ def wholeFile():
 	# when form sent from GUI ("whole file" button clicked)
 	if request.form != {}:
 
-		process_form(request.form)
+		text_input = process_form(request.form)
+		g.text_input = text_input
 
 		# send onward to upload form
 		return render_template(
 			"wholeFile.html",
-			skrutable_action=session["skrutable_action"],
-			text_input=session["text_input"], text_output=session["text_output"],
-			from_scheme=session["from_scheme"], to_scheme=session["to_scheme"],
-			weights=session["weights"], morae=session["morae"], gaRas=session["gaRas"],
-			alignment=session["alignment"],
-			resplit_option=session["resplit_option"]
-			)
+			text_input=text_input,
+			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+		)
 
 	# when file chosen for upload
 	elif request.files != {}:
@@ -250,6 +266,7 @@ def wholeFile():
 		input_file = request.files["input_file"]
 		input_fn = input_file.filename
 		input_data = input_file.stream.read().decode('utf-8')
+		g.text_input = input_data
 
 		# carry out chosen action
 
@@ -271,13 +288,10 @@ def wholeFile():
 
 			# record starting time
 
-			# now = datetime.now()
-			# timestamp1 = now.strftime("%H:%M:%S")
 			starting_time = datetime.now().time()
 
 			verses = input_data.splitlines() # during post \n >> \r\n
 			output_data = ''
-			# output_data = "%s\n\n" % timestamp1
 			for verse in verses:
 
 				result = MI.identify_meter(
@@ -332,10 +346,22 @@ def wholeFile():
 			output_fn_suffix = '_split'
 
 		# prepare and return output file
-		output_fn = (	input_fn[:input_fn.find('.')] +
-						output_fn_suffix +
-						input_fn[input_fn.find('.'):]
-					)
+
+		def remove_diacritics(filename):
+			normalized = unicodedata.normalize('NFD', filename)
+			without_diacritics = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+			return secure_filename(without_diacritics)
+
+
+		file_extension = input_fn[input_fn.find('.') + 1:]
+		cleaned_input_fn = remove_diacritics(input_fn)
+		if cleaned_input_fn == file_extension:
+			output_fn = f"skrutable_result{output_fn_suffix}.{file_extension}"
+		else:
+			output_fn = (	cleaned_input_fn[:input_fn.find('.')] +
+							f"{output_fn_suffix}.{file_extension}"
+						)
+
 		response = make_response( output_data )
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
@@ -392,7 +418,7 @@ def api_transliterate():
 
 	# assume that GET request is person surfing in browser
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(["input_text", "from_scheme", "to_scheme"], request)
 	if isinstance(inputs, str):
@@ -409,7 +435,7 @@ def api_transliterate():
 def api_scan():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
@@ -443,7 +469,7 @@ def api_scan():
 def api_identify_meter():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
@@ -486,7 +512,7 @@ def api_identify_meter():
 def api_split():
 
 	if request.method == "GET":
-		return render_template("POSTonly.html")
+		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
 		[	"input_text",
@@ -522,7 +548,6 @@ def api_split():
 @app.route('/reset')
 def reset_variables():
 	session["skrutable_action"] = "..."
-	session["text_input"] = ""; session["text_output"] = ""
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -534,22 +559,30 @@ def reset_variables():
 
 @app.route('/ex1')
 def ex1():
-	session["text_input"] = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-	session["text_output"] = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
+	text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+	g.text_input = text_input
+	text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
 मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
+	g.text_output = text_output
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["skrutable_action"] = "transliterate"
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k:session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/ex2')
 def ex2():
-	session["text_input"] = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
+	text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	session["text_output"] = """gggglggl    {m: 14}    [8: mrgl]
+	g.text_input = text_input
+	text_output = """gggglggl    {m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
 llgllglg    {m: 11}    [8: sslg]
@@ -564,6 +597,7 @@ llgllglg    {m: 11}    [8: sslg]
       l      l      g      l      l      g      l      g
 
 anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
+	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -572,13 +606,19 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 	session["meter_label"] = "anuSTubh"
 	session["melody_options"] = ['Madhura Godbole', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh',  'Diwakar Acarya']
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/ex3')
 def ex3():
-	session["text_input"] = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
+	text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
 प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
-	session["text_output"] = """llllllggglgglgg    {m: 22}    [15: nnmyy]
+	g.text_input = text_input
+	text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
@@ -593,6 +633,7 @@ llllllggglgglgg    {m: 22}    [15: nnmyy]
       l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
 
 mālinī [15: nnmyy]"""
+	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -601,7 +642,12 @@ mālinī [15: nnmyy]"""
 	session["meter_label"] = "mAlinI"
 	session["melody_options"] = ['Madhura Godbole', 'Sadananda Das', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh']
 	session.modified = True
-	return redirect(url_for('index'))
+	return render_template(
+		'main.html',
+		text_input=text_input,
+		text_output=text_output,
+		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+	)
 
 @app.route('/about')
 def about_page():
