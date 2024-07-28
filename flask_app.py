@@ -657,9 +657,9 @@ def about_page():
 def tutorial_page():
 	return render_template("tutorial.html")
 
-@app.route('/next')
-def next_page():
-	return render_template("next.html")
+@app.route('/updates')
+def updates_page():
+	return render_template("updates.html")
 
 @app.route('/scanGRETIL')
 def scanGRETIL_page():
