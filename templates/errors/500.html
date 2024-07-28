@@ -6,7 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-        <link rel="shortcut icon" href="#">
 
         <title>skrutable</title>
 
@@ -71,51 +70,28 @@
                 </div><!-- entire top navbar row -->
 
             </div><!-- container -->
-            
+
         </nav>
 
         <div class="container">
 
-					<div class="col-md-6">
+            <h1>Oops! Something Went Wrong</h1>
+        <p>We're sorry, but something went wrong on our end. Please try the following:</p>
+        <ul>
+            <li>Reload the page</li>
+            <li>Go back to the <a href="/">homepage</a> and try again</li>
+        </ul>
+        <p>If the problem persists, please reach out with the following details to help debug the issue:</p>
+        <pre>Path: {{ path }}</pre>
+        <pre>Method: {{ method }}</pre>
+        <pre>Text Input Length: {{ text_input_length }}</pre>
+        <pre>Text Input (first 1000 chars): {{ text_input }}</pre>
+        <pre>Text Output Length: {{ text_output_length }}</pre>
+        <pre>Text Output (first 1000 chars): {{ text_output }}</pre>
+        <pre>Session Data: {{ user_session_data }}</pre>
+        <p>Email me at <a href="mailto:skrutable@gmail.com">skrutable@gmail.com</a> with the above information. You can also directly open a <a href="https://github.com/tylergneill/skrutable_front_end/issues">GitHub issue</a>. Thank you for your patience!</p>
 
-                        <form action="./wholeFile" method="POST" enctype="multipart/form-data">
-
-                            <h1>whole-file processing</h1>
-
-                            <p>Processing mode: {{ skrutable_action }}</p>
-                            
-                            <p>Transliteration settings:</p>
-                            <ul>
-                                <li>input scheme: {{ from_scheme }}</li>
-                                <li>output scheme: {{ to_scheme }} (transliteration output only)</li>
-                            </ul>
-
-                            <p>Scansion settings (1 true, 0 false):</p>
-                            <ul>
-                                <li>show weights: {{ weights }}</li>
-                                <li>show morae: {{ morae }}</li>
-                                <li>show gaṇas: {{ gaRas }}</li>
-                                <li>show alignment: {{ alignment }}</li>
-                            </ul>
-
-                            <p>Meter identification settings:</p>
-                            <ul>
-                                <li>resplit option: {{ resplit_option }}</li>
-                            </ul>
-
-                            <p><input type="file" name="input_file" class="btn btn-block" /></p>
-                            <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
-
-                            <h2>Tips</h2>
-
-                            <p>Use ASCII-only filenames to avoid problems.</p>
-                            <p>Depending on the size of your file, upload and processing may take a few seconds. There's no progress bar yet, but if the computer seems to be working, just be patient, it shouldn't take long.</p>
-                            <p>You can also install and run locally on your own machine. See <a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#using-as-local-web-app">here</a> for how.</p>
-
-                        </form>
-
-					</div>
-        </div><!-- container -->
+        </div><!-- /.container -->
 
     </body>
 
