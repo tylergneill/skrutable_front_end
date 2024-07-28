@@ -23,7 +23,7 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
 def serve_files(name):
 	return send_from_directory('assets', name)
 
-# this helps app work both publicly (e.g. on PythonAnywhere) and locally
+# this helps app work both publicly (e.g. on Digital Ocean) and locally
 CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Skrutable main objects
