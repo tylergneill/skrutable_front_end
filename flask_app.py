@@ -653,9 +653,9 @@ mālinī [15: nnmyy]"""
 def about_page():
 	return render_template("about.html")
 
-@app.route('/tutorial')
-def tutorial_page():
-	return render_template("tutorial.html")
+@app.route('/help')
+def help_page():
+	return render_template("help.html")
 
 @app.route('/updates')
 def updates_page():
