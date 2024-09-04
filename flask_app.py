@@ -46,7 +46,10 @@ melody_variable_names = [
 	"meter_label", "melody_options"
 	]
 extra_option_names = [
-	"avoid_virama", "include_single_pada", "splitter_model",
+	"avoid_virama",
+	"include_single_pada",
+	"preserve_punc",
+	"splitter_model",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -79,6 +82,7 @@ def process_form(form):
 def process_options_form(form):
 	session['avoid_virama'] = int(form.get('avoid_virama', None) is not None)
 	session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)
+	session['preserve_punc'] = int(form.get('preserve_punc', None) is not None)
 	session['splitter_model'] = form.get('splitter_model', 'default')
 	session.modified = True
 
@@ -210,7 +214,7 @@ def index():
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=True
+				prsrv_punc=session['preserve_punc'],
 				)
 
 			g.text_output = T.transliterate(
@@ -336,7 +340,7 @@ def wholeFile():
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=True,
+				prsrv_punc=session['preserve_punc'],
 				wholeFile=True
 				)
 
@@ -534,7 +538,7 @@ def api_split():
 
 	split_result = Spl.split(
 		IAST_input,
-		prsrv_punc=True,
+		prsrv_punc=session['preserve_punc'],
 		)
 
 	result = T.transliterate(
