@@ -52,11 +52,10 @@ SESSION_VARIABLE_NAMES = (
 	)
 
 # for updating session variables and input
-def process_form(form) -> str:
+def process_form(form):
 
 	# get text input
-	text_input = form.get('text_input', '')
-	g.text_input = text_input
+	g.text_input = form.get('text_input', '')
 
 	# first do values of "select" elements (i.e. dropdowns)
 	for var_name in SELECT_ELEMENT_NAMES:
@@ -125,39 +124,35 @@ def index():
 			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 		)
 
-	if request.method == "POST":
+	elif request.method == "POST":
 
-		text_input = process_form(request.form)
-		g.text_input = text_input
+		process_form(request.form)
 
 		# carry out chosen action
-
 		if session["skrutable_action"] == "transliterate":
 
-			text_output = T.transliterate(
-				text_input,
+			g.text_output = T.transliterate(
+				g.text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
 				)
-			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
 		elif session["skrutable_action"] == "scan":
 
 			V = S.scan(
-				text_input,
+				g.text_input,
 				from_scheme=session["from_scheme"]
 				)
 
-			text_output = V.summarize(
+			g.text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
 				show_alignment=session["alignment"],
 				show_label=False
 				)
-			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -168,20 +163,19 @@ def index():
 				)
 
 			V = MI.identify_meter(
-				text_input,
+				g.text_input,
 				resplit_option=r_o,
 				resplit_keep_midpoint=r_k_m,
 				from_scheme=session["from_scheme"]
 				)
 
-			text_output = V.summarize(
+			g.text_output = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],
 				show_gaRas=session["gaRas"],
 				show_alignment=session["alignment"],
 				show_label=True
 				)
-			g.text_output = text_output
 
 			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
 			if short_meter_label in meter_melodies:
@@ -197,7 +191,7 @@ def index():
 		elif session["skrutable_action"] == "split":
 
 			IAST_input = T.transliterate(
-				text_input,
+				g.text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST'
 				)
@@ -207,12 +201,11 @@ def index():
 				prsrv_punc=True
 				)
 
-			text_output = T.transliterate(
+			g.text_output = T.transliterate(
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
 				)
-			g.text_output = text_output
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
@@ -220,11 +213,10 @@ def index():
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
-			split_text = text_input # must already be split
-			output_HTML = prep_split_output_for_Apte(split_text)
+			output_HTML = prep_split_output_for_Apte(g.text_input) # must already be split
 			return render_template(
 				"main_HTML_output.html",
-				text_input=text_input,
+				text_input=g.text_input,
 				output_HTML=output_HTML,
 				**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 			)
@@ -233,8 +225,8 @@ def index():
 
 		return render_template(
 			'main.html',
-			text_input=text_input,
-			text_output=text_output,
+			text_input=g.text_input,
+			text_output=g.text_output,
 			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 		)
 
@@ -247,13 +239,12 @@ def wholeFile():
 	# when form sent from GUI ("whole file" button clicked)
 	if request.form != {}:
 
-		text_input = process_form(request.form)
-		g.text_input = text_input
+		process_form(request.form)
 
 		# send onward to upload form
 		return render_template(
 			"wholeFile.html",
-			text_input=text_input,
+			text_input=g.text_input,
 			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 		)
 
@@ -352,7 +343,6 @@ def wholeFile():
 			without_diacritics = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
 			return secure_filename(without_diacritics)
 
-
 		file_extension = input_fn[input_fn.find('.') + 1:]
 		cleaned_input_fn = remove_diacritics(input_fn)
 		if cleaned_input_fn == file_extension:
@@ -362,7 +352,7 @@ def wholeFile():
 							f"{output_fn_suffix}.{file_extension}"
 						)
 
-		response = make_response( output_data )
+		response = make_response(output_data)
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
 
@@ -389,7 +379,6 @@ def get_inputs(required_args, request):
 	try:
 		if request.files:
 			input_file = request.files["input_file"]
-			input_fn = input_file.filename
 			input_text = input_file.stream.read().decode('utf-8')
 		else: # should all be in either form or json
 			input_text = data_source["input_text"]
@@ -559,11 +548,9 @@ def reset_variables():
 
 @app.route('/ex1')
 def ex1():
-	text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-	g.text_input = text_input
-	text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
+	g.text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+	g.text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
 मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
-	g.text_output = text_output
 	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -572,17 +559,16 @@ def ex1():
 	session.modified = True
 	return render_template(
 		'main.html',
-		text_input=text_input,
-		text_output=text_output,
+		text_input=g.text_input,
+		text_output=g.text_output,
 		**{k:session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 	)
 
 @app.route('/ex2')
 def ex2():
-	text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
+	g.text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	g.text_input = text_input
-	text_output = """gggglggl    {m: 14}    [8: mrgl]
+	g.text_output = """gggglggl    {m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
 llgllglg    {m: 11}    [8: sslg]
@@ -597,7 +583,6 @@ llgllglg    {m: 11}    [8: sslg]
       l      l      g      l      l      g      l      g
 
 anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
-	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -608,17 +593,16 @@ anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
 	session.modified = True
 	return render_template(
 		'main.html',
-		text_input=text_input,
-		text_output=text_output,
+		text_input=g.text_input,
+		text_output=g.text_output,
 		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 	)
 
 @app.route('/ex3')
 def ex3():
-	text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
+	g.text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
 प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
-	g.text_input = text_input
-	text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
+	g.text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
 llllllggglgglgg    {m: 22}    [15: nnmyy]
@@ -633,7 +617,6 @@ llllllggglgglgg    {m: 22}    [15: nnmyy]
       l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
 
 mālinī [15: nnmyy]"""
-	g.text_output = text_output
 	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
 	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
 	session["alignment"] = 1
@@ -644,8 +627,8 @@ mālinī [15: nnmyy]"""
 	session.modified = True
 	return render_template(
 		'main.html',
-		text_input=text_input,
-		text_output=text_output,
+		text_input=g.text_input,
+		text_output=g.text_output,
 		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
 	)
 
