@@ -1,80 +1,13 @@
 <html>
     <head>
-
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-
+        {% include 'head_default.html' %}
         <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.css"/>
         <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.js"></script>
-
-        <title>skrutable</title>
-
     </head>
 
     <body>
 
-        <nav class="navbar navbar-inverse">
-            <div class="container">
-
-                <!-- entire top navbar -->
-                <div class="row">
-
-                    <!-- skrutable brand/reset button and conditionally visible action title -->
-                    <div class="col-md-4">
-
-                        <div class="row">
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-8 col-xs-8">
-                                <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
-                                    <a class="navbar-brand">: {{ skrutable_action }}</a>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- about, tutorial, and conditionally visible example links -->
-                    <div class="col-md-4">
-
-                        <div class="row">
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand float-right" href="./about">about</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand" href="./tutorial">tutorial</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header" id="hiddenExample" style="visibility: hidden">
-                                    <a class="navbar-brand" href="./ex1">(example)</a>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div><!-- entire top navbar row -->
-
-            </div><!-- container -->
-
-        </nav>
+        {% include 'nav.html' %}
 
         <div class="container">
 
@@ -82,7 +15,7 @@
 
             <p>
               🙏 Several scholars skilled in reciting Sanskrit are featured on this website. 🙏
-              When a meter is succcessfully identified in the online interface,
+              When a meter is successfully identified in the online interface,
               all available melodies (see table below) are displayed in a media player at the bottom
               (two examples: <a href="ex2">anuṣṭubh</a>, <a href="ex3">mālinī</a>).
               The first three scholars kindly gave special permission for this use of their privately recorded sound files,
