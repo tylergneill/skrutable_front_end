@@ -1,0 +1,95 @@
+<html>
+    <head>
+{% include 'head_default.html' %}
+        <style>
+            #popover {
+                position: absolute;
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+{% include 'nav.html' %}
+
+        <div class="container">
+
+            <form id="options_form" action="/options" method="POST">
+
+                <h1>options</h1>
+                <br>
+
+                <h2>transliteration</h2>
+                <input type="checkbox" id="avoid_virama" name="avoid_virama" value="avoid_virama" checked>
+                <label for="avoid_virama">avoid virāma (all)</label>
+
+                <h2>meter identification</h2>
+                <input type="checkbox" id="include_single_pada" name="include_single_pada" value="include_single_pada" checked>
+                <label for="include_single_pada">check for single samavṛtta pāda</label>
+
+                <h2>splitting</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <select id="splitter_model" name="splitter_model">
+                            <option value="dharmamitra_2024_09">Dharmamitra Sept 2024 (default)</option>
+                            <option value="2018_splitter">2018 Sanskrit Sandhi and Compound Splitter</option>
+                        </select>
+                    </div>
+                </div>
+
+                <br><br>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <input id="save_options" type="submit" class="btn btn-block btn-primary" value="Save"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div id="popover" class="alert alert-success hidden">options saved</div>
+                    </div>
+                </div>
+
+            </form>
+
+        </div><!-- /.container -->
+
+        <script>
+
+            function initialize_choices() {
+                if ({{ avoid_virama }} != 1) { document.getElementById("avoid_virama").checked = false; }
+                if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
+                document.getElementById("splitter_model").value = "{{ splitter_model }}";
+            }
+            window.onload = function() {
+                initialize_choices();
+            }
+
+            // show success popover on save
+            document.getElementById('options_form').addEventListener('submit', function(event) {
+                // Prevent immediate form submission
+                event.preventDefault();
+
+                // Get the popover element
+                const popover = document.getElementById('popover');
+
+                // Show the popover
+                popover.classList.remove('hidden');
+                popover.classList.add('visible');
+
+                // Delay submission by 1 second (1000 milliseconds)
+                setTimeout(() => {
+                    popover.classList.remove('visible');
+                    popover.classList.add('hidden');
+
+                    // Manually submit the form after delay
+                    event.target.submit();
+                }, 1000);
+            });
+        </script>
+
+    </body>
+
+</html>
