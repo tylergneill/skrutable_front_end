@@ -352,7 +352,7 @@ def wholeFile():
 							f"{output_fn_suffix}.{file_extension}"
 						)
 
-		response = make_response( output_data )
+		response = make_response(output_data)
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
 
