@@ -1,78 +1,11 @@
 <html>
     <head>
-
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous" type="text/css">
-        <link rel="stylesheet" href="/static/custom.css" type="text/css">
-
-        <title>skrutable</title>
-
+        {% include 'head_default.html' %}
     </head>
 
     <body>
 
-        <nav class="navbar navbar-inverse">
-            <div class="container">
-
-                <!-- entire top navbar -->
-                <div class="row">
-
-                    <!-- skrutable brand/reset button and conditionally visible action title -->
-                    <div class="col-md-4">
-
-                        <div class="row">
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand" style="background-color: #000;" href="./reset">skrutable</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-8 col-xs-8">
-                                <div class="navbar-header" id="hiddenActionTitle" style="visibility: hidden">
-                                    <a class="navbar-brand">: {{ skrutable_action }}</a>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- about, tutorial, and conditionally visible example links -->
-                    <div class="col-md-4">
-
-                        <div class="row">
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand float-right" href="./about">about</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header">
-                                    <a class="navbar-brand" href="./tutorial">tutorial</a>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4 col-xs-4">
-                                <div class="navbar-header" id="hiddenExample" style="visibility: hidden">
-                                    <a class="navbar-brand" href="./ex1">(example)</a>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div><!-- entire top navbar row -->
-
-            </div><!-- container -->
-
-        </nav>
+        {% include 'nav.html' %}
 
         <div class="container">
 
@@ -81,51 +14,6 @@
 
            	<h2>summary table</h2>
 			<p>(<a href="{{parent_dir}}/concise_freq_summary.pdf">download pdf</a>)</p>
-
-           	<!-- <div class="col-md-12" style="overflow-x:auto">
-            <table class="table table-striped table-bordered table-dark">
-			  <thead>
-			    <tr>
-			      <th scope="col"></th>
-			      <th scope="col">Bhagavadgītā</th>
-			      <th scope="col">Rāmāyaṇa</th>
-			      <th scope="col">Sattasaī</th>
-			      <th scope="col">Pramāṇavārtika</th>
-			    </tr>
-			  </thead>
-			  <tbody>
-				<tr style="border-bottom: double;">
-			      <th scope="row"></th>
-			      <td>700 verses</td>
-			      <td>19,354</td>
-			      <td>999 (Prakrit)</td>
-			      <td>1,452</td>
-			    </tr>
-			    <tr>
-			      <th scope="row">anuṣṭubh śloka</th>
-			      <td>0</td>
-			      <td>17,000</td>
-			      <td>0</td>
-			      <td>1400</td>
-			    </tr>
-			    <tr>
-			      <th scope="row">āryā</th>
-			      <td>0</td>
-			      <td>1</td>
-			      <td>956</td>
-			      <td>0</td>
-			    </tr>
-			    <tr>
-			      <th scope="row">(table in progress...)</th>
-			      <td>1</td>
-			      <td>0</td>
-			      <td>1</td>
-			      <td>0</td>
-			    </tr>
-			  </tbody>
-
-			</table>
-			</div> -->
 
 			<br/>
 
@@ -153,7 +41,7 @@
 						<th scope="col">Meghadūta</th>
 						<th scope="col">Pañcatantra</th>
 						<th scope="col">Pramāṇavārtika-<br/>alaṃkāra</th>
-            <th scope="col">Pramāṇaviniścaya</th>
+                        <th scope="col">Pramāṇaviniścaya</th>
 						<th scope="col">Raghuvaṃśa</th>
 						<th scope="col">Rāmodanta</th>
 						<th scope="col">Śatakatraya</th>
