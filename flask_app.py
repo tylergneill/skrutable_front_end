@@ -45,10 +45,14 @@ CHECKBOX_ELEMENT_NAMES = [
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
+extra_option_names = [
+	"avoid_virama", "include_single_pada", "splitter_model",
+]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
 	CHECKBOX_ELEMENT_NAMES +
-	melody_variable_names
+	melody_variable_names +
+	extra_option_names
 	)
 
 # for updating session variables and input
@@ -71,6 +75,13 @@ def process_form(form):
 			session[var_name] = 0
 
 	session.modified = True
+
+def process_options_form(form):
+	session['avoid_virama'] = int(form.get('avoid_virama', None) is not None)
+	session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)
+	session['splitter_model'] = form.get('splitter_model', 'default')
+	session.modified = True
+
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
@@ -640,6 +651,20 @@ def about_page():
 @app.route('/help')
 def help_page():
 	return render_template("help.html")
+
+@app.route('/options', methods=["GET", "POST"])
+def options_page():
+	if request.method == "GET":
+		return render_template(
+			"options.html",
+			**{k: session[k] for k in session if k in extra_option_names},
+		)
+	elif request.method == "POST":
+		process_options_form(request.form)
+		return render_template(
+			"options.html",
+			**{k: session[k] for k in session if k in extra_option_names},
+		)
 
 @app.route('/updates')
 def updates_page():
