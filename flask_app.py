@@ -6,6 +6,7 @@ from datetime import datetime, date
 from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
 from werkzeug.utils import secure_filename
 
+from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
 from skrutable.meter_identification import MeterIdentifier
@@ -57,6 +58,14 @@ SESSION_VARIABLE_NAMES = (
 	melody_variable_names +
 	extra_option_names
 	)
+
+def find_front_end_version():
+	version_file_path = 'VERSION'
+	with open(version_file_path, 'r', encoding='utf8') as file:
+		# Assuming the __version__ line is the first line
+		return file.readline().strip().split('=')[1].strip().replace("'", "").replace('"', '')
+
+FRONT_END_VERSION = find_front_end_version()
 
 # for updating session variables and input
 def process_form(form):
@@ -114,14 +123,14 @@ def internal_server_error(error):
 	text_output = g.get("text_output") or ""
 
 	context = {
-        'path': request.path,
-        'method': request.method,
-        'text_input_length': len(text_input),
-        'text_output_length': len(text_output),
-        'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
-        'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
-        'user_session_data': user_session_data
-    }
+		'path': request.path,
+		'method': request.method,
+		'text_input_length': len(text_input),
+		'text_output_length': len(text_output),
+		'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
+		'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
+		'user_session_data': user_session_data
+	}
 
 	return render_template('errors/500.html', **context), 500
 
@@ -584,7 +593,7 @@ def ex1():
 def ex2():
 	g.text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	g.text_output = """gggglggl    {m: 14}    [8: mrgl]
+	g.text_output = """gggglggl	{m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
 llgllglg    {m: 11}    [8: sslg]
@@ -650,7 +659,11 @@ mālinī [15: nnmyy]"""
 
 @app.route('/about')
 def about_page():
-	return render_template("about.html")
+	return render_template(
+		"about.html",
+		back_end_version=BACK_END_VERSION,
+		front_end_version=FRONT_END_VERSION,
+	)
 
 @app.route('/help')
 def help_page():
@@ -682,12 +695,12 @@ def scanGRETIL_page():
 def scanGRETILresults_page():
 	return render_template(	"scanGRETILresults.html",
 		parent_dir = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/",
-	    dir1 = "1_input_raw",
-	    dir2 = "2_input_cleaned",
-	    dir3 = "3_output_raw",
-	    dir4 = "4_output_cleaned",
-	    dir5 = "5_tallies",
-	    dir6 = "6_notes"
+		dir1 = "1_input_raw",
+		dir2 = "2_input_cleaned",
+		dir3 = "3_output_raw",
+		dir4 = "4_output_cleaned",
+		dir5 = "5_tallies",
+		dir6 = "6_notes"
 		)
 
 @app.route('/reciters')
