@@ -60,7 +60,8 @@ SESSION_VARIABLE_NAMES = (
 	)
 
 def find_front_end_version():
-	version_file_path = 'VERSION'
+	base_dir = os.path.dirname(os.path.abspath(__file__))
+	version_file_path = os.path.join(base_dir, 'VERSION')
 	with open(version_file_path, 'r', encoding='utf8') as file:
 		# Assuming the __version__ line is the first line
 		return file.readline().strip().split('=')[1].strip().replace("'", "").replace('"', '')
