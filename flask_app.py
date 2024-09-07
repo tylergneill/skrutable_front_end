@@ -47,10 +47,11 @@ melody_variable_names = [
 	"meter_label", "melody_options"
 	]
 extra_option_names = [
-	"avoid_virama",
-	"include_single_pada",
+	"avoid_virama_indic_scripts",
+	# "avoid_virama_non_indic_scripts",  # TODO: enable later
+	# "include_single_pada",  # TODO: enable later
 	"preserve_punc",
-	"splitter_model",
+	# "splitter_model",  # TODO: enable later
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -90,10 +91,10 @@ def process_form(form):
 	session.modified = True
 
 def process_options_form(form):
-	session['avoid_virama'] = int(form.get('avoid_virama', None) is not None)
-	session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)
+	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
+	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
 	session['preserve_punc'] = int(form.get('preserve_punc', None) is not None)
-	session['splitter_model'] = form.get('splitter_model', 'default')
+	# session['splitter_model'] = form.get('splitter_model', 'default')  # TODO: enable later
 	session.modified = True
 
 
@@ -569,6 +570,8 @@ def reset_variables():
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["meter_label"] = ""
 	session["melody_options"] = []
+	session["avoid_virama_indic_scripts"] = 1
+	session["preserve_punc"] = 1
 	session.modified = True
 	return redirect(url_for('index'))
 
