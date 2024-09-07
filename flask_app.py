@@ -161,8 +161,8 @@ def index():
 			g.text_output = T.transliterate(
 				g.text_input,
 				from_scheme=session["from_scheme"],
-				to_scheme=session["to_scheme"]
 				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -210,7 +210,7 @@ def index():
 				session["meter_label"] = T.transliterate(
 					short_meter_label,
 					from_scheme='IAST',
-					to_scheme='HK'
+					to_scheme='HK',
 					)
 				session["melody_options"] = meter_melodies[ short_meter_label ]
 			else:
@@ -221,7 +221,7 @@ def index():
 			IAST_input = T.transliterate(
 				g.text_input,
 				from_scheme=session["from_scheme"],
-				to_scheme='IAST'
+				to_scheme='IAST',
 				)
 
 			split_result = Spl.split(
@@ -232,8 +232,8 @@ def index():
 			g.text_output = T.transliterate(
 				split_result,
 				from_scheme='IAST',
-				to_scheme=session["to_scheme"]
 				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -295,8 +295,8 @@ def wholeFile():
 			output_data = T.transliterate(
 				input_data,
 				from_scheme=session["from_scheme"],
-				to_scheme=session["to_scheme"]
 				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_transliterated'
@@ -304,7 +304,7 @@ def wholeFile():
 		elif session["skrutable_action"] == "identify meter":
 
 			r_o, r_k_m = parse_complex_resplit_option(
-				complex_resplit_option=session["resplit_option"]
+				complex_resplit_option=session["resplit_option"],
 				)
 
 			# record starting time
@@ -349,20 +349,20 @@ def wholeFile():
 			IAST_input = T.transliterate(
 				input_data,
 				from_scheme=session["from_scheme"],
-				to_scheme='IAST'
+				to_scheme='IAST',
 				)
 
 			split_result = Spl.split(
 				IAST_input,
 				prsrv_punc=session['preserve_punc'],
-				wholeFile=True
+				wholeFile=True,
 				)
 
 			output_data = T.transliterate(
 				split_result,
 				from_scheme='IAST',
-				to_scheme=session["to_scheme"]
 				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_split'
@@ -448,6 +448,7 @@ def api_transliterate():
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
 		to_scheme=inputs["to_scheme"],
+		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 	)
 	return result
 
@@ -548,7 +549,7 @@ def api_split():
 	IAST_input = T.transliterate(
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
-		to_scheme='IAST'
+		to_scheme='IAST',
 	)
 
 	split_result = Spl.split(
@@ -559,8 +560,8 @@ def api_split():
 	result = T.transliterate(
 		split_result,
 		from_scheme='IAST',
-		to_scheme=inputs["to_scheme"]
 		to_scheme=inputs["to_scheme"],
+		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 		)
 
 	return result
