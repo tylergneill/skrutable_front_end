@@ -162,6 +162,7 @@ def index():
 				g.text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -232,6 +233,7 @@ def index():
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -294,6 +296,7 @@ def wholeFile():
 				input_data,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
 				)
 
 			output_fn_suffix = '_transliterated'
@@ -359,6 +362,7 @@ def wholeFile():
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
 				)
 
 			output_fn_suffix = '_split'
@@ -556,6 +560,7 @@ def api_split():
 		split_result,
 		from_scheme='IAST',
 		to_scheme=inputs["to_scheme"]
+		to_scheme=inputs["to_scheme"],
 		)
 
 	return result
