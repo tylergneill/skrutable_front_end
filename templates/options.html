@@ -21,12 +21,18 @@
                 <br>
 
                 <h2>transliteration</h2>
-                <input type="checkbox" id="avoid_virama" name="avoid_virama" value="avoid_virama" checked>
-                <label for="avoid_virama">avoid virāma (all)</label>
+                <input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
+                <label for="avoid_virama_indic_scripts">avoid virāma for Indic scripts</label>
+                <!-- hide until ready
+                <input type="checkbox" id="avoid_virama_non_indic_scripts" name="avoid_virama_non_indic_scripts" value="avoid_virama_non_indic_scripts" checked>
+                <label for="avoid_virama_non_indic_scripts">avoid virāma for non-Indic scripts</label>
+                -->
 
+                <!-- hide until ready
                 <h2>meter identification</h2>
                 <input type="checkbox" id="include_single_pada" name="include_single_pada" value="include_single_pada" checked>
                 <label for="include_single_pada">check for single samavṛtta pāda</label>
+                -->
 
                 <h2>splitting</h2>
                 <div class="row">
@@ -35,6 +41,7 @@
                         <label for="preserve_punc">preserve punctuation</label>
                     </div>
                 </div>
+                <!-- hide until ready
                 <div class="row">
                     <div class="col-md-3">
                         <select id="splitter_model" name="splitter_model">
@@ -43,6 +50,7 @@
                         </select>
                     </div>
                 </div>
+                -->
 
                 <br><br>
 
@@ -65,10 +73,10 @@
         <script>
 
             function initialize_choices() {
-                if ({{ avoid_virama }} != 1) { document.getElementById("avoid_virama").checked = false; }
-                if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
+                if ({{ avoid_virama_indic_scripts }} != 1) { document.getElementById("avoid_virama_indic_scripts").checked = false; }
+                // if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
                 if ({{ preserve_punc }} != 1) { document.getElementById("preserve_punc").checked = false; }
-                document.getElementById("splitter_model").value = "{{ splitter_model }}";
+                // document.getElementById("splitter_model").value = "{{ splitter_model }}";
             }
             window.onload = function() {
                 initialize_choices();
