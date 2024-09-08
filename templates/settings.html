@@ -95,14 +95,14 @@
                 popover.classList.remove('hidden');
                 popover.classList.add('visible');
 
-                // Delay submission by 1 second (1000 milliseconds)
+                // Delay submission by 0.75 seconds (750 milliseconds)
                 setTimeout(() => {
                     popover.classList.remove('visible');
                     popover.classList.add('hidden');
 
                     // Manually submit the form after delay
                     event.target.submit();
-                }, 1000);
+                }, 750);
             });
         </script>
 
