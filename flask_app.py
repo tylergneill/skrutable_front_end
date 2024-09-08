@@ -71,7 +71,6 @@ def process_form(form):
 			session[var_name] = 0
 
 	session.modified = True
-	return text_input
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
