@@ -15,9 +15,9 @@
 
         <div class="container">
 
-            <form id="options_form" action="/options" method="POST">
+            <form id="settings_form" action="/settings" method="POST">
 
-                <h1>options</h1>
+                <h1>settings</h1>
                 <br>
 
                 <h2>transliteration</h2>
@@ -56,7 +56,7 @@
 
                 <div class="row">
                     <div class="col-md-3">
-                        <input id="save_options" type="submit" class="btn btn-block btn-primary" value="Save"/>
+                        <input id="save_settings" type="submit" class="btn btn-block btn-primary" value="Save"/>
                     </div>
 
             </form>
@@ -71,7 +71,7 @@
 
                 <div class="row">
                     <div class="col-md-3">
-                        <div id="popover" class="alert alert-success hidden">options saved</div>
+                        <div id="popover" class="alert alert-success hidden">settings saved</div>
                     </div>
                 </div>
 
@@ -91,7 +91,7 @@
             }
 
             // show success popover on save
-            document.getElementById('options_form').addEventListener('submit', function(event) {
+            document.getElementById('settings_form').addEventListener('submit', function(event) {
                 // Prevent immediate form submission
                 event.preventDefault();
 
