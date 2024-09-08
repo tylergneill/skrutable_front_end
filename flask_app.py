@@ -90,7 +90,7 @@ def process_form(form):
 
 	session.modified = True
 
-def process_options_form(form):
+def process_settings_form(form):
 	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
 	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
 	session['preserve_punc'] = int(form.get('preserve_punc', None) is not None)
@@ -679,17 +679,17 @@ def about_page():
 def help_page():
 	return render_template("help.html")
 
-@app.route('/options', methods=["GET", "POST"])
-def options_page():
+@app.route('/settings', methods=["GET", "POST"])
+def settings_page():
 	if request.method == "GET":
 		return render_template(
-			"options.html",
+			"settings.html",
 			**{k: session[k] for k in session if k in extra_option_names},
 		)
 	elif request.method == "POST":
-		process_options_form(request.form)
+		process_settings_form(request.form)
 		return render_template(
-			"options.html",
+			"settings.html",
 			**{k: session[k] for k in session if k in extra_option_names},
 		)
 
