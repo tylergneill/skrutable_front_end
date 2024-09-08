@@ -1,0 +1,111 @@
+<html>
+    <head>
+{% include 'head_default.html' %}
+        <style>
+            #popover {
+                position: absolute;
+                margin-top: 5px;
+            }
+        </style>
+    </head>
+
+    <body>
+
+{% include 'nav.html' %}
+
+        <div class="container">
+
+            <form id="settings_form" action="/settings" method="POST">
+
+                <h1>settings</h1>
+                <br>
+
+                <h2>transliteration</h2>
+                <input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
+                <label for="avoid_virama_indic_scripts">avoid virāma for Indic scripts</label>
+                <!-- hide until ready
+                <input type="checkbox" id="avoid_virama_non_indic_scripts" name="avoid_virama_non_indic_scripts" value="avoid_virama_non_indic_scripts" checked>
+                <label for="avoid_virama_non_indic_scripts">avoid virāma for non-Indic scripts</label>
+                -->
+
+                <!-- hide until ready
+                <h2>meter identification</h2>
+                <input type="checkbox" id="include_single_pada" name="include_single_pada" value="include_single_pada" checked>
+                <label for="include_single_pada">check for single samavṛtta pāda</label>
+                -->
+
+                <h2>splitting</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="checkbox" id="preserve_punc" name="preserve_punc" value="preserve_punc" checked>
+                        <label for="preserve_punc">preserve punctuation</label>
+                    </div>
+                </div>
+                <!-- hide until ready
+                <div class="row">
+                    <div class="col-md-3">
+                        <select id="splitter_model" name="splitter_model">
+                            <option value="dharmamitra_2024_09">Dharmamitra Sept 2024 (default)</option>
+                            <option value="2018_splitter">2018 Sanskrit Sandhi and Compound Splitter</option>
+                        </select>
+                    </div>
+                </div>
+                -->
+
+                <br><br>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <input id="save_settings" type="submit" class="btn btn-block btn-primary" value="Save"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div id="popover" class="alert alert-success hidden">settings saved</div>
+                    </div>
+                </div>
+
+            </form>
+
+
+        </div><!-- /.container -->
+
+        <script>
+
+            function initialize_choices() {
+                if ({{ avoid_virama_indic_scripts }} != 1) { document.getElementById("avoid_virama_indic_scripts").checked = false; }
+                // if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
+                if ({{ preserve_punc }} != 1) { document.getElementById("preserve_punc").checked = false; }
+                // document.getElementById("splitter_model").value = "{{ splitter_model }}";
+            }
+            window.onload = function() {
+                initialize_choices();
+            }
+
+            // show success popover on save
+            document.getElementById('settings_form').addEventListener('submit', function(event) {
+                // Prevent immediate form submission
+                event.preventDefault();
+
+                // Get the popover element
+                const popover = document.getElementById('popover');
+
+                // Show the popover
+                popover.classList.remove('hidden');
+                popover.classList.add('visible');
+
+                // Delay submission by 0.75 seconds (750 milliseconds)
+                setTimeout(() => {
+                    popover.classList.remove('visible');
+                    popover.classList.add('hidden');
+
+                    // Manually submit the form after delay
+                    event.target.submit();
+                }, 750);
+            });
+        </script>
+
+    </body>
+
+</html>

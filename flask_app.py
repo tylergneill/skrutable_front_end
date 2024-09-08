@@ -6,6 +6,7 @@ from datetime import datetime, date
 from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
 from werkzeug.utils import secure_filename
 
+from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
 from skrutable.meter_identification import MeterIdentifier
@@ -45,11 +46,28 @@ CHECKBOX_ELEMENT_NAMES = [
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
+extra_option_names = [
+	"avoid_virama_indic_scripts",
+	# "avoid_virama_non_indic_scripts",  # TODO: enable later
+	# "include_single_pada",  # TODO: enable later
+	"preserve_punc",
+	# "splitter_model",  # TODO: enable later
+]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
 	CHECKBOX_ELEMENT_NAMES +
-	melody_variable_names
+	melody_variable_names +
+	extra_option_names
 	)
+
+def find_front_end_version():
+	base_dir = os.path.dirname(os.path.abspath(__file__))
+	version_file_path = os.path.join(base_dir, 'VERSION')
+	with open(version_file_path, 'r', encoding='utf8') as file:
+		# Assuming the __version__ line is the first line
+		return file.readline().strip().split('=')[1].strip().replace("'", "").replace('"', '')
+
+FRONT_END_VERSION = find_front_end_version()
 
 # for updating session variables and input
 def process_form(form):
@@ -71,6 +89,14 @@ def process_form(form):
 			session[var_name] = 0
 
 	session.modified = True
+
+def process_settings_form(form):
+	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
+	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
+	session['preserve_punc'] = int(form.get('preserve_punc', None) is not None)
+	# session['splitter_model'] = form.get('splitter_model', 'default')  # TODO: enable later
+	session.modified = True
+
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
@@ -99,14 +125,14 @@ def internal_server_error(error):
 	text_output = g.get("text_output") or ""
 
 	context = {
-        'path': request.path,
-        'method': request.method,
-        'text_input_length': len(text_input),
-        'text_output_length': len(text_output),
-        'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
-        'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
-        'user_session_data': user_session_data
-    }
+		'path': request.path,
+		'method': request.method,
+		'text_input_length': len(text_input),
+		'text_output_length': len(text_output),
+		'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
+		'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
+		'user_session_data': user_session_data
+	}
 
 	return render_template('errors/500.html', **context), 500
 
@@ -135,7 +161,8 @@ def index():
 			g.text_output = T.transliterate(
 				g.text_input,
 				from_scheme=session["from_scheme"],
-				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -183,7 +210,7 @@ def index():
 				session["meter_label"] = T.transliterate(
 					short_meter_label,
 					from_scheme='IAST',
-					to_scheme='HK'
+					to_scheme='HK',
 					)
 				session["melody_options"] = meter_melodies[ short_meter_label ]
 			else:
@@ -194,18 +221,19 @@ def index():
 			IAST_input = T.transliterate(
 				g.text_input,
 				from_scheme=session["from_scheme"],
-				to_scheme='IAST'
+				to_scheme='IAST',
 				)
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=True
+				prsrv_punc=session['preserve_punc'],
 				)
 
 			g.text_output = T.transliterate(
 				split_result,
 				from_scheme='IAST',
-				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -267,7 +295,8 @@ def wholeFile():
 			output_data = T.transliterate(
 				input_data,
 				from_scheme=session["from_scheme"],
-				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_transliterated'
@@ -275,7 +304,7 @@ def wholeFile():
 		elif session["skrutable_action"] == "identify meter":
 
 			r_o, r_k_m = parse_complex_resplit_option(
-				complex_resplit_option=session["resplit_option"]
+				complex_resplit_option=session["resplit_option"],
 				)
 
 			# record starting time
@@ -320,19 +349,20 @@ def wholeFile():
 			IAST_input = T.transliterate(
 				input_data,
 				from_scheme=session["from_scheme"],
-				to_scheme='IAST'
+				to_scheme='IAST',
 				)
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=True,
-				wholeFile=True
+				prsrv_punc=session['preserve_punc'],
+				wholeFile=True,
 				)
 
 			output_data = T.transliterate(
 				split_result,
 				from_scheme='IAST',
-				to_scheme=session["to_scheme"]
+				to_scheme=session["to_scheme"],
+				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_split'
@@ -418,6 +448,7 @@ def api_transliterate():
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
 		to_scheme=inputs["to_scheme"],
+		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 	)
 	return result
 
@@ -518,18 +549,19 @@ def api_split():
 	IAST_input = T.transliterate(
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
-		to_scheme='IAST'
+		to_scheme='IAST',
 	)
 
 	split_result = Spl.split(
 		IAST_input,
-		prsrv_punc=True,
+		prsrv_punc=session['preserve_punc'],
 		)
 
 	result = T.transliterate(
 		split_result,
 		from_scheme='IAST',
-		to_scheme=inputs["to_scheme"]
+		to_scheme=inputs["to_scheme"],
+		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
 		)
 
 	return result
@@ -544,6 +576,8 @@ def reset_variables():
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["meter_label"] = ""
 	session["melody_options"] = []
+	session["avoid_virama_indic_scripts"] = 1
+	session["preserve_punc"] = 1
 	session.modified = True
 	return redirect(url_for('index'))
 
@@ -569,7 +603,7 @@ def ex1():
 def ex2():
 	g.text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
 तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	g.text_output = """gggglggl    {m: 14}    [8: mrgl]
+	g.text_output = """gggglggl	{m: 14}    [8: mrgl]
 gglllglg    {m: 12}    [8: tslg]
 lglllggl    {m: 11}    [8: jsgl]
 llgllglg    {m: 11}    [8: sslg]
@@ -635,11 +669,29 @@ mālinī [15: nnmyy]"""
 
 @app.route('/about')
 def about_page():
-	return render_template("about.html")
+	return render_template(
+		"about.html",
+		back_end_version=BACK_END_VERSION,
+		front_end_version=FRONT_END_VERSION,
+	)
 
 @app.route('/help')
 def help_page():
 	return render_template("help.html")
+
+@app.route('/settings', methods=["GET", "POST"])
+def settings_page():
+	if request.method == "GET":
+		return render_template(
+			"settings.html",
+			**{k: session[k] for k in session if k in extra_option_names},
+		)
+	elif request.method == "POST":
+		process_settings_form(request.form)
+		return render_template(
+			"settings.html",
+			**{k: session[k] for k in session if k in extra_option_names},
+		)
 
 @app.route('/updates')
 def updates_page():
@@ -653,12 +705,12 @@ def scanGRETIL_page():
 def scanGRETILresults_page():
 	return render_template(	"scanGRETILresults.html",
 		parent_dir = "https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/",
-	    dir1 = "1_input_raw",
-	    dir2 = "2_input_cleaned",
-	    dir3 = "3_output_raw",
-	    dir4 = "4_output_cleaned",
-	    dir5 = "5_tallies",
-	    dir6 = "6_notes"
+		dir1 = "1_input_raw",
+		dir2 = "2_input_cleaned",
+		dir3 = "3_output_raw",
+		dir4 = "4_output_cleaned",
+		dir5 = "5_tallies",
+		dir6 = "6_notes"
 		)
 
 @app.route('/reciters')
