@@ -116,6 +116,8 @@ def index():
 	ensure_keys()
 
 	if request.method == "GET":
+		session["skrutable_action"] = "..."
+		session.modified = True
 		return render_template(
 			'main.html',
 			text_input="",
