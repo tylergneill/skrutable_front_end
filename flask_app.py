@@ -71,7 +71,6 @@ def process_form(form):
 			session[var_name] = 0
 
 	session.modified = True
-	return text_input
 
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
@@ -117,6 +116,8 @@ def index():
 	ensure_keys()
 
 	if request.method == "GET":
+		session["skrutable_action"] = "..."
+		session.modified = True
 		return render_template(
 			'main.html',
 			text_input="",
