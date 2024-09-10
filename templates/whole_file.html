@@ -11,7 +11,7 @@
 
 					<div class="col-md-6">
 
-                        <form action="./wholeFile" method="POST" enctype="multipart/form-data">
+                        <form action="./whole_file" method="POST" enctype="multipart/form-data">
 
                             <h1>whole-file processing</h1>
 
@@ -20,10 +20,10 @@
                             <p>Transliteration settings:</p>
                             <ul>
                                 <li>input scheme: {{ from_scheme }}</li>
-                                <li>output scheme: {{ to_scheme }} (transliteration output only)</li>
+                                <li>output scheme: {{ to_scheme }} (transliteration and splitting output only)</li>
                             </ul>
 
-                            <p>Scansion settings (1 true, 0 false):</p>
+                            <p>Scansion settings:</p>
                             <ul>
                                 <li>show weights: {{ weights }}</li>
                                 <li>show morae: {{ morae }}</li>
@@ -36,6 +36,12 @@
                                 <li>resplit option: {{ resplit_option }}</li>
                             </ul>
 
+                            <p>Splitter settings:</p>
+                            <ul>
+                                <li>splitter model: {{ splitter_model }}</li>
+                                <li>preserve punctuation: {{ preserve_punctuation }}</li>
+                            </ul>
+
                             <p><input type="file" name="input_file" class="btn btn-block" /></p>
                             <p><input type="submit" value="Upload" class="btn btn-block btn-primary"/></p>
 
@@ -43,7 +49,6 @@
 
                             <p>Use ASCII-only filenames to avoid problems.</p>
                             <p>Depending on the size of your file, upload and processing may take a few seconds. There's no progress bar yet, but if the computer seems to be working, just be patient, it shouldn't take long.</p>
-                            <p>You can also install and run locally on your own machine. See <a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#using-as-local-web-app">here</a> for how.</p>
 
                         </form>
 

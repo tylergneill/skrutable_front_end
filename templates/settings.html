@@ -37,20 +37,18 @@
                 <h2>splitting</h2>
                 <div class="row">
                     <div class="col-md-3">
-                        <input type="checkbox" id="preserve_punc" name="preserve_punc" value="preserve_punc" checked>
-                        <label for="preserve_punc">preserve punctuation</label>
+                        <input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" checked>
+                        <label for="preserve_punctuation">preserve punctuation</label>
                     </div>
                 </div>
-                <!-- hide until ready
                 <div class="row">
                     <div class="col-md-3">
                         <select id="splitter_model" name="splitter_model">
-                            <option value="dharmamitra_2024_09">Dharmamitra Sept 2024 (default)</option>
-                            <option value="2018_splitter">2018 Sanskrit Sandhi and Compound Splitter</option>
+                            <option value="dharmamitra_2024_sept">Dharmamitra Sept 2024 (default)</option>
+                            <option value="splitter_2018">2018 Sanskrit Sandhi and Compound Splitter</option>
                         </select>
                     </div>
                 </div>
-                -->
 
                 <br><br>
 
@@ -76,8 +74,8 @@
             function initialize_choices() {
                 if ({{ avoid_virama_indic_scripts }} != 1) { document.getElementById("avoid_virama_indic_scripts").checked = false; }
                 // if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
-                if ({{ preserve_punc }} != 1) { document.getElementById("preserve_punc").checked = false; }
-                // document.getElementById("splitter_model").value = "{{ splitter_model }}";
+                if ({{ preserve_punctuation }} != 1) { document.getElementById("preserve_punctuation").checked = false; }
+                document.getElementById("splitter_model").value = "{{ splitter_model }}";
             }
             window.onload = function() {
                 initialize_choices();

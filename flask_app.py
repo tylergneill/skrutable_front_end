@@ -50,8 +50,8 @@ extra_option_names = [
 	"avoid_virama_indic_scripts",
 	# "avoid_virama_non_indic_scripts",  # TODO: enable later
 	# "include_single_pada",  # TODO: enable later
-	"preserve_punc",
-	# "splitter_model",  # TODO: enable later
+	"preserve_punctuation",
+	"splitter_model",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -93,8 +93,8 @@ def process_form(form):
 def process_settings_form(form):
 	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
 	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
-	session['preserve_punc'] = int(form.get('preserve_punc', None) is not None)
-	# session['splitter_model'] = form.get('splitter_model', 'default')  # TODO: enable later
+	session['preserve_punctuation'] = int(form.get('preserve_punctuation', None) is not None)
+	session['splitter_model'] = form.get('splitter_model', 'dharmamitra_2024_sept')
 	session.modified = True
 
 
@@ -226,7 +226,8 @@ def index():
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=session['preserve_punc'],
+				splitter_model=session["splitter_model"],
+				preserve_punctuation=session['preserve_punctuation'],
 				)
 
 			g.text_output = T.transliterate(
@@ -260,8 +261,8 @@ def index():
 		)
 
 
-@app.route("/wholeFile", methods=["POST"])
-def wholeFile():
+@app.route("/whole_file", methods=["POST"])
+def whole_file():
 
 	ensure_keys()
 
@@ -270,11 +271,17 @@ def wholeFile():
 
 		process_form(request.form)
 
+		# use bool values for clearer display
+		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
+		for k,v in session_kwargs.items():
+			if v in [0, 1]:
+				session_kwargs[k] = bool(v)
+
 		# send onward to upload form
 		return render_template(
-			"wholeFile.html",
+			"whole_file.html",
 			text_input=g.text_input,
-			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			**session_kwargs,
 		)
 
 	# when file chosen for upload
@@ -354,8 +361,9 @@ def wholeFile():
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=session['preserve_punc'],
-				wholeFile=True,
+				splitter_model=session["splitter_model"],
+				preserve_punctuation=session['preserve_punctuation'],
+				whole_file=True,
 				)
 
 			output_data = T.transliterate(
@@ -554,7 +562,8 @@ def api_split():
 
 	split_result = Spl.split(
 		IAST_input,
-		prsrv_punc=session['preserve_punc'],
+		splitter_model=session["splitter_model"],
+		preserve_punctuation=session['preserve_punctuation'],
 		)
 
 	result = T.transliterate(
@@ -577,7 +586,8 @@ def reset_variables():
 	session["meter_label"] = ""
 	session["melody_options"] = []
 	session["avoid_virama_indic_scripts"] = 1
-	session["preserve_punc"] = 1
+	session["preserve_punctuation"] = 1
+	session["splitter_model"] = "dharmamitra_2024_sept"
 	session.modified = True
 	return redirect(url_for('index'))
 
