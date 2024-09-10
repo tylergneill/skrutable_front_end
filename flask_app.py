@@ -271,11 +271,17 @@ def wholeFile():
 
 		process_form(request.form)
 
+		# use bool values for clearer display
+		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
+		for k,v in session_kwargs.items():
+			if v in [0, 1]:
+				session_kwargs[k] = bool(v)
+
 		# send onward to upload form
 		return render_template(
 			"wholeFile.html",
 			text_input=g.text_input,
-			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			**session_kwargs,
 		)
 
 	# when file chosen for upload
