@@ -11,6 +11,22 @@
 
             <h1>significant past updates</h1>
 
+            <p>(Sept '24)</p>
+            <ul>
+                <li>added new settings "⚙️" page</li>
+                <li>improved settings reset behavior with separate "↻" button (formerly conflated with "home" action of "skrutable" button)</li>
+                <li>renamed help "?" page (from "tutorial")</li>
+                <li>reorganized nav bar</li>
+                <li>added avoid-virāma setting for Indic-script transliteration output</li>
+                <li>added preserve-punctuation setting for word splitting</li>
+                <li>added new Dharmamitra splitter-model setting</li>
+            </ul>
+
+            <p>(Aug '24)</p>
+            <ul>
+                <li>Updated this updates page</li>
+            </ul>
+
             <p>(Jul '24)</p>
             <ul>
                 <li>completed server migration by deactivating on PythonAnywhere (except separate splitter server)</li>
@@ -52,7 +68,7 @@
 
             <p>(May '22)</p>
             <ul>
-                <li>added hidden /ChicagoApteIAST endpoint to support DSAL online Apte</li>
+                <li>added hidden /ChicagoApteIAST endpoint to supplement searching DSAL online Apte (e.g. https://skrutable.info/ChicagoApteIAST?query=deva)</li>
             </ul>
 
 
@@ -109,10 +125,10 @@
 
             <p>Transliteration</p>
             <ul>
-                <li>expand transliteration virāma-avoidance and adding toggle in front end</li>
+                <li>repair scheme-detection functionality</li>
+                <li>give user more fine-grained control over virāma-avoidance (i.e., which letter combinations)</li>
                 <li>add number-exclusion option to transliteration</li>
                 <li>add encoding-standardization function to front-end</li>
-                <li>repair scheme-detection functionality</li>
                 <li>add alphabetization function to front-end</li>
             </ul>
 
@@ -120,20 +136,19 @@
             <ul>
                 <li>improve partial meter identification: samavṛtta, ardhasamavṛtta, jāti</li>
                 <li>add TSV summary output options for meter identification</li>
-                <li>implement metrical material detection (long-term)</li>
+                <li>implement metrical material detection (maybe)</li>
             </ul>
 
             <p>Splitting</p>
             <ul>
-                <li>add toggle for Splitter preserve-punctuation in front end</li>
-                <li>fix small bug: Splitter cuts off buffer-final numbers</li>
-                <li>migrate splitter server to Digital Ocean</li>
-                <li>refactor splitter server to improve response time</li>
+                <li>fix small bug: Splitter 2018 cuts off buffer-final numbers</li>
+                <li>migrate Splitter 2018 server to Digital Ocean (maybe)</li>
+                <li>refactor Splitter 2018 server to improve response time (maybe)</li>
             </ul>
 
             <p>General</p>
             <ul>
-                <li>add progress bar to estimate whole-file processing time</li>
+                <li>add progress bar to estimate processing time</li>
                 <li>continue cleaning up code and improving documentation</li>
                 <li>implement more comprehensive testing with pytest</li>
             </ul>
