@@ -261,8 +261,8 @@ def index():
 		)
 
 
-@app.route("/wholeFile", methods=["POST"])
-def wholeFile():
+@app.route("/whole_file", methods=["POST"])
+def whole_file():
 
 	ensure_keys()
 
@@ -279,7 +279,7 @@ def wholeFile():
 
 		# send onward to upload form
 		return render_template(
-			"wholeFile.html",
+			"whole_file.html",
 			text_input=g.text_input,
 			**session_kwargs,
 		)
@@ -361,10 +361,9 @@ def wholeFile():
 
 			split_result = Spl.split(
 				IAST_input,
-				prsrv_punc=session['preserve_punc'],
-				wholeFile=True,
 				splitter_model=session["splitter_model"],
 				preserve_punctuation=session['preserve_punctuation'],
+				whole_file=True,
 				)
 
 			output_data = T.transliterate(
