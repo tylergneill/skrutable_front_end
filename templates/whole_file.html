@@ -20,7 +20,7 @@
                             <p>Transliteration settings:</p>
                             <ul>
                                 <li>input scheme: {{ from_scheme }}</li>
-                                <li>output scheme: {{ to_scheme }} (transliteration output only)</li>
+                                <li>output scheme: {{ to_scheme }} (transliteration and splitting output only)</li>
                             </ul>
 
                             <p>Scansion settings (1 true, 0 false):</p>
@@ -34,6 +34,12 @@
                             <p>Meter identification settings:</p>
                             <ul>
                                 <li>resplit option: {{ resplit_option }}</li>
+                            </ul>
+
+                            <p>Splitter settings:</p>
+                            <ul>
+                                <li>splitter model: {{ splitter_model }}</li>
+                                <li>preserve punctuation: {{ preserve_punctuation }}</li>
                             </ul>
 
                             <p><input type="file" name="input_file" class="btn btn-block" /></p>
