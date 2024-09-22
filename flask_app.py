@@ -50,6 +50,7 @@ extra_option_names = [
 	"avoid_virama_indic_scripts",
 	# "avoid_virama_non_indic_scripts",  # TODO: enable later
 	# "include_single_pada",  # TODO: enable later
+	"preserve_compound_hyphens",
 	"preserve_punctuation",
 	"splitter_model",
 ]
@@ -94,6 +95,7 @@ def process_settings_form(form):
 	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
 	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
 	session['preserve_punctuation'] = int(form.get('preserve_punctuation', None) is not None)
+	session['preserve_compound_hyphens'] = int(form.get('preserve_compound_hyphens', None) is not None)
 	session['splitter_model'] = form.get('splitter_model', 'dharmamitra_2024_sept')
 	session.modified = True
 
@@ -227,6 +229,7 @@ def index():
 			split_result = Spl.split(
 				IAST_input,
 				splitter_model=session["splitter_model"],
+				preserve_compound_hyphens=session['preserve_compound_hyphens'],
 				preserve_punctuation=session['preserve_punctuation'],
 				)
 
@@ -362,6 +365,7 @@ def whole_file():
 			split_result = Spl.split(
 				IAST_input,
 				splitter_model=session["splitter_model"],
+				preserve_compound_hyphens=session['preserve_compound_hyphens'],
 				preserve_punctuation=session['preserve_punctuation'],
 				whole_file=True,
 				)
@@ -563,6 +567,7 @@ def api_split():
 	split_result = Spl.split(
 		IAST_input,
 		splitter_model=session["splitter_model"],
+		preserve_compound_hyphens=session['preserve_compound_hyphens'],
 		preserve_punctuation=session['preserve_punctuation'],
 		)
 
@@ -586,6 +591,7 @@ def reset_variables():
 	session["meter_label"] = ""
 	session["melody_options"] = []
 	session["avoid_virama_indic_scripts"] = 1
+	session["preserve_compound_hyphens"] = 1
 	session["preserve_punctuation"] = 1
 	session["splitter_model"] = "dharmamitra_2024_sept"
 	session.modified = True
