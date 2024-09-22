@@ -164,7 +164,7 @@ def index():
 				g.text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"],
-				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -237,7 +237,7 @@ def index():
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"],
-				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -306,7 +306,7 @@ def whole_file():
 				input_data,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"],
-				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_transliterated'
@@ -374,7 +374,7 @@ def whole_file():
 				split_result,
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"],
-				avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
 			output_fn_suffix = '_split'
@@ -460,7 +460,7 @@ def api_transliterate():
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
 		to_scheme=inputs["to_scheme"],
-		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+		avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 	)
 	return result
 
@@ -575,7 +575,7 @@ def api_split():
 		split_result,
 		from_scheme='IAST',
 		to_scheme=inputs["to_scheme"],
-		avoid_virAma_indic_scripts=session["avoid_virama_indic_scripts"],
+		avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 		)
 
 	return result
