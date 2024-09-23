@@ -49,6 +49,13 @@
                         </select>
                     </div>
                 </div>
+                <!-- show conditionally, based on value of above select -->
+                <div class="row" id="preserve_compound_hyphens_row" style="display: none;">
+                    <div class="col-md-3">
+                        <input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" checked>
+                        <label for="preserve_compound_hyphens">preserve compound hyphens</label>
+                    </div>
+                </div>
 
                 <br><br>
 
@@ -75,11 +82,26 @@
                 if ({{ avoid_virama_indic_scripts }} != 1) { document.getElementById("avoid_virama_indic_scripts").checked = false; }
                 // if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
                 if ({{ preserve_punctuation }} != 1) { document.getElementById("preserve_punctuation").checked = false; }
+                if ({{ preserve_compound_hyphens }} != 1) { document.getElementById("preserve_compound_hyphens").checked = false; }
                 document.getElementById("splitter_model").value = "{{ splitter_model }}";
+                toggle_preserve_compound_hyphens();
             }
+
+            function toggle_preserve_compound_hyphens() {
+                const splitterModel = document.getElementById("splitter_model").value;
+                const preserveCompoundHyphensRow = document.getElementById("preserve_compound_hyphens_row");
+                if (splitterModel === "dharmamitra_2024_sept") {
+                    preserveCompoundHyphensRow.style.display = "block";
+                } else {
+                    preserveCompoundHyphensRow.style.display = "none";
+                }
+            }
+
             window.onload = function() {
                 initialize_choices();
             }
+
+            document.getElementById("splitter_model").addEventListener("change", toggle_preserve_compound_hyphens);
 
             // show success popover on save
             document.getElementById('settings_form').addEventListener('submit', function(event) {
