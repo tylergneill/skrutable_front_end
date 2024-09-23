@@ -20,7 +20,7 @@
             <a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#transliteration-schemes"><b>skrutable</b> manual on Github</a>.
             You can also use the "Swap" buttons to move things around as needed.</p>
 
-            <p>Now click between the "Transliterate", "Scan", and "Identify Meter" buttons to calculate and display <b>skrutable</b>'s three basic outputs.</p>
+            <p>Now click between the "Transliterate", "Scan", "Identify Meter", and "Split Words" buttons to calculate and display <b>skrutable</b>'s four basic outputs.</p>
 
             <p>Scansion is line-by-line, and it doesn't matter how many lines or how much content you enter.
             This mode is especially good for fiddling and exploring.</p>
@@ -43,30 +43,38 @@
             <a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#scansion-and-meter-identification">
             <b>skrutable</b> manual on GitHub</a> provides some very basic pointers.</p>
 
-            <p>And to automatically split the compounds "dharmakṣetre" and "kurukṣetre" and the sandhi-coalescence "caiva", just click "Split Words".
-            This function is relatively slow for single examples, and its results are not always 100% correct (see the <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">Hellwig-Nehrdich paper</a> for details), but it's quite useful nonetheless.
-            This is the first time it's been easily available online, and you can enter material of any length, even with punctuation. The output is also transliterated.</p>
+            <p>Finally, you can do sandhi and compound splitting using neural-net ML models trained on the Digital Corpus of Sanskrit.
+                (This is the work of Oliver Hellwig and Sebastian Nehrdich, who have kindly made their models available for use here.
+                See <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp">2018</a>,
+                and <a href="https://dharmamitra.org/about">2024 (publications forthcoming)</a> to learn more about this work of theirs.)
+                Skrutable allows you to input Sanskrit text of virtually any length, with punctuation,
+                and it will return a very handy plain-text output, including with hyphens to show compounds (2024 model only).
+                As with metrical functions, transliteration is also taken care of for you, too.
+                The results are not always 100% correct, but I think you'll see, it's quite useful nonetheless!
+            </p>
 
             <h2>whole-file processing</h2>
 
-            <p>If you're feeling more ambitious, you can also do transliteration, meter identification, and sandhi/compound splitting on whole files.</p>
+            <p>Skrutable's input window can handle a lot, up to 64mb, but if you're working with large amounts of text,
+                you may prefer to upload your input as a file instead.</p>
 
-            <p>For transliteration, just set your input and output schemes as normal, but then instead of hitting the "Transliterate" button, hit the "whole file" button underneath.
-            Continue through the next screen to upload your file, then look for the output in your usual download location.</p>
+            <p>To do this for transliteration, just set your input and output schemes as normal,
+                but then instead of hitting the "Transliterate" button, hit the "whole file" button underneath.
+                Continue through the next screen to upload your file,
+                then look for the output in your usual download location.</p>
 
-            <p>Whole-file sandhi/compound splitting is exactly as easy.
-            Note also that it is relatively fast,
-            and not at all as slow as single-example processing would lead you to expect.</p>
+            <p>Whole-file word splitting is exactly as easy. Just choose your desired settings, then using the "whole file" button.
+                Note, though, that processing is considerably slower with the more accurate 2024 model than with the older 2018 one.</p>
 
-            <p>Doing whole-file metrical analysis is also similar, but the input must be more carefully prepared, with one verse per line and no extraneous material.
-            See the <a href="./scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.</p>
-
-            <p>If you want to try out the whole-file meter identification function right away, you can use these prepared input files:
-            <ul>
-                <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-10_input_cleaned.txt">BhG first ten</a></li>
-                <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-100_input_cleaned.txt">BhG first hundred</a></li>
-                <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG all</a></li>
-            </ul>
+            <p>Doing whole-file metrical analysis is also somewhat similar, but the input must be more carefully prepared,
+                with exactly one verse per line and no extraneous material.
+                See the <a href="./scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.
+                Some Bhagavadgītā files are provided below as good starter examples:
+                <ul>
+                    <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-10_input_cleaned.txt">BhG first ten</a></li>
+                    <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-100_input_cleaned.txt">BhG first hundred</a></li>
+                    <li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG all</a></li>
+                </ul>
             </p>
 
         </div><!-- /.container -->
