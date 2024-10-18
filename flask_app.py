@@ -4,7 +4,9 @@ import unicodedata
 
 from datetime import datetime, date
 from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
+from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import BadGateway
 
 from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
@@ -137,6 +139,24 @@ def internal_server_error(error):
 	}
 
 	return render_template('errors/500.html', **context), 500
+
+@app.errorhandler(502)
+def bad_gateway_error(error):
+	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
+	text_input = g.get("text_input") or ""
+	text_output = g.get("text_output") or ""
+
+	context = {
+		'path': request.path,
+		'method': request.method,
+		'text_input_length': len(text_input),
+		'text_output_length': len(text_output),
+		'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
+		'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
+		'user_session_data': user_session_data
+	}
+
+	return render_template('errors/502.html', **context), 502
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -362,13 +382,20 @@ def whole_file():
 				to_scheme='IAST',
 				)
 
-			split_result = Spl.split(
-				IAST_input,
-				splitter_model=session["splitter_model"],
-				preserve_compound_hyphens=session['preserve_compound_hyphens'],
-				preserve_punctuation=session['preserve_punctuation'],
-				whole_file=True,
-				)
+			try:
+				split_result = Spl.split(
+					IAST_input,
+					splitter_model=session["splitter_model"],
+					preserve_compound_hyphens=session['preserve_compound_hyphens'],
+					preserve_punctuation=session['preserve_punctuation'],
+					whole_file=True,
+					)
+			except HTTPError as e:
+				if e.response.status_code == 413:
+					raise BadGateway("Upstream service returned 413 Request Entity Too Large")
+					# TODO: have Skrutable backend handle batching to relieve burden on upstream server
+				else:
+					raise
 
 			output_data = T.transliterate(
 				split_result,
