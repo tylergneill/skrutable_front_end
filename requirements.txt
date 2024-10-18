@@ -31,10 +31,14 @@ numpy==2.1.2
 packaging==24.1
     # via gunicorn
 requests==2.32.3
-    # via skrutable
+    # via
+    #   -r requirements.in
+    #   skrutable
 skrutable==2.0.0
     # via -r requirements.in
 urllib3==2.2.3
     # via requests
 werkzeug==3.0.4
-    # via flask
+    # via
+    #   -r requirements.in
+    #   flask
