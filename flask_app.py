@@ -11,7 +11,7 @@ from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
 from skrutable.meter_identification import MeterIdentifier
 from skrutable.meter_patterns import meter_melodies
-from skrutable.splitter.wrapper import Splitter
+from skrutable.splitting import Splitter
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
