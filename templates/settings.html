@@ -57,6 +57,14 @@
                     </div>
                 </div>
 
+                <h2>general</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" id="xml_option" name="xml_option" value="xml_option" checked>
+                        <label for="xml_option">process input as xml (transliteration and splitting only)</label>
+                    </div>
+                </div>
+
                 <br><br>
 
                 <div class="row">
@@ -84,6 +92,7 @@
                 if ({{ preserve_punctuation }} != 1) { document.getElementById("preserve_punctuation").checked = false; }
                 if ({{ preserve_compound_hyphens }} != 1) { document.getElementById("preserve_compound_hyphens").checked = false; }
                 document.getElementById("splitter_model").value = "{{ splitter_model }}";
+                if ({{ xml_option }} != 1) { document.getElementById("xml_option").checked = false; }
                 toggle_preserve_compound_hyphens();
             }
 
