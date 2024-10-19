@@ -48,7 +48,7 @@ CHECKBOX_ELEMENT_NAMES = [
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
-extra_option_names = [
+EXTRA_OPTION_NAMES = [
 	"avoid_virama_indic_scripts",
 	# "avoid_virama_non_indic_scripts",  # TODO: enable later
 	# "include_single_pada",  # TODO: enable later
@@ -61,7 +61,7 @@ SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
 	CHECKBOX_ELEMENT_NAMES +
 	melody_variable_names +
-	extra_option_names
+	EXTRA_OPTION_NAMES
 	)
 
 def find_front_end_version():
@@ -84,10 +84,11 @@ def process_form(form):
 		# print(var_name, request.form[var_name])
 		session[var_name] = form[var_name]
 
-	# then do values of "checkbox" elements for scansion detail
-	scan_detail_option_choices = request.form.getlist("scan_detail")
+	# then do values of "checkbox" elements
+	scan_detail_option_choices = form.getlist("scan_detail")
+	true_checkboxes = scan_detail_option_choices
 	for var_name in CHECKBOX_ELEMENT_NAMES:
-		if var_name in scan_detail_option_choices:
+		if var_name in true_checkboxes:
 			session[var_name] = 1
 		else:
 			session[var_name] = 0
@@ -741,13 +742,13 @@ def settings_page():
 	if request.method == "GET":
 		return render_template(
 			"settings.html",
-			**{k: session[k] for k in session if k in extra_option_names},
+			**{k: session[k] for k in session if k in EXTRA_OPTION_NAMES},
 		)
 	elif request.method == "POST":
 		process_settings_form(request.form)
 		return render_template(
 			"settings.html",
-			**{k: session[k] for k in session if k in extra_option_names},
+			**{k: session[k] for k in session if k in EXTRA_OPTION_NAMES},
 		)
 
 @app.route('/updates')
