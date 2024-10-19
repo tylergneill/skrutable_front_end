@@ -55,6 +55,7 @@ extra_option_names = [
 	"preserve_compound_hyphens",
 	"preserve_punctuation",
 	"splitter_model",
+	"xml_option",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -99,6 +100,7 @@ def process_settings_form(form):
 	session['preserve_punctuation'] = int(form.get('preserve_punctuation', None) is not None)
 	session['preserve_compound_hyphens'] = int(form.get('preserve_compound_hyphens', None) is not None)
 	session['splitter_model'] = form.get('splitter_model', 'dharmamitra_2024_sept')
+	session['xml_option'] = int(form.get('xml_option', None) is not None)
 	session.modified = True
 
 
@@ -185,6 +187,7 @@ def index():
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				xml_input=session["xml_option"],
 				)
 
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
@@ -244,6 +247,7 @@ def index():
 				g.text_input,
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST',
+				xml_input=session["xml_option"],
 				)
 
 			split_result = Spl.split(
@@ -251,6 +255,7 @@ def index():
 				splitter_model=session["splitter_model"],
 				preserve_compound_hyphens=session['preserve_compound_hyphens'],
 				preserve_punctuation=session['preserve_punctuation'],
+				xml_input=session["xml_option"],
 				)
 
 			g.text_output = T.transliterate(
@@ -258,6 +263,7 @@ def index():
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				xml_input=session["xml_option"],
 				)
 
 			# TODO: Remove once 2018 splitter server restored
@@ -331,6 +337,7 @@ def whole_file():
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				xml_input=session["xml_option"],
 				)
 
 			output_fn_suffix = '_transliterated'
@@ -384,6 +391,7 @@ def whole_file():
 				input_data,
 				from_scheme=session["from_scheme"],
 				to_scheme='IAST',
+				xml_input=session["xml_option"],
 				)
 
 			try:
@@ -392,6 +400,7 @@ def whole_file():
 					splitter_model=session["splitter_model"],
 					preserve_compound_hyphens=session['preserve_compound_hyphens'],
 					preserve_punctuation=session['preserve_punctuation'],
+					xml_input=session["xml_option"],
 					)
 			except HTTPError as e:
 				if e.response.status_code == 413:
@@ -405,6 +414,7 @@ def whole_file():
 				from_scheme='IAST',
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				xml_input=session["xml_option"],
 				)
 
 			output_fn_suffix = '_split'
@@ -624,6 +634,7 @@ def reset_variables():
 	session["preserve_compound_hyphens"] = 1
 	session["preserve_punctuation"] = 1
 	session["splitter_model"] = "dharmamitra_2024_sept"
+	session["xml_option"] = 0
 	session.modified = True
 	return redirect(url_for('index'))
 
