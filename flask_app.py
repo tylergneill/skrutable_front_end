@@ -388,7 +388,6 @@ def whole_file():
 					splitter_model=session["splitter_model"],
 					preserve_compound_hyphens=session['preserve_compound_hyphens'],
 					preserve_punctuation=session['preserve_punctuation'],
-					whole_file=True,
 					)
 			except HTTPError as e:
 				if e.response.status_code == 413:
