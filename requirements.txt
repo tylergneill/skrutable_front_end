@@ -34,7 +34,7 @@ requests==2.32.3
     # via
     #   -r requirements.in
     #   skrutable
-skrutable==2.0.2
+skrutable==2.0.3
     # via -r requirements.in
 urllib3==2.2.3
     # via requests
