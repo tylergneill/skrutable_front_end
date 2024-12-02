@@ -260,6 +260,10 @@ def index():
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 
+			# TODO: Remove once 2018 splitter server restored
+			if split_result.startswith("The server for the 2018 model is temporarily down"):
+				g.text_output = split_result
+
 			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
 
 		elif session["skrutable_action"] == "apte links":
