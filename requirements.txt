@@ -6,7 +6,7 @@
 #
 blinker==1.9.0
     # via flask
-certifi==2024.8.30
+certifi==2024.12.14
     # via requests
 charset-normalizer==3.4.0
     # via requests
@@ -34,7 +34,7 @@ requests==2.32.3
     # via
     #   -r requirements.in
     #   skrutable
-skrutable==2.1.0-rc4
+skrutable==2.1.0-rc5
     # via -r requirements.in
 urllib3==2.2.3
     # via requests
