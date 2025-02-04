@@ -3,7 +3,7 @@ import re
 import unicodedata
 
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, url_for, session, send_from_directory, make_response, g
+from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, make_response, g
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway
@@ -15,11 +15,21 @@ from skrutable.meter_identification import MeterIdentifier
 from skrutable.meter_patterns import meter_melodies
 from skrutable.splitting import Splitter
 
-app = Flask(__name__)
+# overcome issue with Werkzeug 3.1 where max_form_memory_size default 500 KB causes 413 Request Entity Too Large
+
+MAX_CONTENT_LENGTH_MB = 64
+MB_SIZE = 1024 * 1024
+
+class CustomRequest(Request):
+    max_form_memory_size = MAX_CONTENT_LENGTH_MB * MB_SIZE
+
+class CustomFlask(Flask):
+    request_class = CustomRequest
+
+app = CustomFlask(__name__)
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
-MAX_CONTENT_LENGTH_MB = 64
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * MB_SIZE
 
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
@@ -785,3 +795,6 @@ def prep_split_output_for_Apte(split_text):
 			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
 	output_HTML += "</p>"
 	return output_HTML
+
+if __name__ == '__main__':
+    app.run(debug=True)
