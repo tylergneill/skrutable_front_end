@@ -785,3 +785,6 @@ def prep_split_output_for_Apte(split_text):
 			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
 	output_HTML += "</p>"
 	return output_HTML
+
+if __name__ == '__main__':
+    app.run(debug=True)
