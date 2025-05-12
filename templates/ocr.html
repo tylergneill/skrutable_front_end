@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include 'head_default.html' %}
+<style>
+  .dropzone {
+    border: 2px dashed #ccc; border-radius: 6px;
+    padding: 40px; text-align: center;
+    cursor: pointer; color: #777;
+  }
+  .dropzone.dragover { background: #f0f8ff; }
+</style>
+</head>
+
+<body>
+
+{% include 'nav.html' %}
+
+<div class="container">
+  <div class="col-md-6">
+
+    <form action="/ocr" method="POST" enctype="multipart/form-data" id="ocrForm">
+
+      <h1>PDF → Google Vision OCR</h1>
+
+      <!-- PDF input via drop zone -->
+      <input type="file" name="pdf_file" id="fileInputPdf" accept=".pdf" style="display:none" required>
+      <div class="dropzone" id="dropzone">
+        <p>Drop a PDF here or click to select.</p>
+      </div>
+
+      <!-- Google API key -->
+      <div class="form-group">
+        <label for="googleApiKey">Google Vision API key (required)</label>
+        <input type="text" name="google_api_key"
+               id="googleApiKey"
+               class="form-control"
+               minlength="39" maxlength="39" required>
+      </div>
+
+      <p><input type="submit" value="Start OCR" class="btn btn-block btn-primary"></p>
+
+      <h2>Tips</h2>
+      <p>
+          Files up to ~64 MB are accepted.
+          There is currently no progress bar, so please be patient to allow processing to finish.
+
+          You may wish to crop the individual pages of your PDF to get more relevant results.
+
+          Use ASCII-only filenames to avoid problems.
+      </p>
+
+    </form>
+
+  </div>
+</div><!-- /.container -->
+
+<script>
+/* very small drop‑zone helper */
+const dz   = document.getElementById('dropzone');
+const file = document.getElementById('fileInputPdf');
+
+dz.addEventListener('click', () => file.click());
+file.addEventListener('change', () => dz.textContent = file.files[0].name);
+
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    file.files = e.dataTransfer.files;
+    dz.textContent = file.files[0].name;
+  }
+});
+</script>
+
+</body>
+</html>

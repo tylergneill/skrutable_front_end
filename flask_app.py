@@ -1,12 +1,17 @@
 import os
 import re
+import tempfile
 import unicodedata
-
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, make_response, g
+from pathlib import Path
+
+from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, \
+	make_response, g, jsonify
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway
+
+from ocr_service import run_google_ocr
 
 from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
@@ -438,6 +443,29 @@ def whole_file():
 		response = make_response(output_data)
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
+
+@app.route("/ocr", methods=["GET", "POST"])
+def ocr():
+    if request.method == "GET":
+        return render_template("ocr.html")
+
+    # ---------- POST ----------
+    api_key   = request.form.get("google_api_key", "").strip()
+    pdf_file  = request.files.get("pdf_file")
+
+    if not api_key or not pdf_file:
+        return "PDF and API key are required.", 400
+
+    with tempfile.TemporaryDirectory() as td:
+        pdf_path = Path(td) / secure_filename(pdf_file.filename)
+        pdf_file.save(pdf_path)
+
+        try:
+            text = run_google_ocr(pdf_path, api_key)   # your Vision helper
+        except Exception as exc:
+            return f"OCR failed: {exc}", 500
+
+    return jsonify({"text": text})
 
 @app.route('/api', methods=["GET"])
 def api_landing():
