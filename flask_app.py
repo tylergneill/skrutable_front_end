@@ -446,26 +446,26 @@ def whole_file():
 
 @app.route("/ocr", methods=["GET", "POST"])
 def ocr():
-    if request.method == "GET":
-        return render_template("ocr.html")
+	if request.method == "GET":
+		return render_template("ocr.html")
 
-    # ---------- POST ----------
-    api_key   = request.form.get("google_api_key", "").strip()
-    pdf_file  = request.files.get("pdf_file")
+	# ---------- POST ----------
+	api_key   = request.form.get("google_api_key", "").strip()
+	pdf_file  = request.files.get("pdf_file")
 
-    if not api_key or not pdf_file:
-        return "PDF and API key are required.", 400
+	if not api_key or not pdf_file:
+		return "PDF and API key are required.", 400
 
-    with tempfile.TemporaryDirectory() as td:
-        pdf_path = Path(td) / secure_filename(pdf_file.filename)
-        pdf_file.save(pdf_path)
+	with tempfile.TemporaryDirectory() as td:
+		pdf_path = Path(td) / secure_filename(pdf_file.filename)
+		pdf_file.save(pdf_path)
 
-        try:
-            text = run_google_ocr(pdf_path, api_key)   # your Vision helper
-        except Exception as exc:
-            return f"OCR failed: {exc}", 500
+		try:
+			text = run_google_ocr(pdf_path, api_key)
+		except Exception as exc:
+			return f"OCR failed: {exc}", 500
 
-    return jsonify({"text": text})
+	return jsonify({"text": text})
 
 @app.route('/api', methods=["GET"])
 def api_landing():
