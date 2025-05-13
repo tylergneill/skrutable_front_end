@@ -3,6 +3,5 @@ gunicorn
 requests
 skrutable
 werkzeug
-natsort
 google-cloud-vision
 google-cloud-storage
