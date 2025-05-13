@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% include 'head_default.html' %}
+  <title>Google Cloud Vision API Setup</title>
+</head>
+<body>
+  {% include 'nav.html' %}
+  <div class="container mt-4">
+    <h1>How to Set Up Your Google Cloud Vision API Key</h1>
+
+    <ol class="mt-4">
+      <li>
+        <strong>Go to the Google Cloud Console:</strong><br>
+        <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a>
+      </li>
+      <li>
+        <strong>Create a new project:</strong><br>
+        Click the project dropdown in the top nav, then click <em>New Project</em>. Give it any name (e.g., <code>OCR Tool</code>) and click <em>Create</em>.
+      </li>
+      <li>
+        <strong>Enable the Vision API:</strong><br>
+        In the left sidebar, go to <em>APIs & Services → Library</em>. Search for “Vision API.” Click it, then click <em>Enable</em>.
+      </li>
+      <li>
+        <strong>Create an API key:</strong><br>
+        Go to <em>APIs & Services → Credentials</em>. Click <em>+ Create Credentials</em> and choose <em>API key</em>.<br>
+        A long string will appear — this is your API key. Copy it.
+      </li>
+      <li>
+        <strong>Paste the API key into the OCR tool</strong><br>
+        Return to the main page and paste your key into the input labeled “Google Vision API key.”
+      </li>
+      <li>
+        <strong>(Optional) Restrict the key:</strong><br>
+        On the key management screen, click <em>Restrict key</em> to:
+        <ul>
+          <li>Limit usage to the Vision API</li>
+          <li>Add IP address restrictions (if desired)</li>
+          <li>Set usage quotas</li>
+        </ul>
+      </li>
+    </ol>
+
+    <p class="mt-4">
+      Once your key is ready, return to the <a href="/">OCR upload page</a> and run your job.
+    </p>
+  </div>
+</body>
+</html>
