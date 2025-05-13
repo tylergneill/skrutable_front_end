@@ -475,6 +475,10 @@ def ocr():
 		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
 		return response
 
+@app.route("/api_key_instructions")
+def api_key_instructions():
+    return render_template("api_key_instructions.html")
+
 @app.route('/api', methods=["GET"])
 def api_landing():
 	return render_template("api.html")
