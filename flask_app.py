@@ -467,7 +467,13 @@ def ocr():
 		except Exception as exc:
 			return f"OCR failed: {exc}", 500
 
-	return jsonify({"text": text})
+	if request.form.get("display_inline") == "yes":
+		return render_template("ocr_result.html", text=text)
+	else:
+		response = make_response(text)
+		response.headers["Content-Type"] = "text/plain"
+		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
+		return response
 
 @app.route('/api', methods=["GET"])
 def api_landing():
