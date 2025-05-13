@@ -33,11 +33,13 @@
 
       <!-- Google API key -->
       <div class="form-group">
-        <label for="googleApiKey">Google Vision API key (required)</label>
-        <input type="text" name="google_api_key"
+        <label for="googleApiKey">Google Vision API key (required, see <a>instructions</a>)</label>
+        <input type="password" name="google_api_key"
                id="googleApiKey"
                class="form-control"
-               minlength="39" maxlength="39" required>
+               minlength="39" maxlength="39"
+               placeholder="{39-character API_KEY}"
+               required>
       </div>
 
       <!-- Page number option -->
