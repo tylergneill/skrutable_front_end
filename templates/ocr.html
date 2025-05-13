@@ -48,16 +48,13 @@
 
       <!-- Page number option -->
       <div class="form-group">
-        <label>Add extra page numbers in output (e.g. "=== 1 ===")?</label><br>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="include_page_numbers" id="includePageYes" value="yes" checked>
-          <label class="form-check-label" for="includePageYes">Yes</label>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" name="include_page_numbers" value="yes" checked>
+              Add extra page numbers in output (e.g. "=== 1 ===")
+            </label>
+          </div>
         </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="include_page_numbers" id="includePageNo" value="no">
-          <label class="form-check-label" for="includePageNo">No</label>
-        </div>
-      </div>
 
       <!-- Display option -->
       <div class="form-group">
@@ -90,7 +87,6 @@
       <h2>Tips</h2>
       <p>
           Files up to ~64 MB are accepted.
-          There is currently no progress bar, so please be patient to allow processing to finish.
 
           You may wish to crop the individual pages of your PDF to get more relevant results.
 
