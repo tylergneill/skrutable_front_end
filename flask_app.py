@@ -453,6 +453,8 @@ def ocr():
 	api_key   = request.form.get("google_api_key", "").strip()
 	pdf_file  = request.files.get("pdf_file")
 
+	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+
 	if not api_key or not pdf_file:
 		return "PDF and API key are required.", 400
 
@@ -461,7 +463,7 @@ def ocr():
 		pdf_file.save(pdf_path)
 
 		try:
-			text = run_google_ocr(pdf_path, api_key)
+			text = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except Exception as exc:
 			return f"OCR failed: {exc}", 500
 

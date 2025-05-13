@@ -5,7 +5,7 @@ from google.cloud import storage, vision
 BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
 PROJECT = os.getenv("GCP_PROJECT", "sanskrit-ocr-219110") # set via env
 
-def run_google_ocr(pdf_path: Path, api_key: str) -> str:
+def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> str:
     """Upload PDF, run async Vision OCR, return concatenated text."""
     client_vis   = vision.ImageAnnotatorClient(client_options={"api_key": api_key})
     client_store = storage.Client(project=PROJECT)
@@ -35,10 +35,18 @@ def run_google_ocr(pdf_path: Path, api_key: str) -> str:
     operation.result(timeout=420)
 
     texts = []
-    for blob in bucket.list_blobs(prefix=f"{job_id}/ocr/"):
+
+    for i, blob in enumerate(bucket.list_blobs(prefix=f"{job_id}/ocr/"), start=1):
         data = json.loads(blob.download_as_text())["responses"][0]
-        texts.append(data.get("fullTextAnnotation", {}).get("text", ""))
+        page_text = data.get("fullTextAnnotation", {}).get("text", "")
+
+        if include_page_numbers:
+            page_text = f"\n=== {i} ===\n{page_text}"
+
+        texts.append(page_text)
+
+    final_output = "\n".join(texts)
 
     bucket.delete_blobs(list(bucket.list_blobs(prefix=job_id)))
 
-    return "\n".join(texts)
+    return final_output

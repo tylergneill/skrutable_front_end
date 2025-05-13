@@ -29,6 +29,8 @@
         <p>Drop a PDF here or click to select.</p>
       </div>
 
+      <br>
+
       <!-- Google API key -->
       <div class="form-group">
         <label for="googleApiKey">Google Vision API key (required)</label>
@@ -36,6 +38,19 @@
                id="googleApiKey"
                class="form-control"
                minlength="39" maxlength="39" required>
+      </div>
+
+      <!-- Page number option -->
+      <div class="form-group">
+        <label>Add extra page numbers in output (e.g. "=== 1 ===")?</label><br>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="include_page_numbers" id="includePageYes" value="yes" checked>
+          <label class="form-check-label" for="includePageYes">Yes</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="include_page_numbers" id="includePageNo" value="no">
+          <label class="form-check-label" for="includePageNo">No</label>
+        </div>
       </div>
 
       <p><input type="submit" value="Start OCR" class="btn btn-block btn-primary"></p>
