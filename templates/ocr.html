@@ -6,10 +6,12 @@
 <script>
 function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
+  const originalFile = fileInput.files[0] || window.selectedPdfFile;
+  const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "ocr_result.txt";
+  link.download = `${baseName}_ocr_result.txt`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -24,7 +26,7 @@ function downloadOcrText() {
   }
   .dropzone.dragover { background: #f0f8ff; }
   #ocrResultContainer {
-    margin-top: 3em;
+    margin-top: 1em;
     display: none;
     padding-bottom: 6em;
     transform-origin: top;
@@ -46,6 +48,10 @@ function downloadOcrText() {
   }
   .error-state {
     background-color: indianred !important;
+  }
+  #copyButton,
+  #downloadButton {
+    min-width: 160px;
   }
 </style>
 </head>
@@ -77,6 +83,8 @@ function downloadOcrText() {
              name="google_api_key" autocomplete="current-password" required>
     </div>
 
+    <h3>Options</h3>
+
     <!-- Page number option -->
     <div class="form-group">
       <div class="checkbox">
@@ -89,16 +97,22 @@ function downloadOcrText() {
 
     <!-- Display option -->
     <div class="form-group">
-      <label>Where to get result:</label><br>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="display_inline" id="displayInline" value="yes" checked>
-        <label class="form-check-label" for="displayInline">Show in browser</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="display_inline" id="downloadFile" value="no">
-        <label class="form-check-label" for="downloadFile">Download file</label>
-      </div>
+      <label class="radio-inline">
+        <input type="radio" name="display_style" id="displayInBrowser" value="yes" checked>
+        Show result in browser
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="display_style" id="downloadFile" value="no">
+        Download result as .txt file
+      </label>
     </div>
+
+    <h3>Tips</h3>
+    <p>
+      Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br>
+      Cropping your PDF pages may improve accuracy and performance.<br>
+      Most OCR results contain some errors. Please review and clean up as needed.<br>
+    </p>
 
     <!-- Progress bar -->
     <div class="progress" id="progressContainer" style="display: none;">
@@ -113,25 +127,21 @@ function downloadOcrText() {
       </div>
     </div>
 
-    <p><button id="startOcr" class="btn btn-block btn-primary">Start OCR</button></p>
-
-    <h2>Tips</h2>
-    <p>
-        Files up to <strong>~64 MB</strong> are accepted. Anything larger will error.<br>
-        You may wish to crop the individual pages of your PDF to get more relevant results.<br>
-        Google Vision OCR, like any OCR, makes mistakes. Be prepared to do some cleanup.<br>
-        When uploading files, use ASCII-only filenames to avoid problems.
-    </p>
-
-    <div id="ocrResultContainer" class="pt-2">
-      <h2>OCR Result</h2>
-      <textarea id="ocrText" class="form-control mb-3" style="width: 100%; height: 85vh; white-space: pre-wrap; font-family: monospace;" readonly></textarea>
-      <br>
-      <button class="btn btn-primary mt-2 me-2" onclick="navigator.clipboard.writeText(document.getElementById('ocrText').value)">Copy to clipboard</button>
-      <button class="btn btn-primary" onclick="downloadOcrText()">Download as .txt</button>
+    <div class="form-group">
+      <button id="startOcr" class="btn btn-block btn-primary">Start OCR</button>
     </div>
 
   </div>
+
+  <div id="ocrResultContainer" class="col-md-12 pt-2">
+    <h3>Result</h3>
+    <br>
+    <textarea id="ocrText" class="form-control" style="width: 100%; height: 65vh; white-space: pre-wrap; font-family: monospace;"></textarea>
+    <br>
+    <button id="copyButton" class="btn btn-primary me-2" onclick="copyOcrText()">Copy to clipboard</button>
+    <button id="downloadButton" class="btn btn-primary" onclick="downloadOcrText()">Download as .txt</button>
+  </div>
+
 </div><!-- /.container -->
 
 <script>
@@ -184,13 +194,13 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   if (!apiKey) return alert("API key is required.");
 
   const includePageNumbers = document.getElementById("includePageNumbers").checked;
-  const displayInline = document.querySelector('input[name="display_inline"]:checked').value === "yes";
+  const displayInline = document.querySelector('input[name="display_style"]:checked').value === "yes";
 
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
   formData.append("google_api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
-  formData.append("display_inline", displayInline ? "yes" : "no");
+  formData.append("display_style", displayInline ? "yes" : "no");
 
   const interval = estimateProgress(pdfFile);
 
@@ -245,7 +255,8 @@ document.getElementById("startOcr").addEventListener("click", async function () 
       const blob = await res.blob();
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "ocr_result.txt";
+      const baseName = pdfFile ? pdfFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+      link.download = `${baseName}_ocr_result.txt`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -259,6 +270,21 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     progressBar.classList.remove("progress-bar-striped", "active");
   }
 });
+
+function copyOcrText() {
+  const btn = document.getElementById("copyButton");
+  const textArea = document.getElementById("ocrText");
+  navigator.clipboard.writeText(textArea.value).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 1200);
+  });
+}
 </script>
 
 </body>
