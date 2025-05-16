@@ -463,17 +463,17 @@ def ocr():
 		pdf_file.save(pdf_path)
 
 		try:
-			text = run_google_ocr(pdf_path, api_key, include_page_numbers)
+			ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except Exception as exc:
 			return f"OCR failed: {exc}", 500
 
-	if request.form.get("display_inline") == "yes":
-		return render_template("ocr_result.html", text=text)
-	else:
-		response = make_response(text)
-		response.headers["Content-Type"] = "text/plain"
+	response = make_response(ocr_text)
+	response.headers["Content-Type"] = "text/plain; charset=utf-8"
+
+	if request.form.get("display_inline") != "yes":
 		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
-		return response
+
+	return response
 
 @app.route("/api_key_instructions")
 def api_key_instructions():
