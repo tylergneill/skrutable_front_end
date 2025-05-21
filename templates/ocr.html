@@ -212,19 +212,41 @@ function estimateProgress(file) {
   return interval;
 }
 
-document.getElementById("startOcr").addEventListener("click", async function () {
-  const progressBar = document.getElementById("progressBar");
-  const widthStr = progressBar?.style?.width || "0%";
-  const width = parseFloat(widthStr);
+function clearOcrResult() {
+  const resultContainer = document.getElementById("ocrResultContainer");
+  const resultVisible = getComputedStyle(resultContainer).display !== "none";
+  const progressContainer = document.getElementById("progressContainer");
 
-  if (width > 0) {
+  if (!resultVisible) {
+    return;
+  }
+
+  const textArea = document.getElementById("ocrText");
+  const text = textArea?.value?.trim();
+
+  if (text) {
+    const confirmClear = confirm("Clear the current OCR result?");
+    if (!confirmClear) {
+      return;
+    }
+    resultContainer.style.display = "none";
+    progressContainer.style.display = "none";
+  }
+}
+
+document.getElementById("startOcr").addEventListener("click", async function () {
+  const progressContainer = document.getElementById("progressContainer")
+  const progressVisible = getComputedStyle(progressContainer).display !== "none";
+  const resultContainer = document.getElementById("ocrResultContainer");
+
+  if (progressVisible) {
     const confirmed = confirm("A task may already be in progress or completed. Clear and start a new one?");
     if (!confirmed) {
       return;
     }
+    resultContainer.style.display = "none";
+    progressContainer.style.display = "none";
   }
-
-  clearOcrResult()
 
   const pdfFile = fileInput.files[0] || window.selectedPdfFile;
   if (!pdfFile) return alert("Please upload a PDF.");
@@ -342,32 +364,6 @@ function setFontSize(size) {
   if (textArea) {
     textArea.style.fontSize = `${size}px`;
   }
-}
-
-function clearOcrResult() {
-  const resultBox = document.getElementById("ocrResultContainer");
-  const progressBox = document.getElementById("progressContainer");
-
-  if (!resultBox) {
-    return;
-  }
-
-  if (resultBox.offsetParent === null) {
-    return;
-  }
-
-  const textArea = document.getElementById("ocrText");
-  const text = textArea?.value?.trim();
-
-  if (text) {
-    const confirmClear = confirm("Clear the current OCR result?");
-    if (!confirmClear) {
-      return;
-    }
-  }
-
-  resultBox.style.display = "none";
-  progressBox.style.display = "none";
 }
 </script>
 
