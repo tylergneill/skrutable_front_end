@@ -49,8 +49,7 @@ function downloadOcrText() {
   .error-state {
     background-color: indianred !important;
   }
-  #copyButton,
-  #downloadButton {
+  .fixed-width-btn {
     min-width: 160px;
   }
 </style>
@@ -61,88 +60,116 @@ function downloadOcrText() {
 {% include 'nav.html' %}
 
 <div class="container">
-  <div class="col-md-6" id="ocrForm">
+  <div class="row">
+    <div class="col-md-6" id="ocrForm">
 
-    <h1>PDF → Google Vision OCR</h1>
+      <h1>PDF → Google Vision OCR</h1>
 
-    <!-- PDF input via drop zone -->
-    <input type="file" id="fileInputPdf" accept=".pdf" style="display:none" required>
-    <div class="dropzone" id="dropzone">
-      <p>Drop a PDF here or click to select.</p>
-    </div>
+      <!-- PDF input via drop zone -->
+      <input type="file" id="fileInputPdf" accept=".pdf" style="display:none" required>
+      <div class="dropzone" id="dropzone">
+        <p>Drop a PDF here or click to select.</p>
+      </div>
 
-    <br>
+      <br>
 
-    <!-- Google API key -->
-    <div class="form-group">
-      <label for="googleApiKey">
-        Google Vision API key (required, see <a href="api_key_instructions" target="_blank">instructions</a>)
-      </label>
-      <input type="password" id="googleApiKey" class="form-control"
-             placeholder="Enter your Google Vision API key"
-             name="google_api_key" autocomplete="current-password" required>
-    </div>
+      <!-- Google API key -->
+      <div class="form-group">
+        <label for="googleApiKey">
+          Google Vision API key (required, see <a href="api_key_instructions" target="_blank">instructions</a>)
+        </label>
+        <input type="password" id="googleApiKey" class="form-control"
+               placeholder="Enter your Google Vision API key"
+               name="google_api_key" autocomplete="current-password" required>
+      </div>
 
-    <h3>Options</h3>
+      <h3>Options</h3>
 
-    <!-- Page number option -->
-    <div class="form-group">
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" id="includePageNumbers" checked>
-          Add extra page numbers in output (e.g. "=== 1 ===")
+      <!-- Page number option -->
+      <div class="form-group">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="includePageNumbers" checked>
+            Add extra page numbers in output (e.g. "=== 1 ===")
+          </label>
+        </div>
+      </div>
+
+      <!-- Display option -->
+      <div class="form-group">
+        <label class="radio-inline">
+          <input type="radio" name="display_style" id="displayInBrowser" value="yes" checked>
+          Show result in browser
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="display_style" id="downloadFile" value="no">
+          Download result as .txt file
         </label>
       </div>
+
+      <h3>Tips</h3>
+      <p>
+        Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br>
+        Cropping your PDF pages may improve accuracy and performance.<br>
+        Most OCR results contain some errors. Please review and clean up as needed.<br>
+      </p>
+
+      <!-- Progress bar -->
+      <div class="progress" id="progressContainer" style="display: none;">
+        <div class="progress-bar progress-bar-striped"
+             id="progressBar"
+             role="progressbar"
+             aria-valuenow="0"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             style="width: 0%;">
+          0%
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button id="startOcr" class="btn btn-block btn-primary">Start OCR</button>
+      </div>
+
     </div>
+  </div>
 
-    <!-- Display option -->
-    <div class="form-group">
-      <label class="radio-inline">
-        <input type="radio" name="display_style" id="displayInBrowser" value="yes" checked>
-        Show result in browser
-      </label>
-      <label class="radio-inline">
-        <input type="radio" name="display_style" id="downloadFile" value="no">
-        Download result as .txt file
-      </label>
-    </div>
+  <div id="ocrResultContainer" class="container">
+    <h3>Result</h3>
 
-    <h3>Tips</h3>
-    <p>
-      Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br>
-      Cropping your PDF pages may improve accuracy and performance.<br>
-      Most OCR results contain some errors. Please review and clean up as needed.<br>
-    </p>
+    <div class="row">
+      <div class="col-md-11">
+        <textarea id="ocrText" class="form-control"
+                  style="margin-bottom: 1.5rem; width: 100%; height: 65vh; white-space: pre-wrap; font-family: monospace; font-size: 20px;">
+        </textarea>
+      </div>
 
-    <!-- Progress bar -->
-    <div class="progress" id="progressContainer" style="display: none;">
-      <div class="progress-bar progress-bar-striped"
-           id="progressBar"
-           role="progressbar"
-           aria-valuenow="0"
-           aria-valuemin="0"
-           aria-valuemax="100"
-           style="width: 0%;">
-        0%
+      <div class="col-md-1">
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(14)">
+          <span style="font-size: 14px;">A</span>
+        </button>
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(20)">
+          <span style="font-size: 20px;">A</span>
+        </button>
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(26)">
+          <span style="font-size: 26px;">A</span>
+        </button>
       </div>
     </div>
 
-    <div class="form-group">
-      <button id="startOcr" class="btn btn-block btn-primary">Start OCR</button>
+    <div class="row">
+      <div class="mt-3 col-md-12">
+        <button id="copyButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="copyOcrText()">Copy to clipboard</button>
+        <button id="downloadButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="downloadOcrText()">Download as .txt</button>
+        <button id="clearButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="clearOcrResult()">Clear result</button>
+      </div>
     </div>
 
   </div>
 
-  <div id="ocrResultContainer" class="col-md-12 pt-2">
-    <h3>Result</h3>
-    <br>
-    <textarea id="ocrText" class="form-control" style="width: 100%; height: 65vh; white-space: pre-wrap; font-family: monospace;"></textarea>
-    <br>
-    <button id="copyButton" class="btn btn-primary me-2" onclick="copyOcrText()">Copy to clipboard</button>
-    <button id="downloadButton" class="btn btn-primary" onclick="downloadOcrText()">Download as .txt</button>
-  </div>
+  <br><br>
 
-</div><!-- /.container -->
+</div><!-- outer container -->
 
 <script>
 const dz = document.getElementById('dropzone');
@@ -163,8 +190,9 @@ const progressBar = document.getElementById("progressBar");
 const progressContainer = document.getElementById("progressContainer");
 
 function estimateProgress(file) {
+  const minimumTimeEstimate = 28
   const estimatedPages = Math.max(1, Math.floor(file.size / (1024 * 100)));
-  const estimatedTime = 22000 + Math.max(0, estimatedPages - 1) * 660;
+  const estimatedTime = minimumTimeEstimate * 1000 + Math.max(0, estimatedPages - 1) * 660;
   const startTime = Date.now();
 
   progressContainer.style.display = "block";
@@ -187,6 +215,19 @@ function estimateProgress(file) {
 }
 
 document.getElementById("startOcr").addEventListener("click", async function () {
+  const progressBar = document.getElementById("progressBar");
+  const widthStr = progressBar?.style?.width || "0%";
+  const width = parseFloat(widthStr);
+
+  if (width > 0) {
+    const confirmed = confirm("A task may already be in progress or completed. Clear and start a new one?");
+    if (!confirmed) {
+      return;
+    }
+  }
+
+  clearOcrResult()
+
   const pdfFile = fileInput.files[0] || window.selectedPdfFile;
   if (!pdfFile) return alert("Please upload a PDF.");
 
@@ -201,6 +242,13 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   formData.append("google_api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
   formData.append("display_style", displayInline ? "yes" : "no");
+
+  // Reset the progress bar to 0%
+  progressBar.style.width = "0%";
+  progressBar.textContent = "0%";
+  progressBar.setAttribute("aria-valuenow", 0);
+  progressBar.classList.add("progress-bar-striped", "active");
+  progressBar.classList.remove("zoom-bounce", "error-state");
 
   const interval = estimateProgress(pdfFile);
 
@@ -223,11 +271,7 @@ document.getElementById("startOcr").addEventListener("click", async function () 
         progressBar.style.width = "100%";
         progressBar.textContent = "100%";
         progressBar.setAttribute("aria-valuenow", 100);
-
-        // Stop barber pole effect
         progressBar.classList.remove("progress-bar-striped", "active");
-
-        // Zoom + green color effect
         progressBar.classList.remove("zoom-bounce");
         void progressBar.offsetWidth;
         progressBar.classList.add("zoom-bounce");
@@ -239,19 +283,18 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     }, 30);
 
     if (displayInline) {
-    const raw = await res.text();
-    const text = raw.replace(/<[^>]*>/g, '');
-    const resultBox = document.getElementById("ocrResultContainer");
-
-    setTimeout(() => {
-      document.getElementById("ocrText").value = text;
+      const raw = await res.text();
+      const text = raw.replace(/<[^>]*>/g, '');
       const resultBox = document.getElementById("ocrResultContainer");
-      resultBox.style.display = "block";
-      resultBox.classList.remove("animate-zoom");
-      void resultBox.offsetWidth;
-      resultBox.classList.add("animate-zoom");
-    }, 700);
-  } else {
+
+      setTimeout(() => {
+        document.getElementById("ocrText").value = text;
+        resultBox.style.display = "block";
+        resultBox.classList.remove("animate-zoom");
+        void resultBox.offsetWidth;
+        resultBox.classList.add("animate-zoom");
+      }, 700);
+    } else {
       const blob = await res.blob();
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -263,6 +306,7 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     }
   } catch (err) {
     clearInterval(interval);
+    console.error("startOcr: error occurred", err);
     progressBar.classList.add("error-state");
     progressBar.textContent = "Error";
     progressBar.setAttribute("aria-valuenow", 100);
@@ -285,6 +329,50 @@ function copyOcrText() {
     }, 1200);
   });
 }
+
+let currentFontSize = 20;
+
+function changeFontSize(delta) {
+  const textArea = document.getElementById("ocrText");
+  if (!textArea || textArea.offsetParent === null) return; // skip if not visible
+  currentFontSize += delta;
+  textArea.style.fontSize = `${currentFontSize}px`;
+}
+
+function setFontSize(size) {
+  const textArea = document.getElementById("ocrText");
+  if (textArea) {
+    textArea.style.fontSize = `${size}px`;
+  }
+}
+
+function clearOcrResult() {
+  const resultBox = document.getElementById("ocrResultContainer");
+  const progressBox = document.getElementById("progressContainer");
+
+  if (!resultBox) {
+    return;
+  }
+
+  if (resultBox.offsetParent === null) {
+    return;
+  }
+
+  const textArea = document.getElementById("ocrText");
+  const text = textArea?.value?.trim();
+
+  if (text) {
+    const confirmClear = confirm("Clear the current OCR result?");
+    if (!confirmClear) {
+      return;
+    }
+  }
+
+  resultBox.style.display = "none";
+  progressBox.style.display = "none";
+}
+
+
 </script>
 
 </body>
