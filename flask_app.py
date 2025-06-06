@@ -879,4 +879,4 @@ def prep_split_output_for_Apte(split_text):
 	return output_HTML
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=4999)
