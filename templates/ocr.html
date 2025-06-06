@@ -80,18 +80,6 @@
         </div>
       </div>
 
-      <!-- Display option -->
-      <div class="form-group">
-        <label class="radio-inline">
-          <input type="radio" name="display_style" id="displayInBrowser" value="yes" checked>
-          Show result in browser
-        </label>
-        <label class="radio-inline">
-          <input type="radio" name="display_style" id="downloadFile" value="no">
-          Download result as .txt file
-        </label>
-      </div>
-
       <h3>Tips</h3>
       <p>
         Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br>
@@ -255,13 +243,11 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   if (!apiKey) return alert("API key is required.");
 
   const includePageNumbers = document.getElementById("includePageNumbers").checked;
-  const displayInline = document.querySelector('input[name="display_style"]:checked').value === "yes";
 
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
   formData.append("google_api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
-  formData.append("display_style", displayInline ? "yes" : "no");
 
   // Reset the progress bar to 0%
   progressBar.style.width = "0%";
@@ -305,28 +291,18 @@ document.getElementById("startOcr").addEventListener("click", async function () 
       }
     }, 30);
 
-    if (displayInline) {
-      const raw = await res.text();
-      const text = raw.replace(/<[^>]*>/g, '');
-      const resultBox = document.getElementById("ocrResultContainer");
+    const raw = await res.text();
+    const text = raw.replace(/<[^>]*>/g, '');
+    const resultBox = document.getElementById("ocrResultContainer");
 
-      setTimeout(() => {
-        document.getElementById("ocrText").value = text;
-        resultBox.style.display = "block";
-        resultBox.classList.remove("animate-zoom");
-        void resultBox.offsetWidth;
-        resultBox.classList.add("animate-zoom");
-      }, 700);
-    } else {
-      const blob = await res.blob();
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      const baseName = pdfFile ? pdfFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
-      link.download = `${baseName}_ocr_result.txt`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
+    setTimeout(() => {
+      document.getElementById("ocrText").value = text;
+      resultBox.style.display = "block";
+      resultBox.classList.remove("animate-zoom");
+      void resultBox.offsetWidth;
+      resultBox.classList.add("animate-zoom");
+    }, 700);
+
   } catch (err) {
     clearInterval(interval);
     console.error("startOcr: error occurred", err);
