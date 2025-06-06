@@ -1,6 +1,10 @@
+import logging
 import os
 import re
+import requests
+import sys
 import tempfile
+import time
 import unicodedata
 from datetime import datetime, date
 from pathlib import Path
@@ -30,6 +34,13 @@ class CustomRequest(Request):
 
 class CustomFlask(Flask):
     request_class = CustomRequest
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
 app = CustomFlask(__name__)
 app.config["DEBUG"] = True
@@ -449,6 +460,28 @@ def ocr():
 	if request.method == "GET":
 		return render_template("ocr.html")
 
+	# Log detailed job stats to learn about usage
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	logger.info("Client IP: %s", ip)
+	try:
+		geo = requests.get(f"http://ip-api.com/json/{ip}?fields=country,regionName,city,query").json()
+		logger.info("Geo info %s:", geo)
+	except Exception as e:
+		logger.error("Geo lookup failed: %s", e)
+	start_time = time.time()
+	logger.info("Received OCR request at %s", start_time)
+	logger.info("Request method: %s", request.method)
+	logger.info("Request content-type: %s", request.content_type)
+	logger.info("Request content length: %s", request.content_length)
+	if 'pdf_file' in request.files:
+		f = request.files.get("pdf_file")
+		logger.info("Filename: %s", f.filename)
+		logger.info("MIME: %s", f.mimetype)
+		logger.info("Size (bytes): %s", len(f.read()))
+		f.seek(0)
+	else:
+		logger.error("No file in request.files")
+
 	# ---------- POST ----------
 	api_key   = request.form.get("google_api_key", "").strip()
 	pdf_file  = request.files.get("pdf_file")
@@ -465,13 +498,22 @@ def ocr():
 		try:
 			ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except Exception as exc:
-			return f"OCR failed: {exc}", 500
+			import traceback
+			trace = traceback.format_exc()
+			logger.error("OCR failed: %s", exc)
+			logger.error("trace: %s", trace)
+			return f"OCR failed: {exc}\n\n{trace}", 500
 
 	response = make_response(ocr_text)
 	response.headers["Content-Type"] = "text/plain; charset=utf-8"
 
 	if request.form.get("display_inline") != "yes":
 		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
+
+	end_time = time.time()
+	logger.info("Completed OCR request at %s", end_time)
+	elapsed = end_time - start_time
+	logger.info("Total OCR roundtrip time: %.3f seconds", elapsed)
 
 	return response
 

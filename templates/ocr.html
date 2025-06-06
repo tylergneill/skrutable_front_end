@@ -278,7 +278,10 @@ document.getElementById("startOcr").addEventListener("click", async function () 
       body: formData
     });
 
-    if (!res.ok) throw new Error("OCR request failed.");
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`OCR request failed: ${errText}`);
+    }
 
     clearInterval(interval);
     let display = parseFloat(progressBar.style.width);
