@@ -2,49 +2,79 @@
 <html lang="en">
 <head>
   {% include 'head_default.html' %}
-  <title>Google Cloud Vision API Setup</title>
+  <title>Setup for Google Cloud API Key</title>
 </head>
 <body>
   {% include 'nav.html' %}
   <div class="container mt-4">
-    <h1>How to Set Up Your Google Cloud Vision API Key</h1>
+    <h1>Google Cloud API Key Instructions</h1>
 
-    <ol class="mt-4">
+    <p>Follow the instructions below to obtain an API key linked to your Google Cloud billing account.</p>
+    <br>
+
+    <video width="640" height="360" controls poster="/assets/videos/demo-preview-poster-test.png">
+      <source src="/assets/videos/demo-test.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <br>
+    <br>
+
+    <ol class="mt-14">
       <li>
-        <strong>Go to the Google Cloud Console:</strong><br>
-        <a href="https://console.cloud.google.com/" target="_blank">https://console.cloud.google.com/</a>
+        <strong>Bring up Google Cloud Console</strong>:<br>
+        While logged into your Google account,
+        go to the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.
+        If you've never used it before, you may see some setup prompts.
       </li>
       <li>
-        <strong>Create a new project:</strong><br>
-        Click the project dropdown in the top nav, then click <em>New Project</em>. Give it any name (e.g., <code>OCR Tool</code>) and click <em>Create</em>.
+        <strong>Enable billing</strong>:<br>
+        Go to <a href="https://console.cloud.google.com/billing" target="_blank">Billing</a> and enable.
+        You'll need a credit card.
+        That said, you'll only be billed after exceeding 1,000 pages per month,
+        namely at the rate of $1.50 per subsequent 1,000 pages.
+        The first free months on a new billing account come with a $300 credit.
+        That is, it's easy to make substantial use of this service and still pay nothing.
+        It's possible to track your usage, although not very user-friendly (see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873">instructions on Reddit</a>).
       </li>
       <li>
-        <strong>Enable the Vision API:</strong><br>
-        In the left sidebar, go to <em>APIs & Services → Library</em>. Search for “Vision API.” Click it, then click <em>Enable</em>.
+        <strong>Select project</strong>:<br>
+        Either create a new project (click <em>New Project></em> in project dropdown in top nav...),
+          or, if this your first time, leave it on the single default (“My First Project”).
+      </li>
+      <li>
+        <strong>Enable Cloud Vision API</strong>:<br>
+        In the left sidebar, go to <em>APIs & Services → Library</em>.
+        Search for “Cloud Vision API” (it has a blue logo).
+        Click it, then click the blue <em>Enable</em> button.
       </li>
       <li>
         <strong>Create an API key:</strong><br>
-        Go to <em>APIs & Services → Credentials</em>. Click <em>+ Create Credentials</em> and choose <em>API key</em>.<br>
-        A long string will appear — this is your API key. Copy it.
-      </li>
-      <li>
-        <strong>Paste the API key into the OCR tool</strong><br>
-        Return to the main page and paste your key into the input labeled “Google Vision API key.”
+        Go to <em>APIs & Services → Credentials</em>.
+        Click <em>+ Create Credentials</em> and choose <em>API key</em>.
+        <br>
+        A long string will appear — this is your API key.
+        Copy it and store it.
+        Treat it like you would any financial password.
+        With this key, anyone can charge OCR processing
+        (or other services, if you don't restrict the key) to your account.
       </li>
       <li>
         <strong>(Optional) Restrict the key:</strong><br>
-        On the key management screen, click <em>Restrict key</em> to:
+        On the API key management screen in the Google Cloud Console, click the three dots to the right of the relevant key, and choose <em>Edit</em>.
+        Click <em>Restrict key</em> to:
         <ul>
           <li>Limit usage to the Vision API</li>
           <li>Add IP address restrictions (if desired)</li>
           <li>Set usage quotas</li>
         </ul>
       </li>
+      <li>
+        <strong>Use the key</strong>:<br>
+        You are now ready to return to the <a href="/ocr">OCR page</a>
+        and paste your key into the input box labeled “Google Cloud Vision API key.”
+      </li>
     </ol>
 
-    <p class="mt-4">
-      Once your key is ready, return to the <a href="/ocr">OCR upload page</a> and run your job.
-    </p>
   </div>
 </body>
 </html>
