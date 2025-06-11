@@ -1,3 +1,4 @@
+from natsort import natsorted
 from pathlib import Path
 import uuid, json, os
 from google.cloud import storage, vision
@@ -34,9 +35,11 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
     operation = client_vis.async_batch_annotate_files(requests=[request])
     operation.result(timeout=420)
 
-    texts = []
+    # Avoid e.g. 1, 10, 11, sorting problem
+    blobs = natsorted(bucket.list_blobs(prefix=f"{job_id}/ocr/"), key=lambda b: b.name)
 
-    for i, blob in enumerate(bucket.list_blobs(prefix=f"{job_id}/ocr/"), start=1):
+    texts = []
+    for i, blob in enumerate(blobs, start=1):
         data = json.loads(blob.download_as_text())["responses"][0]
         page_text = data.get("fullTextAnnotation", {}).get("text", "")
 
