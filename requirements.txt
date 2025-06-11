@@ -61,6 +61,8 @@ markupsafe==3.0.2
     # via
     #   jinja2
     #   werkzeug
+natsort==8.4.0
+    # via -r requirements.in
 numpy==2.2.1
     # via skrutable
 packaging==24.2
