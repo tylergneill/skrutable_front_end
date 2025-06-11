@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 {% include 'head_default.html' %}
+<title>OCR Service</title>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <style>
   .dropzone {
@@ -61,7 +62,7 @@
       <!-- Google API key -->
       <div class="form-group">
         <label for="googleApiKey">
-          Google Cloud API key (required, see <a href="api_key_instructions" target="_blank">instructions</a>)
+          Google Cloud API key (required)
         </label>
         <input type="password" id="googleApiKey" class="form-control"
                placeholder="Enter your Google Cloud API key"
@@ -80,12 +81,15 @@
         </div>
       </div>
 
-      <h3>Tips</h3>
-      <p>
-        Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br>
-        Cropping your PDF pages may improve accuracy and performance.<br>
-        Most OCR results contain some errors. Please review and clean up as needed.<br>
-      </p>
+      <h3>FAQ</h3>
+
+      <ul>
+        <li><a href="ocr_instructions#why" target="_blank">Why another OCR option?</a></li>
+        <li><a href="ocr_instructions#api-key" target="_blank">Why do I need an API key? How do I get it?</a></li>
+        <li><a href="ocr_instructions#input-size" target="_blank">How big can input be?</a></li>
+        <li><a href="ocr_instructions#complex-page" target="_blank">Will it work with complex page formats?</a></li>
+        <li><a href="ocr_instructions#mistakes" target="_blank">Why are some characters wrong / words misplaced / etc.?</a></li>
+      </ul>
 
       <!-- Progress bar -->
       <div class="progress" id="progressContainer" style="display: none;">

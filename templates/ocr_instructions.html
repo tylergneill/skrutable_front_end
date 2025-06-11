@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
   {% include 'head_default.html' %}
-  <title>Setup for Google Cloud API Key</title>
+  <title>OCR Service FAQ</title>
 </head>
 <body>
   {% include 'nav.html' %}
   <div class="container mt-4">
-    <h1>Google Cloud API Key Instructions</h1>
+
+    <h1>OCR Service FAQ</h1>
+
+    <ul>
+      <li><a href="#why">Why another OCR option?</a></li>
+      <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
+      <li><a href="#input-size">How big can input be?</a></li>
+      <li><a href="#complex-page">Will it work with complex page formats?</a></li>
+      <li><a href="#mistakes">Why are some characters wrong / words misplaced / etc.?</a></li>
+    </ul>
+
+    <h2 id="why">Why another OCR option?</h2>
+
+    <h2 id="api-key">Why do I need an API key? How do I get it?</h2>
 
     <p>Follow the instructions below to obtain an API key linked to your Google Cloud billing account.</p>
     <br>
@@ -74,6 +87,20 @@
         and paste your key into the input box labeled “Google Cloud Vision API key.”
       </li>
     </ol>
+
+    <h2 id="input-size">How big can input be?</h2>
+
+    <p>Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br></p>
+
+    <h2 id="complex-page">Will it work with complex page formats?</h2>
+
+    <p>Maybe, maybe not. Cropping your PDF pages may improve accuracy and performance.<br></p>
+
+    <h2 id="mistakes">Why are some characters wrong / words misplaced / etc.?</h2>
+
+    <p>Most OCR results contain some errors. Please review and clean up as needed.<br></p>
+
+    <br><br>
 
   </div>
 </body>

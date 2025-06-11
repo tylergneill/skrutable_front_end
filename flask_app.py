@@ -517,9 +517,9 @@ def ocr():
 
 	return response
 
-@app.route("/api_key_instructions")
-def api_key_instructions():
-    return render_template("api_key_instructions.html")
+@app.route("/ocr_instructions")
+def ocr_instructions():
+    return render_template("ocr_instructions.html")
 
 @app.route('/api', methods=["GET"])
 def api_landing():
