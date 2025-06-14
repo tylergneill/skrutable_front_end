@@ -11,7 +11,7 @@
     <h1>OCR Service FAQ</h1>
 
     <ul>
-      <li><a href="#why">Why another OCR option?</a></li>
+      <li><a href="#idea">Why another OCR option? Why like this?</a></li>
       <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
       <li><a href="#cost">How much will it cost?</a></li>
       <li><a href="#safety">Is this safe? Can I trust you/Google?</a></li>
@@ -20,14 +20,16 @@
       <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
     </ul>
 
-    <h3 id="why">Why another OCR option?</h3>
+    <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
-      Most Sanskrit students and scholars are not using truly high-quality OCR and don't know how to.
+      Most Sanskrit students and scholars are not using truly high-quality OCR,
+      for the reason that it tends to be technologically just out of reach.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options">This blog post</a>
-      explains the initial choice of Google Cloud Vision, which is being promoted here.
-      While other, larger AI models may now outperform it, interfacing with them can be even more complex.
+      justifies why Google Cloud Vision is worth helping expand access to.
+      Granted, other, larger AI models may now outperform it in some cases,
+      but interfacing with them can be even more complex,
       So for now, I'm still focusing on Cloud Vision.
-      This interface removes (almost) all of the difficulty of working with Cloud Vision, 
+      This interface removes (almost) all of the difficulty of working with it,
       including the need for coding or cloud file management.
     </p>
 
@@ -37,18 +39,68 @@
       and because I don't yet have funding to cover the cost for everyone,
       I pass the billing aspect along to individual users.
       Specifically, an API key tied to a billing-enabled Google Cloud account is required.
-      An API key is essentially a secret string of characters, like a password.
+      Generated in connection wth such an account,
+      an API key is essentially a secret string of characters, like a password.
       You can create and destroy as many as you like, at any time.
       Follow the video instructions below to set up a Google Cloud billing account,
       enable Cloud Vision, and generate an API key.
     </p>
     <video width="640" height="360" controls poster="/assets/videos/demo-preview-poster-test.png">
-      <source src="/assets/videos/demo-test.mp4" type="video/mp4">
+      <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
     <br>
     <br>
-    <p>For a verbal walkthrough, <a href="#api-key-detailed">see below</a>.</p>
+    <details>
+      <summary style="color: #0066cc; cursor: pointer; text-decoration: underline;">Written walkthrough</summary>
+      <ol class="mt-14">
+        <li>
+          <strong>Go to the Google Cloud Console</strong>:<br>
+          While logged into your Google account,
+          visit the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.
+          If it's your first time, you may need to click through some initial setup prompts.
+        </li>
+        <li>
+          <strong>Enable billing</strong>:<br>
+          Walk through the steps at
+          <a href="https://console.cloud.google.com/billing" target="_blank">console.cloud.google.com/billing</a> to enable billing.
+          You'll need a credit card. (<a href="#cost">See above</a> for more on cost.)
+        </li>
+        <li>
+          <strong>Select a project</strong>:<br>
+          Either create a new project (click <em>New Project</em> in the top navigation dropdown),
+          or, if this is your first time, just use the default (“My First Project”).
+        </li>
+        <li>
+          <strong>Enable the Cloud Vision API</strong>:<br>
+          In the left sidebar, go to <em>APIs & Services → Library</em>.
+          Search for “Cloud Vision API” (it has a blue diamond logo).
+          Click it, then click the blue <em>Enable</em> button.
+        </li>
+        <li>
+          <strong>Create an API key</strong>:<br>
+          Go to <em>APIs & Services → Credentials</em>.
+          Click <em>+ Create Credentials</em> and select <em>API key</em>.
+          <br>
+          A long string will appear. This is your API key.
+          Copy it, store it securely, and treat it like a financial password.
+          With this key, anyone can charge OCR processing
+          (or other services, if you don't restrict the key) to your account.
+        </li>
+        <li>
+          <strong>(Optional) Restrict the key</strong>:<br>
+          In the API key management screen,
+          click the three dots next to your key, and choose <em>Edit</em>.
+          Click <em>Restrict key</em>, and from the dropdown, select Cloud Vision API.
+          Don't forget to click Save.
+        </li>
+        <li>
+          <strong>Use the key</strong>:<br>
+          You're now ready to return to the <a href="/ocr">OCR page</a>
+          and paste your key into the field labeled “Google Cloud API key.”
+        </li>
+      </ol>
+    </details>
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
@@ -89,58 +141,16 @@
 
     <h3 id="mistakes">Why are some characters wrong, words misplaced, etc.?</h3>
     <p>
-      Most OCR results contain some errors. Please review and clean up as needed.
+      Most OCR results contain some errors.
+      Google Cloud Vision tends to produce fewer errors than other options.
+      Please review and clean up as needed, e.g., using regular expressions.
     </p>
 
-    <h3 id="api-key-detailed">Detailed API Key Instructions</h3>
-
-    <ol class="mt-14">
-      <li>
-        <strong>Go to the Google Cloud Console</strong>:<br>
-        While logged into your Google account,
-        visit the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.
-        If it's your first time, you may need to click through some initial setup prompts.
-      </li>
-      <li>
-        <strong>Enable billing</strong>:<br>
-        Walk through the steps at
-        <a href="https://console.cloud.google.com/billing" target="_blank">Billing</a> to enable billing.
-        You'll need a credit card. (<a href="#cost">See above</a> for more on cost.)
-      </li>
-      <li>
-        <strong>Select a project</strong>:<br>
-        Either create a new project (click <em>New Project</em> in the top navigation dropdown),
-        or, if this is your first time, just use the default (“My First Project”).
-      </li>
-      <li>
-        <strong>Enable the Cloud Vision API</strong>:<br>
-        In the left sidebar, go to <em>APIs & Services → Library</em>.
-        Search for “Cloud Vision API” (it has a blue diamond logo).
-        Click it, then click the blue <em>Enable</em> button.
-      </li>
-      <li>
-        <strong>Create an API key</strong>:<br>
-        Go to <em>APIs & Services → Credentials</em>.
-        Click <em>+ Create Credentials</em> and select <em>API key</em>.
-        <br>
-        A long string will appear. This is your API key.
-        Copy it, store it securely, and treat it like a financial password.
-        With this key, anyone can charge OCR processing
-        (or other services, if you don't restrict the key) to your account.
-      </li>
-      <li>
-        <strong>(Optional) Restrict the key</strong>:<br>
-        In the API key management screen,
-        click the three dots next to your key, and choose <em>Edit</em>.
-        Click <em>Restrict key</em>, and from the dropdown, select Cloud Vision API.
-        Don't forget to click Save.
-      </li>
-      <li>
-        <strong>Use the key</strong>:<br>
-        You're now ready to return to the <a href="/ocr">OCR page</a>
-        and paste your key into the field labeled “Google Cloud API key.”
-      </li>
-    </ol>
+    <h3 id="hard-returns">Why are lines returned as-is, e.g., with hyphenation?</h3>
+    <p>
+      This OCR option is more literal, and it won't stitch hyphenated words back together.
+      This is another thing to review and clean up as needed.
+    </p>
     <br><br>
 
   </div>
