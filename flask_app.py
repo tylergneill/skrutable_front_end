@@ -519,7 +519,7 @@ def ocr():
 
 @app.route("/ocr_instructions")
 def ocr_instructions():
-    return render_template("ocr_instructions.html")
+    return render_template("ocr_instructions.html", max_size=MAX_CONTENT_LENGTH_MB)
 
 @app.route('/api', methods=["GET"])
 def api_landing():

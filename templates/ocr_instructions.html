@@ -13,93 +13,137 @@
     <ul>
       <li><a href="#why">Why another OCR option?</a></li>
       <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
+      <li><a href="#cost">How much will it cost?</a></li>
+      <li><a href="#safety">Is this safe? Can I trust you/Google?</a></li>
       <li><a href="#input-size">How big can input be?</a></li>
       <li><a href="#complex-page">Will it work with complex page formats?</a></li>
       <li><a href="#mistakes">Why are some characters wrong / words misplaced / etc.?</a></li>
     </ul>
 
-    <h2 id="why">Why another OCR option?</h2>
+    <h3 id="why">Why another OCR option?</h3>
+    <p>
+      Most Sanskrit students and scholars are not using truly high-quality OCR and don't know how to.
+      <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options">This blog post</a>
+      explains the initial choice of Google Cloud Vision being promoted here.
+      Meanwhile, other, larger AI models may now be taking the lead on performance,
+      However, interfacing with them can be even more complex,
+      so I'm still focusing on Cloud Vision for now.
+      This interface takes (almost) all the difficulty out of interacting with Cloud Vision,
+      including coding and cloud file management.
+    </p>
 
-    <h2 id="api-key">Why do I need an API key? How do I get it?</h2>
-
-    <p>Follow the instructions below to obtain an API key linked to your Google Cloud billing account.</p>
-    <br>
-
+    <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
+    <p>
+      Because Google Cloud Vision isn't free,
+      and because I don't yet have funding to foot the bill for everyone personally,
+      I pass along the billing aspect to individual users.
+      Specifically, an API key tied to a working billing account is required for this setup.
+      An API key is basically just a sequence of characters that you keep secret, like a password.
+      You can create and destroy as many as you like, at any time.
+      Follow the video instructions below to set up your Google Cloud billing account,
+      enable Cloud Vision for your account, and create an API key linked to the service.
+    </p>
     <video width="640" height="360" controls poster="/assets/videos/demo-preview-poster-test.png">
       <source src="/assets/videos/demo-test.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
     <br>
     <br>
+    <p>For a verbal walkthrough, <a href="#api-key-detailed">see below</a>.</p>
+
+    <h3 id="cost">How much will it cost?</h3>
+    <p>
+      In most cases, virtually nothing.
+      The first 1,000 pages per month are free.
+      After that, every 1,000 pages is $1.50.
+      You pay only for what you use.
+      New accounts start off with a generous amount of credit ($300) that lasts 90 days.
+      It's possible to track your usage
+      (e.g. see see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873">here on Reddit</a>),
+      but if you're doing personal projects,
+      then chances are you won't exceed 1,000 pages a month.
+    </p>
+
+    <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
+    <p>
+      Yes, this is quite safe.
+      You don't need to worry about Google doing things with the contents of your PDF.
+      If you are concerned, then just don't upload items with sensitive information.
+      As for me and my code, I promise that API keys are not being stored in any way.
+      The code, which is entirely open source, simply
+      reads the key from the HTML form (<a href="" target="_blank">here</a>),
+      sends it along with the OCR request to Google (<a href="" target="_blank">here</a>),
+      and that's it.
+      I encourage you to use a password manager (e.g. 1Password) to store and fill the API key.
+    </p>
+
+    <h3 id="input-size">How big can input be?</h3>
+    <p>
+      Currently, files up to <strong>~{{ max_size }} MB</strong> are supported.
+      Larger files must be split into parts.
+    </p>
+
+    <h3 id="complex-page">Will it work with complex page formats?</h3>
+    <p>
+      Maybe, maybe not. Crop your PDF pages to improve accuracy and performance.
+    </p>
+
+    <h3 id="mistakes">Why are some characters wrong / words misplaced / etc.?</h3>
+    <p>
+      Most OCR results contain some errors. Please review and clean up as needed.
+    </p>
+
+    <h3 id="api-key-detailed">Detailed API Key Instructions</h3>
 
     <ol class="mt-14">
       <li>
         <strong>Bring up Google Cloud Console</strong>:<br>
         While logged into your Google account,
         go to the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.
-        If you've never used it before, you may see some setup prompts.
+        If you've never used it before, you may need to click through some initial setup prompts.
       </li>
       <li>
         <strong>Enable billing</strong>:<br>
-        Go to <a href="https://console.cloud.google.com/billing" target="_blank">Billing</a> and enable.
-        You'll need a credit card.
-        That said, you'll only be billed after exceeding 1,000 pages per month,
-        namely at the rate of $1.50 per subsequent 1,000 pages.
-        The first free months on a new billing account come with a $300 credit.
-        That is, it's easy to make substantial use of this service and still pay nothing.
-        It's possible to track your usage, although not very user-friendly (see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873">instructions on Reddit</a>).
+        Walk through the steps at
+        <a href="https://console.cloud.google.com/billing" target="_blank">Billing</a> to enable billing.
+        You'll need a credit card, (for questions about cost, <a href="#cost">see above</a>).
       </li>
       <li>
         <strong>Select project</strong>:<br>
         Either create a new project (click <em>New Project></em> in project dropdown in top nav...),
-          or, if this your first time, leave it on the single default (“My First Project”).
+        or, if this your first time, leave it on the single default (“My First Project”).
       </li>
       <li>
         <strong>Enable Cloud Vision API</strong>:<br>
         In the left sidebar, go to <em>APIs & Services → Library</em>.
-        Search for “Cloud Vision API” (it has a blue logo).
+        Search for “Cloud Vision API” (it has a blue diamond logo).
         Click it, then click the blue <em>Enable</em> button.
       </li>
       <li>
-        <strong>Create an API key:</strong><br>
+        <strong>Create an API key</strong>:<br>
         Go to <em>APIs & Services → Credentials</em>.
         Click <em>+ Create Credentials</em> and choose <em>API key</em>.
         <br>
         A long string will appear — this is your API key.
-        Copy it and store it.
-        Treat it like you would any financial password.
+        Copy it, store it, and treat it like you would any other financial password.
         With this key, anyone can charge OCR processing
         (or other services, if you don't restrict the key) to your account.
       </li>
       <li>
-        <strong>(Optional) Restrict the key:</strong><br>
-        On the API key management screen in the Google Cloud Console, click the three dots to the right of the relevant key, and choose <em>Edit</em>.
-        Click <em>Restrict key</em> to:
-        <ul>
-          <li>Limit usage to the Vision API</li>
-          <li>Add IP address restrictions (if desired)</li>
-          <li>Set usage quotas</li>
-        </ul>
+        <strong>(Optional) Restrict the key</strong>:<br>
+        On the API key management screen in the Google Cloud Console,
+        click the three dots to the right of the relevant key,
+        and choose <em>Edit</em>.
+        Click <em>Restrict key</em>
+        and select Cloud Vision API from the dropdown.
+        Don't forget to Save.
       </li>
       <li>
         <strong>Use the key</strong>:<br>
         You are now ready to return to the <a href="/ocr">OCR page</a>
-        and paste your key into the input box labeled “Google Cloud Vision API key.”
+        and paste your key into the input box labeled “Google Cloud API key.”
       </li>
     </ol>
-
-    <h2 id="input-size">How big can input be?</h2>
-
-    <p>Files up to <strong>~64 MB</strong> are supported. Larger files will fail.<br></p>
-
-    <h2 id="complex-page">Will it work with complex page formats?</h2>
-
-    <p>Maybe, maybe not. Cropping your PDF pages may improve accuracy and performance.<br></p>
-
-    <h2 id="mistakes">Why are some characters wrong / words misplaced / etc.?</h2>
-
-    <p>Most OCR results contain some errors. Please review and clean up as needed.<br></p>
-
     <br><br>
 
   </div>
