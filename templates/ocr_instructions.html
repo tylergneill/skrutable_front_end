@@ -18,6 +18,7 @@
       <li><a href="#input-size">How big can the input be?</a></li>
       <li><a href="#complex-page">Will it work with complex page formats?</a></li>
       <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
+      <li><a href="#hard-returns">Why are lines returned as-is, e.g., with hyphenation?</a></li>
     </ul>
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
@@ -27,7 +28,7 @@
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options">This blog post</a>
       justifies why Google Cloud Vision is worth helping expand access to.
       Granted, other, larger AI models may now outperform it in some cases,
-      but interfacing with them can be even more complex,
+      but interacting with them can be even more complex.
       So for now, I'm still focusing on Cloud Vision.
       This interface removes (almost) all of the difficulty of working with it,
       including the need for coding or cloud file management.
@@ -39,8 +40,7 @@
       and because I don't yet have funding to cover the cost for everyone,
       I pass the billing aspect along to individual users.
       Specifically, an API key tied to a billing-enabled Google Cloud account is required.
-      Generated in connection wth such an account,
-      an API key is essentially a secret string of characters, like a password.
+      An API key is essentially a secret string of characters, like a password.
       You can create and destroy as many as you like, at any time.
       Follow the video instructions below to set up a Google Cloud billing account,
       enable Cloud Vision, and generate an API key.
@@ -116,16 +116,16 @@
 
     <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
     <p>
-      Yes, this is as safe as any other use of a password.
-      To prevent your API key from falling into the wrong hands,
+      Regard the use of an API key,
+      yes, this is as safe as any other use of a password.
+      To prevent your key from falling into the wrong hands,
       I recommend storing it with a password manager (e.g., 1Password).
       As for Google, you don’t need to worry about them doing anything with the contents of your PDF.
       If you're concerned, just avoid uploading sensitive material.
       As for me and my code: I guarantee that your API key is never stored.
-      The code, which is entirely open source, simply
-      reads the key from the HTML form,
-      sends it with the OCR request to Google,
-      and that's it.
+      The code, which is entirely open source,
+      simply reads the key from the HTML form,
+      sends it with the OCR request to Google, and that's it.
     </p>
 
     <h3 id="input-size">How big can the input be?</h3>
