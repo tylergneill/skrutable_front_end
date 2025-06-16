@@ -15,7 +15,7 @@
       <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
       <li><a href="#cost">How much will it cost?</a></li>
       <li><a href="#safety">Is this safe? Can I trust you/Google?</a></li>
-      <li><a href="#input-size">How big can the input be?</a></li>
+      <li><a href="#input-limits">How big can the input be?</a></li>
       <li><a href="#complex-page">Will it work with complex page formats?</a></li>
       <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
       <li><a href="#hard-returns">Why are lines returned as-is, e.g., with hyphenation?</a></li>
@@ -128,10 +128,11 @@
       sends it with the OCR request to Google, and that's it.
     </p>
 
-    <h3 id="input-size">How big can the input be?</h3>
+    <h3 id="input-limits">How big can the input be?</h3>
     <p>
-      Currently, files up to <strong>~{{ max_size }} MB</strong> are supported.
-      Larger files must be split into parts.
+      Files up to <strong>~{{ max_size }} MB</strong> are supported.
+      Split larger files into parts.
+      There’s also a 2,000-page limit, though you’ll usually hit the size cap first.
     </p>
 
     <h3 id="complex-page">Will it work with complex page formats?</h3>
