@@ -1,8 +1,37 @@
-# .github/workflows/clean_bucket.yml  (main branch)
-name: Enable Clean GCS Bucket
-on: workflow_dispatch
+name: Clean GCS Bucket
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
 jobs:
-  noop:
+  clean:
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "Placeholder to register workflow"
+      # 1️⃣  Authenticate
+      - id: 'auth'
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_CLEANER_KEY }}'   # <- your SA key
+
+      # 2️⃣  Install gcloud/gsutil (now picks up the credentials from step 1)
+      - uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      # 3️⃣  Purge objects older than 10 min
+      - name: Delete old objects from bucket
+        env:
+          BUCKET: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+          NOW=$(date -u +%s)
+          CUTOFF=$((NOW - 600))
+          gsutil ls -l gs://$BUCKET/** | grep -v '^TOTAL:' | while read -r size timestamp file; do
+            file_epoch=$(date -d "$timestamp" +%s)
+            if [ "$file_epoch" -lt "$CUTOFF" ]; then
+              echo "Deleting $file (last modified: $timestamp)"
+              gsutil rm "$file"
+            fi
+          done

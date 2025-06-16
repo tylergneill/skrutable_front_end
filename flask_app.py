@@ -1,12 +1,21 @@
+import logging
 import os
 import re
+import requests
+import sys
+import tempfile
+import time
 import unicodedata
-
 from datetime import datetime, date
-from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, make_response, g
+from pathlib import Path
+
+from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, \
+	make_response, g
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import BadGateway
+from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
+
+from ocr_service import run_google_ocr
 
 from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
@@ -17,7 +26,7 @@ from skrutable.splitting import Splitter
 
 # overcome issue with Werkzeug 3.1 where max_form_memory_size default 500 KB causes 413 Request Entity Too Large
 
-MAX_CONTENT_LENGTH_MB = 64
+MAX_CONTENT_LENGTH_MB = 128
 MB_SIZE = 1024 * 1024
 
 class CustomRequest(Request):
@@ -25,6 +34,13 @@ class CustomRequest(Request):
 
 class CustomFlask(Flask):
     request_class = CustomRequest
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
 
 app = CustomFlask(__name__)
 app.config["DEBUG"] = True
@@ -439,6 +455,72 @@ def whole_file():
 		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
 		return response
 
+@app.route("/ocr", methods=["GET", "POST"])
+def ocr():
+	if request.method == "GET":
+		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
+
+	# Log detailed job stats to learn about usage
+	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+	logger.info("Client IP: %s", ip)
+	try:
+		geo = requests.get(f"http://ip-api.com/json/{ip}?fields=country,regionName,city,query").json()
+		logger.info("Geo info %s:", geo)
+	except Exception as e:
+		logger.error("Geo lookup failed: %s", e)
+	start_time = time.time()
+	logger.info("Received OCR request at %s", start_time)
+	logger.info("Request method: %s", request.method)
+	logger.info("Request content-type: %s", request.content_type)
+	logger.info("Request content length: %s", request.content_length)
+	if 'pdf_file' in request.files:
+		f = request.files.get("pdf_file")
+		logger.info("Filename: %s", f.filename)
+		logger.info("MIME: %s", f.mimetype)
+		logger.info("Size (bytes): %s", len(f.read()))
+		f.seek(0)
+	else:
+		logger.error("No file in request.files")
+
+	# ---------- POST ----------
+	api_key   = request.form.get("google_api_key", "").strip()
+	pdf_file  = request.files.get("pdf_file")
+
+	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+
+	if not api_key or not pdf_file:
+		return "PDF and API key are required.", 400
+
+	with tempfile.TemporaryDirectory() as td:
+		pdf_path = Path(td) / secure_filename(pdf_file.filename)
+		pdf_file.save(pdf_path)
+
+		try:
+			ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
+		except Exception as exc:
+			import traceback
+			trace = traceback.format_exc()
+			logger.error("OCR failed: %s", exc)
+			logger.error("trace: %s", trace)
+			return f"OCR failed: {exc}\n\n{trace}", 500
+
+	response = make_response(ocr_text)
+	response.headers["Content-Type"] = "text/plain; charset=utf-8"
+
+	if request.form.get("display_inline") != "yes":
+		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
+
+	end_time = time.time()
+	logger.info("Completed OCR request at %s", end_time)
+	elapsed = end_time - start_time
+	logger.info("Total OCR roundtrip time: %.3f seconds", elapsed)
+
+	return response
+
+@app.route("/ocr_instructions")
+def ocr_instructions():
+    return render_template("ocr_instructions.html", max_size=MAX_CONTENT_LENGTH_MB)
+
 @app.route('/api', methods=["GET"])
 def api_landing():
 	return render_template("api.html")
@@ -462,6 +544,8 @@ def get_inputs(required_args, request):
 	try:
 		if request.files:
 			input_file = request.files["input_file"]
+			if input_file.content_length and input_file.content_length > MAX_CONTENT_LENGTH_MB * MB_SIZE:
+				raise RequestEntityTooLarge(f"Upload exceeds {MAX_CONTENT_LENGTH_MB} MB limit")
 			input_text = input_file.stream.read().decode('utf-8')
 		else: # should all be in either form or json
 			input_text = data_source["input_text"]
@@ -797,4 +881,4 @@ def prep_split_output_for_Apte(split_text):
 	return output_HTML
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=4999)
