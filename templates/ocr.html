@@ -185,7 +185,7 @@ const progressContainer = document.getElementById("progressContainer");
 function estimateProgress(file) {
   const minimumTimeEstimate = 25000
   const estimatedPages = Math.max(1, Math.floor(file.size / (1024 * 100)));
-  const estimatedTime = minimumTimeEstimate + Math.max(0, estimatedPages - 1) * 1500;
+  const estimatedTime = minimumTimeEstimate + Math.max(0, estimatedPages - 1) * 1000;
   const startTime = Date.now();
 
   progressContainer.style.display = "block";
