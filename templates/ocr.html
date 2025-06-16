@@ -230,7 +230,7 @@ function clearOcrResult() {
 }
 
 document.getElementById("startOcr").addEventListener("click", async function () {
-  const progressContainer = document.getElementById("progressContainer")
+  const progressContainer = document.getElementById("progressContainer");
   const progressVisible = getComputedStyle(progressContainer).display !== "none";
   const resultContainer = document.getElementById("ocrResultContainer");
 
@@ -243,8 +243,17 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     progressContainer.style.display = "none";
   }
 
+  const bytes_per_mb = 1024 * 1024;
+  const max_mb = {{ max_size }};
+  const max_bytes = max_mb * bytes_per_mb;
+
   const pdfFile = fileInput.files[0] || window.selectedPdfFile;
   if (!pdfFile) return alert("Please upload a PDF.");
+
+  if (pdfFile.size > max_bytes) {
+    alert(`File is ${(pdfFile.size/1048576).toFixed(1)} MB; limit is ${max_bytes/1048576} MB.`);
+    return;
+  }
 
   const apiKey = document.getElementById("googleApiKey").value;
   if (!apiKey) return alert("API key is required.");
@@ -272,6 +281,20 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     });
 
     if (!res.ok) {
+      clearInterval(interval);                     // stop fake progress
+
+      /* a) specific: payload too large --------------------------------- */
+      if (res.status === 413) {
+        const msg = await res.text();
+        progressBar.classList.add("error-state");
+        progressBar.textContent  = msg;
+        progressBar.style.width  = "100%";
+        progressBar.setAttribute("aria-valuenow", 100);
+        alert(msg);
+        return;
+      }
+
+      /* b) anything else ----------------------------------------------- */
       const errText = await res.text();
       throw new Error(`OCR request failed: ${errText}`);
     }

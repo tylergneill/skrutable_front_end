@@ -10,10 +10,10 @@ from datetime import datetime, date
 from pathlib import Path
 
 from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, \
-	make_response, g, jsonify
+	make_response, g
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import BadGateway
+from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
 from ocr_service import run_google_ocr
 
@@ -26,7 +26,7 @@ from skrutable.splitting import Splitter
 
 # overcome issue with Werkzeug 3.1 where max_form_memory_size default 500 KB causes 413 Request Entity Too Large
 
-MAX_CONTENT_LENGTH_MB = 64
+MAX_CONTENT_LENGTH_MB = 128
 MB_SIZE = 1024 * 1024
 
 class CustomRequest(Request):
@@ -458,7 +458,7 @@ def whole_file():
 @app.route("/ocr", methods=["GET", "POST"])
 def ocr():
 	if request.method == "GET":
-		return render_template("ocr.html")
+		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
 
 	# Log detailed job stats to learn about usage
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -544,6 +544,8 @@ def get_inputs(required_args, request):
 	try:
 		if request.files:
 			input_file = request.files["input_file"]
+			if input_file.content_length and input_file.content_length > MAX_CONTENT_LENGTH_MB * MB_SIZE:
+				raise RequestEntityTooLarge(f"Upload exceeds {MAX_CONTENT_LENGTH_MB} MB limit")
 			input_text = input_file.stream.read().decode('utf-8')
 		else: # should all be in either form or json
 			input_text = data_source["input_text"]
