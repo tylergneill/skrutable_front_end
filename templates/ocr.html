@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% include 'head_default.html' %}
+<title>OCR Service</title>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<style>
+  .dropzone {
+    border: 2px dashed #ccc; border-radius: 6px;
+    padding: 40px; text-align: center;
+    cursor: pointer; color: #777;
+  }
+  .dropzone.dragover { background: #f0f8ff; }
+  #ocrResultContainer {
+    margin-top: 1em;
+    display: none;
+    padding-bottom: 6em;
+    transform-origin: top;
+  }
+  .animate-zoom {
+    animation: zoomInActual 0.3s ease-out forwards;
+  }
+  @keyframes zoomInActual {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .zoom-bounce {
+    animation: bounceFill 300ms ease-out forwards;
+  }
+  @keyframes bounceFill {
+    0%   { transform: scaleY(1); background-color: steelblue; }
+    50%  { transform: scaleY(1.2); background-color: mediumseagreen; }
+    100% { transform: scaleY(1); background-color: mediumseagreen; }
+  }
+  .error-state {
+    background-color: indianred !important;
+  }
+  .fixed-width-btn {
+    min-width: 160px;
+  }
+</style>
+</head>
+
+<body>
+
+{% include 'nav.html' %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8" id="ocrForm">
+
+      <h1>PDF → Google Cloud Vision OCR</h1>
+
+      <!-- PDF input via drop zone -->
+      <input type="file" id="fileInputPdf" accept=".pdf" style="display:none">
+      <div class="dropzone" id="dropzone">
+        <p>Drop a PDF here or click to select.</p>
+      </div>
+
+      <br>
+
+      <!-- Google API key -->
+      <div class="form-group">
+        <label for="googleApiKey">
+          Google Cloud API key (required)
+        </label>
+        <input type="password" id="googleApiKey" class="form-control"
+               placeholder="Enter your Google Cloud API key"
+               name="google_api_key" autocomplete="current-password">
+      </div>
+
+      <h3>Options</h3>
+
+      <!-- Page number option -->
+      <div class="form-group">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="includePageNumbers" checked>
+            Add extra page numbers in output (e.g. "=== 1 ===")
+          </label>
+        </div>
+      </div>
+
+      <h3>FAQ</h3>
+
+      <p>
+        <a href="ocr_instructions#idea" target="_blank">Idea</a> |
+        <a href="ocr_instructions#api-key" target="_blank">API key</a> |
+        <a href="ocr_instructions#cost" target="_blank">Cost</a> |
+        <a href="ocr_instructions#safety" target="_blank">Safety</a> |
+        <a href="ocr_instructions#input-limits" target="_blank">Filesize/Page limits</a> |
+        <a href="ocr_instructions#complex-page" target="_blank">Page layout</a> |
+        <a href="ocr_instructions#mistakes" target="_blank">Mistakes</a> |
+        <a href="ocr_instructions#hard-returns" target="_blank">Hard returns</a>
+      </p>
+
+      <!-- Progress bar -->
+      <div class="progress" id="progressContainer" style="display: none;">
+        <div class="progress-bar progress-bar-striped"
+             id="progressBar"
+             role="progressbar"
+             aria-valuenow="0"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             style="width: 0%;">
+          0%
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button id="startOcr" class="btn btn-block btn-primary">Start OCR</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="ocrResultContainer" class="container">
+    <h3>Result</h3>
+
+    <div class="row">
+      <div class="col-md-11">
+        <textarea id="ocrText" class="form-control"
+                  style="margin-bottom: 1.5rem; width: 100%; height: 50vh; white-space: pre-wrap; font-family: monospace; font-size: 20px;">
+        </textarea>
+      </div>
+
+      <div class="col-md-1">
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(14)">
+          <span style="font-size: 14px;">A</span>
+        </button>
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(20)">
+          <span style="font-size: 20px;">A</span>
+        </button>
+        <button class="btn btn-primary rounded-4 px-3 py-2" onclick="setFontSize(26)">
+          <span style="font-size: 26px;">A</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="mt-3 col-md-12">
+        <button id="copyButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="copyOcrText()">Copy to clipboard</button>
+        <button id="downloadButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="downloadOcrText()">Download as .txt</button>
+        <button id="clearButton" class="btn btn-primary mb-2 me-2 fixed-width-btn" onclick="clearOcrResult()">Clear result</button>
+      </div>
+    </div>
+
+  </div>
+
+  <br><br>
+
+</div><!-- outer container -->
+
+<script>
+function downloadOcrText() {
+  const text = document.getElementById("ocrText").value;
+  const originalFile = fileInput.files[0] || window.selectedPdfFile;
+  const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+  const blob = new Blob([text], { type: 'text/plain' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${baseName}_ocr_result.txt`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function formatBytes(bytes) {
+  if (bytes >= 1024 * 1024) {
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  } else {
+    return (bytes / 1024).toFixed(2) + " KB";
+  }
+}
+
+const dz = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInputPdf');
+dz.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (file) {
+    dz.innerHTML = `${file.name}<br>(${formatBytes(file.size)})`;
+  }
+});
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  if (e.dataTransfer.files.length) {
+    window.selectedPdfFile = e.dataTransfer.files[0];
+    dz.innerHTML = `${window.selectedPdfFile.name}<br>(${formatBytes(window.selectedPdfFile.size)})`;
+  }
+});
+
+const progressBar = document.getElementById("progressBar");
+const progressContainer = document.getElementById("progressContainer");
+
+function estimateProgress(file) {
+  const minimumTimeEstimate = 25000
+  const estimatedPages = Math.max(1, Math.floor(file.size / (1024 * 100)));
+  const estimatedTime = minimumTimeEstimate + Math.max(0, estimatedPages - 1) * 1000;
+  const startTime = Date.now();
+
+  progressContainer.style.display = "block";
+  progressBar.style.width = "0%";
+  progressBar.textContent = "0%";
+  progressBar.setAttribute("aria-valuenow", "0");
+  progressBar.classList.remove("zoom-bounce", "error-state", "progress-bar-striped", "active");
+  progressBar.style.backgroundColor = "steelblue";
+
+  const interval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(99, (elapsed / estimatedTime) * 100);
+    const display = Math.floor(progress);
+    progressBar.style.width = `${display}%`;
+    progressBar.textContent = display >= 99 ? "99%..." : `${display}%`;
+    progressBar.setAttribute("aria-valuenow", display);
+  }, 300);
+
+  return interval;
+}
+
+function clearOcrResult() {
+  const resultContainer = document.getElementById("ocrResultContainer");
+  const resultVisible = getComputedStyle(resultContainer).display !== "none";
+  const progressContainer = document.getElementById("progressContainer");
+
+  if (!resultVisible) {
+    return;
+  }
+
+  const textArea = document.getElementById("ocrText");
+  const text = textArea?.value?.trim();
+
+  if (text) {
+    const confirmClear = confirm("Clear the current OCR result?");
+    if (!confirmClear) {
+      return;
+    }
+    resultContainer.style.display = "none";
+    progressContainer.style.display = "none";
+  }
+}
+
+document.getElementById("startOcr").addEventListener("click", async function () {
+  const progressContainer = document.getElementById("progressContainer");
+  const progressVisible = getComputedStyle(progressContainer).display !== "none";
+  const resultContainer = document.getElementById("ocrResultContainer");
+
+  if (progressVisible) {
+    const confirmed = confirm("A task may already be in progress or completed. Clear and start a new one?");
+    if (!confirmed) {
+      return;
+    }
+    resultContainer.style.display = "none";
+    progressContainer.style.display = "none";
+  }
+
+  const bytes_per_mb = 1024 * 1024;
+  const max_mb = {{ max_size }};
+  const max_bytes = max_mb * bytes_per_mb;
+
+  const pdfFile = fileInput.files[0] || window.selectedPdfFile;
+  if (!pdfFile) return alert("Please upload a PDF.");
+
+  if (pdfFile.size > max_bytes) {
+    alert(`File is ${(pdfFile.size/1048576).toFixed(1)} MB; limit is ${max_bytes/1048576} MB.`);
+    return;
+  }
+
+  const apiKey = document.getElementById("googleApiKey").value;
+  if (!apiKey) return alert("API key is required.");
+
+  const includePageNumbers = document.getElementById("includePageNumbers").checked;
+
+  const formData = new FormData();
+  formData.append("pdf_file", pdfFile);
+  formData.append("google_api_key", apiKey);
+  formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
+
+  // Reset the progress bar to 0%
+  progressBar.style.width = "0%";
+  progressBar.textContent = "0%";
+  progressBar.setAttribute("aria-valuenow", 0);
+  progressBar.classList.add("progress-bar-striped", "active");
+  progressBar.classList.remove("zoom-bounce", "error-state");
+
+  const interval = estimateProgress(pdfFile);
+
+  try {
+    const res = await fetch("/ocr", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!res.ok) {
+      clearInterval(interval);                     // stop fake progress
+
+      /* a) specific: payload too large --------------------------------- */
+      if (res.status === 413) {
+        const msg = await res.text();
+        progressBar.classList.add("error-state");
+        progressBar.textContent  = msg;
+        progressBar.style.width  = "100%";
+        progressBar.setAttribute("aria-valuenow", 100);
+        alert(msg);
+        return;
+      }
+
+      /* b) anything else ----------------------------------------------- */
+      const errText = await res.text();
+      throw new Error(`OCR request failed: ${errText}`);
+    }
+
+    clearInterval(interval);
+    let display = parseFloat(progressBar.style.width);
+
+    const fillInterval = setInterval(() => {
+      display += 2;
+      if (display >= 100) {
+        display = 100;
+        clearInterval(fillInterval);
+        progressBar.style.width = "100%";
+        progressBar.textContent = "100%";
+        progressBar.setAttribute("aria-valuenow", 100);
+        progressBar.classList.remove("progress-bar-striped", "active");
+        progressBar.classList.remove("zoom-bounce");
+        void progressBar.offsetWidth;
+        progressBar.classList.add("zoom-bounce");
+      } else {
+        progressBar.style.width = `${display}%`;
+        progressBar.textContent = `${Math.floor(display)}%`;
+        progressBar.setAttribute("aria-valuenow", Math.floor(display));
+      }
+    }, 30);
+
+    const raw = await res.text();
+    const text = raw.replace(/<[^>]*>/g, '');
+    const resultBox = document.getElementById("ocrResultContainer");
+
+    setTimeout(() => {
+      document.getElementById("ocrText").value = text;
+      resultBox.style.display = "block";
+      resultBox.classList.remove("animate-zoom");
+      void resultBox.offsetWidth;
+      resultBox.classList.add("animate-zoom");
+    }, 700);
+
+  } catch (err) {
+    clearInterval(interval);
+    console.error("startOcr: error occurred", err);
+    progressBar.classList.add("error-state");
+    progressBar.textContent = "Error";
+    progressBar.setAttribute("aria-valuenow", 100);
+    progressBar.style.width = "100%";
+    progressBar.classList.remove("progress-bar-striped", "active");
+  }
+});
+
+function copyOcrText() {
+  const btn = document.getElementById("copyButton");
+  const textArea = document.getElementById("ocrText");
+  navigator.clipboard.writeText(textArea.value).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = "Copied!";
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 1200);
+  });
+}
+
+let currentFontSize = 20;
+
+function changeFontSize(delta) {
+  const textArea = document.getElementById("ocrText");
+  if (!textArea || textArea.offsetParent === null) return; // skip if not visible
+  currentFontSize += delta;
+  textArea.style.fontSize = `${currentFontSize}px`;
+}
+
+function setFontSize(size) {
+  const textArea = document.getElementById("ocrText");
+  if (textArea) {
+    textArea.style.fontSize = `${size}px`;
+  }
+}
+</script>
+
+</body>
+</html>

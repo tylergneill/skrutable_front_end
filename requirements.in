@@ -1,5 +1,8 @@
 flask
 gunicorn
+natsort
 requests
 skrutable
 werkzeug
+google-cloud-vision
+google-cloud-storage
