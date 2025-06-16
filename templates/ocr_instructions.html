@@ -23,27 +23,31 @@
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
-      Most Sanskrit students and scholars are not using truly high-quality OCR,
-      for the reason that it tends to be technologically just out of reach.
+      Most Sanskrit students and scholars lack access to top-tier OCR
+      because the technology is still slightly out of reach.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options">This blog post</a>
-      justifies why Google Cloud Vision is worth helping expand access to.
-      Granted, other, larger AI models may now outperform it in some cases,
-      but interacting with them can be even more complex.
-      So for now, I'm still focusing on Cloud Vision.
-      This interface removes (almost) all of the difficulty of working with it,
-      including the need for coding or cloud file management.
+      explains why expanding access to Google Cloud Vision is worthwhile:
+      it accepts large multi-page PDFs, delivers high accuracy,
+      and—unlike Google Drive OCR—automatically ignores any low-quality text layer already embedded in the file.
+      Larger AI models can sometimes outperform it,
+      but they are even harder to integrate.
+      In recent tests, Google Gemini and Cloud Vision each achieved strong results,
+      yet made different errors, suggesting that combining their outputs could yield the best accuracy.
+      For these reasons, I will continue advocating for Cloud Vision,
+      and this interface strips away nearly all the complexity—no coding, no cloud-storage wrangling.
     </p>
 
     <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
     <p>
-      Because Google Cloud Vision isn't free,
-      and because I don't yet have funding to cover the cost for everyone,
-      I pass the billing aspect along to individual users.
-      Specifically, an API key tied to a billing-enabled Google Cloud account is required.
-      An API key is essentially a secret string of characters, like a password.
-      You can create and destroy as many as you like, at any time.
-      Follow the video instructions below to set up a Google Cloud billing account,
-      enable Cloud Vision, and generate an API key.
+      Google Cloud Vision is a paid service,
+      and I don’t yet have funding to cover everyone’s usage.
+      Each user therefore supplies their own API key,
+      linked to a Google Cloud project with billing enabled.
+      An API key is simply a password-like string that you can create or delete at any time.
+      Follow the video below to:
+      1. Set up a Google Cloud billing account.
+      2. Enable the Cloud Vision API.
+      3. Generate an API key.
     </p>
     <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
       <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
@@ -122,7 +126,7 @@
       I recommend storing it with a password manager (e.g., 1Password).
       As for Google, you don’t need to worry about them doing anything with the contents of your PDF.
       If you're concerned, just avoid uploading sensitive material.
-      As for me and my code: I guarantee that your API key is never stored.
+      As for me and my code, I guarantee that your API key is never stored.
       The code, which is entirely open source,
       simply reads the key from the HTML form,
       sends it with the OCR request to Google, and that's it.
@@ -137,7 +141,8 @@
 
     <h3 id="complex-page">Will it work with complex page formats?</h3>
     <p>
-      Maybe, maybe not. Cropping your PDF pages often improves both accuracy and performance.
+      Maybe, maybe not.
+      Cropping your PDF pages often improves both accuracy and performance.
     </p>
 
     <h3 id="mistakes">Why are some characters wrong, words misplaced, etc.?</h3>
