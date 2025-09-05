@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 bulk_vision_runner.py - page-aware version (robust page counting) + skip-existing + tqdm
++ insert page separators "=== n ===" when possible
 Logs and CSV use only file basenames (no full paths) for readability.
-Created with ChatGPT 5.
 
 Usage examples:
   python bulk_vision_runner.py --root /path/to/pdfs --dry-run
@@ -176,6 +176,68 @@ def _join_pages_with_separators(pages_iterable):
         parts.append(f"=== {i} ===\n{str(ptxt).strip()}")
     return "\n\n".join(parts)
 
+def _is_structurally_unreadable_pdf(pth: Path) -> bool:
+    """
+    Return True if the PDF appears structurally unreadable (xref/pages tree broken),
+    regardless of any heuristic page count.
+    Signals:
+      - pypdf fails to open or to enumerate pages
+      - pdfinfo reports <= 0 pages (when available)
+    If either pypdf OR pdfinfo gives us confidence (>0 pages), we consider it readable.
+    """
+    # Try pypdf
+    if PdfReader is not None:
+        try:
+            r = PdfReader(str(pth))
+            try:
+                n = len(r.pages)
+                if isinstance(n, int) and n > 0:
+                    return False  # clearly readable
+            except Exception:
+                # len(pages) failed => unreadable
+                return True
+        except Exception:
+            # opening failed => unreadable (unless pdfinfo rescues it)
+            pass
+
+    # Try pdfinfo as a secondary signal
+    n = _pdfinfo_pages(pth)
+    if isinstance(n, int) and n > 0:
+        return False
+
+    # Both signals failed to give >0 pages
+    return True
+
+def plan_action_for(pth: Path, pages: int, root: Path, out_dir: Path):
+    """
+    Decide what would happen for this PDF without side effects.
+    Returns a dict:
+      {
+        "action": "RUN" | "SKIP",
+        "status": "SKIPPED" | "SKIPPED-EMPTY" | "SKIPPED-BADPDF" | "RUN",
+        "reason": str,                # empty for RUN
+        "outpath": Path,              # logical output path (no dirs created)
+        "effective_pages": int        # 0 for skips, else int(pages)
+      }
+    """
+    # compute logical outpath (no directory creation)
+    rel = pth.relative_to(root)
+    out_rel = rel.with_suffix(".txt")
+    outpath = out_dir / out_rel
+
+    # apply skip rules
+    if outpath.exists():
+        return {"action":"SKIP","status":"SKIPPED","reason":"already has .txt","outpath":outpath,"effective_pages":int(pages or 0)}
+    if pth.stat().st_size == 0:
+        return {"action":"SKIP","status":"SKIPPED-EMPTY","reason":"file size zero","outpath":outpath,"effective_pages":0}
+    if _is_structurally_unreadable_pdf(pth):
+        return {"action": "SKIP", "status": "SKIPPED-BADPDF", "reason": "structurally unreadable (xref/pages)",
+                "outpath": outpath, "effective_pages": 0}
+    if pages is None or int(pages) <= 0:
+        return {"action":"SKIP","status":"SKIPPED-BADPDF","reason":"zero pages or unreadable","outpath":outpath,"effective_pages":0}
+
+    return {"action":"RUN","status":"RUN","reason":"","outpath":outpath,"effective_pages":int(pages or 0)}
+
 # This wrapper is picklable (module-level) so it can be used with ProcessPoolExecutor
 def worker_task(args_tuple):
     """
@@ -211,7 +273,40 @@ def worker_task(args_tuple):
     last_exc = ""
     while attempt <= max_retries:
         try:
+            # Call the OCR function; it might return:
+            #  - a single string
+            #  - a list/tuple of per-page strings
+            #  - a dict with a 'pages' key containing per-page strings
             res = run_google_ocr(pdf_path, api_key=api_key, include_page_numbers=include_page_numbers)
+
+            # Format result depending on its type and include_page_numbers flag
+            formatted_text = None
+            if include_page_numbers:
+                # Prefer list/tuple
+                if isinstance(res, (list, tuple)):
+                    formatted_text = _join_pages_with_separators(res)
+                # dict with 'pages'
+                elif isinstance(res, dict) and isinstance(res.get("pages"), (list, tuple)):
+                    formatted_text = _join_pages_with_separators(res["pages"])
+                # string with possible form-feeds
+                elif isinstance(res, str):
+                    if "\f" in res:
+                        pages_split = [p for p in res.split("\f")]
+                        formatted_text = _join_pages_with_separators(pages_split)
+                    else:
+                        # No clear page boundaries — fallback: prefix whole text with page 1 marker
+                        formatted_text = f"=== 1 ===\n{res}"
+                else:
+                    # unknown type: coerce to string
+                    formatted_text = f"=== 1 ===\n{str(res)}"
+            else:
+                # Not requested: preserve original behavior (join lists if necessary)
+                if isinstance(res, (list, tuple)):
+                    formatted_text = "\n\n".join([str(p).strip() for p in res])
+                elif isinstance(res, dict) and isinstance(res.get("pages"), (list, tuple)):
+                    formatted_text = "\n\n".join([str(p).strip() for p in res["pages"]])
+                else:
+                    formatted_text = str(res)
 
             # Race-check: if file exists by the time we write, skip to avoid overwrite
             if outpath.exists():
@@ -222,12 +317,12 @@ def worker_task(args_tuple):
             # atomic write (temp + replace)
             tmp = outpath.with_suffix(outpath.suffix + ".tmp")
             with open(tmp, "w", encoding="utf-8") as fh:
-                fh.write(res)
+                fh.write(formatted_text)
             try:
                 os.replace(tmp, outpath)
             except Exception:
                 # fallback to simple write
-                write_text(outpath, res)
+                write_text(outpath, formatted_text)
 
             end_ts = datetime.datetime.utcnow().isoformat() + "Z"
             try:
@@ -298,51 +393,38 @@ def main():
         total_pages += pages
 
     if args.dry_run:
-        # Summary totals
         total_files = len(pdfs_with_pages)
         print(f"DRY RUN: {total_files} PDF files found under {root}")
         print(f"Total pages across all PDFs: {total_pages}")
         print(f"Average pages per PDF: {total_pages / max(1, total_files):.2f}\n")
 
-        # Compute what will actually be done: skipped vs run
-        to_run = []
-        skipped = []
+        to_run, skipped = [], []
         pages_to_run = 0
         for pth, pages in pdfs_with_pages:
-            # compute corresponding .txt path without creating directories
-            rel = pth.relative_to(root)
-            out_rel = rel.with_suffix(".txt")
-            outpath = out_dir / out_rel
-
-            if outpath.exists():
-                skipped.append((pth.name, pages))
+            plan = plan_action_for(pth, pages, root, out_dir)
+            if plan["action"] == "RUN":
+                to_run.append((pth.name, plan["effective_pages"]))
+                pages_to_run += plan["effective_pages"]
             else:
-                to_run.append((pth.name, pages))
-                pages_to_run += int(pages)
+                skipped.append((pth.name, plan["effective_pages"], plan["status"], plan["reason"]))
 
-        run_count = len(to_run)
-        skip_count = len(skipped)
+        print(f"Would RUN:   {len(to_run)} files  (pages to process: {pages_to_run})")
+        print(f"Would SKIP:  {len(skipped)} files\n")
 
-        print(f"Will RUN:  {run_count} files  (total pages to process: {pages_to_run}) (* $1.50 / 1,000 pp = ${pages_to_run / 1000 * 1.5:.2f})")
-        print(f"Will SKIP: {skip_count} files  (already have .txt outputs)\n")
-
-        # show examples
-        show_n = min(args.show_first, len(pdfs_with_pages))
-        if run_count:
-            print(f"First {min(show_n, run_count)} files that WOULD BE RUN:")
-            for name, pages in to_run[:show_n]:
-                print(f"  {name} — {pages} pages")
+        show_n = min(args.show_first, 20)
+        if to_run:
+            print(f"First {min(show_n, len(to_run))} files that WOULD BE RUN:")
+            for name, pg in to_run[:show_n]:
+                print(f"  {name} — {pg} pages")
             print("")
-        else:
-            print("No files would be run (every PDF already has a .txt output).\n")
-
-        if skip_count:
-            print(f"First {min(show_n, skip_count)} files that WOULD BE SKIPPED:")
-            for name, pages in skipped[:show_n]:
-                print(f"  {name} — {pages} pages")
+        if skipped:
+            print(f"First {min(show_n, len(skipped))} files that WOULD BE SKIPPED:")
+            for name, pg, status, reason in skipped[:show_n]:
+                pg_txt = f"{pg} pages" if pg else "0 pages"
+                print(f"  {name} — {pg_txt} — {status} ({reason})")
             print("")
 
-        print("Dry-run: done. No files were written and no directories were created.")
+        print("Dry-run: done. No files were processed; no directories created.")
         return
 
     # Ensure out_dir exists up front
@@ -355,7 +437,7 @@ def main():
         if header_needed:
             writer.writerow(["timestamp", "pdf_name", "out_name", "pages", "status", "error", "start_ts", "end_ts", "duration_s"])
 
-    # Prepare tasks and skip any that already have .txt output.
+    # Prepare tasks and skip any that should not run.
     tasks = []
     pages_in_total = 0
     skipped_count = 0
@@ -367,19 +449,31 @@ def main():
     pbar = tqdm(total=total_files, unit="file", desc="Overall progress")
 
     for pth, pages in pdfs_with_pages:
-        outpath = ensure_outpath(root, pth, out_dir)
-        if outpath.exists():
-            # log skip to CSV (use basenames)
+        plan = plan_action_for(pth, pages, root, out_dir)
+        outpath = plan["outpath"]
+
+        if plan["action"] == "SKIP":
             with open(args.log_csv, "a", newline="", encoding="utf-8") as csvf:
                 writer = csv.writer(csvf)
-                writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S"), pth.name, outpath.name, pages, "SKIPPED", ""])
+                writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S"),
+                                 pth.name, outpath.name, plan["effective_pages"],
+                                 plan["status"], plan["reason"]])
             skipped_count += 1
-            logging.info("SKIP (exists): %s -> %s", pth.name, outpath.name)
+            if plan["status"] == "SKIPPED":
+                logging.info("SKIP (exists): %s -> %s", pth.name, outpath.name)
+            elif plan["status"] == "SKIPPED-EMPTY":
+                logging.warning("SKIP (empty PDF): %s", pth.name)
+            else:  # SKIPPED-BADPDF
+                logging.warning("SKIP (bad PDF): %s — zero pages or unreadable", pth.name)
             pbar.update(1)
             continue
-        # otherwise queue task
-        tasks.append((str(pth), api_key, args.include_page_numbers, str(root), str(out_dir), args.max_retries, args.sleep_base, int(pages)))
-        pages_in_total += int(pages)
+
+        # RUN: create dirs only now (no side effects before)
+        ensure_outpath(root, pth, out_dir)  # ensures parent dirs; returns same path pattern
+        tasks.append((str(pth), api_key, args.include_page_numbers,
+                      str(root), str(out_dir), args.max_retries,
+                      args.sleep_base, plan["effective_pages"]))
+        pages_in_total += plan["effective_pages"]
 
     logging.info("Prepared %d tasks (skipped %d) covering %d total pages.", len(tasks), skipped_count, pages_in_total)
     logging.info("Starting %s executor with %d workers", args.mode, args.workers)
