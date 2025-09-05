@@ -309,10 +309,6 @@ def main():
         skipped = []
         pages_to_run = 0
         for pth, pages in pdfs_with_pages:
-            print(type(str(pth)), type(pages))
-            print(str(pth))
-            exit()
-
             # compute corresponding .txt path without creating directories
             rel = pth.relative_to(root)
             out_rel = rel.with_suffix(".txt")
