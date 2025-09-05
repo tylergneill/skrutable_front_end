@@ -298,14 +298,55 @@ def main():
         total_pages += pages
 
     if args.dry_run:
-        print(f"DRY RUN: {len(pdfs_with_pages)} PDFs found under {root}")
+        # Summary totals
+        total_files = len(pdfs_with_pages)
+        print(f"DRY RUN: {total_files} PDF files found under {root}")
         print(f"Total pages across all PDFs: {total_pages}")
-        print(f"Average pages per PDF: {total_pages / max(1, len(pdfs_with_pages)):.2f}")
+        print(f"Average pages per PDF: {total_pages / max(1, total_files):.2f}\n")
+
+        # Compute what will actually be done: skipped vs run
+        to_run = []
+        skipped = []
+        pages_to_run = 0
+        for pth, pages in pdfs_with_pages:
+            print(type(str(pth)), type(pages))
+            print(str(pth))
+            exit()
+
+            # compute corresponding .txt path without creating directories
+            rel = pth.relative_to(root)
+            out_rel = rel.with_suffix(".txt")
+            outpath = out_dir / out_rel
+
+            if outpath.exists():
+                skipped.append((pth.name, pages))
+            else:
+                to_run.append((pth.name, pages))
+                pages_to_run += int(pages)
+
+        run_count = len(to_run)
+        skip_count = len(skipped)
+
+        print(f"Will RUN:  {run_count} files  (total pages to process: {pages_to_run})")
+        print(f"Will SKIP: {skip_count} files  (already have .txt outputs)\n")
+
+        # show examples
         show_n = min(args.show_first, len(pdfs_with_pages))
-        print(f"\nFirst {show_n} files with page counts:")
-        for pth, pages in pdfs_with_pages[:show_n]:
-            print(f"  {pth.name}  — {pages} pages")
-        print("\nDry-run: done.")
+        if run_count:
+            print(f"First {min(show_n, run_count)} files that WOULD BE RUN:")
+            for name, pages in to_run[:show_n]:
+                print(f"  {name} — {pages} pages")
+            print("")
+        else:
+            print("No files would be run (every PDF already has a .txt output).\n")
+
+        if skip_count:
+            print(f"First {min(show_n, skip_count)} files that WOULD BE SKIPPED:")
+            for name, pages in skipped[:show_n]:
+                print(f"  {name} — {pages} pages")
+            print("")
+
+        print("Dry-run: done. No files were written and no directories were created.")
         return
 
     # Ensure out_dir exists up front
