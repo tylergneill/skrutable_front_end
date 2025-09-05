@@ -323,7 +323,7 @@ def main():
         run_count = len(to_run)
         skip_count = len(skipped)
 
-        print(f"Will RUN:  {run_count} files  (total pages to process: {pages_to_run})")
+        print(f"Will RUN:  {run_count} files  (total pages to process: {pages_to_run}) (* $1.50 / 1,000 pp = ${pages_to_run / 1000 * 1.5:.2f})")
         print(f"Will SKIP: {skip_count} files  (already have .txt outputs)\n")
 
         # show examples
