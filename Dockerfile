@@ -12,7 +12,7 @@ USER sanskrit
 ENV PORT=5010
 CMD gunicorn 'flask_app:app' \
   --bind 0.0.0.0:$PORT \
-  --workers 3 \
+  --workers 4 \
   --threads 4 \
   --timeout 1200 \
   --log-level info \
