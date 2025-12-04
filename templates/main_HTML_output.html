@@ -253,10 +253,9 @@
                 if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
                 if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
                 document.getElementById("resplit_option").value = "{{ resplit_option }}";
-                testArray = "{{ melody_options }}";
-                if ( testArray.length > 2) {
+                {% if melody_options %}
                     document.getElementById("melody_option").value = "{{ melody_options[0] }}";
-                }
+                {% endif %}
             }
 
             function conditionally_display_examples() {
