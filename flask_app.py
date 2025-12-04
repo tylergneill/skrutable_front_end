@@ -731,6 +731,8 @@ def ex1():
 	session["alignment"] = 1
 	session["resplit_option"] = "resplit_lite_keep_mid"
 	session["skrutable_action"] = "transliterate"
+	session["meter_label"] = ""
+	session["melody_options"] = []
 	session.modified = True
 	return render_template(
 		'main.html',
