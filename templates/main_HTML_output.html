@@ -253,10 +253,9 @@
                 if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
                 if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
                 document.getElementById("resplit_option").value = "{{ resplit_option }}";
-                testArray = "{{ melody_options }}";
-                if ( testArray.length > 2) {
+                {% if melody_options %}
                     document.getElementById("melody_option").value = "{{ melody_options[0] }}";
-                }
+                {% endif %}
             }
 
             function conditionally_display_examples() {
@@ -281,11 +280,17 @@
             melodySelectElement.addEventListener("change", update_melody);
             function update_melody() {
               var audioElement = document.getElementById("audio");
-              var audio_src_selection = melodySelectElement.value
+              var audio_src_selection = melodySelectElement.value;
+              var meter_label = "{{ meter_label }}";
+
+              if (!audio_src_selection || !meter_label) {
+                  return;
+              }
+
               audio_src_selection = audio_src_selection.replace(/ /g, "-");
               audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
               var audio_src_str = audio_prefix +
-                                "{{ meter_label }}" +
+                                meter_label +
                                 "-" +
                                 audio_src_selection +
                                 ".mp3";
