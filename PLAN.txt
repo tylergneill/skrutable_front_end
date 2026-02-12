@@ -1,0 +1,245 @@
+╭─────────────────────────────────────────────────────────────────────────────────╮
+│ Plan to implement                                                               │
+│                                                                                 │
+│ Refactor Plan: Decouple Frontend from Backend                                   │
+│                                                                                 │
+│ Context                                                                         │
+│                                                                                 │
+│ The app works but has structural issues accumulated over time:                  │
+│ - Duplicated processing logic — the same skrutable calls exist 3 times: index() │
+│  POST, whole_file(), and /api/* routes                                          │
+│ - Session abuse — Flask session stores UI state (action, schemes, checkboxes,   │
+│ settings) that should just be sent with each request. Two API endpoints         │
+│ (/api/transliterate, /api/split) have real bugs from reading session vars that  │
+│ API consumers never set                                                         │
+│ - flask.g as glue — g.text_input/g.text_output shuttle data between             │
+│ process_form() and the action handlers, but this is just passing function       │
+│ arguments with extra steps                                                      │
+│ - Full-page form POSTs — every action reloads the entire page; the frontend     │
+│ can't be redesigned independently of the Python code                            │
+│                                                                                 │
+│ The goal: make the frontend call API endpoints via JS (like the OCR page        │
+│ already does), so the UI is decoupled from the backend and ready for a future   │
+│ redesign.                                                                       │
+│                                                                                 │
+│ Constraints                                                                     │
+│                                                                                 │
+│ - Same inputs must produce same outputs — no processing changes                 │
+│ - All existing pages/resources remain available                                 │
+│ - 128 MB upload support preserved (CustomRequest/MAX_CONTENT_LENGTH stay)       │
+│ - External API consumers (plain text .text responses) must not break            │
+│ - App stays in a single flask_app.py — no blueprints                            │
+│                                                                                 │
+│ Decision                                                                        │
+│                                                                                 │
+│ - API format: Use Accept: application/json header to content-negotiate.         │
+│ Frontend sends this header and gets JSON; existing consumers get plain text as  │
+│ before.                                                                         │
+│                                                                                 │
+│ ---                                                                             │
+│ Phase 1: Fix API endpoint bugs + extract shared helpers                         │
+│                                                                                 │
+│ Backend only. No frontend changes. No behavior changes.                         │
+│                                                                                 │
+│ 1a. Fix session dependencies in API routes                                      │
+│                                                                                 │
+│ flask_app.py — /api/transliterate (line 587) reads                              │
+│ session["avoid_virama_indic_scripts"] and /api/split (lines 692-703) reads      │
+│ session["splitter_model"], session["preserve_compound_hyphens"],                │
+│ session["preserve_punctuation"], session["avoid_virama_indic_scripts"]. These   │
+│ fail for stateless API consumers.                                               │
+│                                                                                 │
+│ Fix: read these from request data with defaults matching reset_variables():     │
+│ - avoid_virama_indic_scripts → default true                                     │
+│ - splitter_model → default "dharmamitra_2024_sept"                              │
+│ - preserve_compound_hyphens → default true                                      │
+│ - preserve_punctuation → default true                                           │
+│                                                                                 │
+│ Add them as optional params in get_inputs() or read them directly after the     │
+│ required params are validated.                                                  │
+│                                                                                 │
+│ Update templates/api.html to document the new optional parameters.              │
+│                                                                                 │
+│ 1b. Extract four do_* helper functions                                          │
+│                                                                                 │
+│ Add near the top of flask_app.py (after skrutable object instantiation, lines   │
+│ 59-62):                                                                         │
+│                                                                                 │
+│ - do_transliterate(input_text, from_scheme, to_scheme,                          │
+│ avoid_virama_indic_scripts=True) → returns string                               │
+│ - do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas,        │
+│ show_alignment) → returns string                                                │
+│ - do_identify_meter(input_text, from_scheme, resplit_option, show_weights,      │
+│ show_morae, show_gaRas, show_alignment) → returns (summary_text,                │
+│ meter_label_hk, melody_options_list)                                            │
+│ - do_split(input_text, from_scheme, to_scheme, splitter_model,                  │
+│ preserve_compound_hyphens, preserve_punctuation, avoid_virama_indic_scripts) →  │
+│ returns string                                                                  │
+│                                                                                 │
+│ These are pure functions — no session, no g, no Flask imports. They call T, S,  │
+│ MI, Spl and return results.                                                     │
+│                                                                                 │
+│ 1c. Rewire all three call sites to use the helpers                              │
+│                                                                                 │
+│ - API routes: replace inline skrutable calls with do_* calls                    │
+│ - index() POST: replace lines 207-293 with do_* calls, still reading params     │
+│ from session (session writes stay for now)                                      │
+│ - whole_file(): replace inline processing with do_* calls (the per-verse loop   │
+│ for identify-meter stays, calling do_identify_meter per verse; the              │
+│ HTTPError/BadGateway handling for split stays as a wrapper around do_split)     │
+│                                                                                 │
+│ 1d. Add JSON content negotiation                                                │
+│                                                                                 │
+│ Add a helper:                                                                   │
+│ def api_response(result_text, **extra_fields):                                  │
+│     if "application/json" in (request.headers.get("Accept") or ""):             │
+│         payload = {"result": result_text, **extra_fields}                       │
+│         return jsonify(payload)                                                 │
+│     return result_text                                                          │
+│                                                                                 │
+│ Use in all four API routes. For api_identify_meter, pass meter_label and        │
+│ melody_options as extra fields.                                                 │
+│                                                                                 │
+│ Verify Phase 1                                                                  │
+│                                                                                 │
+│ - curl all four API endpoints without cookies → should work with defaults       │
+│ (currently /api/transliterate and /api/split would fail)                        │
+│ - curl -H "Accept: application/json" → returns JSON                             │
+│ - curl without Accept header → returns plain text as before                     │
+│ - Form-based UI flow unchanged — click every action, same results               │
+│ - Whole-file upload for transliterate, identify meter, split → same results     │
+│                                                                                 │
+│ ---                                                                             │
+│ Phase 2: Frontend calls APIs via JS                                             │
+│                                                                                 │
+│ main.html changes. Form POST flow replaced with fetch() calls.                  │
+│                                                                                 │
+│ 2a. Convert action buttons from form submit to fetch()                          │
+│                                                                                 │
+│ Change each action button from type="submit" to type="button" with an async JS  │
+│ handler.                                                                        │
+│                                                                                 │
+│ Each handler:                                                                   │
+│ 1. Reads input text, scheme dropdowns, checkboxes from the DOM                  │
+│ 2. Builds FormData with all needed params (including settings)                  │
+│ 3. Calls fetch('/api/<endpoint>', { method: 'POST', headers: {'Accept':         │
+│ 'application/json'}, body: formData })                                          │
+│ 4. Parses JSON response, sets text_output textarea value                        │
+│ 5. For identify-meter: dynamically rebuilds the melody dropdown and updates     │
+│ audio source                                                                    │
+│                                                                                 │
+│ Buttons to convert: Transliterate, Scan, Identify Meter, Split Words.           │
+│                                                                                 │
+│ Keep as form POSTs for now (convert during UI redesign):                        │
+│ - "whole file" buttons — these upload files and return downloads, naturally     │
+│ suited to form POST                                                             │
+│ - "DSAL-Apte links" — renders a different template with HTML links              │
+│                                                                                 │
+│ 2b. Move settings to localStorage                                               │
+│                                                                                 │
+│ In main.html, add a skrutableSettings JS object initialized from localStorage   │
+│ (with defaults matching reset_variables()). The settings page (settings.html)   │
+│ writes to localStorage instead of POST to /settings.                            │
+│                                                                                 │
+│ The fetch() calls for Split and Transliterate include these settings in the     │
+│ FormData.                                                                       │
+│                                                                                 │
+│ 2c. Rewrite melody player to be JS-driven                                       │
+│                                                                                 │
+│ Currently update_melody() reads {{ meter_label }} from Jinja. Change to use a   │
+│ JS variable (currentMeterLabel) set from the API response. The melody select    │
+│ dropdown is rebuilt dynamically from data.melody_options in the identify-meter  │
+│ response.                                                                       │
+│                                                                                 │
+│ 2d. Rewrite initialize_choices() to not use Jinja                               │
+│                                                                                 │
+│ Currently reads {{ from_scheme }}, {{ weights }}, etc. Change to initialize     │
+│ from HTML defaults + localStorage settings. Examples still work via             │
+│ server-rendered template vars during this transitional phase.                   │
+│                                                                                 │
+│ Verify Phase 2                                                                  │
+│                                                                                 │
+│ - Click each action button → output appears without page reload                 │
+│ - Melody player shows after identify-meter with known meter, plays correct      │
+│ audio                                                                           │
+│ - Swap buttons still work (pure JS, no change needed)                           │
+│ - Settings save to localStorage, persist across page loads, affect              │
+│ Split/Transliterate behavior                                                    │
+│ - Whole-file buttons still work (form POST)                                     │
+│ - Apte links button still works (form POST)                                     │
+│ - Examples still work (server-rendered)                                         │
+│                                                                                 │
+│ ---                                                                             │
+│ Phase 3: Remove session and g dependency                                        │
+│                                                                                 │
+│ Cleanup. Remove dead code paths.                                                │
+│                                                                                 │
+│ 3a. Simplify index() route                                                      │
+│                                                                                 │
+│ GET: just render main.html with no session unpacking. POST: only needed for     │
+│ Apte links and whole-file formaction — can be simplified or kept minimal.       │
+│                                                                                 │
+│ 3b. Move examples to query-parameter-based                                      │
+│                                                                                 │
+│ Change nav links from /ex1 to /?example=1. JS in main.html reads the query      │
+│ param and populates textareas/dropdowns from hardcoded JS objects. Server-side  │
+│ /ex1 routes become redirects to /?example=1 for backward compat (bookmarks).    │
+│                                                                                 │
+│ 3c. Simplify /reset                                                             │
+│                                                                                 │
+│ Clear session (for any remaining uses), redirect to /?reset=true. JS clears     │
+│ localStorage on that param.                                                     │
+│                                                                                 │
+│ 3d. Remove dead code                                                            │
+│                                                                                 │
+│ - process_form(), process_settings_form(), ensure_keys(),                       │
+│ SESSION_VARIABLE_NAMES and related lists — no longer needed once form POST flow │
+│  is gone for main actions                                                       │
+│ - g.text_input/g.text_output usage in action handlers — gone since actions now  │
+│ go through API routes                                                           │
+│ - Simplify error handlers (500/502) to not read from g                          │
+│ - Remove or simplify /settings POST handler                                     │
+│                                                                                 │
+│ Verify Phase 3                                                                  │
+│                                                                                 │
+│ - Fresh browser (no cookies, no localStorage): everything works with defaults   │
+│ - Examples load via /?example=1 with correct data                               │
+│ - Reset clears everything                                                       │
+│ - API endpoints still work for external consumers                               │
+│ - No Python references to session[...] remain except possibly a minimal         │
+│ session.clear() in reset                                                        │
+│                                                                                 │
+│ ---                                                                             │
+│ Files modified                                                                  │
+│ File: flask_app.py                                                              │
+│ Phases: 1, 2, 3                                                                 │
+│ What changes: Add do_* helpers, fix API routes, add api_response(), simplify    │
+│   index()/whole_file(), remove session/g code                                   │
+│ ────────────────────────────────────────                                        │
+│ File: templates/main.html                                                       │
+│ Phases: 2, 3                                                                    │
+│ What changes: Add fetch()-based action handlers, settings from localStorage,    │
+│   dynamic melody player, example loading via query params                       │
+│ ────────────────────────────────────────                                        │
+│ File: templates/settings.html                                                   │
+│ Phases: 2                                                                       │
+│ What changes: Write to localStorage instead of form POST                        │
+│ ────────────────────────────────────────                                        │
+│ File: templates/nav.html                                                        │
+│ Phases: 3                                                                       │
+│ What changes: Example links change from /ex1 to /?example=1                     │
+│ ────────────────────────────────────────                                        │
+│ File: templates/api.html                                                        │
+│ Phases: 1                                                                       │
+│ What changes: Document new optional params for transliterate and split          │
+│ Risk notes                                                                      │
+│                                                                                 │
+│ - Large text via fetch(): fetch() sends FormData, which hits the same           │
+│ CustomRequest/MAX_CONTENT_LENGTH code path as form POSTs. The 128 MB limit is   │
+│ enforced at the Werkzeug/Flask level regardless of how the request arrives. No  │
+│ change needed.                                                                  │
+│ - Backward compat: Accept header negotiation means existing API consumers are   │
+│ unaffected. Example URLs redirect. Reset still works.                           │
+│ - Incremental: Each phase is independently deployable. The app works after      │
+│ every step.                                                                     │
+╰─────────────────────────────────────────────────────────────────────────────────╯
