@@ -9,7 +9,7 @@ import unicodedata
 from datetime import datetime, date
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, Request, url_for, session, send_from_directory, \
+from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
 	make_response, g
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
@@ -52,14 +52,76 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * MB_SIZE
 def serve_files(name):
 	return send_from_directory('assets', name)
 
-# this helps app work both publicly (e.g. on Digital Ocean) and locally
-CURRENT_FOLDER = os.path.dirname(os.path.abspath(__file__))
-
 # Skrutable main objects
 T = Transliterator()
 S = Scanner()
 MI = MeterIdentifier()
 Spl = Splitter()
+
+# --- Pure helper functions (no session, no g, no Flask) ---
+
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True):
+	return T.transliterate(
+		input_text,
+		from_scheme=from_scheme,
+		to_scheme=to_scheme,
+		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
+	)
+
+def do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment):
+	V = S.scan(input_text, from_scheme=from_scheme)
+	return V.summarize(
+		show_weights=show_weights,
+		show_morae=show_morae,
+		show_gaRas=show_gaRas,
+		show_alignment=show_alignment,
+		show_label=False,
+	)
+
+def do_identify_meter(input_text, from_scheme, resplit_option, show_weights, show_morae, show_gaRas, show_alignment):
+	"""Returns (summary_text, meter_label_hk, melody_options_list)."""
+	r_o, r_k_m = parse_complex_resplit_option(resplit_option)
+	V = MI.identify_meter(
+		input_text,
+		resplit_option=r_o,
+		resplit_keep_midpoint=r_k_m,
+		from_scheme=from_scheme,
+	)
+	summary = V.summarize(
+		show_weights=show_weights,
+		show_morae=show_morae,
+		show_gaRas=show_gaRas,
+		show_alignment=show_alignment,
+		show_label=True,
+	)
+	short_meter_label = V.meter_label[:V.meter_label.find(' ')]
+	if short_meter_label in meter_melodies:
+		meter_label_hk = T.transliterate(short_meter_label, from_scheme='IAST', to_scheme='HK')
+		melody_options_list = meter_melodies[short_meter_label]
+	else:
+		meter_label_hk = ""
+		melody_options_list = []
+	return summary, meter_label_hk, melody_options_list, V
+
+def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_2024_sept",
+			 preserve_compound_hyphens=True, preserve_punctuation=True, avoid_virama_indic_scripts=True):
+	IAST_input = T.transliterate(input_text, from_scheme=from_scheme, to_scheme='IAST')
+	split_result = Spl.split(
+		IAST_input,
+		splitter_model=splitter_model,
+		preserve_compound_hyphens=preserve_compound_hyphens,
+		preserve_punctuation=preserve_punctuation,
+	)
+	result = T.transliterate(
+		split_result,
+		from_scheme='IAST',
+		to_scheme=to_scheme,
+		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
+	)
+	# TODO: Remove once 2018 splitter server restored
+	if split_result.startswith("The server for the 2018 model is temporarily down"):
+		result = split_result
+	return result
 
 # variable names for flask.session() object
 SELECT_ELEMENT_NAMES = [
@@ -119,15 +181,6 @@ def process_form(form):
 
 	session.modified = True
 
-def process_settings_form(form):
-	session['avoid_virama_indic_scripts'] = int(form.get('avoid_virama_indic_scripts', None) is not None)
-	# session['include_single_pada'] = int(form.get('include_single_pada', None) is not None)  # TODO: enable later
-	session['preserve_punctuation'] = int(form.get('preserve_punctuation', None) is not None)
-	session['preserve_compound_hyphens'] = int(form.get('preserve_compound_hyphens', None) is not None)
-	session['splitter_model'] = form.get('splitter_model', 'dharmamitra_2024_sept')
-	session.modified = True
-
-
 # for meter-id resplit option, which has two parts
 def parse_complex_resplit_option(complex_resplit_option):
 	if complex_resplit_option.endswith('_keep_mid'):
@@ -138,11 +191,29 @@ def parse_complex_resplit_option(complex_resplit_option):
 		resplit_option = complex_resplit_option
 	return resplit_option, resplit_keep_midpoint
 
+def _init_session_defaults():
+	"""Set all session keys to their defaults (used by whole_file flow)."""
+	defaults = {
+		"skrutable_action": "...",
+		"from_scheme": "IAST", "to_scheme": "IAST",
+		"weights": 1, "morae": 1, "gaRas": 1, "alignment": 1,
+		"resplit_option": "resplit_lite_keep_mid",
+		"meter_label": "", "melody_options": [],
+		"avoid_virama_indic_scripts": 1,
+		"preserve_compound_hyphens": 1,
+		"preserve_punctuation": 1,
+		"splitter_model": "dharmamitra_2024_sept",
+	}
+	for k, v in defaults.items():
+		session.setdefault(k, v)
+	session.modified = True
+
 def ensure_keys():
 	# just in case, make sure all keys in session
 	for var_name in SESSION_VARIABLE_NAMES:
 		if var_name not in session:
-			reset_variables()
+			_init_session_defaults()
+			return
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
@@ -150,167 +221,74 @@ def request_entity_too_large(error):
 
 @app.errorhandler(500)
 def internal_server_error(error):
-	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
-	text_input = g.get("text_input") or ""
-	text_output = g.get("text_output") or ""
-
 	context = {
 		'path': request.path,
 		'method': request.method,
-		'text_input_length': len(text_input),
-		'text_output_length': len(text_output),
-		'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
-		'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
-		'user_session_data': user_session_data
 	}
-
 	return render_template('errors/500.html', **context), 500
 
 @app.errorhandler(502)
 def bad_gateway_error(error):
-	user_session_data = {k: session.get(k) for k in SESSION_VARIABLE_NAMES}
-	text_input = g.get("text_input") or ""
-	text_output = g.get("text_output") or ""
-
 	context = {
 		'path': request.path,
 		'method': request.method,
-		'text_input_length': len(text_input),
-		'text_output_length': len(text_output),
-		'text_input': text_input[:1000] + '...' if len(text_input) > 1000 else text_input,
-		'text_output': text_output[:1000] + '...' if len(text_output) > 1000 else text_output,
-		'user_session_data': user_session_data
 	}
-
 	return render_template('errors/502.html', **context), 502
+
+MAIN_DEFAULTS = {
+	"skrutable_action": "...",
+	"from_scheme": "IAST",
+	"to_scheme": "IAST",
+	"weights": 1,
+	"morae": 1,
+	"gaRas": 1,
+	"alignment": 1,
+	"resplit_option": "resplit_lite_keep_mid",
+	"meter_label": "",
+	"melody_options": [],
+}
 
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-	ensure_keys()
-
 	if request.method == "GET":
-		session["skrutable_action"] = "..."
-		session.modified = True
+		example_num = request.args.get("example")
+		if example_num and example_num in EXAMPLES:
+			ex = EXAMPLES[example_num]
+			return render_template(
+				'main.html',
+				text_input=ex["text_input"],
+				text_output=ex["text_output"],
+				**{**MAIN_DEFAULTS, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
+			)
 		return render_template(
 			'main.html',
 			text_input="",
 			text_output="",
-			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			**MAIN_DEFAULTS,
 		)
 
 	elif request.method == "POST":
 
-		process_form(request.form)
+		# POST is now only used for Apte links (and whole-file via formaction)
+		action = request.form.get("skrutable_action", "")
+		text_input = request.form.get("text_input", "")
 
-		# carry out chosen action
-		if session["skrutable_action"] == "transliterate":
-
-			g.text_output = T.transliterate(
-				g.text_input,
-				from_scheme=session["from_scheme"],
-				to_scheme=session["to_scheme"],
-				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
-				)
-
-			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
-
-		elif session["skrutable_action"] == "scan":
-
-			V = S.scan(
-				g.text_input,
-				from_scheme=session["from_scheme"]
-				)
-
-			g.text_output = V.summarize(
-				show_weights=session["weights"],
-				show_morae=session["morae"],
-				show_gaRas=session["gaRas"],
-				show_alignment=session["alignment"],
-				show_label=False
-				)
-
-			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
-
-		elif session["skrutable_action"] == "identify meter":
-
-			r_o, r_k_m = parse_complex_resplit_option(
-				complex_resplit_option=session["resplit_option"]
-				)
-
-			V = MI.identify_meter(
-				g.text_input,
-				resplit_option=r_o,
-				resplit_keep_midpoint=r_k_m,
-				from_scheme=session["from_scheme"]
-				)
-
-			g.text_output = V.summarize(
-				show_weights=session["weights"],
-				show_morae=session["morae"],
-				show_gaRas=session["gaRas"],
-				show_alignment=session["alignment"],
-				show_label=True
-				)
-
-			short_meter_label = V.meter_label[:V.meter_label.find(' ')]
-			if short_meter_label in meter_melodies:
-				session["meter_label"] = T.transliterate(
-					short_meter_label,
-					from_scheme='IAST',
-					to_scheme='HK',
-					)
-				session["melody_options"] = meter_melodies[ short_meter_label ]
-			else:
-				session["meter_label"] = ""; session["melody_options"] = [] # cancel these
-
-		elif session["skrutable_action"] == "split":
-
-			IAST_input = T.transliterate(
-				g.text_input,
-				from_scheme=session["from_scheme"],
-				to_scheme='IAST',
-				)
-
-			split_result = Spl.split(
-				IAST_input,
-				splitter_model=session["splitter_model"],
-				preserve_compound_hyphens=session['preserve_compound_hyphens'],
-				preserve_punctuation=session['preserve_punctuation'],
-				)
-
-			g.text_output = T.transliterate(
-				split_result,
-				from_scheme='IAST',
-				to_scheme=session["to_scheme"],
-				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
-				)
-
-			# TODO: Remove once 2018 splitter server restored
-			if split_result.startswith("The server for the 2018 model is temporarily down"):
-				g.text_output = split_result
-
-			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
-
-		elif session["skrutable_action"] == "apte links":
-
-			session["meter_label"] = ""; session["melody_options"] = [] # cancel these
-
-			output_HTML = prep_split_output_for_Apte(g.text_input) # must already be split
+		if action == "apte links":
+			output_HTML = prep_split_output_for_Apte(text_input)
 			return render_template(
 				"main_HTML_output.html",
-				text_input=g.text_input,
+				text_input=text_input,
 				output_HTML=output_HTML,
-				**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+				**MAIN_DEFAULTS,
 			)
 
-		session.modified = True
-
+		# Fallback: render main page (shouldn't normally reach here)
 		return render_template(
 			'main.html',
-			text_input=g.text_input,
-			text_output=g.text_output,
-			**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
+			text_input=text_input,
+			text_output="",
+			**MAIN_DEFAULTS,
 		)
 
 
@@ -352,22 +330,15 @@ def whole_file():
 
 		if session["skrutable_action"] == "transliterate":
 
-			output_data = T.transliterate(
+			output_data = do_transliterate(
 				input_data,
 				from_scheme=session["from_scheme"],
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
-				)
-
+			)
 			output_fn_suffix = '_transliterated'
 
 		elif session["skrutable_action"] == "identify meter":
-
-			r_o, r_k_m = parse_complex_resplit_option(
-				complex_resplit_option=session["resplit_option"],
-				)
-
-			# record starting time
 
 			starting_time = datetime.now().time()
 
@@ -375,29 +346,20 @@ def whole_file():
 			output_data = ''
 			for verse in verses:
 
-				result = MI.identify_meter(
+				summary, meter_label_hk, melody_options_list, V = do_identify_meter(
 					verse,
-					resplit_option=r_o,
-					resplit_keep_midpoint=r_k_m,
-					from_scheme=session['from_scheme']
-					)
+					from_scheme=session['from_scheme'],
+					resplit_option=session["resplit_option"],
+					show_weights=session["weights"],
+					show_morae=session["morae"],
+					show_gaRas=session["gaRas"],
+					show_alignment=session["alignment"],
+				)
 
-				output_data += (
-					result.text_raw + '\n\n' +
-					result.summarize(
-						show_weights=session["weights"],
-						show_morae=session["morae"],
-						show_gaRas=session["gaRas"],
-						show_alignment=session["alignment"],
-						show_label=True
-						) +
-					'\n'
-					)
+				output_data += V.text_raw + '\n\n' + summary + '\n'
 
-			# record ending time
 			ending_time = datetime.now().time()
 
-			# report total duration
 			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
 			duration_secs = delta.seconds + delta.microseconds / 1000000
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
@@ -406,32 +368,22 @@ def whole_file():
 
 		elif session["skrutable_action"] == "split":
 
-			IAST_input = T.transliterate(
-				input_data,
-				from_scheme=session["from_scheme"],
-				to_scheme='IAST',
-				)
-
 			try:
-				split_result = Spl.split(
-					IAST_input,
+				output_data = do_split(
+					input_data,
+					from_scheme=session["from_scheme"],
+					to_scheme=session["to_scheme"],
 					splitter_model=session["splitter_model"],
-					preserve_compound_hyphens=session['preserve_compound_hyphens'],
-					preserve_punctuation=session['preserve_punctuation'],
-					)
+					preserve_compound_hyphens=session["preserve_compound_hyphens"],
+					preserve_punctuation=session["preserve_punctuation"],
+					avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				)
 			except HTTPError as e:
 				if e.response.status_code == 413:
 					raise BadGateway("Upstream service returned 413 Request Entity Too Large")
 					# TODO: have Skrutable backend handle batching to relieve burden on upstream server
 				else:
 					raise
-
-			output_data = T.transliterate(
-				split_result,
-				from_scheme='IAST',
-				to_scheme=session["to_scheme"],
-				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
-				)
 
 			output_fn_suffix = '_split'
 
@@ -525,7 +477,23 @@ def ocr_instructions():
 def api_landing():
 	return render_template("api.html")
 
-def get_inputs(required_args, request):
+def _coerce_bool(value):
+	"""Convert string booleans to real booleans, pass through others."""
+	if isinstance(value, str):
+		if value.lower() == 'true':
+			return True
+		elif value.lower() == 'false':
+			return False
+	return value
+
+def api_response(result_text, **extra_fields):
+	"""Content-negotiate: JSON if Accept header requests it, plain text otherwise."""
+	if "application/json" in (request.headers.get("Accept") or ""):
+		payload = {"result": result_text, **extra_fields}
+		return jsonify(payload)
+	return result_text
+
+def get_inputs(required_args, request, optional_args=None):
 
 	if required_args[0] != "input_text":
 		return "The variable input_text should always be first in required_arg_list"
@@ -559,13 +527,15 @@ def get_inputs(required_args, request):
 		if arg not in data_source:
 			return error_msg
 
-		# convert boolean strings to real booleans
-		if data_source[arg].lower() == 'true':
-			data_source[arg] = True
-		elif data_source[arg].lower() == 'false':
-			data_source[arg] = False
+		inputs[arg] = _coerce_bool(data_source[arg])
 
-		inputs[arg] = data_source[arg]
+	# optional args: use default if not provided
+	if optional_args:
+		for arg, default in optional_args.items():
+			if arg in data_source:
+				inputs[arg] = _coerce_bool(data_source[arg])
+			else:
+				inputs[arg] = default
 
 	return inputs
 
@@ -576,17 +546,21 @@ def api_transliterate():
 	if request.method == "GET":
 		return render_template("errors/POSTonly.html")
 
-	inputs = get_inputs(["input_text", "from_scheme", "to_scheme"], request)
+	inputs = get_inputs(
+		["input_text", "from_scheme", "to_scheme"],
+		request,
+		optional_args={"avoid_virama_indic_scripts": True},
+	)
 	if isinstance(inputs, str):
 		return inputs # == error_msg
 
-	result = T.transliterate(
+	result = do_transliterate(
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
 		to_scheme=inputs["to_scheme"],
-		avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
 	)
-	return result
+	return api_response(result)
 
 @app.route('/api/scan', methods=["GET", "POST"])
 def api_scan():
@@ -607,20 +581,16 @@ def api_scan():
 	if isinstance(inputs, str):
 		return inputs # == error_msg
 
-	V = S.scan(
+	result = do_scan(
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
-	)
-
-	result = V.summarize(
 		show_weights=inputs["show_weights"],
 		show_morae=inputs["show_morae"],
 		show_gaRas=inputs["show_gaRas"],
 		show_alignment=inputs["show_alignment"],
-		show_label=False
 	)
 
-	return result
+	return api_response(result)
 
 @app.route('/api/identify-meter', methods=["GET", "POST"])
 def api_identify_meter():
@@ -643,26 +613,17 @@ def api_identify_meter():
 	if isinstance(inputs, str):
 		return inputs # == error_msg
 
-	r_o, r_k_m = parse_complex_resplit_option(
-		complex_resplit_option=inputs["resplit_option"]
-	)
-
-	V = MI.identify_meter(
-		inputs["input_text"] ,
-		resplit_option=r_o,
-		resplit_keep_midpoint=r_k_m,
-		from_scheme=inputs["from_scheme"]
-	)
-
-	result = V.summarize(
+	summary, meter_label_hk, melody_options_list, V = do_identify_meter(
+		inputs["input_text"],
+		from_scheme=inputs["from_scheme"],
+		resplit_option=inputs["resplit_option"],
 		show_weights=inputs["show_weights"],
 		show_morae=inputs["show_morae"],
 		show_gaRas=inputs["show_gaRas"],
 		show_alignment=inputs["show_alignment"],
-		show_label=True
 	)
 
-	return result
+	return api_response(summary, meter_label=meter_label_hk, melody_options=melody_options_list)
 
 
 @app.route('/api/split', methods=["GET", "POST"])
@@ -672,142 +633,76 @@ def api_split():
 		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
-		[	"input_text",
-			"from_scheme",
-			"to_scheme",
-		],
-		request
+		["input_text", "from_scheme", "to_scheme"],
+		request,
+		optional_args={
+			"splitter_model": "dharmamitra_2024_sept",
+			"preserve_compound_hyphens": True,
+			"preserve_punctuation": True,
+			"avoid_virama_indic_scripts": True,
+		},
 	)
 
 	if isinstance(inputs, str):
 		return inputs # == error_msg
 
-	IAST_input = T.transliterate(
+	result = do_split(
 		inputs["input_text"],
 		from_scheme=inputs["from_scheme"],
-		to_scheme='IAST',
+		to_scheme=inputs["to_scheme"],
+		splitter_model=inputs["splitter_model"],
+		preserve_compound_hyphens=inputs["preserve_compound_hyphens"],
+		preserve_punctuation=inputs["preserve_punctuation"],
+		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
 	)
 
-	split_result = Spl.split(
-		IAST_input,
-		splitter_model=session["splitter_model"],
-		preserve_compound_hyphens=session['preserve_compound_hyphens'],
-		preserve_punctuation=session['preserve_punctuation'],
-		)
-
-	result = T.transliterate(
-		split_result,
-		from_scheme='IAST',
-		to_scheme=inputs["to_scheme"],
-		avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
-		)
-
-	return result
+	return api_response(result)
 
 
 @app.route('/reset')
 def reset_variables():
-	session["skrutable_action"] = "..."
-	session["from_scheme"] = "IAST"; session["to_scheme"] = "IAST"
-	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
-	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite_keep_mid"
-	session["meter_label"] = ""
-	session["melody_options"] = []
-	session["avoid_virama_indic_scripts"] = 1
-	session["preserve_compound_hyphens"] = 1
-	session["preserve_punctuation"] = 1
-	session["splitter_model"] = "dharmamitra_2024_sept"
-	session.modified = True
-	return redirect(url_for('index'))
+	session.clear()
+	return redirect("/?reset=true")
 
+# Example data (used both server-side and passed to JS)
+EXAMPLES = {
+	"1": {
+		"text_input": "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //",
+		"text_output": "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //",
+		"from_scheme": "IAST", "to_scheme": "DEV",
+		"skrutable_action": "transliterate",
+		"meter_label": "", "melody_options": [],
+	},
+	"2": {
+		"text_input": "धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |\nतमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||",
+		"text_output": "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g\n     ta     me     va     vi     śi     na   ṣṭya    nya\n      l      g      l      l      l      g      g      l\n      u     pa     sa    rga     ga     ti   stri    dhā\n      l      l      g      l      l      g      l      g\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)",
+		"from_scheme": "DEV", "to_scheme": "IAST",
+		"skrutable_action": "identify meter",
+		"meter_label": "anuSTubh",
+		"melody_options": ["Madhura Godbole", "H.V. Nagaraja Rao", "Shatavadhani Ganesh", "Diwakar Acarya"],
+	},
+	"3": {
+		"text_input": "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||",
+		"text_output": "llllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\n\n     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n\nmālinī [15: nnmyy]",
+		"from_scheme": "DEV", "to_scheme": "IAST",
+		"skrutable_action": "identify meter",
+		"meter_label": "mAlinI",
+		"melody_options": ["Madhura Godbole", "Sadananda Das", "H.V. Nagaraja Rao", "Shatavadhani Ganesh"],
+	},
+}
+
+# Backward-compat redirects for old example URLs
 @app.route('/ex1')
 def ex1():
-	g.text_input = "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
-	g.text_output = """धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /
-मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"""
-	session["from_scheme"] = "IAST"; session["to_scheme"] = "DEV"
-	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
-	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite_keep_mid"
-	session["skrutable_action"] = "transliterate"
-	session["meter_label"] = ""
-	session["melody_options"] = []
-	session.modified = True
-	return render_template(
-		'main.html',
-		text_input=g.text_input,
-		text_output=g.text_output,
-		**{k:session[k] for k in session if k in SESSION_VARIABLE_NAMES},
-	)
+	return redirect("/?example=1")
 
 @app.route('/ex2')
 def ex2():
-	g.text_input = """धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |
-तमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||"""
-	g.text_output = """gggglggl	{m: 14}    [8: mrgl]
-gglllglg    {m: 12}    [8: tslg]
-lglllggl    {m: 11}    [8: jsgl]
-llgllglg    {m: 11}    [8: sslg]
-
-    dhā    tva  rthaṃ     bā    dha     te     ka    ści
-      g      g      g      g      l      g      g      l
-    tka    ści    tta     ma     nu     va    rta     te
-      g      g      l      l      l      g      l      g
-     ta     me     va     vi     śi     na   ṣṭya    nya
-      l      g      l      l      l      g      g      l
-      u     pa     sa    rga     ga     ti   stri    dhā
-      l      l      g      l      l      g      l      g
-
-anuṣṭubh (1,2: pathyā, 3,4: pathyā)"""
-	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
-	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
-	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite_keep_mid"
-	session["skrutable_action"] = "identify meter"
-	session["meter_label"] = "anuSTubh"
-	session["melody_options"] = ['Madhura Godbole', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh',  'Diwakar Acarya']
-	session.modified = True
-	return render_template(
-		'main.html',
-		text_input=g.text_input,
-		text_output=g.text_output,
-		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
-	)
+	return redirect("/?example=2")
 
 @app.route('/ex3')
 def ex3():
-	g.text_input = """तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |
-प्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"""
-	g.text_output = """llllllggglgglgg    {m: 22}    [15: nnmyy]
-llllllggglgglgg    {m: 22}    [15: nnmyy]
-llllllggglgglgg    {m: 22}    [15: nnmyy]
-llllllggglgglgg    {m: 22}    [15: nnmyy]
-
-     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ
-      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
-     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā
-      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
-    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ
-      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
-     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ
-      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g
-
-mālinī [15: nnmyy]"""
-	session["from_scheme"] = "DEV"; session["to_scheme"] = "IAST"
-	session["weights"] = 1; session["morae"] = 1; session["gaRas"] = 1
-	session["alignment"] = 1
-	session["resplit_option"] = "resplit_lite_keep_mid"
-	session["skrutable_action"] = "identify meter"
-	session["meter_label"] = "mAlinI"
-	session["melody_options"] = ['Madhura Godbole', 'Sadananda Das', 'H.V. Nagaraja Rao', 'Shatavadhani Ganesh']
-	session.modified = True
-	return render_template(
-		'main.html',
-		text_input=g.text_input,
-		text_output=g.text_output,
-		**{k: session[k] for k in session if k in SESSION_VARIABLE_NAMES},
-	)
+	return redirect("/?example=3")
 
 @app.route('/about')
 def about_page():
@@ -821,19 +716,9 @@ def about_page():
 def help_page():
 	return render_template("help.html")
 
-@app.route('/settings', methods=["GET", "POST"])
+@app.route('/settings')
 def settings_page():
-	if request.method == "GET":
-		return render_template(
-			"settings.html",
-			**{k: session[k] for k in session if k in extra_option_names},
-		)
-	elif request.method == "POST":
-		process_settings_form(request.form)
-		return render_template(
-			"settings.html",
-			**{k: session[k] for k in session if k in extra_option_names},
-		)
+	return render_template("settings.html")
 
 @app.route('/updates')
 def updates_page():
