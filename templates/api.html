@@ -21,6 +21,22 @@
 
             <p>These endpoints accept POST requests only.</p>
 
+            <p>To receive JSON responses (instead of plain text), include the header
+                <code>Accept: application/json</code> in your request.
+                The JSON response for <code>/api/identify-meter</code> includes additional fields
+                <code>meter_label</code> and <code>melody_options</code>.</p>
+
+            <h3>Optional parameters</h3>
+            <ul>
+                <li><b>/api/transliterate</b>: <code>avoid_virama_indic_scripts</code> (default: <code>true</code>)</li>
+                <li><b>/api/split</b>:
+                    <code>splitter_model</code> (default: <code>"dharmamitra_2024_sept"</code>),
+                    <code>preserve_compound_hyphens</code> (default: <code>true</code>),
+                    <code>preserve_punctuation</code> (default: <code>true</code>),
+                    <code>avoid_virama_indic_scripts</code> (default: <code>true</code>)
+                </li>
+            </ul>
+
             <p>Below are examples of how to use these endpoints.
                 The input format options shown for the first endpoint
                 also apply to the others.<p>

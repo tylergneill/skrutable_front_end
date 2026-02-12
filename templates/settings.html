@@ -15,7 +15,7 @@
 
         <div class="container">
 
-            <form id="settings_form" action="/settings" method="POST">
+            <form id="settings_form">
 
                 <h1>settings</h1>
                 <br>
@@ -61,7 +61,7 @@
 
                 <div class="row">
                     <div class="col-md-3">
-                        <input id="save_settings" type="submit" class="btn btn-block btn-primary" value="Save"/>
+                        <input id="save_settings" type="button" class="btn btn-block btn-primary" value="Save" onclick="saveSettings();"/>
                     </div>
                 </div>
 
@@ -79,11 +79,27 @@
         <script>
 
             function initialize_choices() {
-                if ({{ avoid_virama_indic_scripts }} != 1) { document.getElementById("avoid_virama_indic_scripts").checked = false; }
-                // if ({{ include_single_pada }} != 1) { document.getElementById("include_single_pada").checked = false; }
-                if ({{ preserve_punctuation }} != 1) { document.getElementById("preserve_punctuation").checked = false; }
-                if ({{ preserve_compound_hyphens }} != 1) { document.getElementById("preserve_compound_hyphens").checked = false; }
-                document.getElementById("splitter_model").value = "{{ splitter_model }}";
+                // Load from localStorage with defaults
+                var avoidVirama = localStorage.getItem("avoid_virama_indic_scripts");
+                if (avoidVirama === "false") {
+                    document.getElementById("avoid_virama_indic_scripts").checked = false;
+                }
+
+                var preservePunc = localStorage.getItem("preserve_punctuation");
+                if (preservePunc === "false") {
+                    document.getElementById("preserve_punctuation").checked = false;
+                }
+
+                var preserveHyphens = localStorage.getItem("preserve_compound_hyphens");
+                if (preserveHyphens === "false") {
+                    document.getElementById("preserve_compound_hyphens").checked = false;
+                }
+
+                var splitterModel = localStorage.getItem("splitter_model");
+                if (splitterModel) {
+                    document.getElementById("splitter_model").value = splitterModel;
+                }
+
                 toggle_preserve_compound_hyphens();
             }
 
@@ -97,33 +113,31 @@
                 }
             }
 
+            function saveSettings() {
+                localStorage.setItem("avoid_virama_indic_scripts",
+                    document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
+                localStorage.setItem("preserve_punctuation",
+                    document.getElementById("preserve_punctuation").checked ? "true" : "false");
+                localStorage.setItem("preserve_compound_hyphens",
+                    document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
+                localStorage.setItem("splitter_model",
+                    document.getElementById("splitter_model").value);
+
+                // Show success popover
+                var popover = document.getElementById('popover');
+                popover.classList.remove('hidden');
+                popover.classList.add('visible');
+                setTimeout(function() {
+                    popover.classList.remove('visible');
+                    popover.classList.add('hidden');
+                }, 750);
+            }
+
             window.onload = function() {
                 initialize_choices();
             }
 
             document.getElementById("splitter_model").addEventListener("change", toggle_preserve_compound_hyphens);
-
-            // show success popover on save
-            document.getElementById('settings_form').addEventListener('submit', function(event) {
-                // Prevent immediate form submission
-                event.preventDefault();
-
-                // Get the popover element
-                const popover = document.getElementById('popover');
-
-                // Show the popover
-                popover.classList.remove('hidden');
-                popover.classList.add('visible');
-
-                // Delay submission by 0.75 seconds (750 milliseconds)
-                setTimeout(() => {
-                    popover.classList.remove('visible');
-                    popover.classList.add('hidden');
-
-                    // Manually submit the form after delay
-                    event.target.submit();
-                }, 750);
-            });
         </script>
 
     </body>
