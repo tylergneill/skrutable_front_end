@@ -1,0 +1,56 @@
+Here's a summary of everything implemented across all three phases:
+
+Phase 1: Backend fixes + shared helpers
+
+flask_app.py:
+- 1a Fixed API bugs: /api/transliterate and /api/split no longer read from
+session. They accept optional params (avoid_virama_indic_scripts, splitter_model,
+preserve_compound_hyphens, preserve_punctuation) with sensible defaults via a
+new optional_args parameter in get_inputs().
+- 1b Extracted four pure do_* helper functions (do_transliterate, do_scan,
+do_identify_meter, do_split) — no session, no g, no Flask imports.
+- 1c Rewired all three call sites (index POST, whole_file, API routes) to use the
+helpers.
+- 1d Added api_response() with Accept header content negotiation — JSON for
+application/json, plain text otherwise. Identify-meter JSON includes meter_label
+and melody_options.
+
+templates/api.html: Documented new optional params and JSON response format.
+
+Phase 2: Frontend calls APIs via JS
+
+templates/main.html:
+- Transliterate, Scan, Identify Meter, Split buttons changed from type="submit"
+to type="button" with async fetch() handlers calling /api/* endpoints with
+Accept: application/json.
+- Button loading states ("..." while processing).
+- Melody player fully JS-driven: currentMeterLabel/currentMelodyOptions variables
+updated from API response, dropdown rebuilt dynamically via
+rebuildMelodyDropdown().
+- initialize_choices() uses Jinja vars only for server-rendered examples,
+defaults to HTML defaults otherwise.
+- Settings read from localStorage via getSettings() and sent with each fetch
+call.
+- Whole-file and Apte links buttons kept as form POSTs.
+
+templates/settings.html: Rewritten to save/load from localStorage instead of form
+POST to server.
+
+Phase 3: Cleanup
+
+flask_app.py:
+- index() simplified: GET renders defaults or example data via /?example=N; POST
+only handles Apte links.
+- MAIN_DEFAULTS dict centralizes default template vars.
+- EXAMPLES dict replaces the three hardcoded /ex1, /ex2, /ex3 route functions.
+- Old example routes now redirect to /?example=N for backward compat.
+- /reset simplified to session.clear() + redirect to /?reset=true.
+- /settings simplified to GET-only.
+- Removed: process_settings_form(), CURRENT_FOLDER, url_for import.
+- Simplified 500/502 error handlers (removed g/session dependency).
+- Fixed ensure_keys() to not call the route-based reset_variables().
+
+templates/nav.html: Example link changed from /ex1 to /?example=1.
+
+templates/errors/500.html, 502.html: Simplified debug output (removed session/g
+references).
