@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: skrutable API
+  description: |
+    Programmatic access to [skrutable](https://github.com/tylergneill/skrutable) Sanskrit text processing tools.
+
+    All endpoints accept POST requests only. Input can be provided as form data, JSON, or file upload.
+
+    **Content negotiation:** To receive JSON responses instead of plain text, include the header `Accept: application/json`.
+  version: "1.0"
+
+tags:
+  - name: Endpoints
+
+paths:
+
+  /api/transliterate:
+    post:
+      summary: Transliterate text
+      description: Convert text between Sanskrit writing systems (IAST, HK, SLP, DEV, etc.).
+      tags: [Endpoints]
+      operationId: transliterate
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [input_text, from_scheme, to_scheme]
+              properties:
+                input_text:
+                  type: string
+                  description: The text to transliterate.
+                  example: "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+                input_file:
+                  type: string
+                  format: binary
+                  description: File to transliterate (use instead of input_text).
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  description: Input encoding scheme.
+                  example: IAST
+                to_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, IASTREDUCED, DEV]
+                  description: Output encoding scheme.
+                  example: DEV
+                avoid_virama_indic_scripts:
+                  type: boolean
+                  default: true
+                  description: Avoid virama in Indic script output.
+          application/json:
+            schema:
+              type: object
+              required: [input_text, from_scheme, to_scheme]
+              properties:
+                input_text:
+                  type: string
+                  example: "dharmakṣetre kurukṣetre samavetā yuyutsavaḥ /\nmāmakāḥ pāṇḍavāś caiva kim akurvata sañjaya //"
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: IAST
+                to_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, IASTREDUCED, DEV]
+                  example: DEV
+                avoid_virama_indic_scripts:
+                  type: boolean
+                  default: true
+      responses:
+        "200":
+          description: Transliterated text.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+              example:
+                result: "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः /\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय //"
+
+  /api/scan:
+    post:
+      summary: Scan text
+      description: Perform metrical scansion showing weights, morae, gaṇas, and alignment.
+      tags: [Endpoints]
+      operationId: scan
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment]
+              properties:
+                input_text:
+                  type: string
+                  description: The text to scan.
+                  example: "dhātvarthaṃ bādhate kaścit kaścit tam anuvartate |\ntam eva viśinaṣṭy anya upasargagatis tridhā ||"
+                input_file:
+                  type: string
+                  format: binary
+                  description: File to scan (use instead of input_text).
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: IAST
+                show_weights:
+                  type: boolean
+                  description: Show syllable weights (heavy/light).
+                  example: true
+                show_morae:
+                  type: boolean
+                  description: Show morae count.
+                  example: true
+                show_gaRas:
+                  type: boolean
+                  description: Show gaṇa pattern.
+                  example: true
+                show_alignment:
+                  type: boolean
+                  description: Show alignment of syllables.
+                  example: true
+          application/json:
+            schema:
+              type: object
+              required: [input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment]
+              properties:
+                input_text:
+                  type: string
+                  example: "dhātvarthaṃ bādhate kaścit kaścit tam anuvartate |\ntam eva viśinaṣṭy anya upasargagatis tridhā ||"
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: IAST
+                show_weights:
+                  type: boolean
+                  example: true
+                show_morae:
+                  type: boolean
+                  example: true
+                show_gaRas:
+                  type: boolean
+                  example: true
+                show_alignment:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: Scansion result.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+              example:
+                result: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
+
+  /api/identify-meter:
+    post:
+      summary: Identify meter
+      description: |
+        Perform scansion and identify the Sanskrit meter. The JSON response includes
+        additional `meter_label` and `melody_options` fields.
+      tags: [Endpoints]
+      operationId: identifyMeter
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment, resplit_option]
+              properties:
+                input_text:
+                  type: string
+                  description: The verse text to analyze.
+                  example: "dhātvarthaṃ bādhate kaścit kaścit tam anuvartate |\ntam eva viśinaṣṭy anya upasargagatis tridhā ||"
+                input_file:
+                  type: string
+                  format: binary
+                  description: File to analyze (use instead of input_text).
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: IAST
+                show_weights:
+                  type: boolean
+                  example: true
+                show_morae:
+                  type: boolean
+                  example: true
+                show_gaRas:
+                  type: boolean
+                  example: true
+                show_alignment:
+                  type: boolean
+                  example: true
+                resplit_option:
+                  type: string
+                  enum: [none, resplit_lite, resplit_lite_keep_mid, resplit_max, resplit_max_keep_mid]
+                  description: How to re-split pādas before identification.
+                  example: resplit_lite_keep_mid
+          application/json:
+            schema:
+              type: object
+              required: [input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment, resplit_option]
+              properties:
+                input_text:
+                  type: string
+                  example: "dhātvarthaṃ bādhate kaścit kaścit tam anuvartate |\ntam eva viśinaṣṭy anya upasargagatis tridhā ||"
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: IAST
+                show_weights:
+                  type: boolean
+                  example: true
+                show_morae:
+                  type: boolean
+                  example: true
+                show_gaRas:
+                  type: boolean
+                  example: true
+                show_alignment:
+                  type: boolean
+                  example: true
+                resplit_option:
+                  type: string
+                  enum: [none, resplit_lite, resplit_lite_keep_mid, resplit_max, resplit_max_keep_mid]
+                  example: resplit_lite_keep_mid
+      responses:
+        "200":
+          description: Meter identification result.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: Scansion summary text.
+                  meter_label:
+                    type: string
+                    description: Identified meter name (Harvard-Kyoto).
+                  melody_options:
+                    type: array
+                    items:
+                      type: string
+                    description: Available melody filenames for the identified meter.
+              example:
+                result: "gggglggl\t{m: 14}    [8: mrgl]\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
+                meter_label: "anuSTubh"
+                melody_options:
+                  - "Madhura Godbole"
+                  - "H.V. Nagaraja Rao"
+                  - "Shatavadhani Ganesh"
+                  - "Diwakar Acarya"
+
+  /api/split:
+    post:
+      summary: Split compounds
+      description: Split Sanskrit compound words using a neural splitter model.
+      tags: [Endpoints]
+      operationId: split
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [input_text, from_scheme, to_scheme]
+              properties:
+                input_text:
+                  type: string
+                  description: The text to split.
+                  example: "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"
+                input_file:
+                  type: string
+                  format: binary
+                  description: File to split (use instead of input_text).
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: DEV
+                to_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, IASTREDUCED, DEV]
+                  example: IAST
+                splitter_model:
+                  type: string
+                  enum: [dharmamitra_2024_sept, splitter_2018]
+                  default: dharmamitra_2024_sept
+                  description: Which splitter model to use.
+                  example: dharmamitra_2024_sept
+                preserve_compound_hyphens:
+                  type: boolean
+                  default: true
+                  description: Keep hyphens in compound output.
+                preserve_punctuation:
+                  type: boolean
+                  default: true
+                  description: Preserve punctuation in output.
+                avoid_virama_indic_scripts:
+                  type: boolean
+                  default: true
+                  description: Avoid virama in Indic script output.
+          application/json:
+            schema:
+              type: object
+              required: [input_text, from_scheme, to_scheme]
+              properties:
+                input_text:
+                  type: string
+                  example: "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||"
+                from_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, DEV]
+                  example: DEV
+                to_scheme:
+                  type: string
+                  enum: [IAST, HK, SLP, IASTREDUCED, DEV]
+                  example: IAST
+                splitter_model:
+                  type: string
+                  enum: [dharmamitra_2024_sept, splitter_2018]
+                  default: dharmamitra_2024_sept
+                  example: dharmamitra_2024_sept
+                preserve_compound_hyphens:
+                  type: boolean
+                  default: true
+                preserve_punctuation:
+                  type: boolean
+                  default: true
+                avoid_virama_indic_scripts:
+                  type: boolean
+                  default: true
+      responses:
+        "200":
+          description: Split result.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "tava kara-kamala-sthāṃ sphāṭikīm akṣa-mālāṃ , nakha-kiraṇa-vibhinnāṃ dāḍimī-bīja-buddhyā |\npratikalam anukarṣan yena kīro niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te manda-hāsaḥ ||"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+              example:
+                result: "tava kara-kamala-sthāṃ sphāṭikīm akṣa-mālāṃ , nakha-kiraṇa-vibhinnāṃ dāḍimī-bīja-buddhyā |\npratikalam anukarṣan yena kīro niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te manda-hāsaḥ ||"
