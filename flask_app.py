@@ -475,7 +475,10 @@ def ocr_instructions():
 
 @app.route('/api', methods=["GET"])
 def api_landing():
-	return render_template("api.html")
+	return render_template("api.html",
+		back_end_version=BACK_END_VERSION,
+		front_end_version=FRONT_END_VERSION,
+	)
 
 def _coerce_bool(value):
 	"""Convert string booleans to real booleans, pass through others."""
