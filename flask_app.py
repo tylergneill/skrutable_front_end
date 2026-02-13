@@ -194,7 +194,7 @@ def parse_complex_resplit_option(complex_resplit_option):
 def _init_session_defaults():
 	"""Set all session keys to their defaults (used by whole_file flow)."""
 	defaults = {
-		"skrutable_action": "...",
+		"skrutable_action": "",
 		"from_scheme": "IAST", "to_scheme": "IAST",
 		"weights": 1, "morae": 1, "gaRas": 1, "alignment": 1,
 		"resplit_option": "resplit_lite_keep_mid",
@@ -236,7 +236,7 @@ def bad_gateway_error(error):
 	return render_template('errors/502.html', **context), 502
 
 MAIN_DEFAULTS = {
-	"skrutable_action": "...",
+	"skrutable_action": "",
 	"from_scheme": "IAST",
 	"to_scheme": "IAST",
 	"weights": 1,
@@ -498,15 +498,16 @@ def get_inputs(required_args, request, optional_args=None):
 	if required_args[0] != "input_text":
 		return "The variable input_text should always be first in required_arg_list"
 
-	if not (request.form or request.json):
+	is_json = request.content_type and "application/json" in request.content_type
+	if not (request.form or is_json):
 		return "Received neither form nor json input."
 
-	data_source = dict(request.form or request.json)
+	data_source = dict(request.form if request.form else request.json)
 	error_msg = (
 		"Couldn't get all fields:\n" +
 		f"required_args: {required_args}\n" +
 		f"request.files {request.files}\n" +
-  		"data_source (" + ("json" if request.json else "form") + f") {data_source}"
+  		"data_source (" + ("json" if is_json else "form") + f") {data_source}"
 	)
 
 	try:

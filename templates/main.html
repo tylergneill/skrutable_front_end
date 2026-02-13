@@ -491,16 +491,12 @@
             }
 
             function conditionally_display_examples() {
-                if (document.getElementById("skrutable_action").value != "transliterate" &&
-                    document.getElementById("skrutable_action").value != "scan" &&
-                    document.getElementById("skrutable_action").value != "identify meter" &&
-                    document.getElementById("skrutable_action").value != "split" &&
-                    document.getElementById("skrutable_action").value != "apte links") {
-
-                    document.getElementById("hiddenExample").style.visibility = "visible";
+                var actionTitle = document.getElementById("hiddenActionTitle").querySelector(".navbar-brand").textContent.trim();
+                if (actionTitle) {
+                    document.getElementById("hiddenActionTitle").style.visibility = "visible";
                 }
                 else {
-                    document.getElementById("hiddenActionTitle").style.visibility = "visible";
+                    document.getElementById("hiddenExample").style.visibility = "visible";
                 }
             }
 
