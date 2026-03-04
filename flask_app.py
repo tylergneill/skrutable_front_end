@@ -379,11 +379,13 @@ def whole_file():
 					avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				)
 			except HTTPError as e:
-				if e.response.status_code == 413:
+				status = e.response.status_code if e.response is not None else 502
+				if status == 413:
 					raise BadGateway("Upstream service returned 413 Request Entity Too Large")
 					# TODO: have Skrutable backend handle batching to relieve burden on upstream server
 				else:
-					raise
+					raise BadGateway(f"Upstream splitting service returned {status}. "
+						"The service may be temporarily unavailable.")
 
 			output_fn_suffix = '_split'
 
@@ -650,15 +652,22 @@ def api_split():
 	if isinstance(inputs, str):
 		return inputs # == error_msg
 
-	result = do_split(
-		inputs["input_text"],
-		from_scheme=inputs["from_scheme"],
-		to_scheme=inputs["to_scheme"],
-		splitter_model=inputs["splitter_model"],
-		preserve_compound_hyphens=inputs["preserve_compound_hyphens"],
-		preserve_punctuation=inputs["preserve_punctuation"],
-		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
-	)
+	try:
+		result = do_split(
+			inputs["input_text"],
+			from_scheme=inputs["from_scheme"],
+			to_scheme=inputs["to_scheme"],
+			splitter_model=inputs["splitter_model"],
+			preserve_compound_hyphens=inputs["preserve_compound_hyphens"],
+			preserve_punctuation=inputs["preserve_punctuation"],
+			avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
+		)
+	except HTTPError as e:
+		status = e.response.status_code if e.response is not None else 502
+		model = inputs["splitter_model"]
+		return jsonify({"error": f"Upstream splitting service ({model}) returned {status}. "
+			"The service may be temporarily unavailable. "
+			"You can try again later or switch to a different splitter model in Settings."}), 502
 
 	return api_response(result)
 
