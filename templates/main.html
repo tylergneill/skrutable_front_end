@@ -395,6 +395,10 @@
                         body: fd,
                     });
                     var data = await resp.json();
+                    if (!resp.ok) {
+                        document.getElementById("text_output").value = data.error || "Splitting failed (unknown error).";
+                        return;
+                    }
                     document.getElementById("text_output").value = data.result;
                     set_action("split");
                     hideMelodyPlayer();
