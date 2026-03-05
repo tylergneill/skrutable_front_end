@@ -1,4 +1,4 @@
 #!/bin/bash
 export FLASK_APP=flask_app.py
-export PORT=4999
-flask --debug run --port=$PORT
+export PORT=5012
+python -m flask --debug run --port=$PORT

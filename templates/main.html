@@ -105,7 +105,7 @@
 
                         <!-- transliteration -->
                         <div class="col-md-3">
-                            <input id="transliterate_button" type="submit" class="btn btn-block btn-primary" value="Transliterate" onclick="set_action('transliterate');"/>
+                            <input id="transliterate_button" type="button" class="btn btn-block btn-primary" value="Transliterate" onclick="doTransliterate();"/>
                             <label for="to_scheme">Output Scheme</label>
                             </br>
                             <select name="to_scheme" id="to_scheme" class="btn-block">
@@ -131,7 +131,7 @@
 
                         <!-- scansion -->
                         <div class="col-md-3">
-                            <input id="scan_button" type="submit" class="btn btn-block btn-primary" value="Scan" onclick="set_action('scan')"/>
+                            <input id="scan_button" type="button" class="btn btn-block btn-primary" value="Scan" onclick="doScan();"/>
                             <label>Scansion Detail</label>
                             </br>
                             <div class="row">
@@ -159,7 +159,7 @@
 
                         <!-- meter identification -->
                         <div class="col-md-3">
-                            <input id="identify_meter_button" type="submit" class="btn btn-block btn-primary" value="Identify Meter" onclick="set_action('identify meter');"/>
+                            <input id="identify_meter_button" type="button" class="btn btn-block btn-primary" value="Identify Meter" onclick="doIdentifyMeter();"/>
                             <label for="resplit_option">Re-Split Pādas</label>
                             </br>
                             <select id="resplit_option" name="resplit_option" class="btn-block">
@@ -176,7 +176,7 @@
 
                         <!-- splitting -->
                         <div class="col-md-3">
-                            <input id="split button" type="submit" class="btn btn-block btn-primary" value="Split Words" onclick="set_action('split');"/>
+                            <input id="split button" type="button" class="btn btn-block btn-primary" value="Split Words" onclick="doSplit();"/>
                             <br>
                         <!--<label for="split">Punctuation</label>
                             </br>
@@ -198,7 +198,6 @@
 
                 <!-- melody player row -->
                 <div class="row" id="melodyPlayer" style="visibility: hidden">
-                <!-- <div class="row" id="melodyPlayer"> -->
 
                     <!-- line up below actions -->
                     <div class="col-md-4">
@@ -213,9 +212,6 @@
                     <div class="col-md-4">
                         <label for="melody_option">Meter Melody Type Recited by</label>
                         <select id="melody_option" name="melody_option" class="btn-block">
-                            {% for melody_option in melody_options %}
-                            <option value= "{{melody_option}}">{{melody_option}}</option>
-                            {% endfor %}
                         </select>
                     </div>
 
@@ -236,6 +232,17 @@
 
         <script>
 
+            // --- Settings from localStorage with defaults ---
+            function getSettings() {
+                return {
+                    avoid_virama_indic_scripts: localStorage.getItem("avoid_virama_indic_scripts") !== "false",
+                    splitter_model: localStorage.getItem("splitter_model") || "dharmamitra_2024_sept",
+                    preserve_compound_hyphens: localStorage.getItem("preserve_compound_hyphens") !== "false",
+                    preserve_punctuation: localStorage.getItem("preserve_punctuation") !== "false",
+                };
+            }
+
+            // --- Swap helpers ---
             function swapElementValues(e_1, e_2) {
                 var tmp = e_1.value;
                 e_1.value = e_2.value;
@@ -256,67 +263,263 @@
                 }
             }
 
+            // --- Scansion detail helpers ---
+            function getScanDetail() {
+                return {
+                    show_weights: document.getElementById("weights").checked,
+                    show_morae: document.getElementById("morae").checked,
+                    show_gaRas: document.getElementById("gaRas").checked,
+                    show_alignment: document.getElementById("alignment").checked,
+                };
+            }
+
+            // --- Async action handlers ---
+            function setButtonLoading(btn, loading) {
+                if (loading) {
+                    btn.dataset.originalValue = btn.value;
+                    btn.value = "...";
+                    btn.disabled = true;
+                } else {
+                    btn.value = btn.dataset.originalValue || btn.value;
+                    btn.disabled = false;
+                }
+            }
+
+            async function doTransliterate() {
+                var btn = document.getElementById("transliterate_button");
+                setButtonLoading(btn, true);
+                try {
+                    var settings = getSettings();
+                    var fd = new FormData();
+                    fd.append("input_text", document.getElementById("text_input").value);
+                    fd.append("from_scheme", document.getElementById("from_scheme").value);
+                    fd.append("to_scheme", document.getElementById("to_scheme").value);
+                    fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+
+                    var resp = await fetch("/api/transliterate", {
+                        method: "POST",
+                        headers: {"Accept": "application/json"},
+                        body: fd,
+                    });
+                    var data = await resp.json();
+                    document.getElementById("text_output").value = data.result;
+                    set_action("transliterate");
+                    hideMelodyPlayer();
+                } finally {
+                    setButtonLoading(btn, false);
+                }
+            }
+
+            async function doScan() {
+                var btn = document.getElementById("scan_button");
+                setButtonLoading(btn, true);
+                try {
+                    var detail = getScanDetail();
+                    var fd = new FormData();
+                    fd.append("input_text", document.getElementById("text_input").value);
+                    fd.append("from_scheme", document.getElementById("from_scheme").value);
+                    fd.append("show_weights", detail.show_weights);
+                    fd.append("show_morae", detail.show_morae);
+                    fd.append("show_gaRas", detail.show_gaRas);
+                    fd.append("show_alignment", detail.show_alignment);
+
+                    var resp = await fetch("/api/scan", {
+                        method: "POST",
+                        headers: {"Accept": "application/json"},
+                        body: fd,
+                    });
+                    var data = await resp.json();
+                    document.getElementById("text_output").value = data.result;
+                    set_action("scan");
+                    hideMelodyPlayer();
+                } finally {
+                    setButtonLoading(btn, false);
+                }
+            }
+
+            async function doIdentifyMeter() {
+                var btn = document.getElementById("identify_meter_button");
+                setButtonLoading(btn, true);
+                try {
+                    var detail = getScanDetail();
+                    var fd = new FormData();
+                    fd.append("input_text", document.getElementById("text_input").value);
+                    fd.append("from_scheme", document.getElementById("from_scheme").value);
+                    fd.append("show_weights", detail.show_weights);
+                    fd.append("show_morae", detail.show_morae);
+                    fd.append("show_gaRas", detail.show_gaRas);
+                    fd.append("show_alignment", detail.show_alignment);
+                    fd.append("resplit_option", document.getElementById("resplit_option").value);
+
+                    var resp = await fetch("/api/identify-meter", {
+                        method: "POST",
+                        headers: {"Accept": "application/json"},
+                        body: fd,
+                    });
+                    var data = await resp.json();
+                    document.getElementById("text_output").value = data.result;
+                    set_action("identify meter");
+
+                    // Update melody player from response
+                    currentMeterLabel = data.meter_label || "";
+                    currentMelodyOptions = data.melody_options || [];
+                    rebuildMelodyDropdown(currentMelodyOptions);
+                    if (currentMelodyOptions.length > 0) {
+                        showMelodyPlayer();
+                        update_melody();
+                    } else {
+                        hideMelodyPlayer();
+                    }
+                } finally {
+                    setButtonLoading(btn, false);
+                }
+            }
+
+            async function doSplit() {
+                var btn = document.getElementById("split button");
+                setButtonLoading(btn, true);
+                try {
+                    var settings = getSettings();
+                    var fd = new FormData();
+                    fd.append("input_text", document.getElementById("text_input").value);
+                    fd.append("from_scheme", document.getElementById("from_scheme").value);
+                    fd.append("to_scheme", document.getElementById("to_scheme").value);
+                    fd.append("splitter_model", settings.splitter_model);
+                    fd.append("preserve_compound_hyphens", settings.preserve_compound_hyphens);
+                    fd.append("preserve_punctuation", settings.preserve_punctuation);
+                    fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+
+                    var resp = await fetch("/api/split", {
+                        method: "POST",
+                        headers: {"Accept": "application/json"},
+                        body: fd,
+                    });
+                    var data = await resp.json();
+                    if (!resp.ok) {
+                        alert(data.error || "Splitting failed (unknown error).");
+                        return;
+                    }
+                    document.getElementById("text_output").value = data.result;
+                    set_action("split");
+                    hideMelodyPlayer();
+                } finally {
+                    setButtonLoading(btn, false);
+                }
+            }
+
+            // --- Melody player (JS-driven) ---
+            var currentMeterLabel = "{{ meter_label }}";
+            var currentMelodyOptions = {{ melody_options | tojson }};
+
+            var melodySelectElement = document.getElementById("melody_option");
+            const audio_prefix = "/assets/melodies/";
+            melodySelectElement.addEventListener("change", update_melody);
+
+            function rebuildMelodyDropdown(options) {
+                melodySelectElement.innerHTML = "";
+                for (var i = 0; i < options.length; i++) {
+                    var opt = document.createElement("option");
+                    opt.value = options[i];
+                    opt.textContent = options[i];
+                    melodySelectElement.appendChild(opt);
+                }
+            }
+
+            function update_melody() {
+                var audioElement = document.getElementById("audio");
+                var audio_src_selection = melodySelectElement.value;
+
+                if (!audio_src_selection || !currentMeterLabel) {
+                    return;
+                }
+
+                audio_src_selection = audio_src_selection.replace(/ /g, "-");
+                audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
+                var audio_src_str = audio_prefix +
+                                    currentMeterLabel +
+                                    "-" +
+                                    audio_src_selection +
+                                    ".mp3";
+                audioElement.src = audio_src_str;
+            }
+
+            function showMelodyPlayer() {
+                document.getElementById("melodyPlayer").style.visibility = "visible";
+            }
+
+            function hideMelodyPlayer() {
+                currentMeterLabel = "";
+                currentMelodyOptions = [];
+                document.getElementById("melodyPlayer").style.visibility = "hidden";
+            }
+
+            // --- Initialization ---
             function initialize_choices() {
-                document.getElementById("skrutable_action").value = "{{ skrutable_action }}";
-                document.getElementById("from_scheme").value = "{{ from_scheme }}";
-                document.getElementById("to_scheme").value = "{{ to_scheme }}";
+                // Server-rendered values (for examples / backward compat)
+                var serverAction = "{{ skrutable_action }}";
+                var serverFromScheme = "{{ from_scheme }}";
+                var serverToScheme = "{{ to_scheme }}";
+                var serverResplit = "{{ resplit_option }}";
+
+                if (serverAction && serverAction !== "...") {
+                    document.getElementById("skrutable_action").value = serverAction;
+                }
+                if (serverFromScheme) {
+                    document.getElementById("from_scheme").value = serverFromScheme;
+                }
+                if (serverToScheme) {
+                    document.getElementById("to_scheme").value = serverToScheme;
+                }
+                if (serverResplit) {
+                    document.getElementById("resplit_option").value = serverResplit;
+                }
+
+                // Checkboxes: server values if provided, else default to checked
+                {% if weights is defined %}
                 if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
-                if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
-                if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
-                if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
-                document.getElementById("resplit_option").value = "{{ resplit_option }}";
-                {% if melody_options %}
-                    document.getElementById("melody_option").value = "{{ melody_options[0] }}";
                 {% endif %}
+                {% if morae is defined %}
+                if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
+                {% endif %}
+                {% if gaRas is defined %}
+                if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
+                {% endif %}
+                {% if alignment is defined %}
+                if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
+                {% endif %}
+
+                // Initialize melody dropdown from server data (for examples)
+                if (currentMelodyOptions.length > 0) {
+                    rebuildMelodyDropdown(currentMelodyOptions);
+                }
             }
 
             function conditionally_display_examples() {
-
-                                // for some reason value == "..." does not work...
-                if (document.getElementById("skrutable_action").value != "transliterate" &&
-                    document.getElementById("skrutable_action").value != "scan" &&
-                    document.getElementById("skrutable_action").value != "identify meter" &&
-                    document.getElementById("skrutable_action").value != "split" &&
-                    document.getElementById("skrutable_action").value != "apte links") {
-
-                    document.getElementById("hiddenExample").style.visibility = "visible";
-
-                }
-                else {
+                var actionTitle = document.getElementById("hiddenActionTitle").querySelector(".navbar-brand").textContent.trim();
+                if (actionTitle) {
                     document.getElementById("hiddenActionTitle").style.visibility = "visible";
                 }
-            }
-
-            var melodySelectElement = document.getElementById("melody_option");
-            const audio_prefix = "/assets/melodies/"
-            melodySelectElement.addEventListener("change", update_melody);
-            function update_melody() {
-              var audioElement = document.getElementById("audio");
-              var audio_src_selection = melodySelectElement.value;
-              var meter_label = "{{ meter_label }}";
-
-              if (!audio_src_selection || !meter_label) {
-                  return;
-              }
-
-              audio_src_selection = audio_src_selection.replace(/ /g, "-");
-              audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
-              var audio_src_str = audio_prefix +
-                                meter_label +
-                                "-" +
-                                audio_src_selection +
-                                ".mp3";
-              audioElement.src = audio_src_str
+                else {
+                    document.getElementById("hiddenExample").style.visibility = "visible";
+                }
             }
 
             function conditionally_display_melody_player() {
-                testArray = "{{ melody_options }}";
-                if ( testArray.length > 2 ) {
+                if (currentMelodyOptions.length > 0) {
                     document.getElementById("melodyPlayer").style.visibility = "visible";
                 }
             }
 
             window.onload = function() {
+                // Clear localStorage on reset
+                if (new URLSearchParams(window.location.search).has("reset")) {
+                    localStorage.removeItem("avoid_virama_indic_scripts");
+                    localStorage.removeItem("splitter_model");
+                    localStorage.removeItem("preserve_compound_hyphens");
+                    localStorage.removeItem("preserve_punctuation");
+                    // Clean up URL
+                    history.replaceState(null, "", "/");
+                }
                 initialize_choices();
                 conditionally_display_examples();
                 update_melody();
