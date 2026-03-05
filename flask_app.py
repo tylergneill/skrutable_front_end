@@ -217,7 +217,16 @@ def ensure_keys():
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
+	if request.path.startswith('/api/') and \
+			request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+		return jsonify({"error": str(error)}), 413
 	return render_template('errors/413.html', max_size=MAX_CONTENT_LENGTH_MB), 413
+
+@app.errorhandler(415)
+def unsupported_media_type(error):
+	if request.path.startswith('/api/'):
+		return jsonify({"error": "Received neither form nor json input."}), 415
+	return str(error), 415
 
 @app.errorhandler(500)
 def internal_server_error(error):
@@ -225,6 +234,9 @@ def internal_server_error(error):
 		'path': request.path,
 		'method': request.method,
 	}
+
+	if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+		return jsonify({"error": "Internal server error"}), 500
 	return render_template('errors/500.html', **context), 500
 
 @app.errorhandler(502)
@@ -233,6 +245,9 @@ def bad_gateway_error(error):
 		'path': request.path,
 		'method': request.method,
 	}
+
+	if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+		return jsonify({"error": "Bad gateway"}), 502
 	return render_template('errors/502.html', **context), 502
 
 MAIN_DEFAULTS = {
@@ -503,16 +518,16 @@ def get_inputs(required_args, request, optional_args=None):
 	if required_args[0] != "input_text":
 		return "The variable input_text should always be first in required_arg_list"
 
-	is_json = request.content_type and "application/json" in request.content_type
-	if not (request.form or is_json):
+	json_data = request.get_json(silent=True)
+	if not (request.form or json_data):
 		return "Received neither form nor json input."
 
-	data_source = dict(request.form if request.form else request.json)
+	data_source = dict(request.form or json_data)
 	error_msg = (
 		"Couldn't get all fields:\n" +
 		f"required_args: {required_args}\n" +
 		f"request.files {request.files}\n" +
-  		"data_source (" + ("json" if is_json else "form") + f") {data_source}"
+  		"data_source (" + ("json" if json_data else "form") + f") {data_source}"
 	)
 
 	try:
@@ -550,6 +565,8 @@ def api_transliterate():
 
 	# assume that GET request is person surfing in browser
 	if request.method == "GET":
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": "This endpoint accepts POST requests only."}), 405
 		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
@@ -558,6 +575,8 @@ def api_transliterate():
 		optional_args={"avoid_virama_indic_scripts": True},
 	)
 	if isinstance(inputs, str):
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": inputs}), 400
 		return inputs # == error_msg
 
 	result = do_transliterate(
@@ -572,6 +591,8 @@ def api_transliterate():
 def api_scan():
 
 	if request.method == "GET":
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": "This endpoint accepts POST requests only."}), 405
 		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
@@ -585,6 +606,8 @@ def api_scan():
 		request
 	)
 	if isinstance(inputs, str):
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": inputs}), 400
 		return inputs # == error_msg
 
 	result = do_scan(
@@ -602,6 +625,8 @@ def api_scan():
 def api_identify_meter():
 
 	if request.method == "GET":
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": "This endpoint accepts POST requests only."}), 405
 		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
@@ -617,6 +642,8 @@ def api_identify_meter():
 	)
 
 	if isinstance(inputs, str):
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": inputs}), 400
 		return inputs # == error_msg
 
 	summary, meter_label_hk, melody_options_list, V = do_identify_meter(
@@ -636,6 +663,8 @@ def api_identify_meter():
 def api_split():
 
 	if request.method == "GET":
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": "This endpoint accepts POST requests only."}), 405
 		return render_template("errors/POSTonly.html")
 
 	inputs = get_inputs(
@@ -650,6 +679,8 @@ def api_split():
 	)
 
 	if isinstance(inputs, str):
+		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+			return jsonify({"error": inputs}), 400
 		return inputs # == error_msg
 
 	try:
