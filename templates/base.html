@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/assets/favicon.png">
+	<link rel="stylesheet" href="/assets/css/skrutable.css">
+	<title>skrutable</title>
+	{% block head_extra %}{% endblock %}
+</head>
+<body>
+
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+{% include 'sidebar.html' %}
+{% block sidebar_controls %}{% endblock %}
+<div class="sidebar-bottom">
+	<a href="/?example=1">Example</a>
+	<a href="/settings">Settings</a>
+	<a href="/about">About</a>
+</div>
+</aside>
+
+<div class="mobile-header">
+	<button class="burger" id="sidebar-burger" aria-label="Toggle navigation">&#9776;</button>
+	<a class="brand" href="/">skrutable</a>
+</div>
+
+<main class="main-content">
+	{% block content %}{% endblock %}
+</main>
+
+<script src="/assets/js/sidebar.js"></script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

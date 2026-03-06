@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  {% include 'head_default.html' %}
-  <title>OCR Service FAQ</title>
-</head>
-<body>
-  {% include 'nav.html' %}
-  <div class="container mt-4">
+{% extends 'base.html' %}
+{% set active_page = 'ocr' %}
+
+{% block content %}
+  <div class="page-content">
 
     <h1>OCR Service FAQ</h1>
 
@@ -28,19 +24,19 @@
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options">This blog post</a>
       explains why expanding access to Google Cloud Vision is worthwhile:
       it accepts large multi-page PDFs, delivers high accuracy,
-      and—unlike Google Drive OCR—automatically ignores any low-quality text layer already embedded in the file.
+      and&#8212;unlike Google Drive OCR&#8212;automatically ignores any low-quality text layer already embedded in the file.
       Larger AI models can sometimes outperform it,
       but they are even harder to integrate.
       In recent tests, Google Gemini and Cloud Vision each achieved strong results,
       yet made different errors, suggesting that combining their outputs could yield the best accuracy.
       For these reasons, I will continue advocating for Cloud Vision,
-      and this interface strips away nearly all the complexity—no coding, no cloud-storage wrangling.
+      and this interface strips away nearly all the complexity&#8212;no coding, no cloud-storage wrangling.
     </p>
 
     <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
     <p>
       Google Cloud Vision is a paid service,
-      and I don’t yet have funding to cover everyone’s usage.
+      and I don't yet have funding to cover everyone's usage.
       Each user therefore supplies their own API key,
       linked to a Google Cloud project with billing enabled.
       An API key is simply a password-like string that you can create or delete at any time.
@@ -56,8 +52,8 @@
     <br>
     <br>
     <details>
-      <summary style="color: #0066cc; cursor: pointer; text-decoration: underline;">Written walkthrough</summary>
-      <ol class="mt-14">
+      <summary>Written walkthrough</summary>
+      <ol class="mt-2">
         <li>
           <strong>Go to the Google Cloud Console</strong>:<br>
           While logged into your Google account,
@@ -73,17 +69,17 @@
         <li>
           <strong>Select a project</strong>:<br>
           Either create a new project (click <em>New Project</em> in the top navigation dropdown),
-          or, if this is your first time, just use the default (“My First Project”).
+          or, if this is your first time, just use the default ("My First Project").
         </li>
         <li>
           <strong>Enable the Cloud Vision API</strong>:<br>
-          In the left sidebar, go to <em>APIs & Services → Library</em>.
-          Search for “Cloud Vision API” (it has a blue diamond logo).
+          In the left sidebar, go to <em>APIs &amp; Services &#8594; Library</em>.
+          Search for "Cloud Vision API" (it has a blue diamond logo).
           Click it, then click the blue <em>Enable</em> button.
         </li>
         <li>
           <strong>Create an API key</strong>:<br>
-          Go to <em>APIs & Services → Credentials</em>.
+          Go to <em>APIs &amp; Services &#8594; Credentials</em>.
           Click <em>+ Create Credentials</em> and select <em>API key</em>.
           <br>
           A long string will appear. This is your API key.
@@ -101,7 +97,7 @@
         <li>
           <strong>Use the key</strong>:<br>
           You're now ready to return to the <a href="/ocr">OCR page</a>
-          and paste your key into the field labeled “Google Cloud API key.”
+          and paste your key into the field labeled "Google Cloud API key."
         </li>
       </ol>
     </details>
@@ -124,7 +120,7 @@
       yes, this is as safe as any other use of a password.
       To prevent your key from falling into the wrong hands,
       I recommend storing it with a password manager (e.g., 1Password).
-      As for Google, you don’t need to worry about them doing anything with the contents of your PDF.
+      As for Google, you don't need to worry about them doing anything with the contents of your PDF.
       If you're concerned, just avoid uploading sensitive material.
       As for me and my code, I guarantee that your API key is never stored.
       The code, which is entirely open source,
@@ -136,7 +132,7 @@
     <p>
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       Split larger files into parts.
-      There’s also a 2,000-page limit, though you’ll usually hit the size cap first.
+      There's also a 2,000-page limit, though you'll usually hit the size cap first.
     </p>
 
     <h3 id="complex-page">Will it work with complex page formats?</h3>
@@ -160,5 +156,4 @@
     <br><br>
 
   </div>
-</body>
-</html>
+{% endblock %}
