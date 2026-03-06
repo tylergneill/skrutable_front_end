@@ -99,6 +99,9 @@ pre {
 	font-size: 2rem;
 	margin: 0;
 	color: var(--sidebar-text);
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
 }
 
 .sidebar-brand h1 a {
@@ -107,6 +110,17 @@ pre {
 }
 .sidebar-brand h1 a:hover {
 	color: var(--sidebar-accent);
+	text-decoration: none;
+}
+
+.brand-about {
+	font-family: var(--font-body);
+	font-size: 0.8rem;
+	color: var(--sidebar-accent);
+	font-weight: normal;
+}
+.brand-about:hover {
+	color: var(--sidebar-text);
 	text-decoration: none;
 }
 
