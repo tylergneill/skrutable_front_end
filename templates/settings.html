@@ -1,145 +1,125 @@
-<html>
-    <head>
-{% include 'head_default.html' %}
-        <style>
-            #popover {
-                position: absolute;
-                margin-top: 5px;
-            }
-        </style>
-    </head>
+{% extends 'base.html' %}
+{% set active_page = 'settings' %}
 
-    <body>
+{% block content %}
+	<div class="page-content settings-form">
 
-{% include 'nav.html' %}
+		<form id="settings_form">
 
-        <div class="container">
+			<h1>settings</h1>
+			<br>
 
-            <form id="settings_form">
+			<h2>transliteration</h2>
+			<p>
+				<input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
+				<label for="avoid_virama_indic_scripts">avoid vir&#257;ma for Indic scripts</label>
+			</p>
 
-                <h1>settings</h1>
-                <br>
+			<h2>splitting</h2>
+			<p>
+				<input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" checked>
+				<label for="preserve_punctuation">preserve punctuation</label>
+			</p>
+			<p>
+				<select id="splitter_model" name="splitter_model">
+					<option value="dharmamitra_2024_sept">Dharmamitra Sept 2024 (default)</option>
+					<option value="splitter_2018">2018 Sanskrit Sandhi and Compound Splitter</option>
+				</select>
+			</p>
+			<div id="preserve_compound_hyphens_row" style="display: none;">
+				<p>
+					<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" checked>
+					<label for="preserve_compound_hyphens">preserve compound hyphens</label>
+				</p>
+			</div>
 
-                <h2>transliteration</h2>
-                <input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
-                <label for="avoid_virama_indic_scripts">avoid virāma for Indic scripts</label>
-                <!-- hide until ready
-                <input type="checkbox" id="avoid_virama_non_indic_scripts" name="avoid_virama_non_indic_scripts" value="avoid_virama_non_indic_scripts" checked>
-                <label for="avoid_virama_non_indic_scripts">avoid virāma for non-Indic scripts</label>
-                -->
+			<br>
 
-                <!-- hide until ready
-                <h2>meter identification</h2>
-                <input type="checkbox" id="include_single_pada" name="include_single_pada" value="include_single_pada" checked>
-                <label for="include_single_pada">check for single samavṛtta pāda</label>
-                -->
+			<p>
+				<button type="button" id="save_settings" class="btn btn-primary" onclick="saveSettings();">Save</button>
+			</p>
 
-                <h2>splitting</h2>
-                <div class="row">
-                    <div class="col-md-3">
-                        <input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" checked>
-                        <label for="preserve_punctuation">preserve punctuation</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                        <select id="splitter_model" name="splitter_model">
-                            <option value="dharmamitra_2024_sept">Dharmamitra Sept 2024 (default)</option>
-                            <option value="splitter_2018">2018 Sanskrit Sandhi and Compound Splitter</option>
-                        </select>
-                    </div>
-                </div>
-                <!-- show conditionally, based on value of above select -->
-                <div class="row" id="preserve_compound_hyphens_row" style="display: none;">
-                    <div class="col-md-3">
-                        <input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" checked>
-                        <label for="preserve_compound_hyphens">preserve compound hyphens</label>
-                    </div>
-                </div>
+			<div id="popover" class="settings-save-msg">settings saved</div>
 
-                <br><br>
+		</form>
 
-                <div class="row">
-                    <div class="col-md-3">
-                        <input id="save_settings" type="button" class="btn btn-block btn-primary" value="Save" onclick="saveSettings();"/>
-                    </div>
-                </div>
+		<br>
+		<h2>reset</h2>
+		<p>Clear all saved settings and return to defaults.</p>
+		<p>
+			<button type="button" class="btn btn-primary" onclick="resetAll();">Reset Everything</button>
+		</p>
 
-                <div class="row">
-                    <div class="col-md-3">
-                        <div id="popover" class="alert alert-success hidden">settings saved</div>
-                    </div>
-                </div>
+	</div>
+{% endblock %}
 
-            </form>
+{% block scripts %}
+<script>
 
+	function initialize_choices() {
+		var avoidVirama = localStorage.getItem("avoid_virama_indic_scripts");
+		if (avoidVirama === "false") {
+			document.getElementById("avoid_virama_indic_scripts").checked = false;
+		}
 
-        </div><!-- /.container -->
+		var preservePunc = localStorage.getItem("preserve_punctuation");
+		if (preservePunc === "false") {
+			document.getElementById("preserve_punctuation").checked = false;
+		}
 
-        <script>
+		var preserveHyphens = localStorage.getItem("preserve_compound_hyphens");
+		if (preserveHyphens === "false") {
+			document.getElementById("preserve_compound_hyphens").checked = false;
+		}
 
-            function initialize_choices() {
-                // Load from localStorage with defaults
-                var avoidVirama = localStorage.getItem("avoid_virama_indic_scripts");
-                if (avoidVirama === "false") {
-                    document.getElementById("avoid_virama_indic_scripts").checked = false;
-                }
+		var splitterModel = localStorage.getItem("splitter_model");
+		if (splitterModel) {
+			document.getElementById("splitter_model").value = splitterModel;
+		}
 
-                var preservePunc = localStorage.getItem("preserve_punctuation");
-                if (preservePunc === "false") {
-                    document.getElementById("preserve_punctuation").checked = false;
-                }
+		toggle_preserve_compound_hyphens();
+	}
 
-                var preserveHyphens = localStorage.getItem("preserve_compound_hyphens");
-                if (preserveHyphens === "false") {
-                    document.getElementById("preserve_compound_hyphens").checked = false;
-                }
+	function toggle_preserve_compound_hyphens() {
+		const splitterModel = document.getElementById("splitter_model").value;
+		const preserveCompoundHyphensRow = document.getElementById("preserve_compound_hyphens_row");
+		if (splitterModel === "dharmamitra_2024_sept") {
+			preserveCompoundHyphensRow.style.display = "block";
+		} else {
+			preserveCompoundHyphensRow.style.display = "none";
+		}
+	}
 
-                var splitterModel = localStorage.getItem("splitter_model");
-                if (splitterModel) {
-                    document.getElementById("splitter_model").value = splitterModel;
-                }
+	function saveSettings() {
+		localStorage.setItem("avoid_virama_indic_scripts",
+			document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
+		localStorage.setItem("preserve_punctuation",
+			document.getElementById("preserve_punctuation").checked ? "true" : "false");
+		localStorage.setItem("preserve_compound_hyphens",
+			document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
+		localStorage.setItem("splitter_model",
+			document.getElementById("splitter_model").value);
 
-                toggle_preserve_compound_hyphens();
-            }
+		var popover = document.getElementById('popover');
+		popover.classList.add('visible');
+		setTimeout(function() {
+			popover.classList.remove('visible');
+		}, 750);
+	}
 
-            function toggle_preserve_compound_hyphens() {
-                const splitterModel = document.getElementById("splitter_model").value;
-                const preserveCompoundHyphensRow = document.getElementById("preserve_compound_hyphens_row");
-                if (splitterModel === "dharmamitra_2024_sept") {
-                    preserveCompoundHyphensRow.style.display = "block";
-                } else {
-                    preserveCompoundHyphensRow.style.display = "none";
-                }
-            }
+	window.onload = function() {
+		initialize_choices();
+	}
 
-            function saveSettings() {
-                localStorage.setItem("avoid_virama_indic_scripts",
-                    document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
-                localStorage.setItem("preserve_punctuation",
-                    document.getElementById("preserve_punctuation").checked ? "true" : "false");
-                localStorage.setItem("preserve_compound_hyphens",
-                    document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
-                localStorage.setItem("splitter_model",
-                    document.getElementById("splitter_model").value);
+	document.getElementById("splitter_model").addEventListener("change", toggle_preserve_compound_hyphens);
 
-                // Show success popover
-                var popover = document.getElementById('popover');
-                popover.classList.remove('hidden');
-                popover.classList.add('visible');
-                setTimeout(function() {
-                    popover.classList.remove('visible');
-                    popover.classList.add('hidden');
-                }, 750);
-            }
-
-            window.onload = function() {
-                initialize_choices();
-            }
-
-            document.getElementById("splitter_model").addEventListener("change", toggle_preserve_compound_hyphens);
-        </script>
-
-    </body>
-
-</html>
+	function resetAll() {
+		if (!confirm("Reset all settings and clear saved data?")) return;
+		localStorage.removeItem("avoid_virama_indic_scripts");
+		localStorage.removeItem("splitter_model");
+		localStorage.removeItem("preserve_compound_hyphens");
+		localStorage.removeItem("preserve_punctuation");
+		window.location.href = "/?reset";
+	}
+</script>
+{% endblock %}

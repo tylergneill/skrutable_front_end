@@ -1,537 +1,469 @@
-<html>
-    <head>
-{% include 'head_default.html' %}
-        <meta property='og:title' content='skrutable'/>
-        <meta property='og:image' content='/assets/ui_screenshot.png'/>
-        <meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
-        <meta property='og:url' content='https://www.skrutable.info'/>
-    </head>
-
-    <body>
-
-{% include 'nav.html' %}
-
-        <div class="container">
-
-            <form id="overall_form" action="/" method="POST">
-
-                <!-- input row -->
-                <div class="row">
-                    <textarea id="text_input" name="text_input" class="form-control" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
-                </div>
-
-                <!-- output row -->
-                <div class="row well blue-border-focus">
-                    <textarea id="text_output" name="text_output" class="form-control" rows="15" spellcheck="false" style="font-family: 'Courier New', monospace; font-weight: bold">{{ text_output }}</textarea>
-                </div>
-
-                <!-- controls row -->
-                <div class="row">
-
-                    <!-- input and output schemes, and swap buttons -->
-                    <div class="col-md-4">
-                        <div class="col-md-12">
-
-                            <div class="row">
-
-                                <div class="col-md-6">
-                                    <label for="from_scheme">Input Scheme</label>
-                                    </br>
-                                    <select name="from_scheme" id="from_scheme" class="btn-block">
-                                        <optgroup label="Romanizations">
-                                            <option value="IAST">IAST</option>
-                                            <option value="HK">HK</option>
-                                            <option value="SLP">SLP</option>
-                                            <option value="ITRANS">ITRANS</option>
-                                            <option value="VH">VH</option>
-                                            <option value="WX">WX</option>
-                                            <option value="IASTREDUCED" disabled>IAST reduced</option>
-                                        </optgroup>
-                                        <optgroup label="Indic Scripts">
-                                            <option value="DEV">DEV</option>
-                                            <option value="BENGALI">BENGALI</option>
-                                            <option value="GUJARATI">GUJARATI</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-
-                                <div hidden class="col-md-6">
-                                    <label for="to_scheme">Virāma Option</label>
-                                    </br>
-                                    <select name="virAma_option" id="virAma_option" class="btn-block">
-                                        <option value="preserve_space">default: preserve</option>
-                                        <option value="break_clusters">more virāmas</option>
-                                        <option value="combine">less virāmas</option>
-                                    </select>
-                                </div>
-
-                            </div>
-
-                            </br>
-
-                            <div class="row">
-
-                                <div class="col-md-3">
-                                    <!-- <label>Swap</label> -->
-                                    <input id="swap_text_input_output" type="button" class="btn btn-block btn-primary" value="Txt ⇅" onclick="swapTexts();"/>
-                                </div>
-                                <div class="col-md-5">
-                                    <input id="swap_from_to_scheme" type="button" class="btn btn-block btn-primary" value="Schemes ⇄" onclick="swapSchemes();"/>
-                                </div>
-                                <div class="col-md-4">
-                                    <input id="swap_both" type="button" class="btn btn-block btn-primary" value="Both ⇅ ⇄" onclick="swapBoth();"/>
-                                </div>
-                            </div>
-
-                            </br>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>
-                                        <a href="/ocr">PDF → OCR</a>
-                                        &nbsp;&nbsp;&nbsp;( <span style="background-color: yellow;">New</span> )
-                                    </strong></p>
-                                </div>
-                            </div>
-
-
-                        </div>
-
-
-                    </div><!-- input and output schemes, and swap buttons -->
-
-                    <!-- actions -->
-                    <div class="col-md-8">
-
-                        <!-- transliteration -->
-                        <div class="col-md-3">
-                            <input id="transliterate_button" type="button" class="btn btn-block btn-primary" value="Transliterate" onclick="doTransliterate();"/>
-                            <label for="to_scheme">Output Scheme</label>
-                            </br>
-                            <select name="to_scheme" id="to_scheme" class="btn-block">
-                                <optgroup label="Romanizations">
-                                    <option value="IAST">IAST</option>
-                                    <option value="HK">HK</option>
-                                    <option value="SLP">SLP</option>
-                                    <option value="ITRANS">ITRANS</option>
-                                    <option value="VH">VH</option>
-                                    <option value="WX">WX</option>
-                                    <option value="IASTREDUCED">IAST reduced</option>
-                                </optgroup>
-                                <optgroup label="Indic Scripts">
-                                    <option value="DEV">DEV</option>
-                                    <option value="BENGALI">BENGALI</option>
-                                    <option value="GUJARATI">GUJARATI</option>
-                                </optgroup>
-                            </select>
-                            </br>
-                            <input id="transliterate_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('transliterate');" formaction="./whole_file"/>
-                            </br>
-                        </div>
-
-                        <!-- scansion -->
-                        <div class="col-md-3">
-                            <input id="scan_button" type="button" class="btn btn-block btn-primary" value="Scan" onclick="doScan();"/>
-                            <label>Scansion Detail</label>
-                            </br>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <input type="checkbox" id="weights" name="scan_detail" value="weights" checked/>
-                                    <label for="weights">lglgl</label>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="checkbox" id="morae" name="scan_detail" value="morae" checked/>
-                                    <label for="morae">{mora}</label>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="checkbox" id="gaRas" name="scan_detail" value="gaRas" checked/>
-                                    <label for="gaRas">[gaṇa]</label>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <input type="checkbox" id="alignment" name="scan_detail" value="alignment" checked/>
-                                    <label for="alignment">align</label>
-                                </div>
-                            </div>
-                            </br>
-                        </div>
-
-                        <!-- meter identification -->
-                        <div class="col-md-3">
-                            <input id="identify_meter_button" type="button" class="btn btn-block btn-primary" value="Identify Meter" onclick="doIdentifyMeter();"/>
-                            <label for="resplit_option">Re-Split Pādas</label>
-                            </br>
-                            <select id="resplit_option" name="resplit_option" class="btn-block">
-                                <option value="none">none</option>
-                                <option value="resplit_lite">resplit lite</option>
-                                <option value="resplit_lite_keep_mid" checked>resplit lite keep mid</option>
-                                <option value="resplit_max">resplit max</option>
-                                <option value="resplit_max_keep_mid">resplit max keep mid</option>
-                            </select>
-                            </br>
-                            <input id="identify_meter_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('identify meter');" formaction="/whole_file"/>
-                        	</br>
-                        </div>
-
-                        <!-- splitting -->
-                        <div class="col-md-3">
-                            <input id="split button" type="button" class="btn btn-block btn-primary" value="Split Words" onclick="doSplit();"/>
-                            <br>
-                        <!--<label for="split">Punctuation</label>
-                            </br>
-                            <select name="prsrv_punc" id="prsrv_punc" class="btn-block">
-                                <option value="preserve">preserve</option>
-                                <option value="preserve">discard</option>
-                            </select>
-                            </br>-->
-                            <input id="split_whole_file_button" type="submit" class="btn btn-block btn-primary" value="whole file ⇪" onclick="set_action('split');" formaction="./whole_file"/>
-                            </br>
-                            <input id="apte_links_button" type="submit" class="btn btn-block btn-primary" value="DSAL-Apte links" onclick="set_action('apte links');"/>
-                            </br>
-                        </div>
-
-                    </div><!-- actions -->
-
-                </div><!-- controls row -->
-
-
-                <!-- melody player row -->
-                <div class="row" id="melodyPlayer" style="visibility: hidden">
-
-                    <!-- line up below actions -->
-                    <div class="col-md-4">
-                    </div>
-
-                    <div class="col-md-4">
-                        <audio id="audio" controls>
-                            <source type="audio/mp3">
-                        </audio>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="melody_option">Meter Melody Type Recited by</label>
-                        <select id="melody_option" name="melody_option" class="btn-block">
-                        </select>
-                    </div>
-
-                </div><!-- melody player row -->
-
-                <!-- hidden action menu -->
-                <select hidden name="skrutable_action" id="skrutable_action">
-                    <option value="transliterate">transliterate</option>
-                    <option value="scan">scan</option>
-                    <option value="identify meter">identify meter</option>
-                    <option value="split">split</option>
-                    <option value="apte links">apte links</option>
-                </select>
-
-            </form>
-
-        </div><!-- container -->
-
-        <script>
-
-            // --- Settings from localStorage with defaults ---
-            function getSettings() {
-                return {
-                    avoid_virama_indic_scripts: localStorage.getItem("avoid_virama_indic_scripts") !== "false",
-                    splitter_model: localStorage.getItem("splitter_model") || "dharmamitra_2024_sept",
-                    preserve_compound_hyphens: localStorage.getItem("preserve_compound_hyphens") !== "false",
-                    preserve_punctuation: localStorage.getItem("preserve_punctuation") !== "false",
-                };
-            }
-
-            // --- Swap helpers ---
-            function swapElementValues(e_1, e_2) {
-                var tmp = e_1.value;
-                e_1.value = e_2.value;
-                e_2.value = tmp;
-            }
-            function swapTexts() {
-                swapElementValues( document.getElementById('text_input'), document.getElementById('text_output') );
-            }
-            function swapSchemes() {
-                if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
-                    swapElementValues( document.getElementById('from_scheme'), document.getElementById('to_scheme') );
-                }
-            }
-            function swapBoth() {
-                if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
-                    swapTexts();
-                    swapSchemes();
-                }
-            }
-
-            // --- Scansion detail helpers ---
-            function getScanDetail() {
-                return {
-                    show_weights: document.getElementById("weights").checked,
-                    show_morae: document.getElementById("morae").checked,
-                    show_gaRas: document.getElementById("gaRas").checked,
-                    show_alignment: document.getElementById("alignment").checked,
-                };
-            }
-
-            // --- Async action handlers ---
-            function setButtonLoading(btn, loading) {
-                if (loading) {
-                    btn.dataset.originalValue = btn.value;
-                    btn.value = "...";
-                    btn.disabled = true;
-                } else {
-                    btn.value = btn.dataset.originalValue || btn.value;
-                    btn.disabled = false;
-                }
-            }
-
-            async function doTransliterate() {
-                var btn = document.getElementById("transliterate_button");
-                setButtonLoading(btn, true);
-                try {
-                    var settings = getSettings();
-                    var fd = new FormData();
-                    fd.append("input_text", document.getElementById("text_input").value);
-                    fd.append("from_scheme", document.getElementById("from_scheme").value);
-                    fd.append("to_scheme", document.getElementById("to_scheme").value);
-                    fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
-
-                    var resp = await fetch("/api/transliterate", {
-                        method: "POST",
-                        headers: {"Accept": "application/json"},
-                        body: fd,
-                    });
-                    var data = await resp.json();
-                    document.getElementById("text_output").value = data.result;
-                    set_action("transliterate");
-                    hideMelodyPlayer();
-                } finally {
-                    setButtonLoading(btn, false);
-                }
-            }
-
-            async function doScan() {
-                var btn = document.getElementById("scan_button");
-                setButtonLoading(btn, true);
-                try {
-                    var detail = getScanDetail();
-                    var fd = new FormData();
-                    fd.append("input_text", document.getElementById("text_input").value);
-                    fd.append("from_scheme", document.getElementById("from_scheme").value);
-                    fd.append("show_weights", detail.show_weights);
-                    fd.append("show_morae", detail.show_morae);
-                    fd.append("show_gaRas", detail.show_gaRas);
-                    fd.append("show_alignment", detail.show_alignment);
-
-                    var resp = await fetch("/api/scan", {
-                        method: "POST",
-                        headers: {"Accept": "application/json"},
-                        body: fd,
-                    });
-                    var data = await resp.json();
-                    document.getElementById("text_output").value = data.result;
-                    set_action("scan");
-                    hideMelodyPlayer();
-                } finally {
-                    setButtonLoading(btn, false);
-                }
-            }
-
-            async function doIdentifyMeter() {
-                var btn = document.getElementById("identify_meter_button");
-                setButtonLoading(btn, true);
-                try {
-                    var detail = getScanDetail();
-                    var fd = new FormData();
-                    fd.append("input_text", document.getElementById("text_input").value);
-                    fd.append("from_scheme", document.getElementById("from_scheme").value);
-                    fd.append("show_weights", detail.show_weights);
-                    fd.append("show_morae", detail.show_morae);
-                    fd.append("show_gaRas", detail.show_gaRas);
-                    fd.append("show_alignment", detail.show_alignment);
-                    fd.append("resplit_option", document.getElementById("resplit_option").value);
-
-                    var resp = await fetch("/api/identify-meter", {
-                        method: "POST",
-                        headers: {"Accept": "application/json"},
-                        body: fd,
-                    });
-                    var data = await resp.json();
-                    document.getElementById("text_output").value = data.result;
-                    set_action("identify meter");
-
-                    // Update melody player from response
-                    currentMeterLabel = data.meter_label || "";
-                    currentMelodyOptions = data.melody_options || [];
-                    rebuildMelodyDropdown(currentMelodyOptions);
-                    if (currentMelodyOptions.length > 0) {
-                        showMelodyPlayer();
-                        update_melody();
-                    } else {
-                        hideMelodyPlayer();
-                    }
-                } finally {
-                    setButtonLoading(btn, false);
-                }
-            }
-
-            async function doSplit() {
-                var btn = document.getElementById("split button");
-                setButtonLoading(btn, true);
-                try {
-                    var settings = getSettings();
-                    var fd = new FormData();
-                    fd.append("input_text", document.getElementById("text_input").value);
-                    fd.append("from_scheme", document.getElementById("from_scheme").value);
-                    fd.append("to_scheme", document.getElementById("to_scheme").value);
-                    fd.append("splitter_model", settings.splitter_model);
-                    fd.append("preserve_compound_hyphens", settings.preserve_compound_hyphens);
-                    fd.append("preserve_punctuation", settings.preserve_punctuation);
-                    fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
-
-                    var resp = await fetch("/api/split", {
-                        method: "POST",
-                        headers: {"Accept": "application/json"},
-                        body: fd,
-                    });
-                    var data = await resp.json();
-                    if (!resp.ok) {
-                        alert(data.error || "Splitting failed (unknown error).");
-                        return;
-                    }
-                    document.getElementById("text_output").value = data.result;
-                    set_action("split");
-                    hideMelodyPlayer();
-                } finally {
-                    setButtonLoading(btn, false);
-                }
-            }
-
-            // --- Melody player (JS-driven) ---
-            var currentMeterLabel = "{{ meter_label }}";
-            var currentMelodyOptions = {{ melody_options | tojson }};
-
-            var melodySelectElement = document.getElementById("melody_option");
-            const audio_prefix = "/assets/melodies/";
-            melodySelectElement.addEventListener("change", update_melody);
-
-            function rebuildMelodyDropdown(options) {
-                melodySelectElement.innerHTML = "";
-                for (var i = 0; i < options.length; i++) {
-                    var opt = document.createElement("option");
-                    opt.value = options[i];
-                    opt.textContent = options[i];
-                    melodySelectElement.appendChild(opt);
-                }
-            }
-
-            function update_melody() {
-                var audioElement = document.getElementById("audio");
-                var audio_src_selection = melodySelectElement.value;
-
-                if (!audio_src_selection || !currentMeterLabel) {
-                    return;
-                }
-
-                audio_src_selection = audio_src_selection.replace(/ /g, "-");
-                audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
-                var audio_src_str = audio_prefix +
-                                    currentMeterLabel +
-                                    "-" +
-                                    audio_src_selection +
-                                    ".mp3";
-                audioElement.src = audio_src_str;
-            }
-
-            function showMelodyPlayer() {
-                document.getElementById("melodyPlayer").style.visibility = "visible";
-            }
-
-            function hideMelodyPlayer() {
-                currentMeterLabel = "";
-                currentMelodyOptions = [];
-                document.getElementById("melodyPlayer").style.visibility = "hidden";
-            }
-
-            // --- Initialization ---
-            function initialize_choices() {
-                // Server-rendered values (for examples / backward compat)
-                var serverAction = "{{ skrutable_action }}";
-                var serverFromScheme = "{{ from_scheme }}";
-                var serverToScheme = "{{ to_scheme }}";
-                var serverResplit = "{{ resplit_option }}";
-
-                if (serverAction && serverAction !== "...") {
-                    document.getElementById("skrutable_action").value = serverAction;
-                }
-                if (serverFromScheme) {
-                    document.getElementById("from_scheme").value = serverFromScheme;
-                }
-                if (serverToScheme) {
-                    document.getElementById("to_scheme").value = serverToScheme;
-                }
-                if (serverResplit) {
-                    document.getElementById("resplit_option").value = serverResplit;
-                }
-
-                // Checkboxes: server values if provided, else default to checked
-                {% if weights is defined %}
-                if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
-                {% endif %}
-                {% if morae is defined %}
-                if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
-                {% endif %}
-                {% if gaRas is defined %}
-                if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
-                {% endif %}
-                {% if alignment is defined %}
-                if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
-                {% endif %}
-
-                // Initialize melody dropdown from server data (for examples)
-                if (currentMelodyOptions.length > 0) {
-                    rebuildMelodyDropdown(currentMelodyOptions);
-                }
-            }
-
-            function conditionally_display_examples() {
-                var actionTitle = document.getElementById("hiddenActionTitle").querySelector(".navbar-brand").textContent.trim();
-                if (actionTitle) {
-                    document.getElementById("hiddenActionTitle").style.visibility = "visible";
-                }
-                else {
-                    document.getElementById("hiddenExample").style.visibility = "visible";
-                }
-            }
-
-            function conditionally_display_melody_player() {
-                if (currentMelodyOptions.length > 0) {
-                    document.getElementById("melodyPlayer").style.visibility = "visible";
-                }
-            }
-
-            window.onload = function() {
-                // Clear localStorage on reset
-                if (new URLSearchParams(window.location.search).has("reset")) {
-                    localStorage.removeItem("avoid_virama_indic_scripts");
-                    localStorage.removeItem("splitter_model");
-                    localStorage.removeItem("preserve_compound_hyphens");
-                    localStorage.removeItem("preserve_punctuation");
-                    // Clean up URL
-                    history.replaceState(null, "", "/");
-                }
-                initialize_choices();
-                conditionally_display_examples();
-                update_melody();
-                conditionally_display_melody_player();
-            }
-
-            function set_action(new_skr_act) {
-                document.getElementById("skrutable_action").value = new_skr_act;
-            }
-
-        </script>
-
-    </body>
-
-</html>
+{% extends 'base.html' %}
+{% set active_page = 'workbench' %}
+
+{% block head_extra %}
+	<meta property='og:title' content='skrutable'/>
+	<meta property='og:image' content='/assets/ui_screenshot.png'/>
+	<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
+	<meta property='og:url' content='https://www.skrutable.info'/>
+{% endblock %}
+
+{% block sidebar_controls %}
+	<div class="sidebar-controls">
+
+		<!-- Transliterate + schemes -->
+		<div class="action-row">
+			<button type="button" id="transliterate_button" class="btn btn-primary action-btn" onclick="doTransliterate();">Transliterate</button>
+			<div class="action-options">
+				<select id="from_scheme">
+					<optgroup label="Romanizations">
+						<option value="IAST">IAST</option>
+						<option value="HK">HK</option>
+						<option value="SLP">SLP</option>
+						<option value="ITRANS">ITRANS</option>
+						<option value="VH">VH</option>
+						<option value="WX">WX</option>
+						<option value="IASTREDUCED" disabled>IAST reduced</option>
+					</optgroup>
+					<optgroup label="Indic Scripts">
+						<option value="DEV">DEV</option>
+						<option value="BENGALI">BENGALI</option>
+						<option value="GUJARATI">GUJARATI</option>
+					</optgroup>
+				</select>
+				<select id="to_scheme">
+					<optgroup label="Romanizations">
+						<option value="IAST">IAST</option>
+						<option value="HK">HK</option>
+						<option value="SLP">SLP</option>
+						<option value="ITRANS">ITRANS</option>
+						<option value="VH">VH</option>
+						<option value="WX">WX</option>
+						<option value="IASTREDUCED">IAST reduced</option>
+					</optgroup>
+					<optgroup label="Indic Scripts">
+						<option value="DEV">DEV</option>
+						<option value="BENGALI">BENGALI</option>
+						<option value="GUJARATI">GUJARATI</option>
+					</optgroup>
+				</select>
+			</div>
+		</div>
+
+		<!-- Scan + detail checkboxes -->
+		<div class="action-row">
+			<button type="button" id="scan_button" class="btn btn-primary action-btn" onclick="doScan();">Scan</button>
+			<div class="action-options">
+				<div class="checkbox-group">
+					<label><input type="checkbox" id="weights" checked/> lglgl</label>
+					<label><input type="checkbox" id="morae" checked/> {mora}</label>
+					<label><input type="checkbox" id="gaRas" checked/> [ga&#7751;a]</label>
+					<label><input type="checkbox" id="alignment" checked/> align</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Identify Meter + resplit -->
+		<div class="action-row">
+			<button type="button" id="identify_meter_button" class="btn btn-primary action-btn" onclick="doIdentifyMeter();">Identify Meter</button>
+			<div class="action-options">
+				<select id="resplit_option">
+					<option value="none">none</option>
+					<option value="resplit_lite">resplit lite</option>
+					<option value="resplit_lite_keep_mid">resplit lite keep mid</option>
+					<option value="resplit_max">resplit max</option>
+					<option value="resplit_max_keep_mid">resplit max keep mid</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Split Words -->
+		<div class="action-row">
+			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="doSplit();">Split Words</button>
+			<div class="action-options">
+			</div>
+		</div>
+
+		<!-- Swap + whole-file -->
+		<div class="sidebar-extras">
+			<div class="swap-buttons">
+				<button type="button" class="btn btn-primary" onclick="swapTexts();">Txt &#8645;</button>
+				<button type="button" class="btn btn-primary" onclick="swapSchemes();">Schemes &#8644;</button>
+				<button type="button" class="btn btn-primary" onclick="swapBoth();">Both &#8645;&#8644;</button>
+			</div>
+			<hr class="sidebar-divider">
+			<div class="swap-buttons">
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('transliterate');">Translit file &#8679;</button>
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('identify meter');">Meter file &#8679;</button>
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('split');">Split file &#8679;</button>
+			</div>
+		</div>
+
+		<!-- PDF/OCR link -->
+		<div class="sidebar-ocr-link">
+			<a href="/ocr">PDF &#8594; OCR</a>
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block content %}
+	<form id="overall_form" action="/" method="POST">
+		<!-- hidden inputs synced by JS for POST submissions -->
+		<input type="hidden" name="skrutable_action" id="skrutable_action" value="transliterate"/>
+		<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
+		<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
+		<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
+		<!-- scan_detail checkboxes added dynamically by syncHiddenInputs -->
+		<div id="hidden_scan_detail_container"></div>
+
+		<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
+
+		<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
+
+		<!-- melody player -->
+		<div class="melody-player" id="melodyPlayer">
+			<audio id="audio" controls>
+				<source type="audio/mp3">
+			</audio>
+			<div>
+				<label for="melody_option">Meter Melody Type Recited by</label>
+				<select id="melody_option"></select>
+			</div>
+		</div>
+	</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+	// --- Settings from localStorage with defaults ---
+	function getSettings() {
+		return {
+			avoid_virama_indic_scripts: localStorage.getItem("avoid_virama_indic_scripts") !== "false",
+			splitter_model: localStorage.getItem("splitter_model") || "dharmamitra_2024_sept",
+			preserve_compound_hyphens: localStorage.getItem("preserve_compound_hyphens") !== "false",
+			preserve_punctuation: localStorage.getItem("preserve_punctuation") !== "false",
+		};
+	}
+
+	// --- Swap helpers ---
+	function swapElementValues(e_1, e_2) {
+		var tmp = e_1.value;
+		e_1.value = e_2.value;
+		e_2.value = tmp;
+	}
+	function swapTexts() {
+		swapElementValues( document.getElementById('text_input'), document.getElementById('text_output') );
+	}
+	function swapSchemes() {
+		if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
+			swapElementValues( document.getElementById('from_scheme'), document.getElementById('to_scheme') );
+		}
+	}
+	function swapBoth() {
+		if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
+			swapTexts();
+			swapSchemes();
+		}
+	}
+
+	// --- Scansion detail helpers ---
+	function getScanDetail() {
+		return {
+			show_weights: document.getElementById("weights").checked,
+			show_morae: document.getElementById("morae").checked,
+			show_gaRas: document.getElementById("gaRas").checked,
+			show_alignment: document.getElementById("alignment").checked,
+		};
+	}
+
+	// --- Async action handlers ---
+	function setButtonLoading(btn, loading) {
+		if (loading) {
+			btn.dataset.originalValue = btn.textContent;
+			btn.textContent = "...";
+			btn.disabled = true;
+		} else {
+			btn.textContent = btn.dataset.originalValue || btn.textContent;
+			btn.disabled = false;
+		}
+	}
+
+	async function doTransliterate() {
+		var btn = document.getElementById("transliterate_button");
+		setButtonLoading(btn, true);
+		try {
+			var settings = getSettings();
+			var fd = new FormData();
+			fd.append("input_text", document.getElementById("text_input").value);
+			fd.append("from_scheme", document.getElementById("from_scheme").value);
+			fd.append("to_scheme", document.getElementById("to_scheme").value);
+			fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+
+			var resp = await fetch("/api/transliterate", {
+				method: "POST",
+				headers: {"Accept": "application/json"},
+				body: fd,
+			});
+			var data = await resp.json();
+			document.getElementById("text_output").value = data.result;
+			set_action("transliterate");
+			hideMelodyPlayer();
+			closeSidebarOnMobile();
+		} finally {
+			setButtonLoading(btn, false);
+		}
+	}
+
+	async function doScan() {
+		var btn = document.getElementById("scan_button");
+		setButtonLoading(btn, true);
+		try {
+			var detail = getScanDetail();
+			var fd = new FormData();
+			fd.append("input_text", document.getElementById("text_input").value);
+			fd.append("from_scheme", document.getElementById("from_scheme").value);
+			fd.append("show_weights", detail.show_weights);
+			fd.append("show_morae", detail.show_morae);
+			fd.append("show_gaRas", detail.show_gaRas);
+			fd.append("show_alignment", detail.show_alignment);
+
+			var resp = await fetch("/api/scan", {
+				method: "POST",
+				headers: {"Accept": "application/json"},
+				body: fd,
+			});
+			var data = await resp.json();
+			document.getElementById("text_output").value = data.result;
+			set_action("scan");
+			hideMelodyPlayer();
+			closeSidebarOnMobile();
+		} finally {
+			setButtonLoading(btn, false);
+		}
+	}
+
+	async function doIdentifyMeter() {
+		var btn = document.getElementById("identify_meter_button");
+		setButtonLoading(btn, true);
+		try {
+			var detail = getScanDetail();
+			var fd = new FormData();
+			fd.append("input_text", document.getElementById("text_input").value);
+			fd.append("from_scheme", document.getElementById("from_scheme").value);
+			fd.append("show_weights", detail.show_weights);
+			fd.append("show_morae", detail.show_morae);
+			fd.append("show_gaRas", detail.show_gaRas);
+			fd.append("show_alignment", detail.show_alignment);
+			fd.append("resplit_option", document.getElementById("resplit_option").value);
+
+			var resp = await fetch("/api/identify-meter", {
+				method: "POST",
+				headers: {"Accept": "application/json"},
+				body: fd,
+			});
+			var data = await resp.json();
+			document.getElementById("text_output").value = data.result;
+			set_action("identify meter");
+
+			// Update melody player from response
+			currentMeterLabel = data.meter_label || "";
+			currentMelodyOptions = data.melody_options || [];
+			rebuildMelodyDropdown(currentMelodyOptions);
+			if (currentMelodyOptions.length > 0) {
+				showMelodyPlayer();
+				update_melody();
+			} else {
+				hideMelodyPlayer();
+			}
+			closeSidebarOnMobile();
+		} finally {
+			setButtonLoading(btn, false);
+		}
+	}
+
+	async function doSplit() {
+		var btn = document.getElementById("split_button");
+		setButtonLoading(btn, true);
+		try {
+			var settings = getSettings();
+			var fd = new FormData();
+			fd.append("input_text", document.getElementById("text_input").value);
+			fd.append("from_scheme", document.getElementById("from_scheme").value);
+			fd.append("to_scheme", document.getElementById("to_scheme").value);
+			fd.append("splitter_model", settings.splitter_model);
+			fd.append("preserve_compound_hyphens", settings.preserve_compound_hyphens);
+			fd.append("preserve_punctuation", settings.preserve_punctuation);
+			fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+
+			var resp = await fetch("/api/split", {
+				method: "POST",
+				headers: {"Accept": "application/json"},
+				body: fd,
+			});
+			var data = await resp.json();
+			if (!resp.ok) {
+				alert(data.error || "Splitting failed (unknown error).");
+				return;
+			}
+			document.getElementById("text_output").value = data.result;
+			set_action("split");
+			hideMelodyPlayer();
+			closeSidebarOnMobile();
+		} finally {
+			setButtonLoading(btn, false);
+		}
+	}
+
+	// --- Whole-file POST via hidden form ---
+	function syncHiddenInputs() {
+		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
+		document.getElementById("hidden_to_scheme").value = document.getElementById("to_scheme").value;
+		document.getElementById("hidden_resplit_option").value = document.getElementById("resplit_option").value;
+
+		// Sync scan_detail checkboxes as hidden inputs
+		var container = document.getElementById("hidden_scan_detail_container");
+		container.innerHTML = "";
+		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
+		for (var i = 0; i < checkboxIds.length; i++) {
+			if (document.getElementById(checkboxIds[i]).checked) {
+				var inp = document.createElement("input");
+				inp.type = "hidden";
+				inp.name = "scan_detail";
+				inp.value = checkboxIds[i];
+				container.appendChild(inp);
+			}
+		}
+	}
+
+	function doWholeFile(action) {
+		set_action(action);
+		syncHiddenInputs();
+		var form = document.getElementById("overall_form");
+		form.action = "/whole_file";
+		form.submit();
+	}
+
+	function doApteLinks() {
+		set_action("apte links");
+		syncHiddenInputs();
+		var form = document.getElementById("overall_form");
+		form.action = "/";
+		form.submit();
+	}
+
+	// --- Melody player (JS-driven) ---
+	var currentMeterLabel = "{{ meter_label }}";
+	var currentMelodyOptions = {{ melody_options | tojson }};
+
+	var melodySelectElement = document.getElementById("melody_option");
+	const audio_prefix = "/assets/melodies/";
+	melodySelectElement.addEventListener("change", update_melody);
+
+	function rebuildMelodyDropdown(options) {
+		melodySelectElement.innerHTML = "";
+		for (var i = 0; i < options.length; i++) {
+			var opt = document.createElement("option");
+			opt.value = options[i];
+			opt.textContent = options[i];
+			melodySelectElement.appendChild(opt);
+		}
+	}
+
+	function update_melody() {
+		var audioElement = document.getElementById("audio");
+		var audio_src_selection = melodySelectElement.value;
+
+		if (!audio_src_selection || !currentMeterLabel) {
+			return;
+		}
+
+		audio_src_selection = audio_src_selection.replace(/ /g, "-");
+		audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
+		var audio_src_str = audio_prefix +
+							currentMeterLabel +
+							"-" +
+							audio_src_selection +
+							".mp3";
+		audioElement.src = audio_src_str;
+	}
+
+	function showMelodyPlayer() {
+		document.getElementById("melodyPlayer").classList.add("visible");
+	}
+
+	function hideMelodyPlayer() {
+		currentMeterLabel = "";
+		currentMelodyOptions = [];
+		document.getElementById("melodyPlayer").classList.remove("visible");
+	}
+
+	// --- Initialization ---
+	function initialize_choices() {
+		// Server-rendered values (for examples / backward compat)
+		var serverAction = "{{ skrutable_action }}";
+		var serverFromScheme = "{{ from_scheme }}";
+		var serverToScheme = "{{ to_scheme }}";
+		var serverResplit = "{{ resplit_option }}";
+
+		if (serverAction && serverAction !== "...") {
+			document.getElementById("skrutable_action").value = serverAction;
+		}
+		if (serverFromScheme) {
+			document.getElementById("from_scheme").value = serverFromScheme;
+		}
+		if (serverToScheme) {
+			document.getElementById("to_scheme").value = serverToScheme;
+		}
+		if (serverResplit) {
+			document.getElementById("resplit_option").value = serverResplit;
+		}
+
+		// Checkboxes: server values if provided, else default to checked
+		{% if weights is defined %}
+		if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
+		{% endif %}
+		{% if morae is defined %}
+		if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
+		{% endif %}
+		{% if gaRas is defined %}
+		if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
+		{% endif %}
+		{% if alignment is defined %}
+		if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
+		{% endif %}
+
+		// Initialize melody dropdown from server data (for examples)
+		if (currentMelodyOptions.length > 0) {
+			rebuildMelodyDropdown(currentMelodyOptions);
+		}
+	}
+
+	function conditionally_display_melody_player() {
+		if (currentMelodyOptions.length > 0) {
+			showMelodyPlayer();
+		}
+	}
+
+	window.onload = function() {
+		// Clear localStorage on reset
+		if (new URLSearchParams(window.location.search).has("reset")) {
+			localStorage.removeItem("avoid_virama_indic_scripts");
+			localStorage.removeItem("splitter_model");
+			localStorage.removeItem("preserve_compound_hyphens");
+			localStorage.removeItem("preserve_punctuation");
+			// Clean up URL
+			history.replaceState(null, "", "/");
+		}
+		initialize_choices();
+		update_melody();
+		conditionally_display_melody_player();
+	}
+
+	function set_action(new_skr_act) {
+		document.getElementById("skrutable_action").value = new_skr_act;
+	}
+
+</script>
+{% endblock %}

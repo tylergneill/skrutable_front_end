@@ -1,42 +1,37 @@
-<html>
-    <head>
-{% include 'head_default.html' %}
-        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
-        <style>
-            /* hide Swagger's own topbar since we have nav.html */
-            .swagger-ui .topbar { display: none; }
-            /* improve contrast on version badges */
-            .swagger-ui .info .title small.version-stamp { background: #555; color: #fff; }
-            .swagger-ui .info .title small pre.version { background: #555; color: #fff; padding: 0 10px; }
-        </style>
-    </head>
+{% extends 'base.html' %}
+{% set active_page = 'api' %}
 
-    <body>
+{% block head_extra %}
+	<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+	<style>
+		.swagger-ui .topbar { display: none; }
+		.swagger-ui .info .title small.version-stamp { background: #555; color: #fff; }
+		.swagger-ui .info .title small pre.version { background: #555; color: #fff; padding: 0 10px; }
+	</style>
+{% endblock %}
 
-{% include 'nav.html' %}
+{% block content %}
+	<div style="max-width: 1200px;">
+		<div id="swagger-ui"></div>
+	</div>
+{% endblock %}
 
-        <div class="container" style="max-width: 1200px;">
-            <div id="swagger-ui"></div>
-        </div>
-
-        <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-        <script>
-            SwaggerUIBundle({
-                url: "/assets/openapi.yaml",
-                dom_id: "#swagger-ui",
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIBundle.SwaggerUIStandalonePreset
-                ],
-                layout: "BaseLayout",
-                onComplete: function() {
-                    var badges = document.querySelectorAll('.swagger-ui .info .title small');
-                    if (badges[0]) badges[0].querySelector('pre').textContent = 'skrutable {{ back_end_version }}';
-                    if (badges[1]) badges[1].querySelector('pre').textContent = 'skrutable_front_end {{ front_end_version }}';
-                },
-            });
-        </script>
-
-    </body>
-
-</html>
+{% block scripts %}
+	<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+	<script>
+		SwaggerUIBundle({
+			url: "/assets/openapi.yaml",
+			dom_id: "#swagger-ui",
+			presets: [
+				SwaggerUIBundle.presets.apis,
+				SwaggerUIBundle.SwaggerUIStandalonePreset
+			],
+			layout: "BaseLayout",
+			onComplete: function() {
+				var badges = document.querySelectorAll('.swagger-ui .info .title small');
+				if (badges[0]) badges[0].querySelector('pre').textContent = 'skrutable {{ back_end_version }}';
+				if (badges[1]) badges[1].querySelector('pre').textContent = 'skrutable_front_end {{ front_end_version }}';
+			},
+		});
+	</script>
+{% endblock %}
