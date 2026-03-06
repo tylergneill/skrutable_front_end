@@ -7,6 +7,7 @@
 	<link rel="icon" href="/assets/favicon.png">
 	<link rel="stylesheet" href="/assets/css/skrutable.css">
 	<title>skrutable</title>
+	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
 	{% block head_extra %}{% endblock %}
 </head>
 <body>
@@ -19,6 +20,8 @@
 <div class="sidebar-bottom">
 	<a href="/?example=1" id="example-link">Example 1</a>
 	<a href="/settings">Settings</a>
+	<a href="/help">Help</a>
+	<a href="#" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</a>
 </div>
 </aside>
 
@@ -32,6 +35,23 @@
 </main>
 
 <script src="/assets/js/sidebar.js"></script>
+<script>
+(function() {
+	var toggle = document.getElementById('dark-mode-toggle');
+	function applyTheme(dark) {
+		document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+		toggle.innerHTML = dark ? '&#9788;' : '&#9790;';
+		toggle.title = dark ? 'Toggle light mode' : 'Toggle dark mode';
+	}
+	applyTheme(localStorage.getItem('theme') === 'dark');
+	toggle.addEventListener('click', function(e) {
+		e.preventDefault();
+		var isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
+		localStorage.setItem('theme', isDark ? 'dark' : 'light');
+		applyTheme(isDark);
+	});
+})();
+</script>
 <script>
 (function() {
 	var link = document.getElementById('example-link');

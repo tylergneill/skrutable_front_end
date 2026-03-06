@@ -12,6 +12,39 @@
 	--btn-text: #fff;
 	--font-heading: Georgia, 'Times New Roman', serif;
 	--font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--pre-bg: #e8e4de;
+	--input-bg: #fff;
+	--input-border: #ccc;
+	--table-stripe: #eae6df;
+	--dropzone-color: #777;
+	--dropzone-hover: #e8f0f8;
+	--progress-bg: #ddd;
+	--alert-success-bg: #d4edda;
+	--alert-success-text: #155724;
+	--settings-save-text: #2e7d32;
+}
+
+/* === Dark mode === */
+[data-theme="dark"] {
+	--sidebar-bg: #1e2d3a;
+	--sidebar-bg-dark: #162330;
+	--sidebar-text: #d5d0c8;
+	--sidebar-accent: #a89e8e;
+	--main-bg: #1a1a1a;
+	--main-text: #d5d0c8;
+	--btn-bg: #2e4a64;
+	--btn-bg-hover: #395a77;
+	--btn-text: #e0dcd6;
+	--pre-bg: #2a2a2a;
+	--input-bg: #2a2a2a;
+	--input-border: #444;
+	--table-stripe: #252525;
+	--dropzone-color: #888;
+	--dropzone-hover: #252f38;
+	--progress-bg: #333;
+	--alert-success-bg: #1a3a1a;
+	--alert-success-text: #6abf6a;
+	--settings-save-text: #6abf6a;
 }
 
 /* === Reset / Base === */
@@ -56,7 +89,7 @@ ul, ol {
 }
 
 pre {
-	background: #e8e4de;
+	background: var(--pre-bg);
 	padding: 0.5em 0.75em;
 	border-radius: 4px;
 	overflow-x: auto;
@@ -250,18 +283,32 @@ pre {
 
 /* === Sidebar: Bottom links === */
 .sidebar-bottom {
-	padding: 0.4rem 0.75rem 0.75rem;
-	border-top: 1px solid rgba(255,255,255,0.2);
 	font-size: 1rem;
 	flex-shrink: 0;
+	margin: 0 0.5rem 0.5rem;
+	padding: 0;
+	display: flex;
+	gap: 0.4rem;
+	flex-wrap: wrap;
 }
 
 .sidebar-bottom a {
-	color: var(--sidebar-accent);
-	margin-right: 0.6rem;
+	color: var(--sidebar-text);
+	background: var(--sidebar-bg-dark);
+	border: 1px solid rgba(255,255,255,0.25);
+	border-radius: 4px;
+	padding: 0.3rem 0.6rem;
+	font-size: 0.875rem;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s;
 }
 .sidebar-bottom a:hover {
+	background: var(--sidebar-bg);
+	border-color: rgba(255,255,255,0.4);
 	color: var(--sidebar-text);
+	text-decoration: none;
 }
 
 /* === Buttons === */
@@ -309,9 +356,11 @@ pre {
 textarea, input[type="text"], input[type="password"], input[type="search"], select {
 	font-family: var(--font-body);
 	font-size: 16px;
-	border: 1px solid #ccc;
+	border: 1px solid var(--input-border);
 	border-radius: 4px;
 	padding: 0.5rem;
+	background: var(--input-bg);
+	color: var(--main-text);
 }
 
 textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:focus {
@@ -325,7 +374,7 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 .textarea-output {
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #ccc;
+	border: 1px solid var(--input-border);
 	border-radius: 4px;
 	resize: vertical;
 	margin-bottom: 1rem;
@@ -343,7 +392,7 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 	min-height: 300px;
 	font-family: 'Courier New', monospace;
 	font-weight: bold;
-	background: #fff;
+	background: var(--input-bg);
 }
 
 /* HTML output div (for apte links) */
@@ -351,9 +400,9 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 	width: 100%;
 	min-height: 350px;
 	padding: 0.75rem;
-	border: 1px solid #ccc;
+	border: 1px solid var(--input-border);
 	border-radius: 4px;
-	background: #fff;
+	background: var(--input-bg);
 	overflow-y: auto;
 	margin-bottom: 1rem;
 }
@@ -401,7 +450,7 @@ table {
 
 table th, table td {
 	padding: 0.5rem 0.75rem;
-	border: 1px solid #ccc;
+	border: 1px solid var(--input-border);
 	text-align: left;
 	font-size: 0.9rem;
 }
@@ -413,27 +462,27 @@ table thead th {
 }
 
 table tbody tr:nth-child(even) {
-	background: #eae6df;
+	background: var(--table-stripe);
 }
 
 /* === Dropzone (OCR) === */
 .dropzone {
-	border: 2px dashed #ccc;
+	border: 2px dashed var(--input-border);
 	border-radius: 6px;
 	padding: 40px;
 	text-align: center;
 	cursor: pointer;
-	color: #777;
+	color: var(--dropzone-color);
 }
 .dropzone.dragover {
-	background: #e8f0f8;
+	background: var(--dropzone-hover);
 }
 
 /* === Progress bar === */
 .progress {
 	width: 100%;
 	height: 24px;
-	background: #ddd;
+	background: var(--progress-bg);
 	border-radius: 4px;
 	overflow: hidden;
 	margin-bottom: 1rem;
@@ -474,7 +523,7 @@ table tbody tr:nth-child(even) {
 
 .settings-save-msg {
 	display: none;
-	color: #2e7d32;
+	color: var(--settings-save-text);
 	font-weight: 600;
 	margin-top: 0.5rem;
 }
@@ -489,8 +538,8 @@ table tbody tr:nth-child(even) {
 	margin-bottom: 0.75em;
 }
 .alert-success {
-	background: #d4edda;
-	color: #155724;
+	background: var(--alert-success-bg);
+	color: var(--alert-success-text);
 }
 
 /* === Utility === */
@@ -603,10 +652,12 @@ table tbody tr:nth-child(even) {
 .form-control {
 	width: 100%;
 	padding: 0.4rem 0.5rem;
-	border: 1px solid #ccc;
+	border: 1px solid var(--input-border);
 	border-radius: 4px;
 	font-family: var(--font-body);
 	font-size: 0.9rem;
+	background: var(--input-bg);
+	color: var(--main-text);
 }
 
 /* === Whole-file page === */
