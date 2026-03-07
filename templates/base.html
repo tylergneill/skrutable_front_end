@@ -16,7 +16,11 @@
 
 <aside class="sidebar" id="sidebar">
 {% include 'sidebar.html' %}
-{% block sidebar_controls %}{% endblock %}
+{% block sidebar_controls %}
+<div class="sidebar-controls sidebar-back">
+	<a href="/">&larr; Back to Workbench</a>
+</div>
+{% endblock %}
 <div class="sidebar-bottom">
 	<a href="/?example=1" id="example-link">Example 1</a>
 	<a href="/settings">Settings</a>

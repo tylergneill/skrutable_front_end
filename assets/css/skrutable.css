@@ -171,6 +171,16 @@ pre {
 	overflow-y: auto;
 }
 
+.sidebar-back a {
+	color: var(--sidebar-accent);
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+.sidebar-back a:hover {
+	color: var(--sidebar-text);
+	text-decoration: none;
+}
+
 /* Action row: button on left, options on right */
 .action-row {
 	display: flex;
