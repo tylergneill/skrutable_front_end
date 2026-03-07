@@ -5,7 +5,7 @@ import requests
 import sys
 import tempfile
 import time
-import unicodedata
+from urllib.parse import quote
 from datetime import datetime, date
 from pathlib import Path
 
@@ -406,22 +406,19 @@ def whole_file():
 
 		# prepare and return output file
 
-		def remove_diacritics(filename):
-			normalized = unicodedata.normalize('NFD', filename)
-			without_diacritics = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
-			return secure_filename(without_diacritics)
+		stem, _, ext = input_fn.rpartition('.')
+		if not stem:
+			stem, ext = ext, 'txt'
+		output_fn = f"{stem}{output_fn_suffix}.{ext}"
 
-		file_extension = input_fn[input_fn.find('.') + 1:]
-		cleaned_input_fn = remove_diacritics(input_fn)
-		if cleaned_input_fn == file_extension:
-			output_fn = f"skrutable_result{output_fn_suffix}.{file_extension}"
-		else:
-			output_fn = (	cleaned_input_fn[:input_fn.find('.')] +
-							f"{output_fn_suffix}.{file_extension}"
-						)
+		# ASCII fallback for Content-Disposition, plus RFC 5987 filename* for UTF-8
+		ascii_fn = secure_filename(output_fn) or f"skrutable_result{output_fn_suffix}.{ext}"
+		utf8_fn = quote(output_fn)
 
 		response = make_response(output_data)
-		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
+		response.headers["Content-Disposition"] = (
+			f"attachment; filename=\"{ascii_fn}\"; filename*=UTF-8''{utf8_fn}"
+		)
 		return response
 
 @app.route("/ocr", methods=["GET", "POST"])
