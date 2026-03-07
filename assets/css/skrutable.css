@@ -21,7 +21,6 @@
 	--progress-bg: #ddd;
 	--alert-success-bg: #d4edda;
 	--alert-success-text: #155724;
-	--settings-save-text: #2e7d32;
 }
 
 /* === Dark mode === */
@@ -44,7 +43,6 @@
 	--progress-bg: #333;
 	--alert-success-bg: #1a3a1a;
 	--alert-success-text: #6abf6a;
-	--settings-save-text: #6abf6a;
 }
 
 /* === Reset / Base === */
@@ -70,6 +68,9 @@ a {
 a:hover {
 	color: var(--btn-bg-hover);
 	text-decoration: underline;
+}
+.page-content a {
+	font-weight: 600;
 }
 
 h1, h2, h3, h4 {
