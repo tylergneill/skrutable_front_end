@@ -132,7 +132,7 @@ SELECT_ELEMENT_NAMES = [
 CHECKBOX_ELEMENT_NAMES = [
 	"weights", "morae", "gaRas",
 	"alignment",
-	] # to be extended with corpus text abbreviations for textPrioritize
+	]
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
@@ -178,6 +178,17 @@ def process_form(form):
 			session[var_name] = 1
 		else:
 			session[var_name] = 0
+
+	# extra options passed as hidden inputs from JS/localStorage
+	for var_name in extra_option_names:
+		if var_name in form:
+			val = form[var_name]
+			if val in ("true", "True", "1"):
+				session[var_name] = 1
+			elif val in ("false", "False", "0"):
+				session[var_name] = 0
+			else:
+				session[var_name] = val
 
 	session.modified = True
 

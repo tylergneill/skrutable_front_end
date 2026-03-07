@@ -12,7 +12,7 @@
 			<h2>transliteration</h2>
 			<p>
 				<input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
-				<label for="avoid_virama_indic_scripts">avoid vir&#257;ma for Indic scripts</label>
+				<label for="avoid_virama_indic_scripts">avoid vir&#257;ma for Indic scripts (<span id="virama_example_on">किमकुर्वत</span><span id="virama_example_off" style="display:none">किम् अकुर्वत</span>)</label>
 			</p>
 
 			<h2>splitting</h2>
@@ -21,33 +21,24 @@
 				<label for="preserve_punctuation">preserve punctuation</label>
 			</p>
 			<p>
-				<select id="splitter_model" name="splitter_model">
-					<option value="dharmamitra_2024_sept">Dharmamitra Sept 2024 (default)</option>
-					<option value="splitter_2018">2018 Sanskrit Sandhi and Compound Splitter</option>
+				<label for="splitter_model">model: </label><select id="splitter_model" name="splitter_model">
+					<option value="dharmamitra_2024_sept">2024 Byt5-Sanskrit by Dharmamitra</option>
+					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
 				</select>
 			</p>
 			<div id="preserve_compound_hyphens_row" style="display: none;">
 				<p>
 					<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" checked>
-					<label for="preserve_compound_hyphens">preserve compound hyphens</label>
+					<label for="preserve_compound_hyphens">preserve compound hyphens (<span id="hyphens_example_on">dharma-k&#7779;etre</span><span id="hyphens_example_off" style="display:none">dharma k&#7779;etre</span>)</label>
 				</p>
 			</div>
-
-			<br>
-
-			<p>
-				<button type="button" id="save_settings" class="btn btn-primary" onclick="saveSettings();">Save</button>
-			</p>
-
-			<div id="popover" class="settings-save-msg">settings saved</div>
 
 		</form>
 
 		<br>
-		<h2>reset</h2>
-		<p>Clear all saved settings and return to defaults.</p>
+		<h2>reset settings</h2>
 		<p>
-			<button type="button" class="btn btn-primary" onclick="resetAll();">Reset Everything</button>
+			<button type="button" class="btn btn-primary" onclick="resetAll();">Back to Defaults</button>
 		</p>
 
 	</div>
@@ -78,6 +69,17 @@
 		}
 
 		toggle_preserve_compound_hyphens();
+		updateExamples();
+	}
+
+	function updateExamples() {
+		var virOn = document.getElementById("avoid_virama_indic_scripts").checked;
+		document.getElementById("virama_example_on").style.display = virOn ? "" : "none";
+		document.getElementById("virama_example_off").style.display = virOn ? "none" : "";
+
+		var hypOn = document.getElementById("preserve_compound_hyphens").checked;
+		document.getElementById("hyphens_example_on").style.display = hypOn ? "" : "none";
+		document.getElementById("hyphens_example_off").style.display = hypOn ? "none" : "";
 	}
 
 	function toggle_preserve_compound_hyphens() {
@@ -90,7 +92,7 @@
 		}
 	}
 
-	function saveSettings() {
+	function saveAll() {
 		localStorage.setItem("avoid_virama_indic_scripts",
 			document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
 		localStorage.setItem("preserve_punctuation",
@@ -99,27 +101,29 @@
 			document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
 		localStorage.setItem("splitter_model",
 			document.getElementById("splitter_model").value);
-
-		var popover = document.getElementById('popover');
-		popover.classList.add('visible');
-		setTimeout(function() {
-			popover.classList.remove('visible');
-		}, 750);
 	}
 
 	window.onload = function() {
 		initialize_choices();
 	}
 
-	document.getElementById("splitter_model").addEventListener("change", toggle_preserve_compound_hyphens);
+	document.getElementById("splitter_model").addEventListener("change", function() { toggle_preserve_compound_hyphens(); saveAll(); });
+	document.getElementById("avoid_virama_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
+	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
+	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
 
 	function resetAll() {
-		if (!confirm("Reset all settings and clear saved data?")) return;
 		localStorage.removeItem("avoid_virama_indic_scripts");
 		localStorage.removeItem("splitter_model");
 		localStorage.removeItem("preserve_compound_hyphens");
 		localStorage.removeItem("preserve_punctuation");
-		window.location.href = "/?reset";
+		// Reset controls to defaults
+		document.getElementById("avoid_virama_indic_scripts").checked = true;
+		document.getElementById("preserve_punctuation").checked = true;
+		document.getElementById("preserve_compound_hyphens").checked = true;
+		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
+		toggle_preserve_compound_hyphens();
+		updateExamples();
 	}
 </script>
 {% endblock %}
