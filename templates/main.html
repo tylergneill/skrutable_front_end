@@ -15,7 +15,7 @@
 		<div class="action-row">
 			<button type="button" id="transliterate_button" class="btn btn-primary action-btn" onclick="doTransliterate();">Transliterate</button>
 			<div class="action-options">
-				<select id="from_scheme">
+				<label class="scheme-label">in: <select id="from_scheme">
 					<optgroup label="Romanizations">
 						<option value="IAST">IAST</option>
 						<option value="HK">HK</option>
@@ -30,8 +30,8 @@
 						<option value="BENGALI">BENGALI</option>
 						<option value="GUJARATI">GUJARATI</option>
 					</optgroup>
-				</select>
-				<select id="to_scheme">
+				</select></label>
+				<label class="scheme-label">out: <select id="to_scheme">
 					<optgroup label="Romanizations">
 						<option value="IAST">IAST</option>
 						<option value="HK">HK</option>
@@ -46,7 +46,7 @@
 						<option value="BENGALI">BENGALI</option>
 						<option value="GUJARATI">GUJARATI</option>
 					</optgroup>
-				</select>
+				</select></label>
 			</div>
 		</div>
 
@@ -95,7 +95,7 @@
 
 		<!-- Upload file -->
 		<div class="sidebar-extras">
-			<div class="sidebar-section-label">Upload File &#8679;</div>
+			<div class="sidebar-section-label">Upload File &#8679; <a href="/whole_file_help" class="sidebar-help-link">?</a></div>
 			<div class="swap-buttons-grid">
 				<button type="button" class="btn btn-primary" onclick="doWholeFile('transliterate');">Transliteration</button>
 				<button type="button" class="btn btn-primary" onclick="doWholeFile('identify meter');">Meter</button>

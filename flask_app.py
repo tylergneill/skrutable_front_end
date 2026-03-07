@@ -760,6 +760,10 @@ def about_page():
 def help_page():
 	return render_template("help.html")
 
+@app.route('/whole_file_help')
+def whole_file_help_page():
+	return render_template("whole_file_help.html")
+
 @app.route('/settings')
 def settings_page():
 	return render_template("settings.html")

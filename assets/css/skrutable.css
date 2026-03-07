@@ -282,6 +282,21 @@ pre {
 	margin-bottom: 0.35rem;
 }
 
+.sidebar-help-link {
+	color: var(--sidebar-accent);
+	font-size: 0.8rem;
+	font-weight: normal;
+	border: 1px solid rgba(255,255,255,0.25);
+	border-radius: 50%;
+	padding: 0 0.35em;
+	margin-left: 0.25rem;
+}
+.sidebar-help-link:hover {
+	color: var(--sidebar-text);
+	border-color: rgba(255,255,255,0.4);
+	text-decoration: none;
+}
+
 .swap-buttons-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
