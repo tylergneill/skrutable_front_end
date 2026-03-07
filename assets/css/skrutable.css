@@ -148,7 +148,7 @@ pre {
 
 .brand-about {
 	font-family: var(--font-body);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: var(--sidebar-accent);
 	font-weight: normal;
 }
@@ -235,9 +235,10 @@ pre {
 }
 
 .action-row .checkbox-group {
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	gap: 0.05rem 0.5rem;
+	margin-left: 0.4rem;
 }
 
 .action-row .checkbox-group label {
