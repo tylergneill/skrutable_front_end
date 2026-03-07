@@ -414,7 +414,7 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 	display: none;
 	align-items: center;
 	gap: 1rem;
-	padding: 0.75rem 0;
+	padding: 0.25rem 0 0.75rem;
 	flex-wrap: wrap;
 }
 
