@@ -564,16 +564,6 @@ table tbody tr:nth-child(even) {
 	max-width: 350px;
 }
 
-.settings-save-msg {
-	display: none;
-	color: var(--settings-save-text);
-	font-weight: 600;
-	margin-top: 0.5rem;
-}
-.settings-save-msg.visible {
-	display: block;
-}
-
 /* === Alerts === */
 .alert {
 	padding: 0.5rem 0.75rem;

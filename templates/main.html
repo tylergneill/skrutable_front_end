@@ -82,7 +82,7 @@
 			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="doSplit();">Split Words</button>
 			<div class="action-options">
 				<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar">
-					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (MITRA)</option>
+					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
 					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
 				</select></label>
 			</div>
@@ -118,6 +118,9 @@
 		<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
 		<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
 		<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
+		<input type="hidden" name="splitter_model" id="hidden_splitter_model"/>
+		<input type="hidden" name="preserve_punctuation" id="hidden_preserve_punctuation"/>
+		<input type="hidden" name="preserve_compound_hyphens" id="hidden_preserve_compound_hyphens"/>
 		<!-- scan_detail checkboxes added dynamically by syncHiddenInputs -->
 		<div id="hidden_scan_detail_container"></div>
 
@@ -322,9 +325,13 @@
 
 	// --- Whole-file POST via hidden form ---
 	function syncHiddenInputs() {
+		var settings = getSettings();
 		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
 		document.getElementById("hidden_to_scheme").value = document.getElementById("to_scheme").value;
 		document.getElementById("hidden_resplit_option").value = document.getElementById("resplit_option").value;
+		document.getElementById("hidden_splitter_model").value = settings.splitter_model;
+		document.getElementById("hidden_preserve_punctuation").value = settings.preserve_punctuation;
+		document.getElementById("hidden_preserve_compound_hyphens").value = settings.preserve_compound_hyphens;
 
 		// Sync scan_detail checkboxes as hidden inputs
 		var container = document.getElementById("hidden_scan_detail_container");
