@@ -1,50 +1,73 @@
 {% extends 'base.html' %}
 {% set active_page = 'workbench' %}
+{% macro yesno(val) %}{{ 'yes' if val else 'no' }}{% endmacro %}
 
 {% block content %}
 	<div class="page-content whole-file-info">
 
 		<form action="/whole_file" method="POST" enctype="multipart/form-data">
 
-			<h1>whole-file processing</h1>
-
-			<p>Processing mode: <b>{{ skrutable_action }}</b></p>
+			<h1>whole-file {{ skrutable_action }}</h1>
 
 			{% if skrutable_action == 'transliterate' %}
 			<table class="settings-summary">
+				<caption>options</caption>
 				<tr><td>input scheme</td><td>{{ from_scheme }}</td></tr>
 				<tr><td>output scheme</td><td>{{ to_scheme }}</td></tr>
 			</table>
 
 			{% elif skrutable_action == 'scan' %}
 			<table class="settings-summary">
-				<tr><td>weights</td><td>{{ weights }}</td></tr>
-				<tr><td>morae</td><td>{{ morae }}</td></tr>
-				<tr><td>ga&#7751;as</td><td>{{ gaRas }}</td></tr>
-				<tr><td>alignment</td><td>{{ alignment }}</td></tr>
+				<caption>options</caption>
+				<tr><td>weights</td><td>{{ yesno(weights) }}</td></tr>
+				<tr><td>morae</td><td>{{ yesno(morae) }}</td></tr>
+				<tr><td>ga&#7751;as</td><td>{{ yesno(gaRas) }}</td></tr>
+				<tr><td>alignment</td><td>{{ yesno(alignment) }}</td></tr>
 			</table>
 
 			{% elif skrutable_action == 'identify meter' %}
 			<table class="settings-summary">
-				<tr><td>weights</td><td>{{ weights }}</td></tr>
-				<tr><td>morae</td><td>{{ morae }}</td></tr>
-				<tr><td>ga&#7751;as</td><td>{{ gaRas }}</td></tr>
-				<tr><td>alignment</td><td>{{ alignment }}</td></tr>
+				<caption>options</caption>
+				<tr><td>weights</td><td>{{ yesno(weights) }}</td></tr>
+				<tr><td>morae</td><td>{{ yesno(morae) }}</td></tr>
+				<tr><td>ga&#7751;as</td><td>{{ yesno(gaRas) }}</td></tr>
+				<tr><td>alignment</td><td>{{ yesno(alignment) }}</td></tr>
 				<tr><td>resplit option</td><td>{{ resplit_option }}</td></tr>
 			</table>
 
 			{% elif skrutable_action == 'split' %}
 			<table class="settings-summary">
+				<caption>options</caption>
 				<tr><td>output scheme</td><td>{{ to_scheme }}</td></tr>
 				<tr><td>splitter model</td><td>{{ splitter_model }}</td></tr>
-				<tr><td>preserve punctuation</td><td>{{ preserve_punctuation }}</td></tr>
+				<tr><td>preserve punctuation</td><td>{{ yesno(preserve_punctuation) }}</td></tr>
 			</table>
 			{% endif %}
 
-			<p class="whole-file-tip">Use ASCII-only filenames. Processing may take a few seconds depending on file size.</p>
+			<p class="whole-file-tip">Processing may take a few seconds depending on file size.</p>
 
-			<p><input type="file" name="input_file" /></p>
-			<p><button type="submit" class="btn">Upload and process</button></p>
+			<label class="file-dropzone" id="fileDropzone">
+				<input type="file" name="input_file" id="fileInput" hidden />
+				<span class="file-dropzone-label" id="dropzoneLabel">Drop file here or click to select</span>
+			</label>
+			<p><button type="submit" class="btn btn-primary">Upload and process</button></p>
+
+			<script>
+				const dropzone = document.getElementById('fileDropzone');
+				const fileInput = document.getElementById('fileInput');
+				const label = document.getElementById('dropzoneLabel');
+				fileInput.addEventListener('change', () => {
+					label.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+				});
+				dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+				dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
+				dropzone.addEventListener('drop', (e) => {
+					e.preventDefault();
+					dropzone.classList.remove('dragover');
+					fileInput.files = e.dataTransfer.files;
+					label.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+				});
+			</script>
 
 		</form>
 

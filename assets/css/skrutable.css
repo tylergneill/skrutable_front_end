@@ -714,12 +714,19 @@ table tbody tr:nth-child(even) {
 	border-collapse: collapse;
 	margin: 0.75em 0 1.5em;
 }
+.whole-file-info .settings-summary caption {
+	caption-side: top;
+	text-align: left;
+	padding-bottom: 0.3em;
+	color: #666;
+}
 .whole-file-info .settings-summary td {
-	padding: 0.25em 1em 0.25em 0;
+	padding: 0.4em 1.5em 0.4em 0.4em;
 }
 .whole-file-info .settings-summary td:first-child {
 	color: #666;
 }
+[data-theme="dark"] .whole-file-info .settings-summary caption,
 [data-theme="dark"] .whole-file-info .settings-summary td:first-child {
 	color: #999;
 }
@@ -730,6 +737,27 @@ table tbody tr:nth-child(even) {
 }
 [data-theme="dark"] .whole-file-tip {
 	color: #999;
+}
+.file-dropzone {
+	display: block;
+	border: 2px dashed var(--input-border);
+	border-radius: 6px;
+	padding: 2em;
+	text-align: center;
+	cursor: pointer;
+	color: var(--dropzone-color);
+	margin: 1.5em 0;
+	transition: background 0.15s;
+}
+.file-dropzone:hover {
+	background: var(--dropzone-hover);
+}
+.file-dropzone.dragover {
+	background: var(--dropzone-hover);
+	border-color: var(--btn-bg);
+}
+.file-dropzone-label {
+	pointer-events: none;
 }
 
 /* === Video === */
