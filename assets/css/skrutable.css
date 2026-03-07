@@ -186,7 +186,7 @@ pre {
 
 .action-row .action-btn {
 	flex-shrink: 0;
-	width: 100px;
+	width: 40%;
 	font-size: 0.9375rem;
 	padding: 0.3rem 0.35rem;
 	white-space: nowrap;
