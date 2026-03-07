@@ -6,61 +6,59 @@
 
 		<h1>scan GRETIL</h1>
 
-		<p>One way you can help improve the world's stock of digital Sanskrit data
-			is to use <b>skrutable</b>'s whole-file meter identification
-			to detect and correct certain kinds of textual problems
-			that show up during metrical analysis.
-			GRETIL texts include some of the highest-quality ones around and are relatively easy to work with,
-			so they're a good starting point.
-		</p>
+		<p><b>skrutable</b>'s whole-file meter identification can be used to detect textual problems in digital Sanskrit texts.
+		<a href="http://gretil.sub.uni-goettingen.de/">GRETIL</a> texts are high-quality and relatively easy to work with, making them a good starting point.</p>
 
 		<p>See the <a href="/scanGRETILresults">cumulative results so far</a>.</p>
 
 		<h2>how-to</h2>
 
-		<p><b>Step 1</b>: Identify and obtain an electronic text you'd like to work on.
+		<p><b>step 1</b>: Obtain an electronic text.
+		Example: the Bhagavadg&#299;t&#257; (BhG) <a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw GRETIL file</a>.</p>
 
-		For example: the Bhagavadg&#299;t&#257; (BhG) <a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm">raw GRETIL file</a></p>
-		<p><b>Step 2</b>: Clean up the file (using search-and-replace, etc.) so that it is a text file with exactly one (potential) whole verse per line. Half an anu&#7779;&#7789;ubh &#347;loka is ok, too.
-		For example:
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG input cleaned</a></p>
-		<p><b>Step 3</b>: Submit the cleaned file to <b>skrutable</b>'s meter identifier using the "Meter" button in the Upload File section.
-			(See the <a href="/whole_file_help">whole-file help page</a> for instructions.)
-			<b>skrutable</b> is fast, so the 700 verses of the G&#299;t&#257; will only take a second:
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">BhG raw output</a> and
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt">BhG output cleaned</a>.
-		</p>
-		<p><b>Step 4</b>: Read through the results (use regexes to search more effectively),
-			and use detected metrical irregularities to identify potential textual issues in need of attention:
-			hyper- or hypo-metrical lines, typos that result in different syllable weights, and so on.</p>
+		<p><b>step 2</b>: Clean the file so that each line contains exactly one whole verse (half an anu&#7779;&#7789;ubh &#347;loka is also acceptable). Remove extraneous material.
+		Example: <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt">BhG input cleaned</a>.</p>
 
-		<p>The BhG text is in relatively good shape. But consider the huge text of the R&#257;m&#257;ya&#7751;a:
-		(<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm">raw in</a> &#8212; Dec 2018 version with semicolons), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt">clean in</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">raw out</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt">clean out</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_tallies/Ram_tallies.tsv">tallies of meter types</a>), (<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt">breakdown and problems</a>).</p>
+		<p><b>step 3</b>: Submit the cleaned file using the "Meter" button in the Upload File section of the sidebar.
+		See the <a href="/whole_file_help">whole-file help page</a> for instructions.
+		The 700 verses of the G&#299;t&#257; process in about a second:
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">BhG raw output</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt">BhG output cleaned</a>.</p>
 
-		<p>Some tips on <b>skrutable</b>'s categories:
-			<ul>
-			<li>"asam&#299;c&#299;na": for invalid parts of anu&#7779;&#7789;ubhs</li>
-			<li>"x yukt&#257;&#7717; p&#257;d&#257;&#7717;": for samav&#7771;ttas with less than four valid p&#257;das</li>
-			<li>"na ki&#7747;cid adhyavasitam": for material not successfully determined to be a particular meter</li>
-			<li>"aj&#241;&#257;tasamav&#7771;tta": for verses recognized as having the shape of samav&#7771;ttas (also ardhasamav&#7771;ttas) but not yet known by name</li>
-			<li>"up&#257;j&#257;ti xyz": for up&#257;j&#257;tis (= p&#257;das all having same length) other than the standard indravajr&#257;-upendravajr&#257; type</li>
-			<li>"aj&#241;&#257;tam": for "up&#257;j&#257;tis" in name only, with p&#257;das of equal lengths but standardized recognized as such (usually spurious)</li>
-			<li>"atha v&#257;": for verses that could be one thing or another</li>
-			</ul>
-		</p>
+		<p><b>step 4</b>: Review the results for metrical irregularities (use regexes to search effectively).
+		These may indicate hyper- or hypo-metrical lines, typos affecting syllable weight, and other textual issues.</p>
 
+		<p>For a larger example, consider the R&#257;m&#257;ya&#7751;a:
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm">raw in</a> (Dec 2018 version with semicolons),
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt">clean in</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt">raw out</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt">clean out</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_tallies/Ram_tallies.tsv">tallies</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt">notes</a>.</p>
 
-		<p><b>Step 5</b>: Fix or otherwise account for the irregularities you find:
-			<ul>
-				<li>Correct the digital text</li>
-				<li>Make a note of how to correct the edition itself</li>
-				<li>Come up with an explanation in terms of poetic license, etc.</li>
-			</ul>
+		<p><b>step 5</b>: Address the irregularities:
+		<ul>
+			<li>correct the digital text</li>
+			<li>note corrections needed in the edition itself</li>
+			<li>explain in terms of poetic license, etc.</li>
+		</ul>
 		</p>
 
-		<p><b>Step 6</b>: Share your results with the community.</p>
+		<p><b>step 6</b>: Share your results with the community.</p>
 
-		<p>Questions? Email me (see <a href="/about">about page</a>), we'll talk.</p>
+		<h2>output categories</h2>
+
+		<ul>
+			<li><i>asam&#299;c&#299;na</i>: invalid parts of anu&#7779;&#7789;ubhs</li>
+			<li><i>x yukt&#257;&#7717; p&#257;d&#257;&#7717;</i>: samav&#7771;ttas with fewer than four valid p&#257;das</li>
+			<li><i>na ki&#7747;cid adhyavasitam</i>: material not successfully identified as a particular meter</li>
+			<li><i>aj&#241;&#257;tasamav&#7771;tta</i>: verses with the shape of samav&#7771;ttas (or ardhasamav&#7771;ttas) but not yet known by name</li>
+			<li><i>up&#257;j&#257;ti xyz</i>: up&#257;j&#257;tis (p&#257;das of equal length) other than the standard indravajr&#257;-upendravajr&#257; type</li>
+			<li><i>aj&#241;&#257;tam</i>: p&#257;das of equal length but not recognized as a standard up&#257;j&#257;ti (usually spurious)</li>
+			<li><i>atha v&#257;</i>: verses that could be classified as more than one meter</li>
+		</ul>
+
+		<p>Questions? See the <a href="/about">about page</a> for contact information.</p>
 
 	</div>
 {% endblock %}
