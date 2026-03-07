@@ -84,24 +84,24 @@
 			</div>
 		</div>
 
-		<!-- Swap + whole-file -->
+		<!-- Swap -->
 		<div class="sidebar-extras">
 			<div class="swap-buttons">
 				<button type="button" class="btn btn-primary" onclick="swapTexts();">Txt &#8645;</button>
 				<button type="button" class="btn btn-primary" onclick="swapSchemes();">Schemes &#8644;</button>
 				<button type="button" class="btn btn-primary" onclick="swapBoth();">Both &#8645;&#8644;</button>
 			</div>
-			<hr class="sidebar-divider">
-			<div class="swap-buttons">
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('transliterate');">Translit file &#8679;</button>
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('identify meter');">Meter file &#8679;</button>
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('split');">Split file &#8679;</button>
-			</div>
 		</div>
 
-		<!-- PDF/OCR link -->
-		<div class="sidebar-ocr-link">
-			<a href="/ocr">PDF &#8594; OCR</a>
+		<!-- Upload file -->
+		<div class="sidebar-extras">
+			<div class="sidebar-section-label">Upload File &#8679;</div>
+			<div class="swap-buttons-grid">
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('transliterate');">Transliteration</button>
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('identify meter');">Meter</button>
+				<button type="button" class="btn btn-primary" onclick="doWholeFile('split');">Split</button>
+				<a href="/ocr" class="btn btn-primary">OCR a PDF</a>
+			</div>
 		</div>
 
 	</div>

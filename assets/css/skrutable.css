@@ -123,7 +123,7 @@ pre {
 /* === Sidebar: Brand === */
 .sidebar-brand {
 	padding: 0.75rem 1rem 0.5rem;
-	border-bottom: 1px solid rgba(255,255,255,0.2);
+	border-bottom: 2px solid rgba(255,255,255,0.2);
 	flex-shrink: 0;
 }
 
@@ -177,7 +177,7 @@ pre {
 	gap: 0.5rem;
 	align-items: flex-start;
 	padding: 0.5rem 0;
-	border-bottom: 1px solid rgba(255,255,255,0.2);
+	border-bottom: 2px solid rgba(255,255,255,0.2);
 }
 
 .action-row:first-child {
@@ -240,7 +240,7 @@ pre {
 /* Swap & whole-file rows */
 .sidebar-extras {
 	padding: 0.6rem 0;
-	border-bottom: 1px solid rgba(255,255,255,0.2);
+	border-bottom: 2px solid rgba(255,255,255,0.2);
 }
 
 .swap-buttons {
@@ -255,7 +255,7 @@ pre {
 
 .sidebar-divider {
 	border: none;
-	border-top: 1px solid rgba(255,255,255,0.15);
+	border-top: 2px solid rgba(255,255,255,0.2);
 	margin: 0.15rem 0;
 }
 
@@ -265,20 +265,22 @@ pre {
 	padding: 0.22rem 0.15rem;
 }
 
-/* OCR link in sidebar */
-.sidebar-ocr-link {
-	padding: 0.6rem 0 0.4rem 0.25rem;
-}
-
-.sidebar-ocr-link a {
+.sidebar-section-label {
 	color: var(--sidebar-accent);
-	font-size: 1.1875rem;
+	font-size: 0.9rem;
 	font-weight: 600;
+	margin-bottom: 0.35rem;
 }
 
-.sidebar-ocr-link a:hover {
-	color: var(--sidebar-text);
-	text-decoration: none;
+.swap-buttons-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.3rem;
+}
+
+.swap-buttons-grid .btn {
+	font-size: 0.875rem;
+	padding: 0.22rem 0.15rem;
 }
 
 /* === Sidebar: Bottom links === */
