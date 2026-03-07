@@ -710,8 +710,26 @@ table tbody tr:nth-child(even) {
 }
 
 /* === Whole-file page === */
-.whole-file-info ul {
-	margin-bottom: 0.5em;
+.whole-file-info .settings-summary {
+	border-collapse: collapse;
+	margin: 0.75em 0 1.5em;
+}
+.whole-file-info .settings-summary td {
+	padding: 0.25em 1em 0.25em 0;
+}
+.whole-file-info .settings-summary td:first-child {
+	color: #666;
+}
+[data-theme="dark"] .whole-file-info .settings-summary td:first-child {
+	color: #999;
+}
+.whole-file-tip {
+	font-size: 0.9em;
+	color: #666;
+	margin-top: 1.5em;
+}
+[data-theme="dark"] .whole-file-tip {
+	color: #999;
 }
 
 /* === Video === */
