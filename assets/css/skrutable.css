@@ -1,6 +1,6 @@
 /* === CSS Custom Properties === */
 :root {
-	--sidebar-width: 300px;
+	--sidebar-width: 330px;
 	--sidebar-bg: #395a77;
 	--sidebar-bg-dark: #2e4a64;
 	--sidebar-text: #f0ece4;
@@ -600,8 +600,8 @@ table tbody tr:nth-child(even) {
 /* === Responsive: mobile === */
 @media (max-width: 768px) {
 	.sidebar {
-		width: 80vw;
-		max-width: 300px;
+		width: 88vw;
+		max-width: 330px;
 		transform: translateX(-100%);
 		transition: transform 0.25s ease;
 	}
