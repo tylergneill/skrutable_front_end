@@ -19,8 +19,6 @@
 	--dropzone-color: #777;
 	--dropzone-hover: #e8f0f8;
 	--progress-bg: #ddd;
-	--alert-success-bg: #d4edda;
-	--alert-success-text: #155724;
 }
 
 /* === Dark mode === */
@@ -41,8 +39,6 @@
 	--dropzone-color: #888;
 	--dropzone-hover: #252f38;
 	--progress-bg: #333;
-	--alert-success-bg: #1a3a1a;
-	--alert-success-text: #6abf6a;
 }
 
 /* === Reset / Base === */
@@ -280,11 +276,6 @@ pre {
 	margin-bottom: 0;
 }
 
-.sidebar-divider {
-	border: none;
-	border-top: 2px solid rgba(255,255,255,0.2);
-	margin: 0.15rem 0;
-}
 
 .swap-buttons .btn {
 	flex: 1;
@@ -565,16 +556,6 @@ table tbody tr:nth-child(even) {
 	max-width: 350px;
 }
 
-/* === Alerts === */
-.alert {
-	padding: 0.5rem 0.75rem;
-	border-radius: 4px;
-	margin-bottom: 0.75em;
-}
-.alert-success {
-	background: var(--alert-success-bg);
-	color: var(--alert-success-text);
-}
 
 /* === External link icon === */
 .ext-link-icon {
@@ -587,11 +568,6 @@ table tbody tr:nth-child(even) {
 }
 
 /* === Utility === */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
 
 /* === Mobile header (burger) === */

@@ -1,1 +1,0 @@
-document.removeEventListener("keydown", handleKeydown, false);
