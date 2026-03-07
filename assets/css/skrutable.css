@@ -207,6 +207,17 @@ pre {
 	min-width: 0;
 }
 
+.scheme-label {
+	display: grid;
+	grid-template-columns: 2rem 1fr;
+	align-items: center;
+	color: var(--sidebar-accent);
+	font-size: 0.875rem;
+	font-weight: normal;
+	margin-bottom: 0.15rem;
+	text-align: center;
+}
+
 .action-row .action-options select {
 	width: 100%;
 	padding: 0.22rem 0.3rem;
