@@ -81,6 +81,10 @@
 		<div class="action-row">
 			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="doSplit();">Split Words</button>
 			<div class="action-options">
+				<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar">
+					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (MITRA)</option>
+					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
+				</select></label>
 			</div>
 		</div>
 
@@ -141,7 +145,7 @@
 	function getSettings() {
 		return {
 			avoid_virama_indic_scripts: localStorage.getItem("avoid_virama_indic_scripts") !== "false",
-			splitter_model: localStorage.getItem("splitter_model") || "dharmamitra_2024_sept",
+			splitter_model: document.getElementById("splitter_model_sidebar").value,
 			preserve_compound_hyphens: localStorage.getItem("preserve_compound_hyphens") !== "false",
 			preserve_punctuation: localStorage.getItem("preserve_punctuation") !== "false",
 		};
@@ -420,6 +424,12 @@
 			document.getElementById("resplit_option").value = serverResplit;
 		}
 
+		// Splitter model: init from localStorage
+		var savedModel = localStorage.getItem("splitter_model");
+		if (savedModel) {
+			document.getElementById("splitter_model_sidebar").value = savedModel;
+		}
+
 		// Checkboxes: server values if provided, else default to checked
 		{% if weights is defined %}
 		if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
@@ -465,6 +475,11 @@
 	function set_action(new_skr_act) {
 		document.getElementById("skrutable_action").value = new_skr_act;
 	}
+
+	// Sync sidebar splitter model to localStorage
+	document.getElementById("splitter_model_sidebar").addEventListener("change", function() {
+		localStorage.setItem("splitter_model", this.value);
+	});
 
 </script>
 {% endblock %}
