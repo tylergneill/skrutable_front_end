@@ -553,7 +553,17 @@ def get_inputs(required_args, request, optional_args=None):
 @app.route('/api/save-settings', methods=["POST"])
 def api_save_settings():
 	ensure_keys()
-	process_form(request.form)
+	form = request.form
+	for var_name in extra_option_names:
+		if var_name in form:
+			val = form[var_name]
+			if val in ("true", "True", "1"):
+				session[var_name] = 1
+			elif val in ("false", "False", "0"):
+				session[var_name] = 0
+			else:
+				session[var_name] = val
+	session.modified = True
 	return jsonify({"ok": True})
 
 @app.route('/api/transliterate', methods=["GET", "POST"])
