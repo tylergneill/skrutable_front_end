@@ -347,6 +347,10 @@ pre {
 	font-size: 0.875rem;
 	padding: 0.22rem 0.15rem;
 }
+.swap-buttons-grid .btn.active {
+	background: var(--sidebar-text);
+	color: var(--sidebar-bg-dark);
+}
 
 /* === Input mode toggle === */
 .input-toggle-row {
