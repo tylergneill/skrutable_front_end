@@ -10,7 +10,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
-	make_response, g
+	make_response, g, url_for
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
@@ -318,33 +318,30 @@ def index():
 		)
 
 
-@app.route("/whole_file", methods=["POST"])
+@app.route("/whole_file", methods=["GET", "POST"])
 def whole_file():
 
 	ensure_keys()
 
-	# when form sent from GUI ("whole file" button clicked)
-	if request.form != {}:
-
-		process_form(request.form)
-
-		# use bool values for clearer display
+	# GET: display upload form with current session settings
+	if request.method == "GET":
 		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
-		for k,v in session_kwargs.items():
-			if v in [0, 1]:
-				session_kwargs[k] = bool(v)
-
-		# send onward to upload form
 		return render_template(
 			"whole_file.html",
-			text_input=g.text_input,
 			**session_kwargs,
 		)
 
-	# when file chosen for upload
-	elif request.files != {}:
+	# POST from main page sidebar: save settings, redirect to GET
+	if request.form and not request.files:
+		process_form(request.form)
+		return redirect(url_for("whole_file"))
 
-		# session variables already processed in previous step
+	# POST with file: process and return download
+	if request.files:
+
+		# sync sidebar settings into session
+		if request.form:
+			process_form(request.form)
 
 		# take in and read file
 		input_file = request.files["input_file"]

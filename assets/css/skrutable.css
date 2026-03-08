@@ -282,6 +282,11 @@ pre {
 	font-size: 0.875rem;
 	padding: 0.22rem 0.15rem;
 }
+.back-to-workbench .btn {
+	flex: 1;
+	text-align: center;
+	text-decoration: none;
+}
 
 .sidebar-section-label {
 	color: var(--sidebar-accent);
@@ -681,21 +686,51 @@ table tbody tr:nth-child(even) {
 }
 
 /* === Whole-file page === */
+.whole-file-info .settings-group {
+	margin: 0.75em 0 1.5em;
+}
+.whole-file-info .settings-row {
+	display: flex;
+	gap: 2em;
+}
+.whole-file-info .settings-cell {
+	flex: 1;
+	min-width: 0;
+}
+.whole-file-info .settings-header-row .settings-cell {
+	font-size: 0.85em;
+	color: #888;
+	padding-bottom: 0.3em;
+}
+.whole-file-info .settings-header-row a {
+	color: inherit;
+	text-decoration: underline;
+}
 .whole-file-info .settings-summary {
 	border-collapse: collapse;
-	margin: 0.75em 0 1.5em;
+	border: 1px solid #ddd;
+	margin-bottom: 0.75em;
 }
 .whole-file-info .settings-summary caption {
 	caption-side: top;
 	text-align: left;
-	padding-bottom: 0.3em;
+	padding: 0.4em 0.5em 0.2em;
+	font-weight: 600;
+	font-size: 0.85em;
 	color: #666;
 }
 .whole-file-info .settings-summary td {
-	padding: 0.4em 1.5em 0.4em 0.4em;
+	padding: 0.3em 1.2em 0.3em 0.5em;
 }
 .whole-file-info .settings-summary td:first-child {
+	width: 12em;
 	color: #666;
+}
+[data-theme="dark"] .whole-file-info .settings-summary {
+	border-color: #444;
+}
+[data-theme="dark"] .whole-file-info .settings-header-row .settings-cell {
+	color: #999;
 }
 [data-theme="dark"] .whole-file-info .settings-summary caption,
 [data-theme="dark"] .whole-file-info .settings-summary td:first-child {
