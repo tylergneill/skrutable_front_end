@@ -1,104 +1,10 @@
 {% extends 'base.html' %}
 {% set active_page = 'workbench' %}
+{% set page_mode = 'upload' %}
 
 {% block sidebar_controls %}
 	<div class="sidebar-controls">
-
-		<!-- Transliterate + schemes -->
-		<div class="action-row">
-			<button type="button" id="transliterate_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('transliterate');">Transliterate</button>
-			<div class="action-options">
-				<label class="scheme-label">in: <select id="from_scheme" onchange="updateOptionsDisplay(); saveSettingsToSession();">
-					<optgroup label="Romanizations">
-						<option value="IAST">IAST</option>
-						<option value="HK">HK</option>
-						<option value="SLP">SLP</option>
-						<option value="ITRANS">ITRANS</option>
-						<option value="VH">VH</option>
-						<option value="WX">WX</option>
-						<option value="IASTREDUCED" disabled>IAST reduced</option>
-					</optgroup>
-					<optgroup label="Indic Scripts">
-						<option value="DEV">DEV</option>
-						<option value="BENGALI">BENGALI</option>
-						<option value="GUJARATI">GUJARATI</option>
-					</optgroup>
-				</select></label>
-				<label class="scheme-label">out: <select id="to_scheme" onchange="updateOptionsDisplay(); saveSettingsToSession();">
-					<optgroup label="Romanizations">
-						<option value="IAST">IAST</option>
-						<option value="HK">HK</option>
-						<option value="SLP">SLP</option>
-						<option value="ITRANS">ITRANS</option>
-						<option value="VH">VH</option>
-						<option value="WX">WX</option>
-						<option value="IASTREDUCED">IAST reduced</option>
-					</optgroup>
-					<optgroup label="Indic Scripts">
-						<option value="DEV">DEV</option>
-						<option value="BENGALI">BENGALI</option>
-						<option value="GUJARATI">GUJARATI</option>
-					</optgroup>
-				</select></label>
-			</div>
-		</div>
-
-		<!-- Scan + detail checkboxes -->
-		<div class="action-row">
-			<button type="button" id="scan_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('scan');">Scan</button>
-			<div class="action-options">
-				<div class="checkbox-group">
-					<label><input type="checkbox" id="weights" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> lglgl</label>
-					<label><input type="checkbox" id="morae" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> {mora}</label>
-					<label><input type="checkbox" id="gaRas" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> [ga&#7751;a]</label>
-					<label><input type="checkbox" id="alignment" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> align</label>
-				</div>
-			</div>
-		</div>
-
-		<!-- Identify Meter + resplit -->
-		<div class="action-row">
-			<button type="button" id="identify_meter_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('identify meter');">Identify Meter</button>
-			<div class="action-options">
-				<select id="resplit_option" onchange="updateOptionsDisplay(); saveSettingsToSession();">
-					<option value="none">don't resplit</option>
-					<option value="resplit_lite">resplit lite</option>
-					<option value="resplit_lite_keep_mid">resplit lite keep mid</option>
-					<option value="resplit_max">resplit max</option>
-					<option value="resplit_max_keep_mid">resplit max keep mid</option>
-				</select>
-			</div>
-		</div>
-
-		<!-- Split Words -->
-		<div class="action-row">
-			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('split');">Split Words</button>
-			<div class="action-options">
-				<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar" onchange="updateOptionsDisplay(); saveSettingsToSession();">
-					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
-					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
-				</select></label>
-			</div>
-		</div>
-
-		<!-- Back to workbench (replaces Swap section) -->
-		<div class="sidebar-extras">
-			<div class="swap-buttons back-to-workbench">
-				<a href="/" class="btn btn-primary">&larr; Back to Input / Output Text Boxes</a>
-			</div>
-		</div>
-
-		<!-- Upload file (same position as on workbench) -->
-		<div class="sidebar-extras">
-			<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
-			<div class="swap-buttons-grid">
-				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('transliterate');">Transliteration</button>
-				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('identify meter');">Meter</button>
-				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('split');">Split</button>
-				<a href="/ocr" class="btn btn-primary">PDF OCR</a>
-			</div>
-		</div>
-
+		{% include 'sidebar_actions.html' %}
 	</div>
 {% endblock %}
 
@@ -135,37 +41,30 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/assets/js/settings.js"></script>
 <script>
 
+	// --- Page globals ---
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 
-	// --- Initialize sidebar from session values ---
-	function initSidebar() {
-		var serverFromScheme = "{{ from_scheme }}";
-		var serverToScheme = "{{ to_scheme }}";
-		var serverResplit = "{{ resplit_option }}";
-		var serverSplitterModel = "{{ splitter_model }}";
-
-		if (serverFromScheme) document.getElementById("from_scheme").value = serverFromScheme;
-		if (serverToScheme) document.getElementById("to_scheme").value = serverToScheme;
-		if (serverResplit) document.getElementById("resplit_option").value = serverResplit;
-		if (serverSplitterModel) document.getElementById("splitter_model_sidebar").value = serverSplitterModel;
-
-		document.getElementById("weights").checked = {{ weights|default(1)|int }} === 1;
-		document.getElementById("morae").checked = {{ morae|default(1)|int }} === 1;
-		document.getElementById("gaRas").checked = {{ gaRas|default(1)|int }} === 1;
-		document.getElementById("alignment").checked = {{ alignment|default(1)|int }} === 1;
-	}
-
-	// --- Set action from sidebar button ---
-	function setWholeFileAction(action) {
+	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
+	function onActionButton(action) {
 		currentAction = action;
 		updateOptionsDisplay();
 		saveSettingsToSession();
 		closeSidebarOnMobile();
+	}
+
+	function onUploadButton(action) {
+		onActionButton(action);
+	}
+
+	function onSidebarChange() {
+		updateOptionsDisplay();
+		saveSettingsToSession();
 	}
 
 	function yesno(val) { return val ? "yes" : "no"; }
@@ -186,25 +85,15 @@
 		heading.textContent = "file upload: " + currentAction;
 		uploadBtn.disabled = false;
 
-		var fromScheme = document.getElementById("from_scheme").value;
-		var toScheme = document.getElementById("to_scheme").value;
-		var weightsChecked = document.getElementById("weights").checked;
-		var moraeChecked = document.getElementById("morae").checked;
-		var gaRasChecked = document.getElementById("gaRas").checked;
-		var alignmentChecked = document.getElementById("alignment").checked;
-		var resplitOption = document.getElementById("resplit_option").value;
-		var splitterModel = document.getElementById("splitter_model_sidebar").value;
-		var preservePunctuation = currentPreservePunctuation;
-		var preserveCompoundHyphens = currentPreserveCompoundHyphens;
-
+		var s = getSidebarSettings();
 		var hasExtra = (currentAction === "transliterate" || currentAction === "split");
 		var sections = [];
 
 		if (currentAction === "transliterate") {
 			sections.push({
 				sidebar: makeTable("transliteration", [
-					["input scheme", fromScheme],
-					["output scheme", toScheme],
+					["input scheme", s.from_scheme],
+					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
@@ -213,54 +102,54 @@
 		} else if (currentAction === "scan") {
 			sections.push({
 				sidebar: makeTable("transliteration", [
-					["input scheme", fromScheme],
+					["input scheme", s.from_scheme],
 				]),
 			});
 			sections.push({
 				sidebar: makeTable("scansion", [
-					["weights", yesno(weightsChecked)],
-					["morae", yesno(moraeChecked)],
-					["ga\u1E47as", yesno(gaRasChecked)],
-					["alignment", yesno(alignmentChecked)],
+					["weights", yesno(s.weights)],
+					["morae", yesno(s.morae)],
+					["ga\u1E47as", yesno(s.gaRas)],
+					["alignment", yesno(s.alignment)],
 				]),
 			});
 		} else if (currentAction === "identify meter") {
 			sections.push({
 				sidebar: makeTable("transliteration", [
-					["input scheme", fromScheme],
+					["input scheme", s.from_scheme],
 				]),
 			});
 			sections.push({
 				sidebar: makeTable("scansion", [
-					["weights", yesno(weightsChecked)],
-					["morae", yesno(moraeChecked)],
-					["ga\u1E47as", yesno(gaRasChecked)],
-					["alignment", yesno(alignmentChecked)],
+					["weights", yesno(s.weights)],
+					["morae", yesno(s.morae)],
+					["ga\u1E47as", yesno(s.gaRas)],
+					["alignment", yesno(s.alignment)],
 				]),
 			});
 			sections.push({
 				sidebar: makeTable("meter identification", [
-					["resplit option", resplitOption],
+					["resplit option", s.resplit_option],
 				]),
 			});
 		} else if (currentAction === "split") {
 			sections.push({
 				sidebar: makeTable("transliteration", [
-					["input scheme", fromScheme],
-					["output scheme", toScheme],
+					["input scheme", s.from_scheme],
+					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
 				]),
 			});
-			var compoundRow = splitterModel === "dharmamitra_2024_sept"
-				? yesno(preserveCompoundHyphens) : "n/a";
+			var compoundRow = s.splitter_model === "dharmamitra_2024_sept"
+				? yesno(currentPreserveCompoundHyphens) : "n/a";
 			sections.push({
 				sidebar: makeTable("word splitting", [
-					["splitter model", splitterModel],
+					["splitter model", s.splitter_model],
 				]),
 				extra: makeTable("word splitting", [
-					["preserve punctuation", yesno(preservePunctuation)],
+					["preserve punctuation", yesno(currentPreservePunctuation)],
 					["preserve compound hyphens", compoundRow],
 				]),
 			});
@@ -296,30 +185,6 @@
 		return html;
 	}
 
-	// --- Sync hidden inputs before form submit ---
-	function syncHiddenInputs() {
-		document.getElementById("hidden_action").value = currentAction;
-		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
-		document.getElementById("hidden_to_scheme").value = document.getElementById("to_scheme").value;
-		document.getElementById("hidden_resplit_option").value = document.getElementById("resplit_option").value;
-		document.getElementById("hidden_splitter_model").value = document.getElementById("splitter_model_sidebar").value;
-		document.getElementById("hidden_preserve_punctuation").value = currentPreservePunctuation;
-		document.getElementById("hidden_preserve_compound_hyphens").value = currentPreserveCompoundHyphens;
-
-		var container = document.getElementById("hidden_scan_detail_container");
-		container.innerHTML = "";
-		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
-		for (var i = 0; i < checkboxIds.length; i++) {
-			if (document.getElementById(checkboxIds[i]).checked) {
-				var inp = document.createElement("input");
-				inp.type = "hidden";
-				inp.name = "scan_detail";
-				inp.value = checkboxIds[i];
-				container.appendChild(inp);
-			}
-		}
-	}
-
 	// --- File dropzone ---
 	var dropzone = document.getElementById('fileDropzone');
 	var fileInput = document.getElementById('fileInput');
@@ -341,28 +206,18 @@
 		syncHiddenInputs();
 	});
 
-	// --- Persist settings to session on any sidebar change ---
-	function saveSettingsToSession() {
-		var fd = new FormData();
-		fd.append("skrutable_action", currentAction);
-		fd.append("from_scheme", document.getElementById("from_scheme").value);
-		fd.append("to_scheme", document.getElementById("to_scheme").value);
-		fd.append("resplit_option", document.getElementById("resplit_option").value);
-		fd.append("splitter_model", document.getElementById("splitter_model_sidebar").value);
-		fd.append("preserve_punctuation", currentPreservePunctuation);
-		fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
-		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
-		for (var i = 0; i < checkboxIds.length; i++) {
-			if (document.getElementById(checkboxIds[i]).checked) {
-				fd.append("scan_detail", checkboxIds[i]);
-			}
-		}
-		fetch("/api/save-settings", { method: "POST", body: fd });
-	}
-
 	// --- Init ---
 	window.onload = function() {
-		initSidebar();
+		initSidebarFromSession({
+			from_scheme: "{{ from_scheme }}",
+			to_scheme: "{{ to_scheme }}",
+			resplit_option: "{{ resplit_option }}",
+			splitter_model: "{{ splitter_model }}",
+			weights: {{ weights|default(1)|int }} === 1,
+			morae: {{ morae|default(1)|int }} === 1,
+			gaRas: {{ gaRas|default(1)|int }} === 1,
+			alignment: {{ alignment|default(1)|int }} === 1,
+		});
 		updateOptionsDisplay();
 	};
 

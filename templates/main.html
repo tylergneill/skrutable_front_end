@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% set active_page = 'workbench' %}
+{% set page_mode = 'workbench' %}
 
 {% block head_extra %}
 	<meta property='og:title' content='skrutable'/>
@@ -10,111 +11,14 @@
 
 {% block sidebar_controls %}
 	<div class="sidebar-controls">
-
-		<!-- Transliterate + schemes -->
-		<div class="action-row">
-			<button type="button" id="transliterate_button" class="btn btn-primary action-btn" onclick="doTransliterate();">Transliterate</button>
-			<div class="action-options">
-				<label class="scheme-label">in: <select id="from_scheme">
-					<optgroup label="Romanizations">
-						<option value="IAST">IAST</option>
-						<option value="HK">HK</option>
-						<option value="SLP">SLP</option>
-						<option value="ITRANS">ITRANS</option>
-						<option value="VH">VH</option>
-						<option value="WX">WX</option>
-						<option value="IASTREDUCED" disabled>IAST reduced</option>
-					</optgroup>
-					<optgroup label="Indic Scripts">
-						<option value="DEV">DEV</option>
-						<option value="BENGALI">BENGALI</option>
-						<option value="GUJARATI">GUJARATI</option>
-					</optgroup>
-				</select></label>
-				<label class="scheme-label">out: <select id="to_scheme">
-					<optgroup label="Romanizations">
-						<option value="IAST">IAST</option>
-						<option value="HK">HK</option>
-						<option value="SLP">SLP</option>
-						<option value="ITRANS">ITRANS</option>
-						<option value="VH">VH</option>
-						<option value="WX">WX</option>
-						<option value="IASTREDUCED">IAST reduced</option>
-					</optgroup>
-					<optgroup label="Indic Scripts">
-						<option value="DEV">DEV</option>
-						<option value="BENGALI">BENGALI</option>
-						<option value="GUJARATI">GUJARATI</option>
-					</optgroup>
-				</select></label>
-			</div>
-		</div>
-
-		<!-- Scan + detail checkboxes -->
-		<div class="action-row">
-			<button type="button" id="scan_button" class="btn btn-primary action-btn" onclick="doScan();">Scan</button>
-			<div class="action-options">
-				<div class="checkbox-group">
-					<label><input type="checkbox" id="weights" checked/> lglgl</label>
-					<label><input type="checkbox" id="morae" checked/> {mora}</label>
-					<label><input type="checkbox" id="gaRas" checked/> [ga&#7751;a]</label>
-					<label><input type="checkbox" id="alignment" checked/> align</label>
-				</div>
-			</div>
-		</div>
-
-		<!-- Identify Meter + resplit -->
-		<div class="action-row">
-			<button type="button" id="identify_meter_button" class="btn btn-primary action-btn" onclick="doIdentifyMeter();">Identify Meter</button>
-			<div class="action-options">
-				<select id="resplit_option">
-					<option value="none">don't resplit</option>
-					<option value="resplit_lite">resplit lite</option>
-					<option value="resplit_lite_keep_mid">resplit lite keep mid</option>
-					<option value="resplit_max">resplit max</option>
-					<option value="resplit_max_keep_mid">resplit max keep mid</option>
-				</select>
-			</div>
-		</div>
-
-		<!-- Split Words -->
-		<div class="action-row">
-			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="doSplit();">Split Words</button>
-			<div class="action-options">
-				<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar">
-					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
-					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
-				</select></label>
-			</div>
-		</div>
-
-		<!-- Swap -->
-		<div class="sidebar-extras">
-			<div class="swap-buttons">
-				<button type="button" class="btn btn-primary" onclick="swapTexts();">Text &#8645;</button>
-				<button type="button" class="btn btn-primary" onclick="swapSchemes();">Schemes &#8644;</button>
-				<button type="button" class="btn btn-primary" onclick="swapBoth();">Both &#8645;&#8644;</button>
-			</div>
-		</div>
-
-		<!-- Upload file -->
-		<div class="sidebar-extras">
-			<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
-			<div class="swap-buttons-grid">
-				<button type="button" class="btn btn-primary" onclick="doUploadFile('transliterate');">Transliteration</button>
-				<button type="button" class="btn btn-primary" onclick="doUploadFile('identify meter');">Meter</button>
-				<button type="button" class="btn btn-primary" onclick="doUploadFile('split');">Split</button>
-				<a href="/ocr" class="btn btn-primary">PDF OCR</a>
-			</div>
-		</div>
-
+		{% include 'sidebar_actions.html' %}
 	</div>
 {% endblock %}
 
 {% block content %}
 	<form id="overall_form" action="/" method="POST">
 		<!-- hidden inputs synced by JS for POST submissions -->
-		<input type="hidden" name="skrutable_action" id="skrutable_action" value="transliterate"/>
+		<input type="hidden" name="skrutable_action" id="hidden_action" value="transliterate"/>
 		<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
 		<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
 		<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
@@ -142,22 +46,38 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/assets/js/settings.js"></script>
 <script>
 
-	// --- Settings ---
-	function getSettings() {
-		return {
-			avoid_virama_indic_scripts: currentAvoidVirama,
-			splitter_model: document.getElementById("splitter_model_sidebar").value,
-			preserve_compound_hyphens: currentPreserveCompoundHyphens,
-			preserve_punctuation: currentPreservePunctuation,
-		};
-	}
-
-	// Extra settings (initialized from session, updated by settings page)
+	// --- Page globals ---
+	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
+
+	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
+	function onActionButton(action) {
+		var handlers = {
+			'transliterate': doTransliterate,
+			'scan': doScan,
+			'identify meter': doIdentifyMeter,
+			'split': doSplit,
+		};
+		handlers[action]();
+	}
+
+	function onUploadButton(action) {
+		currentAction = action;
+		syncHiddenInputs();
+		saveSettingsToSession();
+		var form = document.getElementById("overall_form");
+		form.action = "/upload_file";
+		form.submit();
+	}
+
+	function onSidebarChange() {
+		saveSettingsToSession();
+	}
 
 	// --- Text persistence ---
 	function saveTexts() {
@@ -204,16 +124,6 @@
 		}
 	}
 
-	// --- Scansion detail helpers ---
-	function getScanDetail() {
-		return {
-			show_weights: document.getElementById("weights").checked,
-			show_morae: document.getElementById("morae").checked,
-			show_gaRas: document.getElementById("gaRas").checked,
-			show_alignment: document.getElementById("alignment").checked,
-		};
-	}
-
 	// --- Async action handlers ---
 	function setButtonLoading(btn, loading) {
 		if (loading) {
@@ -226,16 +136,20 @@
 		}
 	}
 
+	function set_action(action) {
+		currentAction = action;
+		saveSettingsToSession();
+	}
+
 	async function doTransliterate() {
 		var btn = document.getElementById("transliterate_button");
 		setButtonLoading(btn, true);
 		try {
-			var settings = getSettings();
 			var fd = new FormData();
 			fd.append("input_text", document.getElementById("text_input").value);
 			fd.append("from_scheme", document.getElementById("from_scheme").value);
 			fd.append("to_scheme", document.getElementById("to_scheme").value);
-			fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
 
 			var resp = await fetch("/api/transliterate", {
 				method: "POST",
@@ -257,14 +171,14 @@
 		var btn = document.getElementById("scan_button");
 		setButtonLoading(btn, true);
 		try {
-			var detail = getScanDetail();
+			var s = getSidebarSettings();
 			var fd = new FormData();
 			fd.append("input_text", document.getElementById("text_input").value);
-			fd.append("from_scheme", document.getElementById("from_scheme").value);
-			fd.append("show_weights", detail.show_weights);
-			fd.append("show_morae", detail.show_morae);
-			fd.append("show_gaRas", detail.show_gaRas);
-			fd.append("show_alignment", detail.show_alignment);
+			fd.append("from_scheme", s.from_scheme);
+			fd.append("show_weights", s.weights);
+			fd.append("show_morae", s.morae);
+			fd.append("show_gaRas", s.gaRas);
+			fd.append("show_alignment", s.alignment);
 
 			var resp = await fetch("/api/scan", {
 				method: "POST",
@@ -286,15 +200,15 @@
 		var btn = document.getElementById("identify_meter_button");
 		setButtonLoading(btn, true);
 		try {
-			var detail = getScanDetail();
+			var s = getSidebarSettings();
 			var fd = new FormData();
 			fd.append("input_text", document.getElementById("text_input").value);
-			fd.append("from_scheme", document.getElementById("from_scheme").value);
-			fd.append("show_weights", detail.show_weights);
-			fd.append("show_morae", detail.show_morae);
-			fd.append("show_gaRas", detail.show_gaRas);
-			fd.append("show_alignment", detail.show_alignment);
-			fd.append("resplit_option", document.getElementById("resplit_option").value);
+			fd.append("from_scheme", s.from_scheme);
+			fd.append("show_weights", s.weights);
+			fd.append("show_morae", s.morae);
+			fd.append("show_gaRas", s.gaRas);
+			fd.append("show_alignment", s.alignment);
+			fd.append("resplit_option", s.resplit_option);
 
 			var resp = await fetch("/api/identify-meter", {
 				method: "POST",
@@ -326,15 +240,15 @@
 		var btn = document.getElementById("split_button");
 		setButtonLoading(btn, true);
 		try {
-			var settings = getSettings();
+			var s = getSidebarSettings();
 			var fd = new FormData();
 			fd.append("input_text", document.getElementById("text_input").value);
-			fd.append("from_scheme", document.getElementById("from_scheme").value);
-			fd.append("to_scheme", document.getElementById("to_scheme").value);
-			fd.append("splitter_model", settings.splitter_model);
-			fd.append("preserve_compound_hyphens", settings.preserve_compound_hyphens);
-			fd.append("preserve_punctuation", settings.preserve_punctuation);
-			fd.append("avoid_virama_indic_scripts", settings.avoid_virama_indic_scripts);
+			fd.append("from_scheme", s.from_scheme);
+			fd.append("to_scheme", s.to_scheme);
+			fd.append("splitter_model", s.splitter_model);
+			fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+			fd.append("preserve_punctuation", currentPreservePunctuation);
+			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
 
 			var resp = await fetch("/api/split", {
 				method: "POST",
@@ -355,40 +269,6 @@
 			setButtonLoading(btn, false);
 		}
 	}
-
-	// --- File-upload POST via hidden form ---
-	function syncHiddenInputs() {
-		var settings = getSettings();
-		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
-		document.getElementById("hidden_to_scheme").value = document.getElementById("to_scheme").value;
-		document.getElementById("hidden_resplit_option").value = document.getElementById("resplit_option").value;
-		document.getElementById("hidden_splitter_model").value = settings.splitter_model;
-		document.getElementById("hidden_preserve_punctuation").value = settings.preserve_punctuation;
-		document.getElementById("hidden_preserve_compound_hyphens").value = settings.preserve_compound_hyphens;
-
-		// Sync scan_detail checkboxes as hidden inputs
-		var container = document.getElementById("hidden_scan_detail_container");
-		container.innerHTML = "";
-		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
-		for (var i = 0; i < checkboxIds.length; i++) {
-			if (document.getElementById(checkboxIds[i]).checked) {
-				var inp = document.createElement("input");
-				inp.type = "hidden";
-				inp.name = "scan_detail";
-				inp.value = checkboxIds[i];
-				container.appendChild(inp);
-			}
-		}
-	}
-
-	function doUploadFile(action) {
-		set_action(action);
-		syncHiddenInputs();
-		var form = document.getElementById("overall_form");
-		form.action = "/upload_file";
-		form.submit();
-	}
-
 
 	// --- Melody player (JS-driven) ---
 	var currentMeterLabel = "{{ meter_label }}";
@@ -437,100 +317,32 @@
 	}
 
 	// --- Initialization ---
-	function initialize_choices() {
-		// Server-rendered values (for examples / backward compat)
-		var serverAction = "{{ skrutable_action }}";
-		var serverFromScheme = "{{ from_scheme }}";
-		var serverToScheme = "{{ to_scheme }}";
-		var serverResplit = "{{ resplit_option }}";
+	window.onload = function() {
+		initSidebarFromSession({
+			from_scheme: "{{ from_scheme }}",
+			to_scheme: "{{ to_scheme }}",
+			resplit_option: "{{ resplit_option }}",
+			splitter_model: "{{ splitter_model|default('dharmamitra_2024_sept') }}",
+			weights: {{ weights|default(1)|int }} === 1,
+			morae: {{ morae|default(1)|int }} === 1,
+			gaRas: {{ gaRas|default(1)|int }} === 1,
+			alignment: {{ alignment|default(1)|int }} === 1,
+		});
 
-		if (serverAction && serverAction !== "...") {
-			document.getElementById("skrutable_action").value = serverAction;
-		}
-		if (serverFromScheme) {
-			document.getElementById("from_scheme").value = serverFromScheme;
-		}
-		if (serverToScheme) {
-			document.getElementById("to_scheme").value = serverToScheme;
-		}
-		if (serverResplit) {
-			document.getElementById("resplit_option").value = serverResplit;
-		}
-
-		// Splitter model: init from session
-		var serverSplitterModel = "{{ splitter_model|default('dharmamitra_2024_sept') }}";
-		if (serverSplitterModel) {
-			document.getElementById("splitter_model_sidebar").value = serverSplitterModel;
-		}
-
-		// Checkboxes: server values if provided, else default to checked
-		{% if weights is defined %}
-		if ({{ weights }} != 1) { document.getElementById("weights").checked = false; }
-		{% endif %}
-		{% if morae is defined %}
-		if ({{ morae }} != 1) { document.getElementById("morae").checked = false; }
-		{% endif %}
-		{% if gaRas is defined %}
-		if ({{ gaRas }} != 1) { document.getElementById("gaRas").checked = false; }
-		{% endif %}
-		{% if alignment is defined %}
-		if ({{ alignment }} != 1) { document.getElementById("alignment").checked = false; }
-		{% endif %}
+		restoreTexts();
 
 		// Initialize melody dropdown from server data (for examples)
 		if (currentMelodyOptions.length > 0) {
 			rebuildMelodyDropdown(currentMelodyOptions);
-		}
-	}
-
-	function conditionally_display_melody_player() {
-		if (currentMelodyOptions.length > 0) {
 			showMelodyPlayer();
 		}
-	}
-
-	window.onload = function() {
-		initialize_choices();
-		restoreTexts();
 		update_melody();
-		conditionally_display_melody_player();
 		window.scrollTo(0, 0);
 
-		// Save text on any edit or action
+		// Save text on any edit
 		document.getElementById("text_input").addEventListener("input", saveTexts);
 		document.getElementById("text_output").addEventListener("input", saveTexts);
 	}
-
-	function set_action(new_skr_act) {
-		document.getElementById("skrutable_action").value = new_skr_act;
-		saveSettingsToSession();
-	}
-
-	// --- Persist all sidebar settings to session ---
-	function saveSettingsToSession() {
-		var fd = new FormData();
-		fd.append("skrutable_action", document.getElementById("skrutable_action").value);
-		fd.append("from_scheme", document.getElementById("from_scheme").value);
-		fd.append("to_scheme", document.getElementById("to_scheme").value);
-		fd.append("resplit_option", document.getElementById("resplit_option").value);
-		fd.append("splitter_model", document.getElementById("splitter_model_sidebar").value);
-		fd.append("preserve_punctuation", currentPreservePunctuation);
-		fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
-		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
-		for (var i = 0; i < checkboxIds.length; i++) {
-			if (document.getElementById(checkboxIds[i]).checked) {
-				fd.append("scan_detail", checkboxIds[i]);
-			}
-		}
-		fetch("/api/save-settings", { method: "POST", body: fd });
-	}
-
-	// Save to session on every sidebar control change
-	["from_scheme", "to_scheme", "resplit_option", "splitter_model_sidebar",
-	 "weights", "morae", "gaRas", "alignment"].forEach(function(id) {
-		document.getElementById(id).addEventListener("change", saveSettingsToSession);
-	});
-
 
 </script>
 {% endblock %}
