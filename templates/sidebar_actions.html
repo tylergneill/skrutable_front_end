@@ -1,0 +1,109 @@
+<!-- Transliterate + schemes -->
+<div class="action-row">
+	<button type="button" id="transliterate_button" class="btn btn-primary action-btn"
+		onclick="onActionButton('transliterate');">Transliterate</button>
+	<div class="action-options">
+		<label class="scheme-label">in: <select id="from_scheme" onchange="onSidebarChange();">
+			<optgroup label="Romanizations">
+				<option value="IAST">IAST</option>
+				<option value="HK">HK</option>
+				<option value="SLP">SLP</option>
+				<option value="ITRANS">ITRANS</option>
+				<option value="VH">VH</option>
+				<option value="WX">WX</option>
+				<option value="IASTREDUCED" disabled>IAST reduced</option>
+			</optgroup>
+			<optgroup label="Indic Scripts">
+				<option value="DEV">DEV</option>
+				<option value="BENGALI">BENGALI</option>
+				<option value="GUJARATI">GUJARATI</option>
+			</optgroup>
+		</select></label>
+		<label class="scheme-label">out: <select id="to_scheme" onchange="onSidebarChange();">
+			<optgroup label="Romanizations">
+				<option value="IAST">IAST</option>
+				<option value="HK">HK</option>
+				<option value="SLP">SLP</option>
+				<option value="ITRANS">ITRANS</option>
+				<option value="VH">VH</option>
+				<option value="WX">WX</option>
+				<option value="IASTREDUCED">IAST reduced</option>
+			</optgroup>
+			<optgroup label="Indic Scripts">
+				<option value="DEV">DEV</option>
+				<option value="BENGALI">BENGALI</option>
+				<option value="GUJARATI">GUJARATI</option>
+			</optgroup>
+		</select></label>
+	</div>
+</div>
+
+<!-- Scan + detail checkboxes -->
+<div class="action-row">
+	<button type="button" id="scan_button" class="btn btn-primary action-btn"
+		onclick="onActionButton('scan');">Scan</button>
+	<div class="action-options">
+		<div class="checkbox-group">
+			<label><input type="checkbox" id="weights" checked onchange="onSidebarChange();"/> lglgl</label>
+			<label><input type="checkbox" id="morae" checked onchange="onSidebarChange();"/> {mora}</label>
+			<label><input type="checkbox" id="gaRas" checked onchange="onSidebarChange();"/> [ga&#7751;a]</label>
+			<label><input type="checkbox" id="alignment" checked onchange="onSidebarChange();"/> align</label>
+		</div>
+	</div>
+</div>
+
+<!-- Identify Meter + resplit -->
+<div class="action-row">
+	<button type="button" id="identify_meter_button" class="btn btn-primary action-btn"
+		onclick="onActionButton('identify meter');">Identify Meter</button>
+	<div class="action-options">
+		<select id="resplit_option" onchange="onSidebarChange();">
+			<option value="none">don't resplit</option>
+			<option value="resplit_lite">resplit lite</option>
+			<option value="resplit_lite_keep_mid">resplit lite keep mid</option>
+			<option value="resplit_max">resplit max</option>
+			<option value="resplit_max_keep_mid">resplit max keep mid</option>
+		</select>
+	</div>
+</div>
+
+<!-- Split Words -->
+<div class="action-row">
+	<button type="button" id="split_button" class="btn btn-primary action-btn"
+		onclick="onActionButton('split');">Split Words</button>
+	<div class="action-options">
+		<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar" onchange="onSidebarChange();">
+			<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
+			<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
+		</select></label>
+	</div>
+</div>
+
+{% if page_mode == 'workbench' %}
+<!-- Swap -->
+<div class="sidebar-extras">
+	<div class="swap-buttons">
+		<button type="button" class="btn btn-primary" onclick="swapTexts();">Text &#8645;</button>
+		<button type="button" class="btn btn-primary" onclick="swapSchemes();">Schemes &#8644;</button>
+		<button type="button" class="btn btn-primary" onclick="swapBoth();">Both &#8645;&#8644;</button>
+	</div>
+</div>
+{% else %}
+<!-- Back to workbench -->
+<div class="sidebar-extras">
+	<div class="swap-buttons back-to-workbench">
+		<a href="/" class="btn btn-primary">&larr; Back to Input / Output Text Boxes</a>
+	</div>
+</div>
+{% endif %}
+
+<!-- Upload file -->
+<div class="sidebar-extras">
+	<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
+	<div class="swap-buttons-grid">
+		<button type="button" class="btn btn-primary" onclick="onUploadButton('transliterate');">Transliteration</button>
+		<button type="button" class="btn btn-primary" onclick="onUploadButton('identify meter');">Meter</button>
+		<button type="button" class="btn btn-primary" onclick="onUploadButton('split');">Split</button>
+		<a href="/ocr" class="btn btn-primary">PDF OCR</a>
+	</div>
+</div>
