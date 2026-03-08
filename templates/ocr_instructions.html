@@ -19,27 +19,18 @@
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
-      Most Sanskrit students and scholars lack access to top-tier OCR
-      because the technology is still slightly out of reach.
-      <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">This blog post<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      explains why expanding access to Google Cloud Vision is worthwhile:
-      it accepts large multi-page PDFs, delivers high accuracy,
+      This interface provides access to Google Cloud Vision OCR without requiring coding or cloud-storage setup.
+      Cloud Vision accepts large multi-page PDFs, delivers high accuracy,
       and&#8212;unlike Google Drive OCR&#8212;automatically ignores any low-quality text layer already embedded in the file.
-      Larger AI models can sometimes outperform it,
-      but they are even harder to integrate.
-      In recent tests, Google Gemini and Cloud Vision each achieved strong results,
-      yet made different errors, suggesting that combining their outputs could yield the best accuracy.
-      For these reasons, I will continue advocating for Cloud Vision,
-      and this interface strips away nearly all the complexity&#8212;no coding, no cloud-storage wrangling.
+      <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.
     </p>
 
     <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
     <p>
-      Google Cloud Vision is a paid service,
-      and I don't yet have funding to cover everyone's usage.
-      Each user therefore supplies their own API key,
+      Google Cloud Vision is a paid service.
+      Each user supplies their own API key,
       linked to a Google Cloud project with billing enabled.
-      An API key is simply a password-like string that you can create or delete at any time.
+      An API key is a password-like string that you can create or delete at any time.
       Follow the video below to:
       1. Set up a Google Cloud billing account.
       2. Enable the Cloud Vision API.
@@ -104,7 +95,6 @@
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
-      In most cases, virtually nothing.
       The first 1,000 pages per month are free.
       After that, every additional 1,000 pages costs $1.50.
       You pay only for what you use.
@@ -116,16 +106,11 @@
 
     <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
     <p>
-      Regard the use of an API key,
-      yes, this is as safe as any other use of a password.
-      To prevent your key from falling into the wrong hands,
-      I recommend storing it with a password manager (e.g., 1Password).
-      As for Google, you don't need to worry about them doing anything with the contents of your PDF.
-      If you're concerned, just avoid uploading sensitive material.
-      As for me and my code, I guarantee that your API key is never stored.
-      The code, which is entirely open source,
-      simply reads the key from the HTML form,
-      sends it with the OCR request to Google, and that's it.
+      Your API key is never stored by this application.
+      The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      reads the key from the form, sends it with the OCR request to Google, and discards it.
+      Store your key with a password manager (e.g., 1Password) to keep it secure.
+      If you have concerns about PDF contents, avoid uploading sensitive material.
     </p>
 
     <h3 id="input-limits">How big can the input be?</h3>
