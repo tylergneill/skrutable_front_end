@@ -802,16 +802,5 @@ def chicago_apte_iast():
 	chicago_url = prep_Apte_query(iast_query)
 	return redirect(chicago_url)
 
-def prep_split_output_for_Apte(split_text):
-	split_words = split_text.split() # would be nice to retain original whitespace (tab etc.)
-	output_HTML = "<p>"
-	for word in split_words:
-		if re.sub('[,\|।—\?!\.\d\s]', '', word) == "": # expand punctuation set ...
-			output_HTML += word + " "
-		else:
-			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
-	output_HTML += "</p>"
-	return output_HTML
-
 if __name__ == '__main__':
     app.run(debug=True, port=5012)
