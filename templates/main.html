@@ -103,6 +103,7 @@
 		document.getElementById("text_output").value = "";
 		saveTexts();
 		hideMelodyPlayer();
+		highlightActionButton("");
 	}
 
 	// --- Swap helpers ---
@@ -128,6 +129,7 @@
 
 	function set_action(action) {
 		currentAction = action;
+		highlightActionButton(action);
 		saveSettingsToSession();
 	}
 
@@ -319,6 +321,7 @@
 			alignment: {{ alignment|default(1)|int }} === 1,
 		});
 
+		highlightActionButton(currentAction);
 		restoreTexts();
 
 		// Initialize melody dropdown from server data (for examples)

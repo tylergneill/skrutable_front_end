@@ -199,6 +199,11 @@ pre {
 	white-space: nowrap;
 }
 
+.action-row .action-btn.active {
+	background: var(--sidebar-text);
+	color: var(--sidebar-bg-dark);
+}
+
 .action-row .action-options {
 	flex: 1;
 	min-width: 0;

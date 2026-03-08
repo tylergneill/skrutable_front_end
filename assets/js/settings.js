@@ -92,6 +92,20 @@ function onInputToggle(mode) {
 	}
 }
 
+var actionButtonMap = {
+	'transliterate': 'transliterate_button',
+	'scan': 'scan_button',
+	'identify meter': 'identify_meter_button',
+	'split': 'split_button',
+};
+
+function highlightActionButton(action) {
+	for (var key in actionButtonMap) {
+		var btn = document.getElementById(actionButtonMap[key]);
+		if (btn) btn.classList.toggle("active", key === action);
+	}
+}
+
 function highlightUploadButton(action) {
 	var buttons = document.querySelectorAll("#file_input_buttons .btn");
 	for (var i = 0; i < buttons.length; i++) {
@@ -100,8 +114,9 @@ function highlightUploadButton(action) {
 	if (!action) return;
 	for (var i = 0; i < buttons.length; i++) {
 		var btn = buttons[i];
-		if (btn.textContent.trim().toLowerCase().indexOf(action) !== -1 ||
-			(action === "identify meter" && btn.textContent.trim() === "Meter")) {
+		var text = btn.textContent.trim().toLowerCase();
+		if (text.indexOf(action) >= 0 ||
+			(action === "identify meter" && text === "meter")) {
 			btn.classList.add("active");
 		}
 	}
