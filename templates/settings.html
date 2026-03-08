@@ -102,9 +102,6 @@
 	function resetAllSitewide() {
 		// Clear entire session (schemes, checkboxes, extra settings, etc.)
 		fetch("/reset").then(function() {
-			// Also clear saved text
-			localStorage.removeItem("text_input");
-			localStorage.removeItem("text_output");
 			window.location.href = "/";
 		});
 	}

@@ -87,12 +87,13 @@
 	function restoreTexts() {
 		var inp = document.getElementById("text_input");
 		var out = document.getElementById("text_output");
-		// Only restore if the server didn't render content (e.g. examples)
-		if (!inp.value && localStorage.getItem("text_input")) {
-			inp.value = localStorage.getItem("text_input");
-		}
-		if (!out.value && localStorage.getItem("text_output")) {
-			out.value = localStorage.getItem("text_output");
+		if (inp.value || out.value) {
+			// Server rendered content (e.g. examples) — save it
+			saveTexts();
+		} else {
+			// Restore from localStorage
+			if (localStorage.getItem("text_input")) inp.value = localStorage.getItem("text_input");
+			if (localStorage.getItem("text_output")) out.value = localStorage.getItem("text_output");
 		}
 	}
 	function clearTexts() {
