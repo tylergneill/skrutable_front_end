@@ -156,13 +156,14 @@
 			});
 		}
 
-		// Build header row
-		var html = '<div class="settings-row settings-header-row">';
-		html += '<div class="settings-cell">change in sidebar</div>';
+		// Build header row (only if there are extra settings columns)
+		var html = '';
 		if (hasExtra) {
+			html += '<div class="settings-row settings-header-row">';
+			html += '<div class="settings-cell">change in sidebar</div>';
 			html += '<div class="settings-cell">change on <a href="/settings">extra settings</a> page</div>';
+			html += '</div>';
 		}
-		html += '</div>';
 
 		// Build section rows
 		for (var i = 0; i < sections.length; i++) {
