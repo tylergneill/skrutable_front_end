@@ -725,7 +725,7 @@ EXAMPLES = {
 	},
 	"2": {
 		"text_input": "धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |\nतमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||",
-		"text_output": "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g\n     ta     me     va     vi     śi     na   ṣṭya    nya\n      l      g      l      l      l      g      g      l\n      u     pa     sa    rga     ga     ti   stri    dhā\n      l      l      g      l      l      g      l      g\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)",
+		"text_output": "gggglggl    {m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g\n     ta     me     va     vi     śi     na   ṣṭya    nya\n      l      g      l      l      l      g      g      l\n      u     pa     sa    rga     ga     ti   stri    dhā\n      l      l      g      l      l      g      l      g\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)",
 		"from_scheme": "DEV", "to_scheme": "IAST",
 		"skrutable_action": "identify meter",
 		"meter_label": "anuSTubh",
@@ -733,11 +733,11 @@ EXAMPLES = {
 	},
 	"3": {
 		"text_input": "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||",
-		"text_output": "llllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\n\n     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n\nmālinī [15: nnmyy]",
+		"text_output": "tava kara kamala sthām sphāṭikīm akṣa mālām , nakha kiraṇa vibhinnām dāḍimī bīja buddhyā |\npratikalam anukarṣan yena kīraḥ niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te manda hāsaḥ ||",
 		"from_scheme": "DEV", "to_scheme": "IAST",
-		"skrutable_action": "identify meter",
-		"meter_label": "mAlinI",
-		"melody_options": ["Madhura Godbole", "Sadananda Das", "H.V. Nagaraja Rao", "Shatavadhani Ganesh"],
+		"skrutable_action": "split",
+		"meter_label": "",
+		"melody_options": [],
 	},
 }
 
