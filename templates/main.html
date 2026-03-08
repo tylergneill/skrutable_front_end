@@ -144,15 +144,20 @@
 {% block scripts %}
 <script>
 
-	// --- Settings from localStorage with defaults ---
+	// --- Settings ---
 	function getSettings() {
 		return {
-			avoid_virama_indic_scripts: localStorage.getItem("avoid_virama_indic_scripts") !== "false",
+			avoid_virama_indic_scripts: currentAvoidVirama,
 			splitter_model: document.getElementById("splitter_model_sidebar").value,
-			preserve_compound_hyphens: localStorage.getItem("preserve_compound_hyphens") !== "false",
-			preserve_punctuation: localStorage.getItem("preserve_punctuation") !== "false",
+			preserve_compound_hyphens: currentPreserveCompoundHyphens,
+			preserve_punctuation: currentPreservePunctuation,
 		};
 	}
+
+	// Extra settings (initialized from session, updated by settings page)
+	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
+	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
+	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 
 	// --- Swap helpers ---
 	function swapElementValues(e_1, e_2) {
@@ -431,10 +436,10 @@
 			document.getElementById("resplit_option").value = serverResplit;
 		}
 
-		// Splitter model: init from localStorage
-		var savedModel = localStorage.getItem("splitter_model");
-		if (savedModel) {
-			document.getElementById("splitter_model_sidebar").value = savedModel;
+		// Splitter model: init from session
+		var serverSplitterModel = "{{ splitter_model|default('dharmamitra_2024_sept') }}";
+		if (serverSplitterModel) {
+			document.getElementById("splitter_model_sidebar").value = serverSplitterModel;
 		}
 
 		// Checkboxes: server values if provided, else default to checked

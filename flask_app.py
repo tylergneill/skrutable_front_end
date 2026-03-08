@@ -277,7 +277,16 @@ MAIN_DEFAULTS = {
 @app.route("/", methods=["GET", "POST"])
 def index():
 
+	ensure_keys()
+
 	if request.method == "GET":
+		# Build template vars from session, falling back to MAIN_DEFAULTS
+		session_kwargs = {k: session.get(k, MAIN_DEFAULTS.get(k)) for k in MAIN_DEFAULTS}
+		# Also include extra settings from session
+		for k in extra_option_names:
+			if k in session:
+				session_kwargs[k] = session[k]
+
 		example_num = request.args.get("example")
 		if example_num and example_num in EXAMPLES:
 			ex = EXAMPLES[example_num]
@@ -285,13 +294,13 @@ def index():
 				'main.html',
 				text_input=ex["text_input"],
 				text_output=ex["text_output"],
-				**{**MAIN_DEFAULTS, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
+				**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
 			)
 		return render_template(
 			'main.html',
 			text_input="",
 			text_output="",
-			**MAIN_DEFAULTS,
+			**session_kwargs,
 		)
 
 	elif request.method == "POST":
@@ -771,7 +780,9 @@ def whole_file_help_page():
 
 @app.route('/settings')
 def settings_page():
-	return render_template("settings.html")
+	ensure_keys()
+	session_kwargs = {k: session[k] for k in extra_option_names if k in session}
+	return render_template("settings.html", **session_kwargs)
 
 @app.route('/updates')
 def updates_page():

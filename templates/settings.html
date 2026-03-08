@@ -11,24 +11,24 @@
 
 			<h2>transliteration</h2>
 			<p>
-				<input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" checked>
+				<input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" {% if avoid_virama_indic_scripts|default(1)|int %}checked{% endif %}>
 				<label for="avoid_virama_indic_scripts">avoid vir&#257;ma for Indic scripts (<span id="virama_example_on">किमकुर्वत</span><span id="virama_example_off" style="display:none">किम् अकुर्वत</span>)</label>
 			</p>
 
 			<h2>splitting</h2>
 			<p>
-				<input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" checked>
+				<input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" {% if preserve_punctuation|default(1)|int %}checked{% endif %}>
 				<label for="preserve_punctuation">preserve punctuation</label>
 			</p>
 			<p>
 				<label for="splitter_model">model: </label><select id="splitter_model" name="splitter_model">
-					<option value="dharmamitra_2024_sept">2024 Byt5-Sanskrit by Dharmamitra</option>
-					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
+					<option value="dharmamitra_2024_sept" {% if splitter_model|default('dharmamitra_2024_sept') == 'dharmamitra_2024_sept' %}selected{% endif %}>2024 Byt5-Sanskrit by Dharmamitra</option>
+					<option value="splitter_2018" {% if splitter_model == 'splitter_2018' %}selected{% endif %}>2018 Sandhi and Compound Splitter</option>
 				</select>
 			</p>
 			<div id="preserve_compound_hyphens_row" style="display: none;">
 				<p>
-					<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" checked>
+					<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" {% if preserve_compound_hyphens|default(1)|int %}checked{% endif %}>
 					<label for="preserve_compound_hyphens">preserve compound hyphens (<span id="hyphens_example_on">dharma-k&#7779;etre</span><span id="hyphens_example_off" style="display:none">dharma k&#7779;etre</span>)</label>
 				</p>
 			</div>
@@ -46,31 +46,6 @@
 
 {% block scripts %}
 <script>
-
-	function initialize_choices() {
-		var avoidVirama = localStorage.getItem("avoid_virama_indic_scripts");
-		if (avoidVirama === "false") {
-			document.getElementById("avoid_virama_indic_scripts").checked = false;
-		}
-
-		var preservePunc = localStorage.getItem("preserve_punctuation");
-		if (preservePunc === "false") {
-			document.getElementById("preserve_punctuation").checked = false;
-		}
-
-		var preserveHyphens = localStorage.getItem("preserve_compound_hyphens");
-		if (preserveHyphens === "false") {
-			document.getElementById("preserve_compound_hyphens").checked = false;
-		}
-
-		var splitterModel = localStorage.getItem("splitter_model");
-		if (splitterModel) {
-			document.getElementById("splitter_model").value = splitterModel;
-		}
-
-		toggle_preserve_compound_hyphens();
-		updateExamples();
-	}
 
 	function updateExamples() {
 		var virOn = document.getElementById("avoid_virama_indic_scripts").checked;
@@ -104,7 +79,8 @@
 	}
 
 	window.onload = function() {
-		initialize_choices();
+		toggle_preserve_compound_hyphens();
+		updateExamples();
 	}
 
 	document.getElementById("splitter_model").addEventListener("change", function() { toggle_preserve_compound_hyphens(); saveAll(); });
