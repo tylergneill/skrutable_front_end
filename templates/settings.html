@@ -35,10 +35,10 @@
 
 		</form>
 
-		<br>
-		<h2>reset settings</h2>
+		<h2>restore defaults</h2>
 		<p>
-			<button type="button" class="btn btn-primary" onclick="resetAll();">Back to Defaults</button>
+			<button type="button" class="btn btn-primary" onclick="resetExtra();">Reset Extra Settings</button>
+			<button type="button" class="btn btn-primary" onclick="resetAllSitewide();">Reset ALL Site Settings</button>
 		</p>
 
 	</div>
@@ -88,18 +88,24 @@
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
 
-	function resetAll() {
-		localStorage.removeItem("avoid_virama_indic_scripts");
-		localStorage.removeItem("splitter_model");
-		localStorage.removeItem("preserve_compound_hyphens");
-		localStorage.removeItem("preserve_punctuation");
-		// Reset controls to defaults
+	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
 		toggle_preserve_compound_hyphens();
 		updateExamples();
+		saveAll();
+	}
+
+	function resetAllSitewide() {
+		// Clear entire session (schemes, checkboxes, extra settings, etc.)
+		fetch("/reset").then(function() {
+			// Also clear saved text
+			localStorage.removeItem("text_input");
+			localStorage.removeItem("text_output");
+			window.location.href = "/";
+		});
 	}
 </script>
 {% endblock %}

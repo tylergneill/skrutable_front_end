@@ -469,15 +469,6 @@
 	}
 
 	window.onload = function() {
-		// Clear localStorage on reset
-		if (new URLSearchParams(window.location.search).has("reset")) {
-			localStorage.removeItem("avoid_virama_indic_scripts");
-			localStorage.removeItem("splitter_model");
-			localStorage.removeItem("preserve_compound_hyphens");
-			localStorage.removeItem("preserve_punctuation");
-			// Clean up URL
-			history.replaceState(null, "", "/");
-		}
 		initialize_choices();
 		update_melody();
 		conditionally_display_melody_player();
