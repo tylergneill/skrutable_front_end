@@ -22,8 +22,9 @@
 </div>
 {% endblock %}
 <div class="sidebar-bottom">
-	<a href="/?example=1" id="example-link">example 1</a>
-	<a href="/settings">settings</a>
+	<a href="#" id="clear-texts-link" onclick="if(typeof clearTexts==='function'){clearTexts();}return false;">clear</a>
+	<a href="/?example=1" id="example-link" title="example 1">ex1</a>
+	<a href="/settings" title="extra settings">settings</a>
 	<a href="/help">help</a>
 	<a href="#" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</a>
 </div>
@@ -62,7 +63,8 @@
 	var current = parseInt(new URLSearchParams(window.location.search).get('example')) || 0;
 	var next = current >= 3 ? 1 : current + 1;
 	link.href = '/?example=' + next;
-	link.textContent = 'example ' + next;
+	link.textContent = 'ex' + next;
+	link.title = 'example ' + next;
 })();
 </script>
 {% block scripts %}{% endblock %}
