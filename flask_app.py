@@ -574,6 +574,12 @@ def get_inputs(required_args, request, optional_args=None):
 
 	return inputs
 
+@app.route('/api/save-settings', methods=["POST"])
+def api_save_settings():
+	ensure_keys()
+	process_form(request.form)
+	return jsonify({"ok": True})
+
 @app.route('/api/transliterate', methods=["GET", "POST"])
 def api_transliterate():
 

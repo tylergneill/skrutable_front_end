@@ -68,14 +68,16 @@
 	}
 
 	function saveAll() {
-		localStorage.setItem("avoid_virama_indic_scripts",
+		var fd = new FormData();
+		fd.append("avoid_virama_indic_scripts",
 			document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
-		localStorage.setItem("preserve_punctuation",
+		fd.append("preserve_punctuation",
 			document.getElementById("preserve_punctuation").checked ? "true" : "false");
-		localStorage.setItem("preserve_compound_hyphens",
+		fd.append("preserve_compound_hyphens",
 			document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
-		localStorage.setItem("splitter_model",
+		fd.append("splitter_model",
 			document.getElementById("splitter_model").value);
+		fetch("/api/save-settings", { method: "POST", body: fd });
 	}
 
 	window.onload = function() {
