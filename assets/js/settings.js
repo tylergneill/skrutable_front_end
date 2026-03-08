@@ -65,6 +65,25 @@ function swapSchemeSelects() {
 	}
 }
 
+function onInputToggle(mode) {
+	var textBtn = document.getElementById("toggle_text");
+	var fileBtn = document.getElementById("toggle_file");
+	var fileButtons = document.getElementById("file_input_buttons");
+	if (mode === "file") {
+		textBtn.classList.remove("active");
+		fileBtn.classList.add("active");
+		fileButtons.style.display = "";
+	} else {
+		fileBtn.classList.remove("active");
+		textBtn.classList.add("active");
+		fileButtons.style.display = "none";
+		// On upload page, navigate back to workbench
+		if (window.location.pathname === "/upload_file") {
+			window.location.href = "/";
+		}
+	}
+}
+
 function initSidebarFromSession(config) {
 	if (config.from_scheme) document.getElementById("from_scheme").value = config.from_scheme;
 	if (config.to_scheme) document.getElementById("to_scheme").value = config.to_scheme;

@@ -319,18 +319,7 @@ pre {
 	align-self: center;
 	min-width: 0;
 }
-.back-to-workbench .btn {
-	flex: 1;
-	text-align: center;
-	text-decoration: none;
-}
 
-.sidebar-section-label {
-	color: var(--sidebar-accent);
-	font-size: 0.9rem;
-	font-weight: 600;
-	margin-bottom: 0.35rem;
-}
 
 .sidebar-help-link {
 	color: var(--sidebar-accent);
@@ -356,6 +345,57 @@ pre {
 .swap-buttons-grid .btn {
 	font-size: 0.875rem;
 	padding: 0.22rem 0.15rem;
+}
+
+/* === Input mode toggle === */
+.input-toggle-row {
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	margin-bottom: 0.4rem;
+}
+.input-toggle {
+	display: flex;
+	flex: 0 1 90%;
+	border-radius: 20px;
+	overflow: hidden;
+	background: var(--sidebar-bg-dark);
+	padding: 2px;
+}
+.toggle-btn {
+	flex: 1;
+	padding: 0.25rem 0.4rem;
+	font-size: 0.8rem;
+	font-weight: 500;
+	text-align: center;
+	cursor: pointer;
+	border: none;
+	border-radius: 18px;
+	background: transparent;
+	color: var(--sidebar-accent);
+	transition: background 0.15s, color 0.15s;
+}
+.toggle-btn.active {
+	background: var(--sidebar-text);
+	color: var(--sidebar-bg-dark);
+}
+.input-toggle-row .sidebar-help-link {
+	color: var(--sidebar-text);
+	font-size: 0.8rem;
+	text-align: center;
+	text-decoration: none;
+	padding: 0.2rem 0.5rem;
+	background: var(--sidebar-bg-dark);
+	border: 1px solid rgba(255,255,255,0.25);
+	border-radius: 4px;
+	flex-shrink: 0;
+}
+
+/* === Sidebar divider === */
+.sidebar-divider {
+	border: none;
+	border-top: 1px solid rgba(255,255,255,0.15);
+	margin: 0.5rem 0.5rem;
 }
 
 /* === Sidebar: Bottom links === */
