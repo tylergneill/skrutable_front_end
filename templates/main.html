@@ -99,11 +99,11 @@
 
 		<!-- Upload file -->
 		<div class="sidebar-extras">
-			<div class="sidebar-section-label">File Upload &#8679; <a href="/whole_file_help" class="sidebar-help-link">?</a></div>
+			<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
 			<div class="swap-buttons-grid">
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('transliterate');">Transliteration</button>
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('identify meter');">Meter</button>
-				<button type="button" class="btn btn-primary" onclick="doWholeFile('split');">Split</button>
+				<button type="button" class="btn btn-primary" onclick="doUploadFile('transliterate');">Transliteration</button>
+				<button type="button" class="btn btn-primary" onclick="doUploadFile('identify meter');">Meter</button>
+				<button type="button" class="btn btn-primary" onclick="doUploadFile('split');">Split</button>
 				<a href="/ocr" class="btn btn-primary">PDF OCR</a>
 			</div>
 		</div>
@@ -356,7 +356,7 @@
 		}
 	}
 
-	// --- Whole-file POST via hidden form ---
+	// --- File-upload POST via hidden form ---
 	function syncHiddenInputs() {
 		var settings = getSettings();
 		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
@@ -381,21 +381,14 @@
 		}
 	}
 
-	function doWholeFile(action) {
+	function doUploadFile(action) {
 		set_action(action);
 		syncHiddenInputs();
 		var form = document.getElementById("overall_form");
-		form.action = "/whole_file";
+		form.action = "/upload_file";
 		form.submit();
 	}
 
-	function doApteLinks() {
-		set_action("apte links");
-		syncHiddenInputs();
-		var form = document.getElementById("overall_form");
-		form.action = "/";
-		form.submit();
-	}
 
 	// --- Melody player (JS-driven) ---
 	var currentMeterLabel = "{{ meter_label }}";

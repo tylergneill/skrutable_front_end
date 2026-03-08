@@ -45,9 +45,8 @@ Key patterns:
 - **scan** — metrical scansion showing weights, morae, gaṇas, alignment
 - **identify meter** — scansion + meter identification with resplit options
 - **split** — Sanskrit compound word splitting (via external splitter models)
-- **apte links** — generates hyperlinked split output pointing to DSAL Apte dictionary
 
-**Whole-file processing** (`/whole_file`) — upload a file, process it with the selected action, return result as download.
+**File upload processing** (`/upload_file`) — upload a file, process it with the selected action, return result as download.
 
 **OCR endpoint** (`/ocr`) — accepts PDF + Google Vision API key, runs async OCR via `ocr_service.py`, which uses Google Cloud Vision and Cloud Storage (bucket: `vision_multilang_ocr`, project: `sanskrit-ocr-219110`).
 

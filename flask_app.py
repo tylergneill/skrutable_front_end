@@ -203,7 +203,7 @@ def parse_complex_resplit_option(complex_resplit_option):
 	return resplit_option, resplit_keep_midpoint
 
 def _init_session_defaults():
-	"""Set all session keys to their defaults (used by whole_file flow)."""
+	"""Set all session keys to their defaults (used by upload_file flow)."""
 	defaults = {
 		"skrutable_action": "",
 		"from_scheme": "IAST", "to_scheme": "IAST",
@@ -274,61 +274,37 @@ MAIN_DEFAULTS = {
 	"melody_options": [],
 }
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
 
 	ensure_keys()
 
-	if request.method == "GET":
-		# Build template vars from session, falling back to MAIN_DEFAULTS
-		session_kwargs = {k: session.get(k, MAIN_DEFAULTS.get(k)) for k in MAIN_DEFAULTS}
-		# Also include extra settings from session
-		for k in extra_option_names:
-			if k in session:
-				session_kwargs[k] = session[k]
+	# Build template vars from session, falling back to MAIN_DEFAULTS
+	session_kwargs = {k: session.get(k, MAIN_DEFAULTS.get(k)) for k in MAIN_DEFAULTS}
+	# Also include extra settings from session
+	for k in extra_option_names:
+		if k in session:
+			session_kwargs[k] = session[k]
 
-		example_num = request.args.get("example")
-		if example_num and example_num in EXAMPLES:
-			ex = EXAMPLES[example_num]
-			return render_template(
-				'main.html',
-				text_input=ex["text_input"],
-				text_output=ex["text_output"],
-				**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
-			)
+	example_num = request.args.get("example")
+	if example_num and example_num in EXAMPLES:
+		ex = EXAMPLES[example_num]
 		return render_template(
 			'main.html',
-			text_input="",
-			text_output="",
-			**session_kwargs,
+			text_input=ex["text_input"],
+			text_output=ex["text_output"],
+			**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
 		)
-
-	elif request.method == "POST":
-
-		# POST is now only used for Apte links (and whole-file via formaction)
-		action = request.form.get("skrutable_action", "")
-		text_input = request.form.get("text_input", "")
-
-		if action == "apte links":
-			output_HTML = prep_split_output_for_Apte(text_input)
-			return render_template(
-				"main_HTML_output.html",
-				text_input=text_input,
-				output_HTML=output_HTML,
-				**MAIN_DEFAULTS,
-			)
-
-		# Fallback: render main page (shouldn't normally reach here)
-		return render_template(
-			'main.html',
-			text_input=text_input,
-			text_output="",
-			**MAIN_DEFAULTS,
-		)
+	return render_template(
+		'main.html',
+		text_input="",
+		text_output="",
+		**session_kwargs,
+	)
 
 
-@app.route("/whole_file", methods=["GET", "POST"])
-def whole_file():
+@app.route("/upload_file", methods=["GET", "POST"])
+def upload_file():
 
 	ensure_keys()
 
@@ -336,14 +312,14 @@ def whole_file():
 	if request.method == "GET":
 		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
 		return render_template(
-			"whole_file.html",
+			"upload_file.html",
 			**session_kwargs,
 		)
 
 	# POST from main page sidebar: save settings, redirect to GET
 	if request.form and not request.files:
 		process_form(request.form)
-		return redirect(url_for("whole_file"))
+		return redirect(url_for("upload_file"))
 
 	# POST with file: process and return download
 	if request.files:
@@ -780,9 +756,9 @@ def about_page():
 def help_page():
 	return render_template("help.html")
 
-@app.route('/whole_file_help')
-def whole_file_help_page():
-	return render_template("whole_file_help.html")
+@app.route('/upload_file_help')
+def upload_file_help_page():
+	return render_template("upload_file_help.html")
 
 @app.route('/settings')
 def settings_page():

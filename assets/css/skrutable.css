@@ -260,7 +260,7 @@ pre {
 	padding: 0.22rem 0.4rem;
 }
 
-/* Swap & whole-file rows */
+/* Swap & upload-file rows */
 .sidebar-extras {
 	padding: 0.6rem 0;
 	border-bottom: 2px solid rgba(255,255,255,0.2);
@@ -435,17 +435,6 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 	background: var(--input-bg);
 }
 
-/* HTML output div (for apte links) */
-.html-output {
-	width: 100%;
-	min-height: 350px;
-	padding: 0.75rem;
-	border: 1px solid var(--input-border);
-	border-radius: 4px;
-	background: var(--input-bg);
-	overflow-y: auto;
-	margin-bottom: 1rem;
-}
 
 /* === Melody player === */
 .melody-player {
@@ -686,32 +675,32 @@ table tbody tr:nth-child(even) {
 }
 
 /* === Whole-file page === */
-.whole-file-info .settings-group {
+.upload-file-info .settings-group {
 	margin: 0.75em 0 1.5em;
 }
-.whole-file-info .settings-row {
+.upload-file-info .settings-row {
 	display: flex;
 	gap: 2em;
 }
-.whole-file-info .settings-cell {
+.upload-file-info .settings-cell {
 	flex: 1;
 	min-width: 0;
 }
-.whole-file-info .settings-header-row .settings-cell {
+.upload-file-info .settings-header-row .settings-cell {
 	font-size: 0.85em;
 	color: #888;
 	padding-bottom: 0.3em;
 }
-.whole-file-info .settings-header-row a {
+.upload-file-info .settings-header-row a {
 	color: inherit;
 	text-decoration: underline;
 }
-.whole-file-info .settings-summary {
+.upload-file-info .settings-summary {
 	border-collapse: collapse;
 	border: 1px solid #ddd;
 	margin-bottom: 0.75em;
 }
-.whole-file-info .settings-summary caption {
+.upload-file-info .settings-summary caption {
 	caption-side: top;
 	text-align: left;
 	padding: 0.4em 0.5em 0.2em;
@@ -719,29 +708,29 @@ table tbody tr:nth-child(even) {
 	font-size: 0.85em;
 	color: #666;
 }
-.whole-file-info .settings-summary td {
+.upload-file-info .settings-summary td {
 	padding: 0.3em 1.2em 0.3em 0.5em;
 }
-.whole-file-info .settings-summary td:first-child {
+.upload-file-info .settings-summary td:first-child {
 	width: 12em;
 	color: #666;
 }
-[data-theme="dark"] .whole-file-info .settings-summary {
+[data-theme="dark"] .upload-file-info .settings-summary {
 	border-color: #444;
 }
-[data-theme="dark"] .whole-file-info .settings-header-row .settings-cell {
+[data-theme="dark"] .upload-file-info .settings-header-row .settings-cell {
 	color: #999;
 }
-[data-theme="dark"] .whole-file-info .settings-summary caption,
-[data-theme="dark"] .whole-file-info .settings-summary td:first-child {
+[data-theme="dark"] .upload-file-info .settings-summary caption,
+[data-theme="dark"] .upload-file-info .settings-summary td:first-child {
 	color: #999;
 }
-.whole-file-tip {
+.upload-file-tip {
 	font-size: 0.9em;
 	color: #666;
 	margin-top: 1.5em;
 }
-[data-theme="dark"] .whole-file-tip {
+[data-theme="dark"] .upload-file-tip {
 	color: #999;
 }
 .file-dropzone {
