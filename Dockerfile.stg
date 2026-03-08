@@ -16,5 +16,6 @@ CMD gunicorn 'flask_app:app' \
   --threads 4 \
   --timeout 1200 \
   --log-level info \
-  --error-logfile -
+  --error-logfile - \
+  --no-control-socket
 EXPOSE 5012
