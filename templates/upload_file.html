@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% set active_page = 'workbench' %}
+
+{% block sidebar_controls %}
+	<div class="sidebar-controls">
+
+		<!-- Transliterate + schemes -->
+		<div class="action-row">
+			<button type="button" id="transliterate_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('transliterate');">Transliterate</button>
+			<div class="action-options">
+				<label class="scheme-label">in: <select id="from_scheme" onchange="updateOptionsDisplay(); saveSettingsToSession();">
+					<optgroup label="Romanizations">
+						<option value="IAST">IAST</option>
+						<option value="HK">HK</option>
+						<option value="SLP">SLP</option>
+						<option value="ITRANS">ITRANS</option>
+						<option value="VH">VH</option>
+						<option value="WX">WX</option>
+						<option value="IASTREDUCED" disabled>IAST reduced</option>
+					</optgroup>
+					<optgroup label="Indic Scripts">
+						<option value="DEV">DEV</option>
+						<option value="BENGALI">BENGALI</option>
+						<option value="GUJARATI">GUJARATI</option>
+					</optgroup>
+				</select></label>
+				<label class="scheme-label">out: <select id="to_scheme" onchange="updateOptionsDisplay(); saveSettingsToSession();">
+					<optgroup label="Romanizations">
+						<option value="IAST">IAST</option>
+						<option value="HK">HK</option>
+						<option value="SLP">SLP</option>
+						<option value="ITRANS">ITRANS</option>
+						<option value="VH">VH</option>
+						<option value="WX">WX</option>
+						<option value="IASTREDUCED">IAST reduced</option>
+					</optgroup>
+					<optgroup label="Indic Scripts">
+						<option value="DEV">DEV</option>
+						<option value="BENGALI">BENGALI</option>
+						<option value="GUJARATI">GUJARATI</option>
+					</optgroup>
+				</select></label>
+			</div>
+		</div>
+
+		<!-- Scan + detail checkboxes -->
+		<div class="action-row">
+			<button type="button" id="scan_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('scan');">Scan</button>
+			<div class="action-options">
+				<div class="checkbox-group">
+					<label><input type="checkbox" id="weights" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> lglgl</label>
+					<label><input type="checkbox" id="morae" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> {mora}</label>
+					<label><input type="checkbox" id="gaRas" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> [ga&#7751;a]</label>
+					<label><input type="checkbox" id="alignment" checked onchange="updateOptionsDisplay(); saveSettingsToSession();"/> align</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Identify Meter + resplit -->
+		<div class="action-row">
+			<button type="button" id="identify_meter_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('identify meter');">Identify Meter</button>
+			<div class="action-options">
+				<select id="resplit_option" onchange="updateOptionsDisplay(); saveSettingsToSession();">
+					<option value="none">don't resplit</option>
+					<option value="resplit_lite">resplit lite</option>
+					<option value="resplit_lite_keep_mid">resplit lite keep mid</option>
+					<option value="resplit_max">resplit max</option>
+					<option value="resplit_max_keep_mid">resplit max keep mid</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Split Words -->
+		<div class="action-row">
+			<button type="button" id="split_button" class="btn btn-primary action-btn" onclick="setWholeFileAction('split');">Split Words</button>
+			<div class="action-options">
+				<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar" onchange="updateOptionsDisplay(); saveSettingsToSession();">
+					<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
+					<option value="splitter_2018">2018 Sandhi and Compound Splitter</option>
+				</select></label>
+			</div>
+		</div>
+
+		<!-- Back to workbench (replaces Swap section) -->
+		<div class="sidebar-extras">
+			<div class="swap-buttons back-to-workbench">
+				<a href="/" class="btn btn-primary">&larr; Back to Input / Output Text Boxes</a>
+			</div>
+		</div>
+
+		<!-- Upload file (same position as on workbench) -->
+		<div class="sidebar-extras">
+			<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
+			<div class="swap-buttons-grid">
+				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('transliterate');">Transliteration</button>
+				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('identify meter');">Meter</button>
+				<button type="button" class="btn btn-primary" onclick="setWholeFileAction('split');">Split</button>
+				<a href="/ocr" class="btn btn-primary">PDF OCR</a>
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
+
+{% block content %}
+	<div class="page-content upload-file-info">
+
+		<form action="/upload_file" method="POST" enctype="multipart/form-data" id="upload_form">
+
+			<!-- hidden inputs synced by JS before submit -->
+			<input type="hidden" name="skrutable_action" id="hidden_action"/>
+			<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
+			<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
+			<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
+			<input type="hidden" name="splitter_model" id="hidden_splitter_model"/>
+			<input type="hidden" name="preserve_punctuation" id="hidden_preserve_punctuation"/>
+			<input type="hidden" name="preserve_compound_hyphens" id="hidden_preserve_compound_hyphens"/>
+			<div id="hidden_scan_detail_container"></div>
+
+			<h1 id="action_heading">file upload</h1>
+
+			<div class="settings-group" id="options_display"></div>
+
+			<p class="upload-file-tip">Processing may take a few seconds depending on file size.</p>
+
+			<label class="file-dropzone" id="fileDropzone">
+				<input type="file" name="input_file" id="fileInput" hidden />
+				<span class="file-dropzone-label" id="dropzoneLabel">Drop file here or click to select</span>
+			</label>
+			<p><button type="submit" class="btn btn-primary" id="upload_btn" disabled>Upload and Process</button></p>
+
+		</form>
+
+	</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+	var currentAction = "{{ skrutable_action }}";
+	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
+	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
+	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
+
+	// --- Initialize sidebar from session values ---
+	function initSidebar() {
+		var serverFromScheme = "{{ from_scheme }}";
+		var serverToScheme = "{{ to_scheme }}";
+		var serverResplit = "{{ resplit_option }}";
+		var serverSplitterModel = "{{ splitter_model }}";
+
+		if (serverFromScheme) document.getElementById("from_scheme").value = serverFromScheme;
+		if (serverToScheme) document.getElementById("to_scheme").value = serverToScheme;
+		if (serverResplit) document.getElementById("resplit_option").value = serverResplit;
+		if (serverSplitterModel) document.getElementById("splitter_model_sidebar").value = serverSplitterModel;
+
+		document.getElementById("weights").checked = {{ weights|default(1)|int }} === 1;
+		document.getElementById("morae").checked = {{ morae|default(1)|int }} === 1;
+		document.getElementById("gaRas").checked = {{ gaRas|default(1)|int }} === 1;
+		document.getElementById("alignment").checked = {{ alignment|default(1)|int }} === 1;
+	}
+
+	// --- Set action from sidebar button ---
+	function setWholeFileAction(action) {
+		currentAction = action;
+		updateOptionsDisplay();
+		saveSettingsToSession();
+		closeSidebarOnMobile();
+	}
+
+	function yesno(val) { return val ? "yes" : "no"; }
+
+	// --- Build options display from current sidebar state ---
+	function updateOptionsDisplay() {
+		var container = document.getElementById("options_display");
+		var heading = document.getElementById("action_heading");
+		var uploadBtn = document.getElementById("upload_btn");
+
+		if (!currentAction) {
+			heading.textContent = "file upload";
+			container.innerHTML = '<p class="upload-file-tip">Select an action from the sidebar.</p>';
+			uploadBtn.disabled = true;
+			return;
+		}
+
+		heading.textContent = "file upload: " + currentAction;
+		uploadBtn.disabled = false;
+
+		var fromScheme = document.getElementById("from_scheme").value;
+		var toScheme = document.getElementById("to_scheme").value;
+		var weightsChecked = document.getElementById("weights").checked;
+		var moraeChecked = document.getElementById("morae").checked;
+		var gaRasChecked = document.getElementById("gaRas").checked;
+		var alignmentChecked = document.getElementById("alignment").checked;
+		var resplitOption = document.getElementById("resplit_option").value;
+		var splitterModel = document.getElementById("splitter_model_sidebar").value;
+		var preservePunctuation = currentPreservePunctuation;
+		var preserveCompoundHyphens = currentPreserveCompoundHyphens;
+
+		var hasExtra = (currentAction === "transliterate" || currentAction === "split");
+		var sections = [];
+
+		if (currentAction === "transliterate") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", fromScheme],
+					["output scheme", toScheme],
+				]),
+				extra: makeTable("transliteration", [
+					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+				]),
+			});
+		} else if (currentAction === "scan") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", fromScheme],
+				]),
+			});
+			sections.push({
+				sidebar: makeTable("scansion", [
+					["weights", yesno(weightsChecked)],
+					["morae", yesno(moraeChecked)],
+					["ga\u1E47as", yesno(gaRasChecked)],
+					["alignment", yesno(alignmentChecked)],
+				]),
+			});
+		} else if (currentAction === "identify meter") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", fromScheme],
+				]),
+			});
+			sections.push({
+				sidebar: makeTable("scansion", [
+					["weights", yesno(weightsChecked)],
+					["morae", yesno(moraeChecked)],
+					["ga\u1E47as", yesno(gaRasChecked)],
+					["alignment", yesno(alignmentChecked)],
+				]),
+			});
+			sections.push({
+				sidebar: makeTable("meter identification", [
+					["resplit option", resplitOption],
+				]),
+			});
+		} else if (currentAction === "split") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", fromScheme],
+					["output scheme", toScheme],
+				]),
+				extra: makeTable("transliteration", [
+					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+				]),
+			});
+			var compoundRow = splitterModel === "dharmamitra_2024_sept"
+				? yesno(preserveCompoundHyphens) : "n/a";
+			sections.push({
+				sidebar: makeTable("word splitting", [
+					["splitter model", splitterModel],
+				]),
+				extra: makeTable("word splitting", [
+					["preserve punctuation", yesno(preservePunctuation)],
+					["preserve compound hyphens", compoundRow],
+				]),
+			});
+		}
+
+		// Build header row
+		var html = '<div class="settings-row settings-header-row">';
+		html += '<div class="settings-cell">change in sidebar</div>';
+		if (hasExtra) {
+			html += '<div class="settings-cell">change on <a href="/settings">extra settings</a> page</div>';
+		}
+		html += '</div>';
+
+		// Build section rows
+		for (var i = 0; i < sections.length; i++) {
+			html += '<div class="settings-row">';
+			html += '<div class="settings-cell">' + sections[i].sidebar + '</div>';
+			if (hasExtra) {
+				html += '<div class="settings-cell">' + (sections[i].extra || '') + '</div>';
+			}
+			html += '</div>';
+		}
+
+		container.innerHTML = html;
+	}
+
+	function makeTable(caption, rows) {
+		var html = '<table class="settings-summary"><caption>' + caption + '</caption>';
+		for (var i = 0; i < rows.length; i++) {
+			html += '<tr><td>' + rows[i][0] + '</td><td>' + rows[i][1] + '</td></tr>';
+		}
+		html += '</table>';
+		return html;
+	}
+
+	// --- Sync hidden inputs before form submit ---
+	function syncHiddenInputs() {
+		document.getElementById("hidden_action").value = currentAction;
+		document.getElementById("hidden_from_scheme").value = document.getElementById("from_scheme").value;
+		document.getElementById("hidden_to_scheme").value = document.getElementById("to_scheme").value;
+		document.getElementById("hidden_resplit_option").value = document.getElementById("resplit_option").value;
+		document.getElementById("hidden_splitter_model").value = document.getElementById("splitter_model_sidebar").value;
+		document.getElementById("hidden_preserve_punctuation").value = currentPreservePunctuation;
+		document.getElementById("hidden_preserve_compound_hyphens").value = currentPreserveCompoundHyphens;
+
+		var container = document.getElementById("hidden_scan_detail_container");
+		container.innerHTML = "";
+		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
+		for (var i = 0; i < checkboxIds.length; i++) {
+			if (document.getElementById(checkboxIds[i]).checked) {
+				var inp = document.createElement("input");
+				inp.type = "hidden";
+				inp.name = "scan_detail";
+				inp.value = checkboxIds[i];
+				container.appendChild(inp);
+			}
+		}
+	}
+
+	// --- File dropzone ---
+	var dropzone = document.getElementById('fileDropzone');
+	var fileInput = document.getElementById('fileInput');
+	var dropLabel = document.getElementById('dropzoneLabel');
+	fileInput.addEventListener('change', function() {
+		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+	});
+	dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+	dropzone.addEventListener('dragleave', function() { dropzone.classList.remove('dragover'); });
+	dropzone.addEventListener('drop', function(e) {
+		e.preventDefault();
+		dropzone.classList.remove('dragover');
+		fileInput.files = e.dataTransfer.files;
+		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+	});
+
+	// --- Form submit: sync then submit ---
+	document.getElementById("upload_form").addEventListener("submit", function(e) {
+		syncHiddenInputs();
+	});
+
+	// --- Persist settings to session on any sidebar change ---
+	function saveSettingsToSession() {
+		var fd = new FormData();
+		fd.append("skrutable_action", currentAction);
+		fd.append("from_scheme", document.getElementById("from_scheme").value);
+		fd.append("to_scheme", document.getElementById("to_scheme").value);
+		fd.append("resplit_option", document.getElementById("resplit_option").value);
+		fd.append("splitter_model", document.getElementById("splitter_model_sidebar").value);
+		fd.append("preserve_punctuation", currentPreservePunctuation);
+		fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
+		for (var i = 0; i < checkboxIds.length; i++) {
+			if (document.getElementById(checkboxIds[i]).checked) {
+				fd.append("scan_detail", checkboxIds[i]);
+			}
+		}
+		fetch("/api/save-settings", { method: "POST", body: fd });
+	}
+
+	// --- Init ---
+	window.onload = function() {
+		initSidebar();
+		updateOptionsDisplay();
+	};
+
+</script>
+{% endblock %}
