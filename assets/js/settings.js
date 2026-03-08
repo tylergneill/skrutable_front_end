@@ -69,14 +69,17 @@ function onInputToggle(mode) {
 	var textBtn = document.getElementById("toggle_text");
 	var fileBtn = document.getElementById("toggle_file");
 	var fileButtons = document.getElementById("file_input_buttons");
+	var clearLink = document.getElementById("clear-texts-link");
 	if (mode === "file") {
 		textBtn.classList.remove("active");
 		fileBtn.classList.add("active");
 		fileButtons.style.display = "";
+		if (clearLink) clearLink.style.visibility = "hidden";
 	} else {
 		fileBtn.classList.remove("active");
 		textBtn.classList.add("active");
 		fileButtons.style.display = "none";
+		if (clearLink) clearLink.style.visibility = "";
 		// On upload page, navigate back to workbench
 		if (window.location.pathname === "/upload_file") {
 			window.location.href = "/";
