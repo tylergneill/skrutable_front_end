@@ -28,9 +28,11 @@
 		<!-- scan_detail checkboxes added dynamically by syncHiddenInputs -->
 		<div id="hidden_scan_detail_container"></div>
 
-		<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
-
-		<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
+		<div class="textarea-swap-group">
+			<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
+			<button type="button" class="btn btn-primary btn-swap-texts" onclick="swapTexts();">&#8645;</button>
+			<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
+		</div>
 
 		<!-- melody player -->
 		<div class="melody-player" id="melodyPlayer">
@@ -104,27 +106,14 @@
 	}
 
 	// --- Swap helpers ---
-	function swapElementValues(e_1, e_2) {
-		var tmp = e_1.value;
-		e_1.value = e_2.value;
-		e_2.value = tmp;
-	}
 	function swapTexts() {
-		swapElementValues( document.getElementById('text_input'), document.getElementById('text_output') );
+		var inp = document.getElementById('text_input');
+		var out = document.getElementById('text_output');
+		var tmp = inp.value;
+		inp.value = out.value;
+		out.value = tmp;
 		saveTexts();
 	}
-	function swapSchemes() {
-		if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
-			swapElementValues( document.getElementById('from_scheme'), document.getElementById('to_scheme') );
-		}
-	}
-	function swapBoth() {
-		if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
-			swapTexts();
-			swapSchemes();
-		}
-	}
-
 	// --- Async action handlers ---
 	function setButtonLoading(btn, loading) {
 		if (loading) {

@@ -55,6 +55,16 @@ function syncHiddenInputs() {
 	});
 }
 
+function swapSchemeSelects() {
+	var from = document.getElementById("from_scheme");
+	var to = document.getElementById("to_scheme");
+	if (to.value !== "IASTREDUCED") {
+		var tmp = from.value;
+		from.value = to.value;
+		to.value = tmp;
+	}
+}
+
 function initSidebarFromSession(config) {
 	if (config.from_scheme) document.getElementById("from_scheme").value = config.from_scheme;
 	if (config.to_scheme) document.getElementById("to_scheme").value = config.to_scheme;
