@@ -159,6 +159,29 @@
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 
+	// --- Text persistence ---
+	function saveTexts() {
+		localStorage.setItem("text_input", document.getElementById("text_input").value);
+		localStorage.setItem("text_output", document.getElementById("text_output").value);
+	}
+	function restoreTexts() {
+		var inp = document.getElementById("text_input");
+		var out = document.getElementById("text_output");
+		// Only restore if the server didn't render content (e.g. examples)
+		if (!inp.value && localStorage.getItem("text_input")) {
+			inp.value = localStorage.getItem("text_input");
+		}
+		if (!out.value && localStorage.getItem("text_output")) {
+			out.value = localStorage.getItem("text_output");
+		}
+	}
+	function clearTexts() {
+		document.getElementById("text_input").value = "";
+		document.getElementById("text_output").value = "";
+		saveTexts();
+		hideMelodyPlayer();
+	}
+
 	// --- Swap helpers ---
 	function swapElementValues(e_1, e_2) {
 		var tmp = e_1.value;
@@ -167,6 +190,7 @@
 	}
 	function swapTexts() {
 		swapElementValues( document.getElementById('text_input'), document.getElementById('text_output') );
+		saveTexts();
 	}
 	function swapSchemes() {
 		if ( document.getElementById('to_scheme').value != 'IASTREDUCED') {
@@ -220,6 +244,7 @@
 			});
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
+			saveTexts();
 			set_action("transliterate");
 			hideMelodyPlayer();
 			closeSidebarOnMobile();
@@ -248,6 +273,7 @@
 			});
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
+			saveTexts();
 			set_action("scan");
 			hideMelodyPlayer();
 			closeSidebarOnMobile();
@@ -277,6 +303,7 @@
 			});
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
+			saveTexts();
 			set_action("identify meter");
 
 			// Update melody player from response
@@ -320,6 +347,7 @@
 				return;
 			}
 			document.getElementById("text_output").value = data.result;
+			saveTexts();
 			set_action("split");
 			hideMelodyPlayer();
 			closeSidebarOnMobile();
@@ -470,14 +498,45 @@
 
 	window.onload = function() {
 		initialize_choices();
+		restoreTexts();
 		update_melody();
 		conditionally_display_melody_player();
 		window.scrollTo(0, 0);
+
+		// Save text on any edit or action
+		document.getElementById("text_input").addEventListener("input", saveTexts);
+		document.getElementById("text_output").addEventListener("input", saveTexts);
 	}
 
 	function set_action(new_skr_act) {
 		document.getElementById("skrutable_action").value = new_skr_act;
+		saveSettingsToSession();
 	}
+
+	// --- Persist all sidebar settings to session ---
+	function saveSettingsToSession() {
+		var fd = new FormData();
+		fd.append("skrutable_action", document.getElementById("skrutable_action").value);
+		fd.append("from_scheme", document.getElementById("from_scheme").value);
+		fd.append("to_scheme", document.getElementById("to_scheme").value);
+		fd.append("resplit_option", document.getElementById("resplit_option").value);
+		fd.append("splitter_model", document.getElementById("splitter_model_sidebar").value);
+		fd.append("preserve_punctuation", currentPreservePunctuation);
+		fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+		var checkboxIds = ["weights", "morae", "gaRas", "alignment"];
+		for (var i = 0; i < checkboxIds.length; i++) {
+			if (document.getElementById(checkboxIds[i]).checked) {
+				fd.append("scan_detail", checkboxIds[i]);
+			}
+		}
+		fetch("/api/save-settings", { method: "POST", body: fd });
+	}
+
+	// Save to session on every sidebar control change
+	["from_scheme", "to_scheme", "resplit_option", "splitter_model_sidebar",
+	 "weights", "morae", "gaRas", "alignment"].forEach(function(id) {
+		document.getElementById(id).addEventListener("change", saveSettingsToSession);
+	});
 
 
 </script>
