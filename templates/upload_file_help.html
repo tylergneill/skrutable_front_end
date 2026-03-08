@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% set active_page = 'upload_file_help' %}
+
+{% block content %}
+	<div class="page-content">
+
+		<h1>file upload processing</h1>
+
+		<p>Skrutable's input window can handle a lot, up to 128mb, but if you're working with large amounts of text,
+			you may prefer to upload your input as a file instead.</p>
+
+		<p>To do this for transliteration, just set your input and output schemes as normal,
+			but then instead of hitting the "Transliterate" button, hit the "Transliteration" button in the File Upload section.
+			Continue through the next screen to upload your file,
+			then look for the output in your usual download location.</p>
+
+		<p>File-upload word splitting is exactly as easy. Just choose your desired settings, then use the "Split" button.
+			Note, though, that processing is considerably slower with the more accurate 2024 model than with the older 2018 one when preserving compound hyphens (some <a href="https://tylerneill.info/blog/splitter-options" target="_blank">discussion here<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>).</p>
+
+		<p>Doing file upload metrical analysis is also somewhat similar, but the input must be more carefully prepared,
+			with exactly one verse per line and no extraneous material.
+			See the <a href="/scanGRETIL">"Scan GRETIL"</a> page to get a better idea of what this entails.
+			Some Bhagavadg&#299;t&#257; files are provided below as good starter examples:
+			<ul>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-10_input_cleaned.txt" target="_blank">BhG first ten<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-100_input_cleaned.txt" target="_blank">BhG first hundred<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt" target="_blank">BhG all<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			</ul>
+		</p>
+
+		<p>For OCR, upload a PDF along with your Google Vision API key. See the <a href="/ocr_instructions">OCR instructions</a> for more details.</p>
+
+	</div>
+{% endblock %}
