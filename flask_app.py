@@ -720,7 +720,7 @@ def api_split():
 @app.route('/reset')
 def reset_variables():
 	session.clear()
-	return redirect("/?reset=true")
+	return redirect("/")
 
 # Example data (used both server-side and passed to JS)
 EXAMPLES = {
