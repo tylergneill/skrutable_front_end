@@ -45,7 +45,7 @@
 <script>
 
 	// --- Page globals ---
-	var currentAction = "{{ skrutable_action }}";
+	var currentAction = new URLSearchParams(window.location.search).get("fresh") ? "" : "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
@@ -53,6 +53,7 @@
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {
 		currentAction = action;
+		highlightUploadButton(action);
 		updateOptionsDisplay();
 		saveSettingsToSession();
 		closeSidebarOnMobile();
@@ -77,7 +78,7 @@
 
 		if (!currentAction) {
 			heading.textContent = "file upload";
-			container.innerHTML = '<p class="upload-file-tip">Select an action from the sidebar.</p>';
+			container.innerHTML = '<p class="upload-file-tip">Please choose a mode: Transliteration, Meter, Split, or PDF OCR.</p>';
 			uploadBtn.disabled = true;
 			return;
 		}
@@ -218,6 +219,7 @@
 			gaRas: {{ gaRas|default(1)|int }} === 1,
 			alignment: {{ alignment|default(1)|int }} === 1,
 		});
+		highlightUploadButton(currentAction);
 		updateOptionsDisplay();
 	};
 

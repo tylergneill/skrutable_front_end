@@ -75,6 +75,11 @@ function onInputToggle(mode) {
 		fileBtn.classList.add("active");
 		fileButtons.style.display = "";
 		if (clearLink) clearLink.style.visibility = "hidden";
+		// On workbench, navigate to upload page with fresh state
+		if (window.location.pathname === "/") {
+			window.location.href = "/upload_file?fresh=1";
+			return;
+		}
 	} else {
 		fileBtn.classList.remove("active");
 		textBtn.classList.add("active");
@@ -83,6 +88,21 @@ function onInputToggle(mode) {
 		// On upload page, navigate back to workbench
 		if (window.location.pathname === "/upload_file") {
 			window.location.href = "/";
+		}
+	}
+}
+
+function highlightUploadButton(action) {
+	var buttons = document.querySelectorAll("#file_input_buttons .btn");
+	for (var i = 0; i < buttons.length; i++) {
+		buttons[i].classList.remove("active");
+	}
+	if (!action) return;
+	for (var i = 0; i < buttons.length; i++) {
+		var btn = buttons[i];
+		if (btn.textContent.trim().toLowerCase().indexOf(action) !== -1 ||
+			(action === "identify meter" && btn.textContent.trim() === "Meter")) {
+			btn.classList.add("active");
 		}
 	}
 }
