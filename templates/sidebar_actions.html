@@ -2,39 +2,42 @@
 <div class="action-row">
 	<button type="button" id="transliterate_button" class="btn btn-primary action-btn"
 		onclick="onActionButton('transliterate');">Transliterate</button>
-	<div class="action-options">
-		<label class="scheme-label">in: <select id="from_scheme" onchange="onSidebarChange();">
-			<optgroup label="Romanizations">
-				<option value="IAST">IAST</option>
-				<option value="HK">HK</option>
-				<option value="SLP">SLP</option>
-				<option value="ITRANS">ITRANS</option>
-				<option value="VH">VH</option>
-				<option value="WX">WX</option>
-				<option value="IASTREDUCED" disabled>IAST reduced</option>
-			</optgroup>
-			<optgroup label="Indic Scripts">
-				<option value="DEV">DEV</option>
-				<option value="BENGALI">BENGALI</option>
-				<option value="GUJARATI">GUJARATI</option>
-			</optgroup>
-		</select></label>
-		<label class="scheme-label">out: <select id="to_scheme" onchange="onSidebarChange();">
-			<optgroup label="Romanizations">
-				<option value="IAST">IAST</option>
-				<option value="HK">HK</option>
-				<option value="SLP">SLP</option>
-				<option value="ITRANS">ITRANS</option>
-				<option value="VH">VH</option>
-				<option value="WX">WX</option>
-				<option value="IASTREDUCED">IAST reduced</option>
-			</optgroup>
-			<optgroup label="Indic Scripts">
-				<option value="DEV">DEV</option>
-				<option value="BENGALI">BENGALI</option>
-				<option value="GUJARATI">GUJARATI</option>
-			</optgroup>
-		</select></label>
+	<div class="action-options scheme-options-row">
+		<div class="scheme-labels">
+			<label class="scheme-label">in: <select id="from_scheme" onchange="onSidebarChange();">
+				<optgroup label="Romanizations">
+					<option value="IAST">IAST</option>
+					<option value="HK">HK</option>
+					<option value="SLP">SLP</option>
+					<option value="ITRANS">ITRANS</option>
+					<option value="VH">VH</option>
+					<option value="WX">WX</option>
+					<option value="IASTREDUCED" disabled>IAST reduced</option>
+				</optgroup>
+				<optgroup label="Indic Scripts">
+					<option value="DEV">DEV</option>
+					<option value="BENGALI">BENGALI</option>
+					<option value="GUJARATI">GUJARATI</option>
+				</optgroup>
+			</select></label>
+			<label class="scheme-label">out: <select id="to_scheme" onchange="onSidebarChange();">
+				<optgroup label="Romanizations">
+					<option value="IAST">IAST</option>
+					<option value="HK">HK</option>
+					<option value="SLP">SLP</option>
+					<option value="ITRANS">ITRANS</option>
+					<option value="VH">VH</option>
+					<option value="WX">WX</option>
+					<option value="IASTREDUCED">IAST reduced</option>
+				</optgroup>
+				<optgroup label="Indic Scripts">
+					<option value="DEV">DEV</option>
+					<option value="BENGALI">BENGALI</option>
+					<option value="GUJARATI">GUJARATI</option>
+				</optgroup>
+			</select></label>
+		</div>
+		<button type="button" class="btn btn-primary btn-swap-scheme" onclick="swapSchemeSelects(); onSidebarChange();">&#8645;</button>
 	</div>
 </div>
 
@@ -79,24 +82,6 @@
 	</div>
 </div>
 
-{% if page_mode == 'workbench' %}
-<!-- Swap -->
-<div class="sidebar-extras">
-	<div class="swap-buttons">
-		<button type="button" class="btn btn-primary" onclick="swapTexts();">Text &#8645;</button>
-		<button type="button" class="btn btn-primary" onclick="swapSchemes();">Schemes &#8644;</button>
-		<button type="button" class="btn btn-primary" onclick="swapBoth();">Both &#8645;&#8644;</button>
-	</div>
-</div>
-{% else %}
-<!-- Back to workbench -->
-<div class="sidebar-extras">
-	<div class="swap-buttons back-to-workbench">
-		<a href="/" class="btn btn-primary">&larr; Back to Input / Output Text Boxes</a>
-	</div>
-</div>
-{% endif %}
-
 <!-- Upload file -->
 <div class="sidebar-extras">
 	<div class="sidebar-section-label">File Upload &#8679; <a href="/upload_file_help" class="sidebar-help-link">?</a></div>
@@ -107,3 +92,12 @@
 		<a href="/ocr" class="btn btn-primary">PDF OCR</a>
 	</div>
 </div>
+
+{% if page_mode != 'workbench' %}
+<!-- Back to workbench -->
+<div class="sidebar-extras">
+	<div class="swap-buttons back-to-workbench">
+		<a href="/" class="btn btn-primary">&larr; Back to Input / Output Text Boxes</a>
+	</div>
+</div>
+{% endif %}
