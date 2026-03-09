@@ -16,35 +16,52 @@
 {% endblock %}
 
 {% block content %}
-	<form id="overall_form" action="/" method="POST">
-		<!-- hidden inputs synced by JS for POST submissions -->
-		<input type="hidden" name="skrutable_action" id="hidden_action" value="transliterate"/>
-		<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
-		<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
-		<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
-		<input type="hidden" name="splitter_model" id="hidden_splitter_model"/>
-		<input type="hidden" name="preserve_punctuation" id="hidden_preserve_punctuation"/>
-		<input type="hidden" name="preserve_compound_hyphens" id="hidden_preserve_compound_hyphens"/>
-		<!-- scan_detail checkboxes added dynamically by syncHiddenInputs -->
-		<div id="hidden_scan_detail_container"></div>
+	<!-- Text workbench view -->
+	<div id="workbench-view">
+		<form id="overall_form" action="/" method="POST">
+			<!-- hidden inputs synced by JS for POST submissions -->
+			<input type="hidden" name="skrutable_action" id="hidden_action" value="transliterate"/>
+			<input type="hidden" name="from_scheme" id="hidden_from_scheme"/>
+			<input type="hidden" name="to_scheme" id="hidden_to_scheme"/>
+			<input type="hidden" name="resplit_option" id="hidden_resplit_option"/>
+			<input type="hidden" name="splitter_model" id="hidden_splitter_model"/>
+			<input type="hidden" name="preserve_punctuation" id="hidden_preserve_punctuation"/>
+			<input type="hidden" name="preserve_compound_hyphens" id="hidden_preserve_compound_hyphens"/>
+			<!-- scan_detail checkboxes added dynamically by syncHiddenInputs -->
+			<div id="hidden_scan_detail_container"></div>
 
-		<div class="textarea-swap-group">
-			<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
-			<button type="button" class="btn btn-primary btn-swap-texts" onclick="swapTexts();">&#8645;</button>
-			<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
-		</div>
-
-		<!-- melody player -->
-		<div class="melody-player" id="melodyPlayer">
-			<audio id="audio" controls>
-				<source type="audio/mp3">
-			</audio>
-			<div>
-				<label for="melody_option">Meter Melody Type Recited by</label>
-				<select id="melody_option"></select>
+			<div class="textarea-swap-group">
+				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
+				<button type="button" class="btn btn-primary btn-swap-texts" onclick="swapTexts();">&#8645;</button>
+				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
 			</div>
-		</div>
-	</form>
+
+			<!-- melody player -->
+			<div class="melody-player" id="melodyPlayer">
+				<audio id="audio" controls>
+					<source type="audio/mp3">
+				</audio>
+				<div>
+					<label for="melody_option">Meter Melody Type Recited by</label>
+					<select id="melody_option"></select>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<!-- File upload view (hidden by default) -->
+	<div id="upload-view" style="display:none;" class="page-content upload-file-info">
+		<form action="/upload_file" method="POST" enctype="multipart/form-data" id="upload_form">
+			<h1 id="action_heading">file upload</h1>
+			<div class="settings-group" id="options_display"></div>
+			<p class="upload-file-tip">Processing may take a few seconds depending on file size.</p>
+			<label class="file-dropzone" id="fileDropzone">
+				<input type="file" name="input_file" id="fileInput" hidden />
+				<span class="file-dropzone-label" id="dropzoneLabel">Drop file here or click to select</span>
+			</label>
+			<p><button type="submit" class="btn btn-primary" id="upload_btn" disabled>Upload and Process</button></p>
+		</form>
+	</div>
 {% endblock %}
 
 {% block scripts %}
@@ -70,15 +87,45 @@
 
 	function onUploadButton(action) {
 		currentAction = action;
-		syncHiddenInputs();
+		highlightUploadButton(action);
+		updateOptionsDisplay();
 		saveSettingsToSession();
-		var form = document.getElementById("overall_form");
-		form.action = "/upload_file";
-		form.submit();
+		closeSidebarOnMobile();
 	}
 
 	function onSidebarChange() {
+		if (document.getElementById("upload-view").style.display !== "none") {
+			updateOptionsDisplay();
+		}
 		saveSettingsToSession();
+	}
+
+	// --- Input toggle: switch views without navigating ---
+	function onInputToggle(mode) {
+		var textBtn = document.getElementById("toggle_text");
+		var fileBtn = document.getElementById("toggle_file");
+		var fileButtons = document.getElementById("file_input_buttons");
+		var clearLink = document.getElementById("clear-texts-link");
+		var workbenchView = document.getElementById("workbench-view");
+		var uploadView = document.getElementById("upload-view");
+		if (mode === "file") {
+			textBtn.classList.remove("active");
+			fileBtn.classList.add("active");
+			fileButtons.style.display = "";
+			if (clearLink) clearLink.style.visibility = "hidden";
+			workbenchView.style.display = "none";
+			uploadView.style.display = "";
+			currentAction = "";
+			highlightUploadButton("");
+			updateOptionsDisplay();
+		} else {
+			fileBtn.classList.remove("active");
+			textBtn.classList.add("active");
+			fileButtons.style.display = "none";
+			if (clearLink) clearLink.style.visibility = "";
+			workbenchView.style.display = "";
+			uploadView.style.display = "none";
+		}
 	}
 
 	// --- Text persistence ---
@@ -115,6 +162,7 @@
 		out.value = tmp;
 		saveTexts();
 	}
+
 	// --- Async action handlers ---
 	function setButtonLoading(btn, loading) {
 		if (loading) {
@@ -307,6 +355,177 @@
 		currentMelodyOptions = [];
 		document.getElementById("melodyPlayer").classList.remove("visible");
 	}
+
+	// --- Upload view functions ---
+	function yesno(val) { return val ? "yes" : "no"; }
+
+	function updateOptionsDisplay() {
+		var container = document.getElementById("options_display");
+		var heading = document.getElementById("action_heading");
+		var uploadBtn = document.getElementById("upload_btn");
+
+		if (!currentAction) {
+			heading.textContent = "file upload";
+			container.innerHTML = '<p class="upload-file-tip">Please choose a mode: Transliteration, Meter, Split, or PDF OCR.</p>';
+			uploadBtn.disabled = true;
+			return;
+		}
+
+		heading.textContent = "file upload: " + currentAction;
+		uploadBtn.disabled = false;
+
+		var s = getSidebarSettings();
+		var hasExtra = (currentAction === "transliterate" || currentAction === "split");
+		var sections = [];
+
+		if (currentAction === "transliterate") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", s.from_scheme],
+					["output scheme", s.to_scheme],
+				]),
+				extra: makeTable("transliteration", [
+					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+				]),
+			});
+		} else if (currentAction === "scan") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", s.from_scheme],
+				]),
+			});
+			sections.push({
+				sidebar: makeTable("scansion", [
+					["weights", yesno(s.weights)],
+					["morae", yesno(s.morae)],
+					["ga\u1E47as", yesno(s.gaRas)],
+					["alignment", yesno(s.alignment)],
+				]),
+			});
+		} else if (currentAction === "identify meter") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", s.from_scheme],
+				]),
+			});
+			sections.push({
+				sidebar: makeTable("scansion", [
+					["weights", yesno(s.weights)],
+					["morae", yesno(s.morae)],
+					["ga\u1E47as", yesno(s.gaRas)],
+					["alignment", yesno(s.alignment)],
+				]),
+			});
+			var resplitLabels = {
+				"none": "don't resplit",
+				"resplit_lite": "lite",
+				"resplit_lite_keep_mid": "lite keep mid",
+				"resplit_max": "max",
+				"resplit_max_keep_mid": "max keep mid",
+			};
+			var resplitLabel = resplitLabels[s.resplit_option] || s.resplit_option;
+			sections.push({
+				sidebar: makeTable("meter identification", [
+					["resplit option", resplitLabel],
+				]),
+			});
+		} else if (currentAction === "split") {
+			sections.push({
+				sidebar: makeTable("transliteration", [
+					["input scheme", s.from_scheme],
+					["output scheme", s.to_scheme],
+				]),
+				extra: makeTable("transliteration", [
+					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+				]),
+			});
+			var splitterLabels = {
+				"dharmamitra_2024_sept": "2024 ByT5-Sanskrit",
+				"splitter_2018": "2018 Sandhi & Compound",
+			};
+			var splitterLabel = splitterLabels[s.splitter_model] || s.splitter_model;
+			var compoundRow = s.splitter_model === "dharmamitra_2024_sept"
+				? yesno(currentPreserveCompoundHyphens) : "n/a";
+			sections.push({
+				sidebar: makeTable("word splitting", [
+					["splitter model", splitterLabel],
+				]),
+				extra: makeTable("word splitting", [
+					["preserve punctuation", yesno(currentPreservePunctuation)],
+					["preserve compound hyphens", compoundRow],
+				]),
+			});
+		}
+
+		// Build header row (only if there are extra settings columns)
+		var html = '';
+		if (hasExtra) {
+			html += '<div class="settings-row settings-header-row">';
+			html += '<div class="settings-cell">change in sidebar</div>';
+			html += '<div class="settings-cell">change on <a href="/settings">extra settings</a> page</div>';
+			html += '</div>';
+		}
+
+		// Build section rows
+		for (var i = 0; i < sections.length; i++) {
+			html += '<div class="settings-row">';
+			html += '<div class="settings-cell">' + sections[i].sidebar + '</div>';
+			if (hasExtra) {
+				html += '<div class="settings-cell">' + (sections[i].extra || '') + '</div>';
+			}
+			html += '</div>';
+		}
+
+		container.innerHTML = html;
+	}
+
+	function makeTable(caption, rows) {
+		var html = '<table class="settings-summary"><caption>' + caption + '</caption>';
+		for (var i = 0; i < rows.length; i++) {
+			html += '<tr><td>' + rows[i][0] + '</td><td>' + rows[i][1] + '</td></tr>';
+		}
+		html += '</table>';
+		return html;
+	}
+
+	// --- File dropzone ---
+	var dropzone = document.getElementById('fileDropzone');
+	var fileInput = document.getElementById('fileInput');
+	var dropLabel = document.getElementById('dropzoneLabel');
+	fileInput.addEventListener('change', function() {
+		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+	});
+	dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+	dropzone.addEventListener('dragleave', function() { dropzone.classList.remove('dragover'); });
+	dropzone.addEventListener('drop', function(e) {
+		e.preventDefault();
+		dropzone.classList.remove('dragover');
+		fileInput.files = e.dataTransfer.files;
+		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+	});
+
+	// --- Upload form submit: add hidden inputs dynamically ---
+	document.getElementById("upload_form").addEventListener("submit", function(e) {
+		var form = this;
+		var s = getSidebarSettings();
+		function addHidden(name, value) {
+			var inp = document.createElement("input");
+			inp.type = "hidden";
+			inp.name = name;
+			inp.value = value;
+			form.appendChild(inp);
+		}
+		addHidden("skrutable_action", currentAction);
+		addHidden("from_scheme", s.from_scheme);
+		addHidden("to_scheme", s.to_scheme);
+		addHidden("resplit_option", s.resplit_option);
+		addHidden("splitter_model", s.splitter_model);
+		addHidden("preserve_punctuation", currentPreservePunctuation);
+		addHidden("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+		["weights", "morae", "gaRas", "alignment"].forEach(function(id) {
+			if (s[id]) addHidden("scan_detail", id);
+		});
+	});
 
 	// --- Initialization ---
 	window.onload = function() {

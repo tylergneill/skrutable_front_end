@@ -303,23 +303,10 @@ def index():
 	)
 
 
-@app.route("/upload_file", methods=["GET", "POST"])
+@app.route("/upload_file", methods=["POST"])
 def upload_file():
 
 	ensure_keys()
-
-	# GET: display upload form with current session settings
-	if request.method == "GET":
-		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
-		return render_template(
-			"upload_file.html",
-			**session_kwargs,
-		)
-
-	# POST from main page sidebar: save settings, redirect to GET
-	if request.form and not request.files:
-		process_form(request.form)
-		return redirect(url_for("upload_file"))
 
 	# POST with file: process and return download
 	if request.files:
