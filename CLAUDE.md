@@ -32,10 +32,10 @@ Both use `gunicorn` with 1200s timeout and multithreading. Production runs 4 wor
 
 ## Architecture
 
-**Single-file Flask app** (`flask_app.py`) — all routes, form processing, and skrutable integration live here. No blueprints, no separate route modules.
+**Single-file Flask app** (`flask_app.py`) — all routes, form processing, and `skrutable` package integration live here. No blueprints, no separate route modules.
 
 Key patterns:
-- Four skrutable objects are instantiated once at module level: `T` (Transliterator), `S` (Scanner), `MI` (MeterIdentifier), `Spl` (Splitter)
+- Four `skrutable` objects are instantiated once at module level: `T` (Transliterator), `S` (Scanner), `MI` (MeterIdentifier), `Spl` (Splitter)
 - `CustomFlask`/`CustomRequest` subclasses override `max_form_memory_size` to handle large uploads (128 MB)
 
 **State management** — UI state is split across three layers:
