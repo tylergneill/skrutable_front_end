@@ -717,6 +717,10 @@ table tbody tr:nth-child(even) {
 		display: flex;
 	}
 
+	h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+		scroll-margin-top: 60px;
+	}
+
 	.main-content {
 		margin-left: 0;
 		padding: 60px 1rem 3rem;
