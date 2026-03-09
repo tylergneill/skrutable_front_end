@@ -421,7 +421,7 @@ pre {
 
 .sidebar-bottom a {
 	color: var(--sidebar-text);
-	background: var(--sidebar-bg-dark);
+	background: var(--btn-bg);
 	border: 1px solid rgba(255,255,255,0.25);
 	border-radius: 4px;
 	padding: 0.3rem 0.6rem;
@@ -432,7 +432,7 @@ pre {
 	transition: background 0.15s;
 }
 .sidebar-bottom a:hover {
-	background: var(--sidebar-bg);
+	background: var(--btn-bg-hover);
 	border-color: rgba(255,255,255,0.4);
 	color: var(--sidebar-text);
 	text-decoration: none;
