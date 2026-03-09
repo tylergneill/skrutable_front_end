@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: skrutable API
+  title: Skrutable API
   description: |
     Programmatic access to [skrutable](https://github.com/tylergneill/skrutable) Sanskrit text processing tools.
 
