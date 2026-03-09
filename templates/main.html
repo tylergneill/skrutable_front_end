@@ -108,6 +108,7 @@
 		var clearLink = document.getElementById("clear-texts-link");
 		var workbenchView = document.getElementById("workbench-view");
 		var uploadView = document.getElementById("upload-view");
+		var actionBtns = document.querySelectorAll(".action-btn");
 		if (mode === "file") {
 			textBtn.classList.remove("active");
 			fileBtn.classList.add("active");
@@ -118,6 +119,7 @@
 			currentAction = "";
 			highlightUploadButton("");
 			updateOptionsDisplay();
+			actionBtns.forEach(function(b) { b.disabled = true; });
 		} else {
 			fileBtn.classList.remove("active");
 			textBtn.classList.add("active");
@@ -125,6 +127,7 @@
 			if (clearLink) clearLink.style.visibility = "";
 			workbenchView.style.display = "";
 			uploadView.style.display = "none";
+			actionBtns.forEach(function(b) { b.disabled = false; });
 		}
 	}
 
@@ -136,7 +139,12 @@
 	function restoreTexts() {
 		var inp = document.getElementById("text_input");
 		var out = document.getElementById("text_output");
-		if (inp.value || out.value) {
+		if (new URLSearchParams(window.location.search).get("clear") === "1") {
+			// Logo link navigation — reuse same logic as the clear button
+			currentAction = "";
+			clearTexts();
+			history.replaceState(null, "", "/");
+		} else if (inp.value || out.value) {
 			// Server rendered content (e.g. examples) — save it
 			saveTexts();
 		} else {
@@ -150,6 +158,7 @@
 		document.getElementById("text_output").value = "";
 		saveTexts();
 		hideMelodyPlayer();
+		currentAction = "";
 		highlightActionButton("");
 		saveSettingsToSession();
 	}
