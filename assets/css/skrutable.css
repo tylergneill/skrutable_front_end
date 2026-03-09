@@ -19,6 +19,8 @@
 	--dropzone-color: #777;
 	--dropzone-hover: #e8f0f8;
 	--progress-bg: #ddd;
+	--link-color: #395a77;
+	--link-hover-color: #2e4a64;
 }
 
 /* === Dark mode === */
@@ -39,6 +41,8 @@
 	--dropzone-color: #888;
 	--dropzone-hover: #252f38;
 	--progress-bg: #333;
+	--link-color: #5684A7;
+	--link-hover-color: #a3cfe3;
 }
 
 /* === Reset / Base === */
@@ -58,11 +62,11 @@ html, body {
 }
 
 a {
-	color: var(--btn-bg);
+	color: var(--link-color);
 	text-decoration: none;
 }
 a:hover {
-	color: var(--btn-bg-hover);
+	color: var(--link-hover-color);
 	text-decoration: underline;
 }
 .page-content a {
