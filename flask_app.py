@@ -541,6 +541,19 @@ def get_inputs(required_args, request, optional_args=None):
 def api_save_settings():
 	ensure_keys()
 	form = request.form
+
+	# Save select element settings
+	for var_name in SELECT_ELEMENT_NAMES:
+		if var_name in form:
+			session[var_name] = form[var_name]
+
+	# Save checkbox settings — only when a full sidebar save is being sent
+	# (detected by the presence of from_scheme, which is always included by saveSettingsToSession)
+	if "from_scheme" in form:
+		scan_detail = form.getlist("scan_detail")
+		for var_name in CHECKBOX_ELEMENT_NAMES:
+			session[var_name] = 1 if var_name in scan_detail else 0
+
 	for var_name in extra_option_names:
 		if var_name in form:
 			val = form[var_name]
@@ -550,6 +563,7 @@ def api_save_settings():
 				session[var_name] = 0
 			else:
 				session[var_name] = val
+
 	session.modified = True
 	return jsonify({"ok": True})
 
