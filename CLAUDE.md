@@ -52,7 +52,7 @@ Key patterns:
 - **identify meter** — scansion + meter identification with resplit options
 - **split** — Sanskrit compound word splitting (via external splitter models)
 
-**File upload processing** (`/upload_file`) — upload a file, process it with the selected action, return result as download.
+**File upload and processing** — the workbench (`main.html`) has a toggleable upload view; submits to `POST /upload_file` which processes the file and returns it as a download.
 
 **OCR endpoint** (`/ocr`) — accepts PDF + Google Vision API key, runs async OCR via `ocr_service.py`, which uses Google Cloud Vision and Cloud Storage (bucket: `vision_multilang_ocr`, project: `sanskrit-ocr-219110`).
 
