@@ -23,6 +23,11 @@
 		}
 	};
 
+	// Auto-open sidebar if navigated here with sidebar=open param
+	if (new URLSearchParams(window.location.search).get('sidebar') === 'open') {
+		openSidebar();
+	}
+
 	burger.addEventListener('click', function() {
 		if (sidebar.classList.contains('open')) {
 			closeSidebar();

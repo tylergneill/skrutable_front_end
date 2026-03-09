@@ -70,6 +70,8 @@ function onInputToggle(mode) {
 	var fileBtn = document.getElementById("toggle_file");
 	var fileButtons = document.getElementById("file_input_buttons");
 	var clearLink = document.getElementById("clear-texts-link");
+	var sidebarOpen = document.getElementById('sidebar') && document.getElementById('sidebar').classList.contains('open');
+	var sidebarParam = sidebarOpen ? '&sidebar=open' : '';
 	if (mode === "file") {
 		textBtn.classList.remove("active");
 		fileBtn.classList.add("active");
@@ -77,7 +79,7 @@ function onInputToggle(mode) {
 		if (clearLink) clearLink.style.visibility = "hidden";
 		// On workbench, navigate to upload page with fresh state
 		if (window.location.pathname === "/") {
-			window.location.href = "/upload_file?fresh=1";
+			window.location.href = "/upload_file?fresh=1" + sidebarParam;
 			return;
 		}
 	} else {
@@ -87,7 +89,7 @@ function onInputToggle(mode) {
 		if (clearLink) clearLink.style.visibility = "";
 		// On upload page, navigate back to workbench
 		if (window.location.pathname === "/upload_file") {
-			window.location.href = "/";
+			window.location.href = "/?" + sidebarParam.slice(1);
 		}
 	}
 }
