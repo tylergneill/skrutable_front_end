@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% set active_page = 'upload_file_help' %}
+
+{% block content %}
+	<div class="page-content">
+
+		<h1>file upload help</h1>
+
+		<p>File upload processes an entire text file with one of Skrutable's actions and returns the result as a download. It's a convenience alternative to copy-pasting text into the workbench. Both modes accept up to 128 MB.</p>
+
+		<h2>how-to</h2>
+		<ol>
+			<li>Switch to <strong>Upload File</strong> mode using the toggle at the bottom of the sidebar.</li>
+			<li>Choose an action (Transliterate, Identify Meter, Split Words, or PDF OCR)</li>
+			<li>For the first three, double-check settings, select your file, and click <strong>Upload and Process</strong>. The result downloads automatically.</li>
+			<li>For PDF OCR, setup is different; see <a href="ocr_instructions">separate FAQ</a>.</li>
+		</ol>
+		<p>Relevant settings (input scheme, output scheme, splitter model, etc.) are shown live in the upload view and can be adjusted in the sidebar at any time before submitting. It can be helpful to try settings on a small example in the text workbench first before uploading a large file.</p>
+
+		<h2>per-action tips</h2>
+
+		<p><strong>Meter identification:</strong> Input must have exactly one verse per line with no extraneous material.
+			See the <a href="/scanGRETIL">"Scan GRETIL"</a> page for details.
+			Starter examples (Bhagavadg&#299;t&#257;):
+			<ul>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-10_input_cleaned.txt" target="_blank">BhG first ten<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_1-100_input_cleaned.txt" target="_blank">BhG first hundred<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+				<li><a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt" target="_blank">BhG all<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			</ul>
+		</p>
+
+		<p><strong>Word splitting:</strong> The 2024 model is slower than the 2018 one when preserving compound hyphens (some <a href="https://tylerneill.info/blog/splitter-options" target="_blank">discussion here<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>).</p>
+
+	</div>
+{% endblock %}
