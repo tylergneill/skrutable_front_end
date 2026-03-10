@@ -382,7 +382,7 @@
 		}
 
 		heading.textContent = "file upload: " + currentAction;
-		uploadBtn.disabled = false;
+		uploadBtn.disabled = !document.getElementById("fileInput").files.length;
 
 		var s = getSidebarSettings();
 		var hasExtra = (currentAction === "transliterate" || currentAction === "split");
@@ -504,6 +504,7 @@
 	var dropLabel = document.getElementById('dropzoneLabel');
 	fileInput.addEventListener('change', function() {
 		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+		updateOptionsDisplay();
 	});
 	dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
 	dropzone.addEventListener('dragleave', function() { dropzone.classList.remove('dragover'); });
@@ -512,6 +513,7 @@
 		dropzone.classList.remove('dragover');
 		fileInput.files = e.dataTransfer.files;
 		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+		updateOptionsDisplay();
 	});
 
 	// --- Upload form submit: add hidden inputs dynamically ---
