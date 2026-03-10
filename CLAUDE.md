@@ -32,22 +32,27 @@ Both use `gunicorn` with 1200s timeout and multithreading. Production runs 4 wor
 
 ## Architecture
 
-**Single-file Flask app** (`flask_app.py`) — all routes, form processing, and skrutable integration live here. No blueprints, no separate route modules.
+**Single-file Flask app** (`flask_app.py`) — all routes, form processing, and `skrutable` package integration live here. No blueprints, no separate route modules.
 
 Key patterns:
-- Uses `flask.session` to persist UI state (selected action, schemes, checkboxes, settings) across requests
-- `flask.g` holds per-request `text_input` and `text_output`
-- Four skrutable objects are instantiated once at module level: `T` (Transliterator), `S` (Scanner), `MI` (MeterIdentifier), `Spl` (Splitter)
+- Four `skrutable` objects are instantiated once at module level: `T` (Transliterator), `S` (Scanner), `MI` (MeterIdentifier), `Spl` (Splitter)
 - `CustomFlask`/`CustomRequest` subclasses override `max_form_memory_size` to handle large uploads (128 MB)
+
+**State management** — UI state is split across three layers:
+
+| Layer | Scope | What it stores |
+|-------|-------|----------------|
+| `flask.session` (server-side cookie) | Per-user, persists across requests | Sidebar settings: `skrutable_action`, `from_scheme`, `to_scheme`, `resplit_option`, scan detail checkboxes (`weights`, `morae`, `gaRas`, `alignment`), extra settings (`avoid_virama_indic_scripts`, `preserve_compound_hyphens`, `preserve_punctuation`, `splitter_model`), melody state (`meter_label`, `melody_options`). All tracked in `SESSION_VARIABLE_NAMES` at top of `flask_app.py`. Saved to server via `POST /api/save-settings`. |
+| `localStorage` (browser) | Per-browser, persists across sessions | `text_input`, `text_output` (workbench textarea contents), `theme` (dark/light mode preference). |
+| `flask.g` (request context) | Single request only | `text_input` — used during form POST processing in `flask_app.py`, not persisted. |
 
 **Core actions** (selected via hidden `skrutable_action` form field):
 - **transliterate** — convert between writing systems (IAST, HK, SLP, DEV, etc.)
 - **scan** — metrical scansion showing weights, morae, gaṇas, alignment
 - **identify meter** — scansion + meter identification with resplit options
 - **split** — Sanskrit compound word splitting (via external splitter models)
-- **apte links** — generates hyperlinked split output pointing to DSAL Apte dictionary
 
-**Whole-file processing** (`/whole_file`) — upload a file, process it with the selected action, return result as download.
+**File upload and processing** — the workbench (`main.html`) has a toggleable upload view; submits to `POST /upload_file` which processes the file and returns it as a download.
 
 **OCR endpoint** (`/ocr`) — accepts PDF + Google Vision API key, runs async OCR via `ocr_service.py`, which uses Google Cloud Vision and Cloud Storage (bucket: `vision_multilang_ocr`, project: `sanskrit-ocr-219110`).
 
@@ -56,8 +61,8 @@ Key patterns:
 **Supporting files:**
 - `ocr_service.py` — Google Vision OCR wrapper (upload PDF to GCS, run async OCR, collect results, clean up)
 - `bulk_vision_runner.py` — standalone CLI script for batch OCR processing of many PDFs with parallelism
-- `templates/` — Jinja2 templates; `main.html` is the primary UI with inline JS for swap/melody logic
-- `assets/` — static CSS (Bootstrap + Bulma), JS libraries, melody MP3s, meter analysis data
+- `templates/` — Jinja2 templates; `base.html` layout with `sidebar.html`/`sidebar_actions.html` includes; `main.html` is the workbench UI
+- `assets/` — custom CSS (`css/skrutable.css`), shared JS (`js/settings.js`, `js/sidebar.js`), melody MP3s, meter analysis data
 
 **GitHub Actions:** `.github/workflows/clean_bucket.yml` — daily cleanup of stale GCS objects (>10 min old).
 

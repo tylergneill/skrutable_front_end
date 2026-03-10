@@ -5,12 +5,12 @@ import requests
 import sys
 import tempfile
 import time
-import unicodedata
+from urllib.parse import quote
 from datetime import datetime, date
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
-	make_response, g
+	make_response, g, url_for
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
@@ -132,7 +132,7 @@ SELECT_ELEMENT_NAMES = [
 CHECKBOX_ELEMENT_NAMES = [
 	"weights", "morae", "gaRas",
 	"alignment",
-	] # to be extended with corpus text abbreviations for textPrioritize
+	]
 melody_variable_names = [
 	"meter_label", "melody_options"
 	]
@@ -179,6 +179,17 @@ def process_form(form):
 		else:
 			session[var_name] = 0
 
+	# extra options passed as hidden inputs from JS/localStorage
+	for var_name in extra_option_names:
+		if var_name in form:
+			val = form[var_name]
+			if val in ("true", "True", "1"):
+				session[var_name] = 1
+			elif val in ("false", "False", "0"):
+				session[var_name] = 0
+			else:
+				session[var_name] = val
+
 	session.modified = True
 
 # for meter-id resplit option, which has two parts
@@ -192,7 +203,7 @@ def parse_complex_resplit_option(complex_resplit_option):
 	return resplit_option, resplit_keep_midpoint
 
 def _init_session_defaults():
-	"""Set all session keys to their defaults (used by whole_file flow)."""
+	"""Set all session keys to their defaults (used by upload_file flow)."""
 	defaults = {
 		"skrutable_action": "",
 		"from_scheme": "IAST", "to_scheme": "IAST",
@@ -263,77 +274,46 @@ MAIN_DEFAULTS = {
 	"melody_options": [],
 }
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
-
-	if request.method == "GET":
-		example_num = request.args.get("example")
-		if example_num and example_num in EXAMPLES:
-			ex = EXAMPLES[example_num]
-			return render_template(
-				'main.html',
-				text_input=ex["text_input"],
-				text_output=ex["text_output"],
-				**{**MAIN_DEFAULTS, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
-			)
-		return render_template(
-			'main.html',
-			text_input="",
-			text_output="",
-			**MAIN_DEFAULTS,
-		)
-
-	elif request.method == "POST":
-
-		# POST is now only used for Apte links (and whole-file via formaction)
-		action = request.form.get("skrutable_action", "")
-		text_input = request.form.get("text_input", "")
-
-		if action == "apte links":
-			output_HTML = prep_split_output_for_Apte(text_input)
-			return render_template(
-				"main_HTML_output.html",
-				text_input=text_input,
-				output_HTML=output_HTML,
-				**MAIN_DEFAULTS,
-			)
-
-		# Fallback: render main page (shouldn't normally reach here)
-		return render_template(
-			'main.html',
-			text_input=text_input,
-			text_output="",
-			**MAIN_DEFAULTS,
-		)
-
-
-@app.route("/whole_file", methods=["POST"])
-def whole_file():
 
 	ensure_keys()
 
-	# when form sent from GUI ("whole file" button clicked)
-	if request.form != {}:
+	# Build template vars from session, falling back to MAIN_DEFAULTS
+	session_kwargs = {k: session.get(k, MAIN_DEFAULTS.get(k)) for k in MAIN_DEFAULTS}
+	# Also include extra settings from session
+	for k in extra_option_names:
+		if k in session:
+			session_kwargs[k] = session[k]
 
-		process_form(request.form)
-
-		# use bool values for clearer display
-		session_kwargs = {k: session[k] for k in session if k in SESSION_VARIABLE_NAMES}
-		for k,v in session_kwargs.items():
-			if v in [0, 1]:
-				session_kwargs[k] = bool(v)
-
-		# send onward to upload form
+	example_num = request.args.get("example")
+	if example_num and example_num in EXAMPLES:
+		ex = EXAMPLES[example_num]
 		return render_template(
-			"whole_file.html",
-			text_input=g.text_input,
-			**session_kwargs,
+			'main.html',
+			text_input=ex["text_input"],
+			text_output=ex["text_output"],
+			**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
 		)
+	return render_template(
+		'main.html',
+		text_input="",
+		text_output="",
+		**session_kwargs,
+	)
 
-	# when file chosen for upload
-	elif request.files != {}:
 
-		# session variables already processed in previous step
+@app.route("/upload_file", methods=["POST"])
+def upload_file():
+
+	ensure_keys()
+
+	# POST with file: process and return download
+	if request.files:
+
+		# sync sidebar settings into session
+		if request.form:
+			process_form(request.form)
 
 		# take in and read file
 		input_file = request.files["input_file"]
@@ -406,22 +386,19 @@ def whole_file():
 
 		# prepare and return output file
 
-		def remove_diacritics(filename):
-			normalized = unicodedata.normalize('NFD', filename)
-			without_diacritics = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
-			return secure_filename(without_diacritics)
+		stem, _, ext = input_fn.rpartition('.')
+		if not stem:
+			stem, ext = ext, 'txt'
+		output_fn = f"{stem}{output_fn_suffix}.{ext}"
 
-		file_extension = input_fn[input_fn.find('.') + 1:]
-		cleaned_input_fn = remove_diacritics(input_fn)
-		if cleaned_input_fn == file_extension:
-			output_fn = f"skrutable_result{output_fn_suffix}.{file_extension}"
-		else:
-			output_fn = (	cleaned_input_fn[:input_fn.find('.')] +
-							f"{output_fn_suffix}.{file_extension}"
-						)
+		# ASCII fallback for Content-Disposition, plus RFC 5987 filename* for UTF-8
+		ascii_fn = secure_filename(output_fn) or f"skrutable_result{output_fn_suffix}.{ext}"
+		utf8_fn = quote(output_fn)
 
 		response = make_response(output_data)
-		response.headers["Content-Disposition"] = "attachment; filename=%s" % output_fn
+		response.headers["Content-Disposition"] = (
+			f"attachment; filename=\"{ascii_fn}\"; filename*=UTF-8''{utf8_fn}"
+		)
 		return response
 
 @app.route("/ocr", methods=["GET", "POST"])
@@ -559,6 +536,36 @@ def get_inputs(required_args, request, optional_args=None):
 				inputs[arg] = default
 
 	return inputs
+
+@app.route('/api/save-settings', methods=["POST"])
+def api_save_settings():
+	ensure_keys()
+	form = request.form
+
+	# Save select element settings
+	for var_name in SELECT_ELEMENT_NAMES:
+		if var_name in form:
+			session[var_name] = form[var_name]
+
+	# Save checkbox settings — only when a full sidebar save is being sent
+	# (detected by the presence of from_scheme, which is always included by saveSettingsToSession)
+	if "from_scheme" in form:
+		scan_detail = form.getlist("scan_detail")
+		for var_name in CHECKBOX_ELEMENT_NAMES:
+			session[var_name] = 1 if var_name in scan_detail else 0
+
+	for var_name in extra_option_names:
+		if var_name in form:
+			val = form[var_name]
+			if val in ("true", "True", "1"):
+				session[var_name] = 1
+			elif val in ("false", "False", "0"):
+				session[var_name] = 0
+			else:
+				session[var_name] = val
+
+	session.modified = True
+	return jsonify({"ok": True})
 
 @app.route('/api/transliterate', methods=["GET", "POST"])
 def api_transliterate():
@@ -706,7 +713,7 @@ def api_split():
 @app.route('/reset')
 def reset_variables():
 	session.clear()
-	return redirect("/?reset=true")
+	return redirect("/")
 
 # Example data (used both server-side and passed to JS)
 EXAMPLES = {
@@ -719,7 +726,7 @@ EXAMPLES = {
 	},
 	"2": {
 		"text_input": "धात्वर्थं बाधते कश्चित् कश्चित् तमनुवर्तते |\nतमेव विशिनष्ट्यन्य उपसर्गगतिस्त्रिधा ||",
-		"text_output": "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g\n     ta     me     va     vi     śi     na   ṣṭya    nya\n      l      g      l      l      l      g      g      l\n      u     pa     sa    rga     ga     ti   stri    dhā\n      l      l      g      l      l      g      l      g\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)",
+		"text_output": "gggglggl    {m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g\n     ta     me     va     vi     śi     na   ṣṭya    nya\n      l      g      l      l      l      g      g      l\n      u     pa     sa    rga     ga     ti   stri    dhā\n      l      l      g      l      l      g      l      g\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)",
 		"from_scheme": "DEV", "to_scheme": "IAST",
 		"skrutable_action": "identify meter",
 		"meter_label": "anuSTubh",
@@ -727,11 +734,11 @@ EXAMPLES = {
 	},
 	"3": {
 		"text_input": "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||",
-		"text_output": "llllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\n\n     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n\nmālinī [15: nnmyy]",
+		"text_output": "tava kara kamala sthām sphāṭikīm akṣa mālām , nakha kiraṇa vibhinnām dāḍimī bīja buddhyā |\npratikalam anukarṣan yena kīraḥ niṣiddhaḥ , sa bhavatu mama bhūtyai vāṇi te manda hāsaḥ ||",
 		"from_scheme": "DEV", "to_scheme": "IAST",
-		"skrutable_action": "identify meter",
-		"meter_label": "mAlinI",
-		"melody_options": ["Madhura Godbole", "Sadananda Das", "H.V. Nagaraja Rao", "Shatavadhani Ganesh"],
+		"skrutable_action": "split",
+		"meter_label": "",
+		"melody_options": [],
 	},
 }
 
@@ -760,9 +767,15 @@ def about_page():
 def help_page():
 	return render_template("help.html")
 
+@app.route('/upload_file_help')
+def upload_file_help_page():
+	return render_template("upload_file_help.html")
+
 @app.route('/settings')
 def settings_page():
-	return render_template("settings.html")
+	ensure_keys()
+	session_kwargs = {k: session[k] for k in extra_option_names if k in session}
+	return render_template("settings.html", **session_kwargs)
 
 @app.route('/updates')
 def updates_page():
@@ -799,17 +812,6 @@ def chicago_apte_iast():
 	iast_query = request.args.get('query')
 	chicago_url = prep_Apte_query(iast_query)
 	return redirect(chicago_url)
-
-def prep_split_output_for_Apte(split_text):
-	split_words = split_text.split() # would be nice to retain original whitespace (tab etc.)
-	output_HTML = "<p>"
-	for word in split_words:
-		if re.sub('[,\|।—\?!\.\d\s]', '', word) == "": # expand punctuation set ...
-			output_HTML += word + " "
-		else:
-			output_HTML += "<a href='%s' target='apteTab'>%s</a> " % (prep_Apte_query(word), word)
-	output_HTML += "</p>"
-	return output_HTML
 
 if __name__ == '__main__':
     app.run(debug=True, port=5012)

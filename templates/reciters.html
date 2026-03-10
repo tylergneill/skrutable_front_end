@@ -1,72 +1,66 @@
-<html>
-    <head>
-{% include 'head_default.html' %}
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.css"/>
-        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.js"></script>
-    </head>
+{% extends 'base.html' %}
+{% set active_page = 'reciters' %}
 
-    <body>
+{% block head_extra %}
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.css"/>
+	<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.25/datatables.min.js"></script>
+{% endblock %}
 
-{% include 'nav.html' %}
+{% block content %}
+	<div class="page-content" style="max-width: 1100px;">
 
-        <div class="container">
+		<h1>Reciters of Sanskrit Meter Melodies</h1>
 
-            <h1>Reciters of Sanskrit Meter Melodies</h1>
+		<p>
+			Several scholars skilled in reciting Sanskrit are featured on this website.
+			When a meter is successfully identified in the online interface,
+			all available melodies (see table below) are displayed in a media player at the bottom
+			(two examples: <a href="ex2">anu&#7779;&#7789;ubh</a>, <a href="ex3">m&#257;lin&#299;</a>).
+			The first three scholars kindly gave special permission for this use of their privately recorded sound files,
+			and sound files for the latter two were found already online.
+			I hope that users of the site find the diversity of voices as enriching as I have.
+		</p>
+		<table id='reciters_available_melodies'>
+			<thead>
+				<tr>
+					<th style="white-space:normal; width:400px;">Reciter</th>
+					<th style="white-space:normal;">Meters Available</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="white-space:normal;"><a href="https://www.aiislanguageprograms.org/lp/sanskrit" target="_blank">Dr. Madhura Godbole<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>: Program Head for Sanskrit, Prakrit &amp; Pali, AIIS, Pune</td>
+					<td style="white-space:normal;">anu&#7779;&#7789;ubh &#257;ry&#257; upag&#299;ti up&#257;jati drutavilambita m&#257;lin&#299; vasantatilak&#257; &#347;&#257;rd&#363;lavikr&#299;&#7693;ita &#347;ikharin&#299;</td>
+				</tr>
+				<tr>
+					<td style="white-space:normal;"><a href="https://www.sai.uni-heidelberg.de/abt/IND/en/mitarbeiter/das/das.php" target="_blank">Dr. Sadananda Das<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>: Sanskrit Lecturer, Leipzig University</td>
+					<td style="white-space:normal;">&#257;ry&#257; indravajr&#257; up&#257;jati pa&#241;cac&#257;mara p&#7771;thv&#299; m&#257;lin&#299; vasantatilak&#257; &#347;&#257;rd&#363;lavikr&#299;&#7693;ita &#347;ikharin&#299; &#347;rava&#7751;&#257;bhara&#7751;a sragvin&#299;</td>
+				</tr>
+				<tr>
+					<td style="white-space:normal;"><a href="https://www.orinst.ox.ac.uk/people/diwakar-acharya#/" target="_blank">Dr. Diwakar Acharya<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>: Spalding Professor of Eastern Religions and Ethics, University of Oxford</td>
+					<td style="white-space:normal;">anu&#7779;&#7789;ubh &#257;ry&#257; indravajr&#257; up&#257;jati drutavilambita mand&#257;kr&#257;nt&#257; &#347;&#257;rd&#363;lavikr&#299;&#7693;ita &#347;ikharin&#299;</td>
+				</tr>
+				<tr>
+					<td style="white-space:normal;"><a href="https://en.wikipedia.org/wiki/Shatavadhani_Ganesh" target="_blank">Dr. Shatavadhani Ganesh<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>: avadh&#257;na artist, author (<a href="https://www.youtube.com/playlist?list=PLABJEFgj0PWVXr2ERGu2xtoSXrNdBs5xS" target="_blank">on YouTube<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>)</td>
+					<td style="white-space:normal;">anu&#7779;&#7789;ubh aparavaktra a&#347;vadh&#257;&#7789;&#299; &#257;ry&#257; indravam&#347;a udgat&#257; up&#257;jati aupacchandasika kokilaka c&#257;ruc&#257;mara to&#7789;aka drutavilambita pa&#241;cac&#257;mara pu&#7779;pit&#257;gr&#257; p&#7771;thv&#299; prahar&#7779;in&#299; bhuja&#7749;gapray&#257;ta ma&#241;jubh&#257;&#7779;in&#299; mand&#257;kr&#257;nt&#257; mallik&#257;m&#257;l&#257; m&#257;lin&#299; rathoddat&#257; vam&#347;astha vasantatilak&#257; viyogin&#299; &#347;&#257;rd&#363;lavikr&#299;&#7693;ita &#347;&#257;lin&#299; &#347;ikharin&#299; &#347;ivat&#257;&#7751;&#7693;ava sragdhar&#257; sragvin&#299; sv&#257;gat&#257; harin&#299;</td>
+				</tr>
+				<tr>
+					<td style="white-space:normal;"><a href="https://iias.huji.ac.il/people/test-rao-0" target="_blank">Dr. H.V. Nagaraja Rao<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>: Oriental Research Institute, Mysore, emeritus (<a href="https://archive.org/details/sanskritmeters_201810" target="_blank">on Archive<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>)</td>
+					<td style="white-space:normal;">anu&#7779;&#7789;ubh aparavaktra up&#257;jati aupacchandasika kokilaka g&#299;ti p&#7771;thv&#299; pramuditavadan&#257; pramit&#257;k&#7779;ara prahar&#7779;in&#299; ma&#241;jubh&#257;&#7779;in&#299; mattamay&#363;ra mand&#257;kr&#257;nt&#257; m&#257;lin&#299; vasantatilak&#257; &#347;&#257;rd&#363;lavikr&#299;&#7693;ita &#347;&#257;lin&#299; &#347;ikharin&#299; sragdhar&#257;</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
 
-            <p>
-              🙏 Several scholars skilled in reciting Sanskrit are featured on this website. 🙏
-              When a meter is successfully identified in the online interface,
-              all available melodies (see table below) are displayed in a media player at the bottom
-              (two examples: <a href="ex2">anuṣṭubh</a>, <a href="ex3">mālinī</a>).
-              The first three scholars kindly gave special permission for this use of their privately recorded sound files,
-              and sound files for the latter two were found already online.
-              I hope that users of the site find the diversity of voices as enriching as I have.
-            </p>
-            <table id='reciters_available_melodies' class='display'>
-              <thead>
-                <tr>
-                  <th style="white-space:normal; width:1500px;">Reciter</th>
-                  <th style="white-space:normal; width:1500px;">Meters Available</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style="white-space:normal; width:500px;"><a href="https://www.aiislanguageprograms.org/lp/sanskrit" target='_blank'>Dr. Madhura Godbole</a>: Program Head for Sanskrit, Prakrit & Pali, AIIS, Pune</td>
-                  <td style="white-space:normal; width:2000px;">anuṣṭubh āryā upagīti upajāti drutavilambita mālinī vasantatilakā śārdūlavikrīḍita śikhariṇī</td>
-                </tr>
-                <tr>
-                  <td style="white-space:normal; width:500px;"><a href="https://www.sai.uni-heidelberg.de/abt/IND/en/mitarbeiter/das/das.php" target='_blank'>Dr. Sadananda Das</a>: Sanskrit Lecturer, Leipzig University</td>
-                  <td style="white-space:normal; width:2000px;">āryā indravajrā upajāti pañcacāmara pṛthvī mālinī vasantatilakā śārdūlavikrīḍita śikhariṇī śravaṇābharaṇa sragviṇī</td>
-                </tr>
-                <tr>
-                  <td style="white-space:normal; width:500px;"><a href="https://www.orinst.ox.ac.uk/people/diwakar-acharya#/" target='_blank'>Dr. Diwakar Acharya</a>: Spalding Professor of Eastern Religions and Ethics, University of Oxford</td>
-                  <td style="white-space:normal; width:2000px;">anuṣṭubh āryā indravajrā upajāti drutavilambita mandākrāntā śārdūlavikrīḍita śikhariṇī</td>
-                </tr>
-                <tr>
-                  <td style="white-space:normal; width:500px;"><a href="https://en.wikipedia.org/wiki/Shatavadhani_Ganesh" target='_blank'>Dr. Shatavadhani Ganesh</a>: avadhāna artist, author (<a href="https://www.youtube.com/playlist?list=PLABJEFgj0PWVXr2ERGu2xtoSXrNdBs5xS">on YouTube</a>)</td>
-                  <td style="white-space:normal; width:2000px;">anuṣṭubh aparavaktra aśvadhāṭī āryā indravaṃśa udgatā upajāti aupacchandasika kokilaka cārucāmara toṭaka drutavilambita pañcacāmara puṣpitāgrā pṛthvī praharṣiṇī bhujaṅgaprayāta mañjubhāṣiṇī mandākrāntā mallikāmālā mālinī rathoddhatā vaṃśastha vasantatilakā viyoginī śārdūlavikrīḍita śālinī śikhariṇī śivatāṇḍava sragdharā sragviṇī svāgatā hariṇī</td>
-                </tr>
-                <tr>
-                  <td style="white-space:normal; width:500px;"><a href="https://iias.huji.ac.il/people/test-rao-0" target='_blank'>Dr. H.V. Nagaraja Rao</a>: Oriental Research Institute, Mysore, emeritus (<a href="https://archive.org/details/sanskritmeters_201810">on Archive</a>)</td>
-                  <td style="white-space:normal; width:2000px;">anuṣṭubh aparavaktra upajāti aupacchandasika kokilaka gīti pṛthvī pramuditavadanā pramitākṣara praharṣiṇī mañjubhāṣiṇī mattamayūra mandākrāntā mālinī vasantatilakā śārdūlavikrīḍita śālinī śikhariṇī sragdharā</td>
-                </tr>
-              </tbody>
-            </table>
-        </div><!-- /.container -->
-
-
-    <script>
-		$(document).ready( function () {
-
-	    	$('#reciters_available_melodies').DataTable( {
-          "paging":   false,
-          "ordering": false,
-          "info":     false
-         } );
-
+{% block scripts %}
+<script>
+	$(document).ready( function () {
+		$('#reciters_available_melodies').DataTable( {
+			"paging":   false,
+			"ordering": false,
+			"info":     false
 		} );
-	</script>
-
-  </body>
-
-</html>
+	} );
+</script>
+{% endblock %}

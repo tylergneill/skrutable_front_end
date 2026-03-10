@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/assets/favicon.png">
+	<link rel="stylesheet" href="/assets/css/skrutable.css">
+	<title>skrutable</title>
+	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+	{% block head_extra %}{% endblock %}
+</head>
+<body>
+
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+{% include 'sidebar.html' %}
+{% block sidebar_controls %}
+<div class="sidebar-controls sidebar-back">
+	<a href="/">&larr; back to workbench</a>
+</div>
+{% endblock %}
+<hr class="sidebar-divider">
+<div class="sidebar-bottom">
+	<a href="#" id="clear-texts-link" onclick="if(typeof clearTexts==='function'){clearTexts();}return false;" {% if active_page != 'workbench' or page_mode == 'upload' %}style="visibility:hidden;"{% endif %}>clear</a>
+	<a href="/?example=1" id="example-link" title="example 1">ex1</a>
+	<a href="/settings" title="extra settings">settings</a>
+	<a href="/help">help</a>
+	<a href="#" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</a>
+</div>
+</aside>
+
+<div class="mobile-header">
+	<button class="burger" id="sidebar-burger" aria-label="Toggle navigation">&#9776;</button>
+	<a class="brand" href="/?clear=1">skrutable</a>
+</div>
+
+<main class="main-content">
+	{% block content %}{% endblock %}
+</main>
+
+<script src="/assets/js/sidebar.js"></script>
+<script>
+(function() {
+	var toggle = document.getElementById('dark-mode-toggle');
+	function applyTheme(dark) {
+		document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+		toggle.innerHTML = dark ? '&#9788;' : '&#9790;';
+		toggle.title = dark ? 'Toggle light mode' : 'Toggle dark mode';
+	}
+	applyTheme(localStorage.getItem('theme') === 'dark');
+	toggle.addEventListener('click', function(e) {
+		e.preventDefault();
+		var isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
+		localStorage.setItem('theme', isDark ? 'dark' : 'light');
+		applyTheme(isDark);
+	});
+})();
+</script>
+<script>
+(function() {
+	var link = document.getElementById('example-link');
+	var current = parseInt(new URLSearchParams(window.location.search).get('example')) || 0;
+	var next = current >= 3 ? 1 : current + 1;
+	link.href = '/?example=' + next;
+	link.textContent = 'ex' + next;
+	link.title = 'example ' + next;
+})();
+</script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

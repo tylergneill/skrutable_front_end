@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: skrutable API
+  title: Skrutable API
   description: |
     Programmatic access to [skrutable](https://github.com/tylergneill/skrutable) Sanskrit text processing tools.
 
@@ -159,7 +159,7 @@ paths:
             text/plain:
               schema:
                 type: string
-              example: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
+              example: "gggglggl    {m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
             application/json:
               schema:
                 type: object
@@ -167,7 +167,7 @@ paths:
                   result:
                     type: string
               example:
-                result: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
+                result: "gggglggl    {m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n    tka    ści    tta     ma     nu     va    rta     te\n      g      g      l      l      l      g      l      g"
 
   /api/identify-meter:
     post:
@@ -249,7 +249,7 @@ paths:
             text/plain:
               schema:
                 type: string
-              example: "gggglggl\t{m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
+              example: "gggglggl    {m: 14}    [8: mrgl]\ngglllglg    {m: 12}    [8: tslg]\nlglllggl    {m: 11}    [8: jsgl]\nllgllglg    {m: 11}    [8: sslg]\n\n    dhā    tva  rthaṃ     bā    dha     te     ka    ści\n      g      g      g      g      l      g      g      l\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
             application/json:
               schema:
                 type: object
@@ -266,7 +266,7 @@ paths:
                       type: string
                     description: Available melody filenames for the identified meter.
               example:
-                result: "gggglggl\t{m: 14}    [8: mrgl]\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
+                result: "gggglggl    {m: 14}    [8: mrgl]\n...\n\nanuṣṭubh (1,2: pathyā, 3,4: pathyā)"
                 meter_label: "anuSTubh"
                 melody_options:
                   - "Madhura Godbole"
