@@ -519,12 +519,15 @@
 	// --- Upload form submit: add hidden inputs dynamically ---
 	document.getElementById("upload_form").addEventListener("submit", function(e) {
 		var form = this;
+		// Remove any previously added dynamic inputs (from prior submissions)
+		form.querySelectorAll("input.dynamic-hidden").forEach(function(el) { el.remove(); });
 		var s = getSidebarSettings();
 		function addHidden(name, value) {
 			var inp = document.createElement("input");
 			inp.type = "hidden";
 			inp.name = name;
 			inp.value = value;
+			inp.className = "dynamic-hidden";
 			form.appendChild(inp);
 		}
 		addHidden("skrutable_action", currentAction);
