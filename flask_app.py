@@ -740,6 +740,14 @@ EXAMPLES = {
 		"meter_label": "",
 		"melody_options": [],
 	},
+	"3b": {
+		"text_input": "तव करकमलस्थां स्फाटिकीमक्षमालां , नखकिरणविभिन्नां दाडिमीबीजबुद्ध्या |\nप्रतिकलमनुकर्षन्येन कीरो निषिद्धः , स भवतु मम भूत्यै वाणि ते मन्दहासः ||",
+		"text_output": "llllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\nllllllggglgglgg    {m: 22}    [15: nnmyy]\n\n     ta     va     ka     ra     ka     ma     la  sthāṃ   sphā     ṭi     kī     ma    kṣa     mā    lāṃ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     na    kha     ki     ra     ṇa     vi    bhi   nnāṃ     dā     ḍi     mī     bī     ja     bu  ddhyā\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n    pra     ti     ka     la     ma     nu     ka    rṣa    nye     na     kī     ro     ni     ṣi  ddhaḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n     sa    bha     va     tu     ma     ma    bhū   tyai     vā     ṇi     te     ma    nda     hā    saḥ\n      l      l      l      l      l      l      g      g      g      l      g      g      l      g      g\n\nmālinī [15: nnmyy]",
+		"from_scheme": "DEV", "to_scheme": "IAST",
+		"skrutable_action": "identify meter",
+		"meter_label": "mAlinI",
+		"melody_options": ["Madhura Godbole", "Sadananda Das", "H.V. Nagaraja Rao", "Shatavadhani Ganesh"],
+	},
 }
 
 # Backward-compat redirects for old example URLs
@@ -754,6 +762,10 @@ def ex2():
 @app.route('/ex3')
 def ex3():
 	return redirect("/?example=3")
+
+@app.route('/ex3b')
+def ex3b():
+	return redirect("/?example=3b")
 
 @app.route('/about')
 def about_page():
