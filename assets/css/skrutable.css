@@ -315,12 +315,28 @@ pre {
 .textarea-swap-group .textarea-output {
 	width: 100%;
 }
-.btn.btn-swap-texts {
-	align-self: flex-end;
+.textarea-action-row {
+	display: flex;
+	justify-content: space-between;
+	align-self: stretch;
+	gap: 0.3rem;
+}
+.btn.btn-textarea-action {
 	padding: 0.15rem 0.5rem;
 	font-size: 0.85rem;
 	line-height: 1;
-	min-width: 0;
+	min-width: 2rem;
+	flex: 1;
+}
+@media (min-width: 768px) {
+	.textarea-action-row {
+		align-self: flex-end;
+		width: auto;
+	}
+	.btn.btn-textarea-action {
+		flex: none;
+		width: 2.5rem;
+	}
 }
 .btn.btn-swap-scheme {
 	padding: 0.6rem 0.5rem;
