@@ -32,7 +32,11 @@
 
 			<div class="textarea-swap-group">
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
-				<button type="button" class="btn btn-primary btn-swap-texts" onclick="swapTexts();">&#8645;</button>
+				<div class="textarea-action-row">
+					<button type="button" class="btn btn-primary btn-textarea-action" onclick="clearTextAreas();" title="Clear text boxes">&#x2715;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action %}disabled{% endif %}>&#x21BA;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
+				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
 			</div>
 
@@ -117,6 +121,7 @@
 			workbenchView.style.display = "none";
 			uploadView.style.display = "";
 			currentAction = "";
+			document.getElementById("repeat_action_button").disabled = true;
 			highlightUploadButton("");
 			updateOptionsDisplay();
 			actionBtns.forEach(function(b) { b.disabled = true; });
@@ -153,6 +158,13 @@
 			if (localStorage.getItem("text_output")) out.value = localStorage.getItem("text_output");
 		}
 	}
+	function clearTextAreas() {
+		document.getElementById("text_input").value = "";
+		document.getElementById("text_output").value = "";
+		saveTexts();
+		hideMelodyPlayer();
+	}
+
 	function clearTexts() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
@@ -160,7 +172,13 @@
 		hideMelodyPlayer();
 		currentAction = "";
 		highlightActionButton("");
+		document.getElementById("repeat_action_button").disabled = true;
 		saveSettingsToSession();
+	}
+
+	function repeatLastAction() {
+		if (!currentAction) return;
+		onActionButton(currentAction);
 	}
 
 	// --- Swap helpers ---
@@ -188,6 +206,7 @@
 	function set_action(action) {
 		currentAction = action;
 		highlightActionButton(action);
+		document.getElementById("repeat_action_button").disabled = !action;
 		saveSettingsToSession();
 	}
 
