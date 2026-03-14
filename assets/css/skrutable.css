@@ -882,6 +882,16 @@ summary {
 	color: var(--btn-bg);
 }
 
+/* === DataTables dark mode override === */
+[data-theme="dark"] table.dataTable tbody td {
+	color: var(--main-text) !important;
+	background-color: var(--main-bg) !important;
+}
+
+[data-theme="dark"] table.dataTable tbody tr:nth-child(even) td {
+	background-color: var(--table-stripe) !important;
+}
+
 /* === OCR-specific overrides === */
 .ocr-result-actions {
 	display: flex;
