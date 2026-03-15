@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'ocr' %}
 
 {% block content %}
@@ -22,7 +23,7 @@
       This interface provides access to Google Cloud Vision OCR without requiring coding or cloud-storage setup.
       Cloud Vision accepts large multi-page PDFs, delivers high accuracy,
       and&#8212;unlike Google Drive OCR&#8212;automatically ignores any low-quality text layer already embedded in the file.
-      <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.
+      <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
 
     <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
@@ -48,13 +49,13 @@
         <li>
           <strong>Go to the Google Cloud Console</strong>:<br>
           While logged into your Google account,
-          visit the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.
+          visit the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>.
           If it's your first time, you may need to click through some initial setup prompts.
         </li>
         <li>
           <strong>Enable billing</strong>:<br>
           Walk through the steps at
-          <a href="https://console.cloud.google.com/billing" target="_blank">console.cloud.google.com/billing<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a> to enable billing.
+          <a href="https://console.cloud.google.com/billing" target="_blank">console.cloud.google.com/billing{{ ext_link_icon() }}</a> to enable billing.
           You'll need a credit card. (<a href="#cost">See above</a> for more on cost.)
         </li>
         <li>
@@ -100,14 +101,14 @@
       You pay only for what you use.
       New accounts come with a generous $300 credit, valid for 90 days.
       It's possible to track your usage
-      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>),
+      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>),
       but if you're working on personal projects, you likely won't exceed 1,000 pages a month.
     </p>
 
     <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
     <p>
       Your API key is never stored by this application.
-      The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code{{ ext_link_icon() }}</a>
       reads the key from the form, sends it with the OCR request to Google, and discards it.
       Store your key with a password manager (e.g., 1Password) to keep it secure.
       If you have concerns about PDF contents, avoid uploading sensitive material.

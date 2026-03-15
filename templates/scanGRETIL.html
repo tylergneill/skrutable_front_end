@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'gretil' %}
 
 {% block content %}
@@ -7,34 +8,34 @@
 		<h1>scan GRETIL</h1>
 
 		<p>Skrutable's file-upload function with meter identification can be used to detect textual problems in digital Sanskrit texts.
-		<a href="http://gretil.sub.uni-goettingen.de/" target="_blank">GRETIL<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a> texts are high-quality and relatively easy to work with, making them a good starting point.</p>
+		<a href="http://gretil.sub.uni-goettingen.de/" target="_blank">GRETIL{{ ext_link_icon() }}</a> texts are high-quality and relatively easy to work with, making them a good starting point.</p>
 
 		<p>See the <a href="/scanGRETILresults">cumulative results so far</a>.</p>
 
 		<h2>how-to</h2>
 
 		<p><b>step 1</b>: Obtain an electronic text.
-		Example: the Bhagavadg&#299;t&#257; (BhG) <a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm" target="_blank">raw GRETIL file<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		Example: the Bhagavadg&#299;t&#257; (BhG) <a href="http://gretil.sub.uni-goettingen.de/gretil/1_sanskr/2_epic/mbh/ext/bhgce__u.htm" target="_blank">raw GRETIL file{{ ext_link_icon() }}</a>.</p>
 
 		<p><b>step 2</b>: Clean the file so that each line contains exactly one whole verse (half an anu&#7779;&#7789;ubh &#347;loka is also acceptable). Remove extraneous material.
-		Example: <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt" target="_blank">BhG input cleaned<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		Example: <a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/BhG_input_cleaned.txt" target="_blank">BhG input cleaned{{ ext_link_icon() }}</a>.</p>
 
 		<p><b>step 3</b>: Submit the cleaned file using the "Meter" button in the File Upload section of the sidebar.
 		See the <a href="/upload_file_help">file processing help page</a> for instructions.
 		The 700 verses of the G&#299;t&#257; process in about a second:
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt" target="_blank">BhG raw output<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>,
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt" target="_blank">BhG output cleaned<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt" target="_blank">BhG raw output{{ ext_link_icon() }}</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/BhG_output_cleaned.txt" target="_blank">BhG output cleaned{{ ext_link_icon() }}</a>.</p>
 
 		<p><b>step 4</b>: Review the results for metrical irregularities (use regexes to search effectively).
 		These may indicate hyper- or hypo-metrical lines, typos affecting syllable weight, and other textual issues.</p>
 
 		<p>For a larger example, consider the R&#257;m&#257;ya&#7751;a:
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm" target="_blank">raw in<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a> (Dec 2018 version with semicolons),
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt" target="_blank">clean in<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>,
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt" target="_blank">raw out<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>,
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt" target="_blank">clean out<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>,
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_tallies/Ram_tallies.tsv" target="_blank">tallies<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>,
-		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt" target="_blank">notes<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/1_input_raw/Ram_input_raw.htm" target="_blank">raw in{{ ext_link_icon() }}</a> (Dec 2018 version with semicolons),
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/2_input_cleaned/Ram_input_cleaned.txt" target="_blank">clean in{{ ext_link_icon() }}</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/3_output_raw/BhG_output_raw.txt" target="_blank">raw out{{ ext_link_icon() }}</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/4_output_cleaned/Ram_output_cleaned.txt" target="_blank">clean out{{ ext_link_icon() }}</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/5_tallies/Ram_tallies.tsv" target="_blank">tallies{{ ext_link_icon() }}</a>,
+		<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/meter_analyses/6_notes/Ram_notes.txt" target="_blank">notes{{ ext_link_icon() }}</a>.</p>
 
 		<p><b>step 5</b>: Address the irregularities:
 		<ul>
