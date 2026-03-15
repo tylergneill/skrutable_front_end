@@ -150,7 +150,10 @@
 			clearTexts();
 			history.replaceState(null, "", "/");
 		} else if (inp.value || out.value) {
-			// Server rendered content (e.g. examples) — save it
+			// Server rendered content (e.g. examples) — save it and clean up URL
+			if (new URLSearchParams(window.location.search).get("example")) {
+				history.replaceState(null, "", "/");
+			}
 			saveTexts();
 		} else {
 			// Restore from localStorage
