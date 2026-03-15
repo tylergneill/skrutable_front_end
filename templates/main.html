@@ -150,7 +150,10 @@
 			clearTexts();
 			history.replaceState(null, "", "/");
 		} else if (inp.value || out.value) {
-			// Server rendered content (e.g. examples) — save it
+			// Server rendered content (e.g. examples) — save it and clean up URL
+			if (new URLSearchParams(window.location.search).get("example")) {
+				history.replaceState(null, "", "/");
+			}
 			saveTexts();
 		} else {
 			// Restore from localStorage
@@ -580,7 +583,10 @@
 		// Initialize melody dropdown from server data (for examples)
 		if (currentMelodyOptions.length > 0) {
 			rebuildMelodyDropdown(currentMelodyOptions);
-			showMelodyPlayer();
+			// Only show melody player if there's actually output to go with it
+			if (document.getElementById("text_output").value) {
+				showMelodyPlayer();
+			}
 		}
 		update_melody();
 		window.scrollTo(0, 0);
