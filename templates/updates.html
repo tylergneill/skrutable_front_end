@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'updates' %}
 
 {% block content %}
@@ -8,73 +9,215 @@
 
 		<p>(Feb–Mar '26)</p>
 		<ul>
-			<li>improved API (added JSON mode, Swagger doc)</li>
-			<li>refactored UI with Javascript</li>
-			<li>fully redesigned appearance (colors, etc.)</li>
-			<li>added sidebar</li>
-			<li>added dark mode</li>
-			<li>unified text workbench and upload-file modes (same page, sidebar controls)</li>
-			<li>improved management and presentation of settings</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/41" target="_blank">[app v1.9.1]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed dark mode meter-table colors; guarded melody player on load</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/40" target="_blank">[app v1.9.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added clear-text and redo-action buttons</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/55" target="_blank">[lib v2.0.9]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.9/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed r̥ ordering bug in transliteration scheme maps</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/54" target="_blank">[lib v2.0.8]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.8/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed Dharmamitra splitter for new upstream API endpoints and formats</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/36" target="_blank">[app v1.8.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fully redesigned appearance (colors, etc.)</li>
+					<li>added sidebar</li>
+					<li>added dark mode</li>
+					<li>unified text workbench and upload-file modes (same page, sidebar controls)</li>
+					<li>improved management and presentation of settings</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/35" target="_blank">[app v1.7.4]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>improved API (added JSON mode, Swagger doc)</li>
+					<li>refactored UI with Javascript</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Spring '25)</p>
 		<ul>
-			<li>added Google Cloud Vision OCR</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/29" target="_blank">[app v1.7.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added Google Cloud Vision OCR</li>
+				</ul>
+			</li>
+		</ul>
+
+		<p>(Dec '24)</p>
+		<ul>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/51" target="_blank">[lib v2.0.7]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.7/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/27" target="_blank">[app v1.6.11]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>improved batching for both Dharmamitra and 2018 splitters</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/50" target="_blank">[lib v2.0.6]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.6/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed Windows encoding bug in config file loading</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/49" target="_blank">[lib v2.0.5]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.5/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/26" target="_blank">[app v1.6.10]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>updated splitter for new endpoint path and JSON output format</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/47" target="_blank">[lib v2.0.4]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.4/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/25" target="_blank">[app v1.6.9]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>migrated 2018 splitter server to Digital Ocean</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/46" target="_blank">[lib v2.0.3]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.3/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/24" target="_blank">[app v1.6.8]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>communicated 2018 splitter server outage to users</li>
+				</ul>
+			</li>
+		</ul>
+
+		<p>(Oct '24)</p>
+		<ul>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/44" target="_blank">[lib v2.0.2]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.2/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/23" target="_blank">[app v1.6.7]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added batching to Dharmamitra splitter; extended timeouts for 2018</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/43" target="_blank">[lib v2.0.1]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.1/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/22" target="_blank">[app v1.6.6]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>cleaned up whole-file splitting (removed buffer file)</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/42" target="_blank">[lib v2.0.0]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.0.0/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/20" target="_blank">[app v1.6.4]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>refactored splitter import interface (breaking change, hence v2)</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/39" target="_blank">[lib v1.5.2]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.5.2/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/18" target="_blank">[app v1.6.2]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed punctuation interleaving bug in splitter</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/38" target="_blank">[lib v1.5.1]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.5.1/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>fixed SLP final-character transliteration bug from Indic script</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Sept '24)</p>
 		<ul>
-			<li>added new settings page</li>
-			<li>improved settings reset behavior with separate reset button</li>
-			<li>renamed help page (from "tutorial")</li>
-			<li>reorganized nav bar</li>
-			<li>added avoid-vir&#257;ma setting for Indic-script transliteration output</li>
-			<li>added preserve-punctuation setting for word splitting</li>
-			<li>added new Dharmamitra splitter-model setting</li>
-			<li>added preserve-compound-hyphen setting for splitting with Dharmamitra model</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/37" target="_blank">[lib v1.5.0]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.5.0/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/16" target="_blank">[app v1.6.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added preserve-compound-hyphen setting for splitting with Dharmamitra model</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/35" target="_blank">[lib v1.4.1]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.4.1/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/15" target="_blank">[app v1.5.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added new Dharmamitra splitter-model setting</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/33" target="_blank">[lib v1.3.1]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.3.1/" target="_blank">[PyPi]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/14" target="_blank">[app v1.4.0]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added new settings page</li>
+					<li>improved settings reset behavior with separate reset button</li>
+					<li>renamed help page (from "tutorial")</li>
+					<li>reorganized nav bar</li>
+					<li>added avoid-vir&#257;ma setting for Indic-script transliteration output</li>
+					<li>added preserve-punctuation setting for word splitting</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Aug '24)</p>
 		<ul>
-			<li>Updated this updates page</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/10" target="_blank">[app PR #10]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>refactored front end to use Flask templates (factored out shared head/nav)</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/9" target="_blank">[app PR #9]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>refreshed docs; renamed help page (from "tutorial")</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Jul '24)</p>
 		<ul>
-			<li>completed server migration by deactivating on PythonAnywhere (except separate splitter server)</li>
-			<li>massively expanded amount of text UI input box can handle (128mb rather than 4kb, later 128mb)</li>
-			<li>partially fixed upload problem with non-ASCII filenames</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/8" target="_blank">[app PR #8]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>completed server migration by deactivating on PythonAnywhere (except separate splitter server)</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/7" target="_blank">[app PR #7]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>massively expanded amount of text UI input box can handle (128mb rather than 4kb)</li>
+					<li>partially fixed upload problem with non-ASCII filenames</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(May '24)</p>
 		<ul>
-			<li>completed PyPi refactor of library</li>
-			<li>added single-p&#257;da samav&#7771;tta identification (API only)</li>
-			<li>released <a href="https://pypi.org/project/skrutable/1.3.0/" target="_blank">v1.3.0 on PyPi<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
-			<li>completed Dockerization of front end</li>
-			<li>deployed duplicate server on Digital Ocean Droplet (ultimately kept)</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/29" target="_blank">[lib v1.3.0]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.3.0/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added single-p&#257;da samav&#7771;tta identification (API only)</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/25" target="_blank">[lib v1.2.1]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.2.1/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>completed PyPi refactor of library</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/6" target="_blank">[app PR #6]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>completed Dockerization of front end</li>
+					<li>deployed duplicate server on Digital Ocean Droplet (ultimately kept)</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Mar '24)</p>
 		<ul>
-			<li>began Dockerization of front end</li>
-			<li>experimented with serving on Heroku (ultimately did not pursue)</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/5" target="_blank">[app PR #5]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>began Dockerization of front end</li>
+					<li>experimented with serving on Heroku (ultimately did not pursue)</li>
+				</ul>
+			</li>
 		</ul>
 
 		<p>(Jan '23)</p>
 		<ul>
-			<li>added <a href="/api">API endpoints</a></li>
-			<li>added PyPi (e.g. pip) install functionality for library, <a href="https://pypi.org/project/skrutable/1.2.0/" target="_blank">v1.2.0<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
-			<li>released <a href="https://github.com/tylergneill/skrutable/releases/tag/v1.2.0" target="_blank">v1.2.0 on Zenodo<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/2" target="_blank">[app PR #2]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>added <a href="/api">API endpoints</a></li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/13" target="_blank">[lib v1.2.0]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/1.2.0/" target="_blank">[PyPi]{{ ext_link_icon() }}</a>
+				<ul>
+					<li>restructured library for PyPi; also released <a href="https://pypi.org/project/skrutable/1.1.0/" target="_blank">lib v1.1.0{{ ext_link_icon() }}</a></li>
+					<li>released <a href="https://github.com/tylergneill/skrutable/releases/tag/v1.2.0" target="_blank">lib v1.2.0 on Zenodo{{ ext_link_icon() }}</a></li>
+				</ul>
+			</li>
 			<li>
-				prepared second presentation for <a href="https://kaigi.eventsair.com/cmspreview/world-sanskrit-conference/program-information" target="_blank">18th WSC<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-				(<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_presentation_2023_short.mp4" target="_blank">mp4 &#8595; of 20-min version of talk<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>)
+				prepared second presentation for <a href="https://kaigi.eventsair.com/cmspreview/world-sanskrit-conference/program-information" target="_blank">18th WSC{{ ext_link_icon() }}</a>
+				(<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_presentation_2023_short.mp4" target="_blank">mp4 &#8595; of 20-min version of talk{{ ext_link_icon() }}</a>)
 			</li>
 		</ul>
 
 		<p>(Dec '22)</p>
 		<ul>
-			<li>switched to using new <a href="https://github.com/tylergneill/splitter_server" target="_blank">separate splitter_server API<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			<li>switched to using new <a href="https://github.com/tylergneill/splitter_server" target="_blank">separate splitter_server API{{ ext_link_icon() }}</a></li>
 			<li>fixed /ChicagoApteIAST endpoint for https</li>
 		</ul>
 
@@ -86,24 +229,24 @@
 		<p>(Jan '22)</p>
 		<ul>
 			<li>
-				presented project a first time for <a href="https://sanskrit.uohyd.ac.in/18WSC/programme_schedule.html" target="_blank">18th WSC<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-				(<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_paper_2022.pdf" target="_blank">pdf &#8595; of paper<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>;
-				<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_presentation_2022_full.mp4" target="_blank">mp4 &#8595; of full 36-min talk<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>)
+				presented project a first time for <a href="https://sanskrit.uohyd.ac.in/18WSC/programme_schedule.html" target="_blank">18th WSC{{ ext_link_icon() }}</a>
+				(<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_paper_2022.pdf" target="_blank">pdf &#8595; of paper{{ ext_link_icon() }}</a>;
+				<a href="https://raw.githubusercontent.com/tylergneill/skrutable_front_end/main/assets/wsc2022/neill_skrutable_wsc_presentation_2022_full.mp4" target="_blank">mp4 &#8595; of full 36-min talk{{ ext_link_icon() }}</a>)
 			</li>
 		</ul>
 
 		<p>(Nov '21)</p>
 		<ul>
-			<li>released <a href="https://github.com/tylergneill/skrutable/releases/tag/v1.0.0" target="_blank">v1.0.0 on Zenodo<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			<li>released <a href="https://github.com/tylergneill/skrutable/releases/tag/v1.0.0" target="_blank">lib v1.0.0 on Zenodo{{ ext_link_icon() }}</a></li>
 		</ul>
 
 		<p>(Feb&#8211;Mar '21)</p>
 		<ul>
 			<li>implemented basic vi&#7779;amav&#7771;tta meter identification</li>
 			<li>incorporated recitation melodies with multiple voice options</li>
-			<li>wrote up project for <a href="https://www.wsc2021.com.au/" target="_blank">18th WSC (2021/2023)<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			<li>wrote up project for <a href="https://www.wsc2021.com.au/" target="_blank">18th WSC (2021/2023){{ ext_link_icon() }}</a></li>
 			<li>implemented basic wrapper for
-			<a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp" target="_blank">Splitter<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
+			<a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp" target="_blank">Splitter{{ ext_link_icon() }}</a></li>
 		</ul>
 
 		<p>(Jan&#8211;Feb '21)</p>
