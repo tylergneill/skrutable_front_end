@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'help' %}
 
 {% block content %}
@@ -17,7 +18,7 @@
 
 		<p>Set the input and output schemes using the "in:" and "out:" dropdowns next to the "Transliterate" button.
 		For details on supported schemes, see the
-		<a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#transliteration-schemes" target="_blank"><b>skrutable</b> manual on GitHub<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		<a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#transliteration-schemes" target="_blank"><b>skrutable</b> manual on GitHub{{ ext_link_icon() }}</a>.</p>
 
 		<p>Use the swap buttons ("Text &#8645;", "Schemes &#8644;", "Both &#8645;&#8644;") to quickly exchange input/output text and schemes.</p>
 
@@ -36,13 +37,13 @@
 		and "don't resplit" evaluates exactly the lines you provide.</p>
 
 		<p>For more on Sanskrit meter, see the
-		<a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#scansion-and-meter-identification" target="_blank"><b>skrutable</b> manual on GitHub<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>.</p>
+		<a href="https://github.com/tylergneill/skrutable/blob/main/src/skrutable/manual.md#scansion-and-meter-identification" target="_blank"><b>skrutable</b> manual on GitHub{{ ext_link_icon() }}</a>.</p>
 
 		<h2>word splitting</h2>
 
 		<p>The "Split Words" button performs sandhi and compound splitting using neural-net models trained on the Digital Corpus of Sanskrit
-		(the work of <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp" target="_blank">Hellwig &amp; Nehrdich 2018<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-		and <a href="https://arxiv.org/abs/2409.13920" target="_blank">Nehrdich, Hellwig, &amp; Kreuzer 2024<svg class="ext-link-icon" viewBox="0 0 10 10" aria-hidden="true"><path d="M1 9 L9 1 M5 1 L9 1 L9 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>).
+		(the work of <a href="https://github.com/OliverHellwig/sanskrit/tree/master/papers/2018emnlp" target="_blank">Hellwig &amp; Nehrdich 2018{{ ext_link_icon() }}</a>
+		and <a href="https://arxiv.org/abs/2409.13920" target="_blank">Nehrdich, Hellwig, &amp; Kreuzer 2024{{ ext_link_icon() }}</a>).
 		Input can be of any length and may include punctuation. The 2024 model can also be used to show compound boundaries with hyphens.
 		Transliteration is handled according to settings.</p>
 
