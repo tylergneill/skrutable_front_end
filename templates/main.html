@@ -233,6 +233,7 @@
 			saveTexts();
 			set_action("transliterate");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -262,6 +263,7 @@
 			saveTexts();
 			set_action("scan");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -302,6 +304,7 @@
 			} else {
 				hideMelodyPlayer();
 			}
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -336,6 +339,7 @@
 			saveTexts();
 			set_action("split");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
