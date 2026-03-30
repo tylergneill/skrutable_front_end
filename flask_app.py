@@ -62,12 +62,13 @@ SD = SchemeDetector()
 
 # --- Pure helper functions (no session, no g, no Flask) ---
 
-def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True):
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False):
 	return T.transliterate(
 		input_text,
 		from_scheme=from_scheme,
 		to_scheme=to_scheme,
 		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
+		avoid_virama_non_indic_scripts=avoid_virama_non_indic_scripts,
 	)
 
 def do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment):
@@ -106,7 +107,8 @@ def do_identify_meter(input_text, from_scheme, resplit_option, show_weights, sho
 	return summary, meter_label_hk, melody_options_list, V
 
 def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_2024_sept",
-			 preserve_compound_hyphens=True, preserve_punctuation=True, avoid_virama_indic_scripts=True):
+			 preserve_compound_hyphens=True, preserve_punctuation=True, avoid_virama_indic_scripts=True,
+			 avoid_virama_non_indic_scripts=False):
 	IAST_input = T.transliterate(input_text, from_scheme=from_scheme, to_scheme='IAST')
 	split_result = Spl.split(
 		IAST_input,
@@ -119,6 +121,7 @@ def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_202
 		from_scheme='IAST',
 		to_scheme=to_scheme,
 		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
+		avoid_virama_non_indic_scripts=avoid_virama_non_indic_scripts,
 	)
 	# TODO: Remove once 2018 splitter server restored
 	if split_result.startswith("The server for the 2018 model is temporarily down"):
@@ -150,7 +153,7 @@ melody_variable_names = [
 	]
 extra_option_names = [
 	"avoid_virama_indic_scripts",
-	# "avoid_virama_non_indic_scripts",  # TODO: enable later
+	"avoid_virama_non_indic_scripts",
 	# "include_single_pada",  # TODO: enable later
 	"preserve_compound_hyphens",
 	"preserve_punctuation",
@@ -223,6 +226,7 @@ def _init_session_defaults():
 		"resplit_option": "resplit_lite_keep_mid",
 		"meter_label": "", "melody_options": [],
 		"avoid_virama_indic_scripts": 1,
+		"avoid_virama_non_indic_scripts": 0,
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
@@ -344,6 +348,7 @@ def upload_file():
 				from_scheme=resolved_from_scheme,
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+				avoid_virama_non_indic_scripts=session["avoid_virama_non_indic_scripts"],
 			)
 			output_fn_suffix = '_transliterated'
 
@@ -386,6 +391,7 @@ def upload_file():
 					preserve_compound_hyphens=session["preserve_compound_hyphens"],
 					preserve_punctuation=session["preserve_punctuation"],
 					avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
+					avoid_virama_non_indic_scripts=session["avoid_virama_non_indic_scripts"],
 				)
 			except HTTPError as e:
 				status = e.response.status_code if e.response is not None else 502
@@ -593,7 +599,7 @@ def api_transliterate():
 	inputs = get_inputs(
 		["input_text", "from_scheme", "to_scheme"],
 		request,
-		optional_args={"avoid_virama_indic_scripts": True},
+		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False},
 	)
 	if isinstance(inputs, str):
 		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
@@ -606,6 +612,7 @@ def api_transliterate():
 		from_scheme=resolved,
 		to_scheme=inputs["to_scheme"],
 		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
+		avoid_virama_non_indic_scripts=inputs["avoid_virama_non_indic_scripts"],
 	)
 	return api_response(result, detected_scheme=detected, detection_confidence=confidence)
 
@@ -700,6 +707,7 @@ def api_split():
 			"preserve_compound_hyphens": True,
 			"preserve_punctuation": True,
 			"avoid_virama_indic_scripts": True,
+			"avoid_virama_non_indic_scripts": False,
 		},
 	)
 
@@ -718,6 +726,7 @@ def api_split():
 			preserve_compound_hyphens=inputs["preserve_compound_hyphens"],
 			preserve_punctuation=inputs["preserve_punctuation"],
 			avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
+			avoid_virama_non_indic_scripts=inputs["avoid_virama_non_indic_scripts"],
 		)
 	except HTTPError as e:
 		status = e.response.status_code if e.response is not None else 502

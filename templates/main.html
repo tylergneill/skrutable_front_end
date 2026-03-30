@@ -75,6 +75,7 @@
 	// --- Page globals ---
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
+	var currentAvoidViramanonIndic = {{ avoid_virama_non_indic_scripts|default(0)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 
@@ -222,6 +223,7 @@
 			fd.append("from_scheme", document.getElementById("from_scheme").value);
 			fd.append("to_scheme", document.getElementById("to_scheme").value);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
+			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
 
 			var resp = await fetch("/api/transliterate", {
 				method: "POST",
@@ -324,6 +326,7 @@
 			fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 			fd.append("preserve_punctuation", currentPreservePunctuation);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
+			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
 
 			var resp = await fetch("/api/split", {
 				method: "POST",
@@ -421,7 +424,8 @@
 					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 		} else if (currentAction === "scan") {
@@ -472,7 +476,8 @@
 					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 			var splitterLabels = {
