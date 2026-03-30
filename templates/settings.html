@@ -13,6 +13,10 @@
 				<input type="checkbox" id="avoid_virama_indic_scripts" name="avoid_virama_indic_scripts" value="avoid_virama_indic_scripts" {% if avoid_virama_indic_scripts|default(1)|int %}checked{% endif %}>
 				<label for="avoid_virama_indic_scripts">avoid vir&#257;ma for Indic scripts (<span id="virama_example_on">किमकुर्वत</span><span id="virama_example_off" style="display:none">किम् अकुर्वत</span>)</label>
 			</p>
+			<p>
+				<input type="checkbox" id="avoid_virama_non_indic_scripts" name="avoid_virama_non_indic_scripts" value="avoid_virama_non_indic_scripts" {% if avoid_virama_non_indic_scripts|default(0)|int %}checked{% endif %}>
+				<label for="avoid_virama_non_indic_scripts">un-space non-Indic scripts (<span id="virama_non_indic_example_on">kimakurvata</span><span id="virama_non_indic_example_off" style="display:none">kim akurvata</span>)</label>
+			</p>
 
 			<h2>splitting</h2>
 			<p>
@@ -51,6 +55,10 @@
 		document.getElementById("virama_example_on").style.display = virOn ? "" : "none";
 		document.getElementById("virama_example_off").style.display = virOn ? "none" : "";
 
+		var virNonIndicOn = document.getElementById("avoid_virama_non_indic_scripts").checked;
+		document.getElementById("virama_non_indic_example_on").style.display = virNonIndicOn ? "" : "none";
+		document.getElementById("virama_non_indic_example_off").style.display = virNonIndicOn ? "none" : "";
+
 		var hypOn = document.getElementById("preserve_compound_hyphens").checked;
 		document.getElementById("hyphens_example_on").style.display = hypOn ? "" : "none";
 		document.getElementById("hyphens_example_off").style.display = hypOn ? "none" : "";
@@ -70,6 +78,8 @@
 		var fd = new FormData();
 		fd.append("avoid_virama_indic_scripts",
 			document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
+		fd.append("avoid_virama_non_indic_scripts",
+			document.getElementById("avoid_virama_non_indic_scripts").checked ? "true" : "false");
 		fd.append("preserve_punctuation",
 			document.getElementById("preserve_punctuation").checked ? "true" : "false");
 		fd.append("preserve_compound_hyphens",
@@ -86,11 +96,13 @@
 
 	document.getElementById("splitter_model").addEventListener("change", function() { toggle_preserve_compound_hyphens(); saveAll(); });
 	document.getElementById("avoid_virama_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
+	document.getElementById("avoid_virama_non_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
 
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
+		document.getElementById("avoid_virama_non_indic_scripts").checked = false;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
