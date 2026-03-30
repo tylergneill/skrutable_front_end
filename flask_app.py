@@ -218,7 +218,7 @@ def _init_session_defaults():
 	"""Set all session keys to their defaults (used by upload_file flow)."""
 	defaults = {
 		"skrutable_action": "",
-		"from_scheme": "IAST", "to_scheme": "IAST",
+		"from_scheme": "Auto", "to_scheme": "IAST",
 		"weights": 1, "morae": 1, "gaRas": 1, "alignment": 1,
 		"resplit_option": "resplit_lite_keep_mid",
 		"meter_label": "", "melody_options": [],
@@ -275,7 +275,7 @@ def bad_gateway_error(error):
 
 MAIN_DEFAULTS = {
 	"skrutable_action": "",
-	"from_scheme": "IAST",
+	"from_scheme": "Auto",
 	"to_scheme": "IAST",
 	"weights": 1,
 	"morae": 1,
