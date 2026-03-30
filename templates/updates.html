@@ -11,8 +11,8 @@
 		<ul>
 			<li><a href="https://github.com/tylergneill/skrutable/pull/56" target="_blank">[lib v2.1.0]{{ ext_link_icon() }}</a> / <a href="https://pypi.org/project/skrutable/2.1.0/" target="_blank">[PyPI]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/43" target="_blank">[app v1.10.0]{{ ext_link_icon() }}</a>
 				<ul>
-					<li>added auto scheme detection: "Auto" option in input-scheme selector detects scheme from text and updates label in real time</li>
-					<li>added "un-space" non-Indic scripts setting (virāma-avoidance for Roman output)</li>
+					<li>added auto scheme detection ("Auto" option in input-scheme selector detects from input and updates label after processing)</li>
+					<li>added "un-space" setting for Roman output (= equivalent of virāma-avoidance for Indic)</li>
 					<li>fixed ITRANS transliteration bugs in scheme maps; improved IAST normalization</li>
 				</ul>
 			</li>
@@ -287,7 +287,6 @@
 		<p>Transliteration</p>
 		<ul>
 			<li>add number-exclusion option to transliteration</li>
-			<li>add encoding-standardization function to front-end</li>
 			<li>add alphabetization function to front-end</li>
 		</ul>
 
@@ -301,13 +300,12 @@
 		<p>Splitting</p>
 		<ul>
 			<li>fix small bug: Splitter 2018 cuts off buffer-final numbers</li>
-			<li>migrate Splitter 2018 server to Digital Ocean (maybe)</li>
 			<li>refactor Splitter 2018 server to improve response time (maybe)</li>
 		</ul>
 
 		<p>General</p>
 		<ul>
-			<li>add progress bar to estimate processing time</li>
+			<li>add progress bar to estimate processing time for large file inputs</li>
 			<li>continue cleaning up code and improving documentation</li>
 			<li>implement more comprehensive testing with pytest</li>
 		</ul>
