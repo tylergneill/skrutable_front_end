@@ -55,9 +55,28 @@ function syncHiddenInputs() {
 	});
 }
 
+function updateAutoLabel(detectedScheme, confidence) {
+	var opt = document.getElementById("auto_scheme_option");
+	if (!opt) return;
+	var label = "Auto: " + detectedScheme;
+	if (confidence === "low") label += " (?)";
+	opt.textContent = label;
+}
+
 function swapSchemeSelects() {
 	var from = document.getElementById("from_scheme");
 	var to = document.getElementById("to_scheme");
+	if (from.value === "Auto") {
+		var opt = document.getElementById("auto_scheme_option");
+		var match = opt.textContent.match(/^Auto:\s*(\S+?)(?:\s*\(\?\))?$/);
+		if (!match) return; // nothing detected yet — no-op
+		var detected = match[1];
+		if (to.value === "IASTREDUCED") return;
+		from.value = to.value;
+		to.value = detected;
+		opt.textContent = "Auto";
+		return;
+	}
 	if (to.value !== "IASTREDUCED") {
 		var tmp = from.value;
 		from.value = to.value;
