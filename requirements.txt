@@ -98,7 +98,7 @@ requests==2.32.5
     #   skrutable
 rsa==4.9.1
     # via google-auth
-skrutable==2.1.0-dev8
+skrutable==2.0.9
     # via -r requirements.in
 typing-extensions==4.15.0
     # via grpcio
