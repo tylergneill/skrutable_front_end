@@ -1,7 +1,7 @@
 FROM python:3.11-slim-bookworm
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple
 RUN groupadd appgroup && \
     useradd -r -M -G appgroup sanskrit
 COPY --chown=sanskrit:appgroup assets /app/assets
