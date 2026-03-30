@@ -75,6 +75,7 @@
 	// --- Page globals ---
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
+	var currentAvoidViramanonIndic = {{ avoid_virama_non_indic_scripts|default(0)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 
@@ -166,6 +167,8 @@
 		document.getElementById("text_output").value = "";
 		saveTexts();
 		hideMelodyPlayer();
+		var opt = document.getElementById("auto_scheme_option");
+		if (opt) opt.textContent = "Auto";
 	}
 
 	function clearTexts() {
@@ -176,6 +179,8 @@
 		currentAction = "";
 		highlightActionButton("");
 		document.getElementById("repeat_action_button").disabled = true;
+		var opt = document.getElementById("auto_scheme_option");
+		if (opt) opt.textContent = "Auto";
 		saveSettingsToSession();
 	}
 
@@ -222,6 +227,7 @@
 			fd.append("from_scheme", document.getElementById("from_scheme").value);
 			fd.append("to_scheme", document.getElementById("to_scheme").value);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
+			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
 
 			var resp = await fetch("/api/transliterate", {
 				method: "POST",
@@ -233,6 +239,7 @@
 			saveTexts();
 			set_action("transliterate");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -262,6 +269,7 @@
 			saveTexts();
 			set_action("scan");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -302,6 +310,7 @@
 			} else {
 				hideMelodyPlayer();
 			}
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -321,6 +330,7 @@
 			fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 			fd.append("preserve_punctuation", currentPreservePunctuation);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
+			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
 
 			var resp = await fetch("/api/split", {
 				method: "POST",
@@ -336,6 +346,7 @@
 			saveTexts();
 			set_action("split");
 			hideMelodyPlayer();
+			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
 		} finally {
 			setButtonLoading(btn, false);
@@ -417,7 +428,8 @@
 					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 		} else if (currentAction === "scan") {
@@ -468,7 +480,8 @@
 					["output scheme", s.to_scheme],
 				]),
 				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
+					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 			var splitterLabels = {
