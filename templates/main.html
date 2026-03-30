@@ -167,6 +167,8 @@
 		document.getElementById("text_output").value = "";
 		saveTexts();
 		hideMelodyPlayer();
+		var opt = document.getElementById("auto_scheme_option");
+		if (opt) opt.textContent = "Auto";
 	}
 
 	function clearTexts() {
@@ -177,6 +179,8 @@
 		currentAction = "";
 		highlightActionButton("");
 		document.getElementById("repeat_action_button").disabled = true;
+		var opt = document.getElementById("auto_scheme_option");
+		if (opt) opt.textContent = "Auto";
 		saveSettingsToSession();
 	}
 
