@@ -431,7 +431,8 @@
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["preserve anun\u0101sika", yesno(currentPreserveAnunasika)],
 				]),
 			});
 		} else if (currentAction === "scan") {
@@ -483,7 +484,7 @@
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 			var splitterLabels = {
