@@ -62,13 +62,14 @@ SD = SchemeDetector()
 
 # --- Pure helper functions (no session, no g, no Flask) ---
 
-def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False):
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=False):
 	return T.transliterate(
 		input_text,
 		from_scheme=from_scheme,
 		to_scheme=to_scheme,
 		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
 		avoid_virama_non_indic_scripts=avoid_virama_non_indic_scripts,
+		preserve_anunasika=preserve_anunasika,
 	)
 
 def do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment):
@@ -154,6 +155,7 @@ melody_variable_names = [
 extra_option_names = [
 	"avoid_virama_indic_scripts",
 	"avoid_virama_non_indic_scripts",
+	"preserve_anunasika",
 	# "include_single_pada",  # TODO: enable later
 	"preserve_compound_hyphens",
 	"preserve_punctuation",
@@ -227,6 +229,7 @@ def _init_session_defaults():
 		"meter_label": "", "melody_options": [],
 		"avoid_virama_indic_scripts": 1,
 		"avoid_virama_non_indic_scripts": 0,
+		"preserve_anunasika": 0,
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
@@ -349,6 +352,7 @@ def upload_file():
 				to_scheme=session["to_scheme"],
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				avoid_virama_non_indic_scripts=session["avoid_virama_non_indic_scripts"],
+				preserve_anunasika=session["preserve_anunasika"],
 			)
 			output_fn_suffix = '_transliterated'
 
@@ -599,7 +603,7 @@ def api_transliterate():
 	inputs = get_inputs(
 		["input_text", "from_scheme", "to_scheme"],
 		request,
-		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False},
+		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": False},
 	)
 	if isinstance(inputs, str):
 		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
@@ -613,6 +617,7 @@ def api_transliterate():
 		to_scheme=inputs["to_scheme"],
 		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
 		avoid_virama_non_indic_scripts=inputs["avoid_virama_non_indic_scripts"],
+		preserve_anunasika=inputs["preserve_anunasika"],
 	)
 	return api_response(result, detected_scheme=detected, detection_confidence=confidence)
 
