@@ -137,3 +137,6 @@ dmypy.json
 
 # for GCP setup
 assets/uploader.json
+
+# claude
+settings.local.json
