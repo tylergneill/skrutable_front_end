@@ -42,7 +42,7 @@ Key patterns:
 
 | Layer | Scope | What it stores |
 |-------|-------|----------------|
-| `flask.session` (server-side cookie) | Per-user, persists across requests | Sidebar settings: `skrutable_action`, `from_scheme`, `to_scheme`, `resplit_option`, scan detail checkboxes (`weights`, `morae`, `gaRas`, `alignment`), extra settings (`avoid_virama_indic_scripts`, `preserve_compound_hyphens`, `preserve_punctuation`, `splitter_model`), melody state (`meter_label`, `melody_options`). All tracked in `SESSION_VARIABLE_NAMES` at top of `flask_app.py`. Saved to server via `POST /api/save-settings`. |
+| `flask.session` (server-side cookie) | Per-user, persists across requests | Sidebar settings: `skrutable_action`, `from_scheme`, `to_scheme`, `resplit_option`, scan detail checkboxes (`weights`, `morae`, `gaRas`, `alignment`), extra settings (`avoid_virama_indic_scripts`, `avoid_virama_non_indic_scripts`, `preserve_anunasika`, `preserve_compound_hyphens`, `preserve_punctuation`, `splitter_model`), melody state (`meter_label`, `melody_options`). All tracked in `SESSION_VARIABLE_NAMES` at top of `flask_app.py`. Saved to server via `POST /api/save-settings`. |
 | `localStorage` (browser) | Per-browser, persists across sessions | `text_input`, `text_output` (workbench textarea contents), `theme` (dark/light mode preference). |
 | `flask.g` (request context) | Single request only | `text_input` — used during form POST processing in `flask_app.py`, not persisted. |
 
@@ -71,3 +71,43 @@ Key patterns:
 - Tabs for indentation in Python (not spaces) — match the existing style in `flask_app.py`
 - Session variable names are tracked in `SESSION_VARIABLE_NAMES` and related lists at the top of `flask_app.py`; any new session variable must be added there
 - Static files served via the `/assets/<path:name>` route, not Flask's default static handler
+
+## How to add a new extra setting (checkbox or select)
+
+Extra settings (e.g. `avoid_virama_indic_scripts`, `preserve_anunasika`) flow through **six distinct layers**. All six must be updated together or the setting will silently have no effect.
+
+### 1. `flask_app.py` — backend wiring (4 spots)
+
+- **`extra_option_names`** list (top of file): add the variable name. This drives `process_form()`, `api_save_settings()`, and the settings page `render_template` call automatically.
+- **`_init_session_defaults()`**: add the default value (`0`/`1` for checkboxes, string for selects).
+- **`do_transliterate()` / `do_split()` etc.**: add the parameter to the helper function signature and pass it through to the underlying `skrutable` call.
+- **Call sites** for that helper (upload flow at `POST /upload_file`, and the API endpoint e.g. `api_transliterate()`): add `param=session["param"]` or `param=inputs["param"]`. For API endpoints also add the key to `optional_args` in the `get_inputs()` call.
+
+### 2. `templates/settings.html` — settings page UI (4 spots)
+
+- Add the `<input type="checkbox">` (or `<select>`) element with the Jinja `{% if var|default(0)|int %}checked{% endif %}` pattern.
+- Add `fd.append("var_name", ...)` in `saveAll()`.
+- Add `document.getElementById("var_name").checked = <default>` in `resetExtra()`.
+- Add a `document.getElementById("var_name").addEventListener("change", ...)` call.
+
+### 3. `templates/main.html` — workbench page (3 spots)
+
+- Declare a JS global: `var currentMyVar = {{ my_var|default(0)|int }} === 1;` alongside the other `current*` globals near the top of the `<script>` block.
+- Add `fd.append("my_var", currentMyVar)` in the fetch call for whichever action(s) use it (e.g. the `/api/transliterate` fetch).
+- Add `addHidden("my_var", currentMyVar)` in `syncHiddenInputs()` (used by the file upload form path).
+
+### 4. `assets/js/settings.js` — shared JS (2 spots)
+
+- Add `fd.append("my_var", currentMyVar)` in `saveSettingsToSession()` so the session stays in sync whenever sidebar settings are saved.
+- Update the comment at the top listing expected globals.
+
+### 5. `skrutable` library (`transliteration.py` or relevant module)
+
+- Add the parameter to the relevant method signature (e.g. `Transliterator.transliterate()`).
+- Implement the behavior.
+
+### 6. `skrutable` library (`scheme_maps.py` / `phonemes.py` etc.)
+
+- Add any required character mappings or character-set entries in the library.
+
+> **Why the setting can appear to do nothing:** The most common failure mode is wiring steps 1–4 in the front end but forgetting to pass the value through at one call site — typically the JS fetch in `main.html` (step 3) or the `saveSettingsToSession` in `settings.js` (step 4). The session may be correct, but the value is never sent with the API request, so the backend always sees the default.
