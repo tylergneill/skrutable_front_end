@@ -76,6 +76,7 @@
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
 	var currentAvoidViramanonIndic = {{ avoid_virama_non_indic_scripts|default(0)|int }} === 1;
+	var currentPreserveAnunasika = {{ preserve_anunasika|default(0)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 
@@ -228,6 +229,7 @@
 			fd.append("to_scheme", document.getElementById("to_scheme").value);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
 			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
+			fd.append("preserve_anunasika", currentPreserveAnunasika);
 
 			var resp = await fetch("/api/transliterate", {
 				method: "POST",
@@ -429,7 +431,8 @@
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["preserve anun\u0101sika", yesno(currentPreserveAnunasika)],
 				]),
 			});
 		} else if (currentAction === "scan") {
@@ -481,7 +484,7 @@
 				]),
 				extra: makeTable("transliteration", [
 					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["avoid vir\u0101ma (non-Indic)", yesno(currentAvoidViramanonIndic)],
+					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
 				]),
 			});
 			var splitterLabels = {
@@ -572,6 +575,7 @@
 		addHidden("splitter_model", s.splitter_model);
 		addHidden("preserve_punctuation", currentPreservePunctuation);
 		addHidden("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+		addHidden("preserve_anunasika", currentPreserveAnunasika);
 		["weights", "morae", "gaRas", "alignment"].forEach(function(id) {
 			if (s[id]) addHidden("scan_detail", id);
 		});

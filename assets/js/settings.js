@@ -1,6 +1,6 @@
 // Shared sidebar settings functions.
 // Expects these globals from the including page:
-//   currentAction, currentAvoidVirama, currentPreservePunctuation, currentPreserveCompoundHyphens
+//   currentAction, currentAvoidVirama, currentAvoidViramanonIndic, currentPreserveAnunasika, currentPreservePunctuation, currentPreserveCompoundHyphens
 
 function getSidebarSettings() {
 	return {
@@ -25,6 +25,7 @@ function saveSettingsToSession() {
 	fd.append("splitter_model", s.splitter_model);
 	fd.append("preserve_punctuation", currentPreservePunctuation);
 	fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
+	fd.append("preserve_anunasika", currentPreserveAnunasika);
 	if (s.weights) fd.append("scan_detail", "weights");
 	if (s.morae) fd.append("scan_detail", "morae");
 	if (s.gaRas) fd.append("scan_detail", "gaRas");

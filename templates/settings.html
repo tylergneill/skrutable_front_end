@@ -17,6 +17,10 @@
 				<input type="checkbox" id="avoid_virama_non_indic_scripts" name="avoid_virama_non_indic_scripts" value="avoid_virama_non_indic_scripts" {% if avoid_virama_non_indic_scripts|default(0)|int %}checked{% endif %}>
 				<label for="avoid_virama_non_indic_scripts">un-space Roman output (<span id="virama_non_indic_example_on">kimakurvata</span><span id="virama_non_indic_example_off" style="display:none">kim akurvata</span>)</label>
 			</p>
+			<p>
+				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(0)|int %}checked{% endif %}>
+				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">ã / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
+			</p>
 
 			<h2>splitting</h2>
 			<p>
@@ -62,6 +66,10 @@
 		var hypOn = document.getElementById("preserve_compound_hyphens").checked;
 		document.getElementById("hyphens_example_on").style.display = hypOn ? "" : "none";
 		document.getElementById("hyphens_example_off").style.display = hypOn ? "none" : "";
+
+		var anuOn = document.getElementById("preserve_anunasika").checked;
+		document.getElementById("anunasika_example_on").style.display = anuOn ? "" : "none";
+		document.getElementById("anunasika_example_off").style.display = anuOn ? "none" : "";
 	}
 
 	function toggle_preserve_compound_hyphens() {
@@ -80,6 +88,8 @@
 			document.getElementById("avoid_virama_indic_scripts").checked ? "true" : "false");
 		fd.append("avoid_virama_non_indic_scripts",
 			document.getElementById("avoid_virama_non_indic_scripts").checked ? "true" : "false");
+		fd.append("preserve_anunasika",
+			document.getElementById("preserve_anunasika").checked ? "true" : "false");
 		fd.append("preserve_punctuation",
 			document.getElementById("preserve_punctuation").checked ? "true" : "false");
 		fd.append("preserve_compound_hyphens",
@@ -97,12 +107,14 @@
 	document.getElementById("splitter_model").addEventListener("change", function() { toggle_preserve_compound_hyphens(); saveAll(); });
 	document.getElementById("avoid_virama_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("avoid_virama_non_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
+	document.getElementById("preserve_anunasika").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
 
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
 		document.getElementById("avoid_virama_non_indic_scripts").checked = false;
+		document.getElementById("preserve_anunasika").checked = false;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
