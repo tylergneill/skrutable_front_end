@@ -26,8 +26,8 @@ export async function runFeature(text) {
         text,
         items[STORAGE_KEYS.fromScheme] === "AUTO" ? "AUTO" : null,
         null,
-        undefined,
-        undefined,
+        items[STORAGE_KEYS.avoidViramaIndic],
+        items[STORAGE_KEYS.avoidViramaNonIndic],
         items[STORAGE_KEYS.preserveAnunasika]
       );
       setHTML(outputEl, `<div class="output-text">${escapeHtml(result)}</div>`);
@@ -36,7 +36,13 @@ export async function runFeature(text) {
       const S = new Skrutable.Scanner();
       const fromScheme = items[STORAGE_KEYS.fromScheme] === "AUTO" ? null : items[STORAGE_KEYS.fromScheme];
       const verse = S.scan(text, fromScheme);
-      const summary = verse.summarize(true, true, true, true, true);
+      const summary = verse.summarize(
+        items[STORAGE_KEYS.showWeights],
+        items[STORAGE_KEYS.showMorae],
+        items[STORAGE_KEYS.showGaRas],
+        items[STORAGE_KEYS.showAlignment],
+        true
+      );
       setHTML(outputEl, `<pre class="output-pre">${escapeHtml(summary)}</pre>`);
 
     } else if (feature === FEATURE_TABS.identify) {

@@ -12,10 +12,16 @@ export const STORAGE_KEYS = {
   toScheme: "toScheme",
   resplitOption: "resplitOption",
   preserveAnunasika: "preserveAnunasika",
+  avoidViramaIndic: "avoidViramaIndic",
+  avoidViramaNonIndic: "avoidViramaNonIndic",
   splitterModel: "splitterModel",
   preserveCompoundHyphens: "preserveCompoundHyphens",
   preservePunctuation: "preservePunctuation",
   fontSize: "fontSize",
+  showWeights: "showWeights",
+  showMorae: "showMorae",
+  showGaRas: "showGaRas",
+  showAlignment: "showAlignment",
 };
 
 export const ACTIONS = {
@@ -57,8 +63,14 @@ export const SIDEPANEL_ELEMENT_IDS = {
   splitterModelSelect: "splitter-model-select",
   // Checkboxes
   preserveAunuasikaCheckbox: "preserve-anunasika-checkbox",
+  avoidViramaIndicCheckbox: "avoid-virama-indic-checkbox",
+  avoidViramaNonIndicCheckbox: "avoid-virama-non-indic-checkbox",
   preserveCompoundHyphensCheckbox: "preserve-compound-hyphens-checkbox",
   preservePunctuationCheckbox: "preserve-punctuation-checkbox",
+  showWeightsCheckbox: "show-weights-checkbox",
+  showMoraeCheckbox: "show-morae-checkbox",
+  showGaRasCheckbox: "show-garas-checkbox",
+  showAlignmentCheckbox: "show-alignment-checkbox",
 };
 
 export const FONT_SIZE_KEY = "sk_font_size";

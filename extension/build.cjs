@@ -8,8 +8,9 @@ const distDir = path.join(projectRoot, 'dist');
 const extensionDistDir = path.join(distDir, 'extension');
 
 const targetBrowser = process.argv[2];
+const releaseMode = process.argv.includes('--release');
 if (!targetBrowser || !['chrome', 'firefox'].includes(targetBrowser)) {
-  console.error('Usage: node extension/build.js <chrome|firefox>');
+  console.error('Usage: node extension/build.cjs <chrome|firefox> [--release]');
   process.exit(1);
 }
 
@@ -55,10 +56,21 @@ async function build() {
       }
     }
 
-    // Copy the skrutable bundle into the dist
-    const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
-    await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
-    console.log('Copied skrutable.bundle.js');
+    // Resolve __SKRUTABLE_BUNDLE_SRC__ in sidepanel.html
+    const sidepanelPath = path.join(targetDistDir, 'ui', 'sidepanel.html');
+    let sidepanelHtml = await fs.readFile(sidepanelPath, 'utf-8');
+    if (releaseMode) {
+      const { version } = await fs.readJson(path.join(projectRoot, 'package.json'));
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/skrutable-js@${version}/dist/skrutable.bundle.js`;
+      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', cdnUrl);
+      console.log(`Bundle src: CDN (${cdnUrl})`);
+    } else {
+      const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
+      await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
+      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', '../dist/skrutable.bundle.js');
+      console.log('Bundle src: local (../dist/skrutable.bundle.js)');
+    }
+    await fs.writeFile(sidepanelPath, sidepanelHtml, 'utf-8');
 
     // Process background.js for browser-specific blocks
     const bgPath = path.join(targetDistDir, 'js', 'background.js');

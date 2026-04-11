@@ -47,8 +47,16 @@
       <select id="to-scheme-select"></select>
     </div>
     <div class="checkbox-row">
+      <input type="checkbox" id="avoid-virama-indic-checkbox">
+      <label for="avoid-virama-indic-checkbox" style="margin-bottom:0;font-weight:normal;">avoid virāma in Indic output</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="avoid-virama-non-indic-checkbox">
+      <label for="avoid-virama-non-indic-checkbox" style="margin-bottom:0;font-weight:normal;">un-space Roman output</label>
+    </div>
+    <div class="checkbox-row">
       <input type="checkbox" id="preserve-anunasika-checkbox">
-      <label for="preserve-anunasika-checkbox" style="margin-bottom:0;font-weight:normal;">Preserve anunāsika (candrabindu)</label>
+      <label for="preserve-anunasika-checkbox" style="margin-bottom:0;font-weight:normal;">preserve anunāsika i.e. candrabindu</label>
     </div>
   </div>
 
@@ -57,7 +65,23 @@
       <label for="from-scheme-select">Input Scheme</label>
       <!-- reuse the same selects via JS — scan shares from-scheme -->
     </div>
-    <p style="color:var(--color-text-muted);margin:0;font-size:var(--font-size-sm);">Scansion uses the input scheme above. Output is always in IAST.</p>
+    <p style="color:var(--color-text-muted);margin:0 0 var(--space-xs);font-size:var(--font-size-sm);">Scansion uses the input scheme above. Output is always in IAST.</p>
+    <div class="checkbox-row">
+      <input type="checkbox" id="show-weights-checkbox">
+      <label for="show-weights-checkbox" style="margin-bottom:0;font-weight:normal;">show weights</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="show-morae-checkbox">
+      <label for="show-morae-checkbox" style="margin-bottom:0;font-weight:normal;">show morae</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="show-garas-checkbox">
+      <label for="show-garas-checkbox" style="margin-bottom:0;font-weight:normal;">show gaṇas</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="show-alignment-checkbox">
+      <label for="show-alignment-checkbox" style="margin-bottom:0;font-weight:normal;">show alignment</label>
+    </div>
   </div>
 
   <div id="identify-options" class="options-panel" style="display:none;">
@@ -100,7 +124,7 @@
   </details>
 
   <script src="../js/vendor/webextension-polyfill.min.js"></script>
-  <script src="../../dist/skrutable.bundle.js"></script>
+  <script src="__SKRUTABLE_BUNDLE_SRC__"></script>
   <script type="module" src="../js/sidepanel/index.js"></script>
 
 </body>
