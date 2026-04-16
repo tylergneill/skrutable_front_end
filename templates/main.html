@@ -79,6 +79,7 @@
 	var currentPreserveAnunasika = {{ preserve_anunasika|default(0)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
+	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {
@@ -420,7 +421,7 @@
 		uploadBtn.disabled = !document.getElementById("fileInput").files.length;
 
 		var s = getSidebarSettings();
-		var hasExtra = (currentAction === "transliterate" || currentAction === "split");
+		var hasExtra = (currentAction === "transliterate" || currentAction === "split" || currentAction === "identify meter");
 		var sections = [];
 
 		if (currentAction === "transliterate") {
@@ -474,6 +475,9 @@
 			sections.push({
 				sidebar: makeTable("meter identification", [
 					["resplit option", resplitLabel],
+				]),
+				extra: makeTable("meter identification", [
+					["batch correction mode", yesno(currentBatchCorrectionMode)],
 				]),
 			});
 		} else if (currentAction === "split") {
@@ -557,9 +561,10 @@
 	// --- Upload form submit: add hidden inputs dynamically ---
 	document.getElementById("upload_form").addEventListener("submit", function(e) {
 		var form = this;
+		var s = getSidebarSettings();
+
 		// Remove any previously added dynamic inputs (from prior submissions)
 		form.querySelectorAll("input.dynamic-hidden").forEach(function(el) { el.remove(); });
-		var s = getSidebarSettings();
 		function addHidden(name, value) {
 			var inp = document.createElement("input");
 			inp.type = "hidden";
@@ -576,6 +581,7 @@
 		addHidden("preserve_punctuation", currentPreservePunctuation);
 		addHidden("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 		addHidden("preserve_anunasika", currentPreserveAnunasika);
+		addHidden("batch_correction_mode", currentBatchCorrectionMode);
 		["weights", "morae", "gaRas", "alignment"].forEach(function(id) {
 			if (s[id]) addHidden("scan_detail", id);
 		});

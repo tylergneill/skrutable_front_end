@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/assets/favicon.png">
+	<link rel="stylesheet" href="/assets/css/skrutable.css">
+	<title>skrutable — batch meter results</title>
+	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+	<style>
+		body { padding: 0; margin: 0; }
+
+		/* === Sticky header === */
+		.bcm-header {
+			position: sticky; top: 0; z-index: 100;
+			background: var(--sidebar-bg); color: var(--sidebar-text);
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 0.5em 1em; gap: 0.75em; flex-wrap: wrap;
+		}
+		.bcm-header-left { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
+		.bcm-header a { color: var(--sidebar-accent); font-size: 0.9em; }
+		.bcm-header h1 { font-family: var(--font-heading); font-size: 1.1em; font-weight: normal; color: var(--sidebar-text); margin: 0; }
+		.bcm-header-right { display: flex; gap: 0.5em; align-items: center; }
+
+		/* === Stats block === */
+		.bcm-stats-block { margin: 0.75em 1em 0 30%; padding: 0; }
+		.bcm-stats-summary {
+			display: flex; gap: 1.5em; flex-wrap: wrap; align-items: baseline;
+			font-size: 0.9em; padding: 0.5em 0.75em;
+			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
+		}
+		.bcm-stat { color: var(--main-text); }
+		.bcm-stat-error { color: #c0392b; font-weight: bold; }
+		[data-theme="dark"] .bcm-stat-error { color: #e07070; }
+		.bcm-stat-perfect { color: #2d6a2d; }
+		[data-theme="dark"] .bcm-stat-perfect { color: #6abf6a; }
+		.bcm-meter-counts {
+			margin-top: 0.4em; padding: 0.5em 0.75em;
+			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
+			font-size: 0.85em; color: var(--main-text); display: none;
+		}
+		.bcm-meter-counts.open { display: block; }
+		.bcm-meter-counts-toggle {
+			background: none; border: none; color: var(--link-color);
+			cursor: pointer; font-size: 0.85em; padding: 0; text-decoration: underline;
+		}
+		.meter-count-row { display: flex; gap: 0.5em; padding: 0.15em 0; border-bottom: 1px solid var(--input-border); }
+		.meter-count-row:last-child { border-bottom: none; }
+		.meter-count-label { flex: 1; }
+		.meter-count-n { font-weight: bold; min-width: 3em; text-align: right; }
+		.meter-count-pct { color: #777; min-width: 3.5em; text-align: right; }
+
+		/* === View toggle === */
+		.bcm-view-toggle {
+			display: flex; gap: 0.5em; align-items: center;
+			font-size: 0.85em; padding: 0.4em 0.75em; flex-wrap: wrap;
+		}
+		.bcm-view-toggle label { color: var(--main-text); cursor: pointer; }
+		.bcm-view-toggle input[type=radio] { cursor: pointer; }
+
+		/* === Verse list === */
+		.bcm-verses {
+			padding: 0 1em 4em;
+			margin-left: 30%;   /* leave room for fixed panel column */
+			display: flex; flex-direction: column; gap: 0.75em;
+		}
+		.bcm-hidden-notice { text-align: center; color: var(--main-text); opacity: 0.6; font-size: 0.85em; padding: 0.5em; }
+
+		/* === Verse card === */
+		.verse-card {
+			border: 1px solid var(--input-border); border-radius: 4px;
+			overflow: hidden; background: var(--input-bg);
+			cursor: text; transition: box-shadow 0.15s;
+		}
+		.verse-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+		.verse-card.focused {
+			box-shadow: 0 0 0 3px #f0c040, 0 4px 16px rgba(0,0,0,0.2);
+			outline: none;
+		}
+		.verse-card.focused .verse-card-header {
+			background: #f0c040 !important;
+			color: #1a1a1a !important;
+		}
+		.verse-card.focused .verse-card-header .verse-status-dot {
+			border: 1.5px solid rgba(0,0,0,0.3);
+		}
+		.verse-card.compact .verse-card-body { display: none; }
+		.verse-card.compact .verse-card-header { font-size: 0.9em; padding: 0.25em 0.75em; cursor: pointer; }
+
+		.verse-card-header {
+			padding: 0.4em 0.75em; font-size: 1em;
+			font-family: var(--font-heading);
+			display: flex; align-items: baseline; justify-content: space-between; gap: 0.5em;
+			cursor: pointer;
+		}
+		.verse-card-header { background: #395a77; color: #fff; }
+		[data-theme="dark"] .verse-card-header { background: #2e4a64; color: #dde; }
+
+		/* Status stripe: thick left border on the whole card */
+		.verse-card.perfect  { border-left: 5px solid #4caf50; }
+		.verse-card.imperfect { border-left: 5px solid #e05050; }
+		.verse-card.unknown  { border-left: 5px solid #aaa; }
+
+		/* Status dot: small colored circle before the label */
+		.verse-status-dot {
+			display: inline-block;
+			width: 0.65em; height: 0.65em;
+			border-radius: 50%;
+			flex-shrink: 0;
+			margin-right: 0.35em;
+			vertical-align: middle;
+		}
+		.verse-card-header.perfect   .verse-status-dot { background: #4caf50; }
+		.verse-card-header.imperfect .verse-status-dot { background: #e05050; }
+		.verse-card-header.unknown   .verse-status-dot { background: #aaa; }
+		.verse-num { font-size: 0.75em; font-weight: normal; opacity: 0.7; white-space: nowrap; }
+		.verse-header-label { flex: 1; }
+
+		.verse-card-body { display: flex; gap: 0; }
+
+		/* === Left column: raw text (click-to-edit) === */
+		.verse-raw {
+			flex: 0 0 auto; width: 34%; min-width: 160px; max-width: 38%;
+			box-sizing: border-box; border-right: 1px solid var(--input-border);
+		}
+		.verse-raw-text {
+			padding: 0.5em 0.6em;
+			font-family: var(--font-heading); font-size: 0.95em;
+			white-space: pre-wrap; word-break: break-word;
+			color: var(--main-text); min-height: 3em;
+		}
+		.verse-raw textarea {
+			display: block; width: 100%; box-sizing: border-box;
+			font-family: var(--font-heading); font-size: 0.95em;
+			background: var(--input-bg); color: var(--main-text);
+			border: none; border-left: 3px solid var(--btn-bg);
+			padding: 0.5em 0.6em; resize: none; outline: none;
+		}
+
+		/* === Right column: L/G scansion === */
+		.verse-scansion { flex: 1 1 auto; padding: 0.5em 0.75em; overflow-x: auto; }
+
+		/* pāda row */
+		.pada-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; margin-bottom: 6px; }
+		.pada-row.length-error { background: rgba(180,60,60,0.12); border-radius: 3px; padding: 3px; }
+		[data-theme="dark"] .pada-row.length-error { background: rgba(220,80,80,0.18); }
+
+		/* imperfect label inline to the right of the pāda row */
+		.pada-row-wrap { display: flex; align-items: center; gap: 0.75em; margin-bottom: 6px; }
+		.pada-row-wrap .pada-row { margin-bottom: 0; }
+		.pada-imperfect-label { font-size: 0.9em; color: #c0392b; font-style: italic; font-family: var(--font-heading); white-space: nowrap; }
+		[data-theme="dark"] .pada-imperfect-label { color: #e07070; }
+
+		/* gaṇa group: bracket under boxes + letter below */
+		.gana-group { display: inline-flex; flex-direction: column; align-items: stretch; }
+		.gana-group-boxes {
+			display: inline-flex; gap: 2px;
+			border-bottom: 2px solid #999;   /* bracket bottom line, adjacent to gana letter */
+			padding-bottom: 2px;
+		}
+		[data-theme="dark"] .gana-group-boxes { border-bottom-color: #777; }
+		.gana-label {
+			text-align: center; font-size: 0.7em; color: #555;
+			font-family: var(--font-body); line-height: 1.4; margin-top: 1px;
+		}
+		[data-theme="dark"] .gana-label { color: #aaa; }
+		/* single-char (guru/laghu after gaṇas) */
+		.gana-single { display: inline-flex; flex-direction: column; align-items: center; }
+		.gana-single-box { padding-bottom: 4px; } /* align with bracketed groups */
+		.gana-single .gana-label { visibility: hidden; } /* keeps spacing consistent */
+
+		/* syllable box */
+		.syl-box {
+			display: inline-grid; border: 1px ridge #fff;
+			background: #CCC; min-width: 2em; text-align: center;
+		}
+		[data-theme="dark"] .syl-box { background: #444; border-color: #666; }
+		.syl-box .scan { grid-row: 1; text-align: center; font-size: 0.72em; padding: 0 2px; }
+		.syl-box .syl  { grid-row: 2; font-size: 0.95em; padding: 1px 3px; font-family: var(--font-heading); }
+		/* L = bold blue, G = bold darkred */
+		.syl-box.L .scan { color: #2255bb; font-weight: bold; }
+		.syl-box.G .scan { color: #8b0000; font-weight: bold; }
+		[data-theme="dark"] .syl-box.L .scan { color: #6699dd; }
+		[data-theme="dark"] .syl-box.G .scan { color: #dd6666; }
+		.syl-box.problem { background: #e8a0a0; }
+		[data-theme="dark"] .syl-box.problem { background: #7a3030; }
+
+		/* mora annotation (jāti only) */
+		.pada-mora { font-size: 0.75em; color: #777; margin-bottom: 2px; }
+		[data-theme="dark"] .pada-mora { color: #999; }
+
+		.verse-scansion.stale { opacity: 0.35; }
+
+		/* === Tool panel (fixed in left column, slides to align with focused card) === */
+		.bcm-panel {
+			position: fixed;
+			left: 1em;
+			right: 71%;
+			top: 4em;    /* updated by JS */
+			background: var(--sidebar-bg);
+			color: var(--sidebar-text);
+			border: 1px solid var(--sidebar-bg-dark);
+			border-radius: 6px;
+			padding: 0.65em 0.85em;
+			box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+			z-index: 50;
+			visibility: hidden;
+			transition: top 0.18s ease;
+		}
+		.bcm-panel.visible { visibility: visible; }
+
+		/* Panel rows matching screenshot */
+		.panel-row { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.45em; }
+		.panel-row:last-child { margin-bottom: 0; }
+		.panel-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 0.4em 0; }
+
+		.panel-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.1em 0.6em; font-size: 0.8em; }
+		.panel-checkboxes label { display: flex; align-items: center; gap: 0.3em; color: var(--sidebar-text); cursor: pointer; white-space: nowrap; }
+		.panel-checkboxes input[type=checkbox] { cursor: pointer; accent-color: var(--sidebar-accent); }
+
+		.panel-resplit {
+			flex: 1;
+			background: var(--input-bg); color: var(--main-text);
+			border: 1px solid var(--input-border); border-radius: 3px;
+			padding: 0.25em 0.4em; font-size: 0.8em; cursor: pointer;
+		}
+
+		.btn-panel {
+			background: var(--input-bg); color: var(--main-text);
+			border: 1px solid var(--input-border); border-radius: 4px;
+			padding: 0.35em 0.75em; cursor: pointer; font-size: 0.85em;
+			font-weight: 600; white-space: nowrap;
+		}
+		.btn-panel:hover { background: var(--pre-bg); }
+		.btn-panel:disabled { opacity: 0.5; cursor: default; }
+
+		/* === Header buttons === */
+		.btn-export {
+			background: var(--btn-bg); color: var(--btn-text);
+			border: none; border-radius: 3px; padding: 0.3em 0.7em;
+			cursor: pointer; font-size: 0.85em;
+		}
+		.btn-export:hover { background: var(--btn-bg-hover); }
+		.btn-theme {
+			background: none; border: 1px solid var(--sidebar-accent);
+			color: var(--sidebar-accent); border-radius: 3px;
+			padding: 0.2em 0.5em; cursor: pointer; font-size: 0.9em;
+		}
+		.btn-theme:hover { background: rgba(255,255,255,0.1); }
+	</style>
+</head>
+<body>
+
+<div class="bcm-header">
+	<div class="bcm-header-left">
+		<a href="/">&larr; workbench</a>
+		<h1>batch meter results</h1>
+	</div>
+	<div class="bcm-header-right">
+		<button class="btn-export" onclick="exportTxt()">export .txt</button>
+		<button class="btn-export" onclick="exportCsv()">export .csv</button>
+		<button class="btn-theme" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
+	</div>
+</div>
+
+<div class="bcm-stats-block">
+	<div class="bcm-stats-summary" id="bcm-stats-summary"></div>
+	<div style="display:flex;align-items:center;gap:0.5em;padding:0.3em 0.75em;font-size:0.85em;">
+		<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type breakdown</button>
+	</div>
+	<div class="bcm-meter-counts" id="bcm-meter-counts"></div>
+	<div class="bcm-view-toggle">
+		<span style="color:var(--main-text);font-weight:600;">show:</span>
+		<label><input type="radio" name="bcm-view" value="errors" checked onchange="setView('errors')"> errors &amp; unknown only</label>
+		<label><input type="radio" name="bcm-view" value="all" onchange="setView('all')"> all (perfect shown compactly)</label>
+	</div>
+</div>
+
+<div class="bcm-verses" id="bcm-verses"></div>
+
+<!-- Floating tool panel (left side) -->
+<div class="bcm-panel" id="bcm-panel">
+	<!-- Row 1: Scan + checkboxes -->
+	<div class="panel-row">
+		<button class="btn-panel" id="btn-scan" onclick="panelScan()">Scan</button>
+		<div class="panel-checkboxes">
+			<label><input type="checkbox" id="panel-weights" checked> lglgl</label>
+			<label><input type="checkbox" id="panel-morae"> {mora}</label>
+			<label><input type="checkbox" id="panel-garas" checked> [ga&#7751;a]</label>
+			<label><input type="checkbox" id="panel-align"> align</label>
+		</div>
+	</div>
+	<hr class="panel-divider">
+	<!-- Row 2: Identify Meter + resplit -->
+	<div class="panel-row">
+		<button class="btn-panel" id="btn-reidentify" onclick="panelReidentify()">Identify Meter</button>
+		<select class="panel-resplit" id="panel-resplit">
+			<option value="none">don't resplit</option>
+			<option value="resplit_lite">resplit lite</option>
+			<option value="resplit_lite_keep_mid" selected>resplit lite keep mid</option>
+			<option value="resplit_max">resplit max</option>
+			<option value="resplit_max_keep_mid">resplit max keep mid</option>
+		</select>
+	</div>
+</div>
+
+<script>
+(function() {
+	// --- Dark mode ---
+	var toggle = document.getElementById('dark-mode-toggle');
+	function applyTheme(dark) {
+		document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+		toggle.innerHTML = dark ? '&#9788;' : '&#9790;';
+		toggle.title = dark ? 'Toggle light mode' : 'Toggle dark mode';
+		localStorage.setItem('theme', dark ? 'dark' : 'light');
+	}
+	toggle.addEventListener('click', function() {
+		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+	});
+	if (localStorage.getItem('theme')) applyTheme(localStorage.getItem('theme') === 'dark');
+
+	// --- Data ---
+	var batchData = {{ batch_data_json | safe }};
+	var verses = batchData.verses || [];
+	var settings = batchData.settings || {};
+	var duration = batchData.duration_secs;
+
+	// Seed panel controls from session settings
+	if (settings.resplit_option) document.getElementById('panel-resplit').value = settings.resplit_option;
+	if (settings.weights  !== undefined) document.getElementById('panel-weights').checked = !!settings.weights;
+	if (settings.morae    !== undefined) document.getElementById('panel-morae').checked   = !!settings.morae;
+	if (settings.gaRas    !== undefined) document.getElementById('panel-garas').checked   = !!settings.gaRas;
+	if (settings.alignment !== undefined) document.getElementById('panel-align').checked  = !!settings.alignment;
+
+	var PERFECT_SCORE = 9;
+	function isPerfect(v) { return (v.identification_score || 0) >= PERFECT_SCORE; }
+	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
+
+	// Mutable state per verse
+	var verseState = verses.map(function(v) { return Object.assign({}, v); });
+
+	// --- Stats ---
+	var perfectCount = verses.filter(isPerfect).length;
+	var errorCount   = verses.length - perfectCount;
+	var unknownCount = verses.filter(isUnknown).length;
+
+	var meterCounts = {};
+	verses.forEach(function(v) {
+		var lbl = v.meter_label || 'na ki\u1e43cid adhyavasitam';
+		var base = lbl.split(' (')[0].trim();
+		meterCounts[base] = (meterCounts[base] || 0) + 1;
+	});
+	var meterList = Object.keys(meterCounts).map(function(k) {
+		return { label: k, n: meterCounts[k] };
+	}).sort(function(a, b) { return b.n - a.n; });
+
+	document.getElementById('bcm-stats-summary').innerHTML =
+		'<span class="bcm-stat">' + verses.length + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
+		' <span class="bcm-stat-perfect">' + perfectCount + ' perfect</span>' +
+		' <span class="bcm-stat-error">' + errorCount + ' error' + (errorCount !== 1 ? 's' : '') + '</span>' +
+		(unknownCount ? ' <span class="bcm-stat">(' + unknownCount + ' unidentified)</span>' : '') +
+		(duration ? ' <span class="bcm-stat" style="opacity:0.6">' + duration.toFixed(1) + 's</span>' : '');
+
+	var countsEl = document.getElementById('bcm-meter-counts');
+	meterList.forEach(function(m) {
+		var pct = (100 * m.n / verses.length).toFixed(1);
+		var row = document.createElement('div');
+		row.className = 'meter-count-row';
+		row.innerHTML = '<span class="meter-count-label">' + escHtml(m.label) + '</span>' +
+			'<span class="meter-count-n">' + m.n + '</span>' +
+			'<span class="meter-count-pct">' + pct + '%</span>';
+		countsEl.appendChild(row);
+	});
+
+	window.toggleMeterCounts = function() {
+		var el = document.getElementById('bcm-meter-counts');
+		var btn = document.getElementById('meter-counts-toggle');
+		var open = el.classList.toggle('open');
+		btn.textContent = (open ? '\u25be' : '\u25b6') + ' meter type breakdown';
+	};
+
+	// --- Header label: just base meter name, no diagnostic detail ---
+	function buildHeaderLabel(v) {
+		var lbl = v.meter_label || 'unidentified';
+		// Strip the parenthetical detail, keep only the base name
+		var base = lbl.split(' (')[0].trim();
+		return base || lbl;
+	}
+
+	// --- Diagnostic helpers ---
+	function getPadaDiag(diag, padaIdx) {
+		if (!diag) return null;
+		var halfKey    = (padaIdx <= 1) ? 'ab' : 'cd';
+		var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
+		var d = diag[halfKey];
+		if (!d) return null;
+		return { d: d, withinHalf: withinHalf };
+	}
+	function isLengthError(fc) { return fc === 'hypermetric' || fc === 'hypometric'; }
+
+	// --- Card building ---
+	var container = document.getElementById('bcm-verses');
+	var currentView = 'errors';
+	var focusedIndex = null;
+	var editingIndex = null;
+
+	function buildCardBody(card, idx) {
+		var v = verseState[idx];
+		var body = document.createElement('div');
+		body.className = 'verse-card-body';
+
+		// Left: raw text — click to edit, blur to save
+		var rawDiv = document.createElement('div');
+		rawDiv.className = 'verse-raw';
+		rawDiv.id = 'verse-raw-' + idx;
+		var textDiv = document.createElement('div');
+		textDiv.className = 'verse-raw-text';
+		textDiv.id = 'verse-raw-text-' + idx;
+		textDiv.textContent = v.text_raw || '';
+		textDiv.title = 'Click to edit';
+		textDiv.addEventListener('click', function(e) { e.stopPropagation(); startEdit(idx); });
+		rawDiv.appendChild(textDiv);
+		body.appendChild(rawDiv);
+
+		// Right: scansion
+		var scanDiv = document.createElement('div');
+		scanDiv.className = 'verse-scansion';
+		scanDiv.id = 'verse-scan-' + idx;
+		renderScansion(scanDiv, v);
+		body.appendChild(scanDiv);
+
+		card.appendChild(body);
+	}
+
+	function buildCard(idx, compact) {
+		var v = verseState[idx];
+		var perf = isPerfect(v);
+		var unk  = isUnknown(v);
+		var hdrClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
+
+		var card = document.createElement('div');
+		card.className = 'verse-card ' + hdrClass + (compact ? ' compact' : '');
+		card.id = 'verse-card-' + idx;
+		card.dataset.idx = idx;
+
+		// Header
+		var hdr = document.createElement('div');
+		hdr.className = 'verse-card-header ' + hdrClass;
+		hdr.innerHTML =
+			'<span class="verse-status-dot"></span>' +
+			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
+			'<span class="verse-num">#' + (idx + 1) + '</span>';
+		hdr.addEventListener('click', function(e) {
+			e.stopPropagation();
+			var c = document.getElementById('verse-card-' + idx);
+			if (c && c.classList.contains('compact')) {
+				expandedPerfect[idx] = true;
+				c.classList.remove('compact');
+				// Build body lazily now that it's needed
+				if (!document.getElementById('verse-scan-' + idx)) buildCardBody(c, idx);
+			}
+			focusCard(idx);
+		});
+		card.appendChild(hdr);
+
+		// Body: only built immediately for non-compact cards
+		if (!compact) buildCardBody(card, idx);
+
+		// Click on card (not header/text) also focuses
+		card.addEventListener('click', function(e) { e.stopPropagation(); focusCard(idx); });
+
+		return card;
+	}
+
+	function updateCardHeader(idx) {
+		var v = verseState[idx];
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		var hdr = card.querySelector('.verse-card-header');
+		var perf = isPerfect(v), unk = isUnknown(v);
+		var statusClass = unk ? 'unknown' : perf ? 'perfect' : 'imperfect';
+		card.className = 'verse-card ' + statusClass + (card.classList.contains('focused') ? ' focused' : '') + (card.classList.contains('compact') ? ' compact' : '');
+		hdr.className = 'verse-card-header ' + statusClass;
+		hdr.innerHTML =
+			'<span class="verse-status-dot"></span>' +
+			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
+			'<span class="verse-num">#' + (idx + 1) + '</span>';
+	}
+
+	function updateCardScansion(idx) {
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (!scanDiv) return;
+		scanDiv.classList.remove('stale');
+		scanDiv.innerHTML = '';
+		renderScansion(scanDiv, verseState[idx]);
+	}
+
+	function renderScansion(el, v) {
+		var sylPadas  = (v.text_syllabified  || '').split('\n').map(function(p) { return p.trim(); });
+		var wtPadas   = (v.syllable_weights   || '').split('\n').map(function(p) { return p.trim(); });
+		var gaRaPadas = (v.gaRa_abbreviations || '').split('\n').map(function(p) { return p.trim(); });
+		var morae     = v.morae_per_line || [];
+		var diag      = v.diagnostic || null;
+		var isJati    = v.meter_label && v.meter_label.indexOf('j\u0101ti') >= 0;
+
+		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
+		if (v.meter_label && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
+			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
+			wtPadas   = [wtPadas[0]   + wtPadas[1],          wtPadas[2]   + wtPadas[3]];
+			gaRaPadas = [gaRaPadas[0] + gaRaPadas[1],        gaRaPadas[2] + gaRaPadas[3]];
+			morae     = morae.length >= 4 ? [morae[0] + morae[1], morae[2] + morae[3]] : morae;
+		}
+
+		var numPadas  = Math.max(sylPadas.length, wtPadas.length);
+
+		for (var p = 0; p < numPadas; p++) {
+			var sylStr   = sylPadas[p]  || '';
+			var wtStr    = wtPadas[p]   || '';
+			var gaRaStr  = gaRaPadas[p] || '';
+			var moraeVal = morae[p];
+			if (!sylStr && !wtStr) continue;
+
+			var padaDiag   = getPadaDiag(diag, p);
+			var d          = padaDiag ? padaDiag.d : null;
+			var withinHalf = padaDiag ? padaDiag.withinHalf : null;
+			var lenError   = d && isLengthError(d.failure_code);
+			var probSet    = {};
+			if (d && d.problem_syllables && withinHalf && d.problem_syllables[withinHalf]) {
+				d.problem_syllables[withinHalf].forEach(function(i) { probSet[i] = true; });
+			}
+
+			// Imperfect label: show on the pāda where problem syllables are highlighted.
+			// For rule failures: show on the 'odd' pāda if odd has problems, else 'even'.
+			// For length errors: show on the 'even' pāda (last of the half).
+			// Fall back to 'even' if unclear.
+			var imperfectLabel = null;
+			if (d) {
+				imperfectLabel = d.imperfect_id_label ||
+					(d.failure_code && !d.perfect_id_label ? d.failure_code : null);
+			}
+			var showImperfect = false;
+			if (imperfectLabel && d) {
+				if (isLengthError(d.failure_code)) {
+					// Length errors: show on the even (second) pāda of the half
+					showImperfect = (withinHalf === 'even' || numPadas <= 2);
+				} else {
+					// Rule failures: show on whichever pāda has the problem syllables
+					var oddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
+					var evenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
+					if (oddProbs && withinHalf === 'odd')   showImperfect = true;
+					else if (evenProbs && withinHalf === 'even') showImperfect = true;
+					else if (!oddProbs && !evenProbs)            showImperfect = (withinHalf === 'even' || numPadas <= 2);
+				}
+			}
+
+			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
+			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });
+			var ganaChars = gaRaStr ? gaRaStr.split('') : [];
+			var numSyls   = Math.max(sylList.length, wtList.length);
+
+			function makeSylBox(j) {
+				var syl    = sylList[j] || '';
+				var wt     = wtList[j]  || '';
+				var isL    = wt.toUpperCase() === 'L';
+				var isG    = wt.toUpperCase() === 'G';
+				var isProb = !lenError && probSet[j];
+				var box    = document.createElement('div');
+				box.className = 'syl-box ' + (isL ? 'L' : isG ? 'G' : '') + (isProb ? ' problem' : '');
+				var sc = document.createElement('div'); sc.className = 'scan';
+				sc.textContent = isL ? 'l' : isG ? 'g' : wt;
+				var sy = document.createElement('div'); sy.className = 'syl';
+				sy.textContent = syl;
+				box.appendChild(sc); box.appendChild(sy);
+				return box;
+			}
+
+			// Bare single syllable with no gaṇa label below (for anceps positions)
+			function makeBareBox(j) {
+				var wrap = document.createElement('div');
+				wrap.className = 'gana-single';
+				var boxWrap = document.createElement('div');
+				boxWrap.className = 'gana-single-box';
+				boxWrap.appendChild(makeSylBox(j));
+				wrap.appendChild(boxWrap);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label'; lbl.innerHTML = '&nbsp;';
+				wrap.appendChild(lbl);
+				return wrap;
+			}
+
+			// Gaṇa group: bracket + label below covering 3 syllables starting at sylIdx
+			function makeGanaGroup(gChar, startIdx) {
+				var group = document.createElement('div');
+				group.className = 'gana-group';
+				var boxes = document.createElement('div');
+				boxes.className = 'gana-group-boxes';
+				for (var k = 0; k < 3 && startIdx + k < numSyls; k++) {
+					boxes.appendChild(makeSylBox(startIdx + k));
+				}
+				group.appendChild(boxes);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label';
+				lbl.textContent = gChar;
+				group.appendChild(lbl);
+				return group;
+			}
+
+			var row = document.createElement('div');
+			row.className = 'pada-row' + (lenError ? ' length-error' : '');
+
+			// Derive gaṇa name from 3-syllable weight pattern (lowercase l/g)
+			var GANA_FROM_WEIGHTS = {
+				'lll': 'n', 'llg': 't', 'lgl': 'j', 'lgg': 'y',
+				'gll': 'B', 'glg': 'r', 'ggl': 's', 'ggg': 'm'
+			};
+			function ganaNameFromWeights(wList, start) {
+				var pat = '';
+				for (var k = 0; k < 3; k++) pat += (wList[start + k] || '').toLowerCase();
+				return GANA_FROM_WEIGHTS[pat] || '?';
+			}
+
+			if (ganaChars.length === 0) {
+				// No gaṇa data — plain syllable boxes
+				for (var j = 0; j < numSyls; j++) row.appendChild(makeSylBox(j));
+			} else if (numSyls === 8 && ganaChars.length === 4) {
+				// Anuṣṭubh: group syls 1-3 and 4-6, leave syls 0 and 7 bare (anceps)
+				// Recompute gaṇa names from actual weights at those positions
+				var g1 = ganaNameFromWeights(wtList, 1);
+				var g2 = ganaNameFromWeights(wtList, 4);
+				row.appendChild(makeBareBox(0));
+				row.appendChild(makeGanaGroup(g1, 1));
+				row.appendChild(makeGanaGroup(g2, 4));
+				row.appendChild(makeBareBox(7));
+			} else {
+				// Samavṛtta / other: gaṇas from syl 0, then singles with labels for remainder
+				var triCount    = Math.floor(numSyls / 3);
+				var numTriGanas = Math.min(triCount, ganaChars.length);
+				var sylIdx = 0;
+				for (var gi = 0; gi < numTriGanas; gi++) {
+					row.appendChild(makeGanaGroup(ganaChars[gi], sylIdx));
+					sylIdx += 3;
+				}
+				var singleChars = ganaChars.slice(numTriGanas);
+				singleChars.forEach(function(gChar) {
+					var wrap = document.createElement('div');
+					wrap.className = 'gana-single';
+					var boxWrap = document.createElement('div');
+					boxWrap.className = 'gana-single-box';
+					if (sylIdx < numSyls) boxWrap.appendChild(makeSylBox(sylIdx++));
+					wrap.appendChild(boxWrap);
+					var lbl = document.createElement('div');
+					lbl.className = 'gana-label';
+					lbl.textContent = gChar;
+					wrap.appendChild(lbl);
+					row.appendChild(wrap);
+				});
+				// Any remaining syllables beyond gaṇa coverage
+				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
+			}
+
+			// Wrap row + optional imperfect label in a flex row
+			var wrap = document.createElement('div');
+			wrap.className = 'pada-row-wrap';
+			wrap.appendChild(row);
+			if (showImperfect) {
+				var ilbl = document.createElement('span');
+				ilbl.className = 'pada-imperfect-label';
+				ilbl.textContent = imperfectLabel;
+				wrap.appendChild(ilbl);
+			}
+			el.appendChild(wrap);
+
+			// Mora annotation (jāti only)
+			if (isJati && moraeVal !== undefined) {
+				var mora = document.createElement('div');
+				mora.className = 'pada-mora';
+				mora.textContent = 'm:\u202f' + moraeVal;
+				el.appendChild(mora);
+			}
+		}
+	}
+
+	// --- View management ---
+	var expandedPerfect = {};  // idx -> true when a compact perfect card is manually expanded
+
+	function setView(view) { currentView = view; expandedPerfect = {}; renderCards(); }
+	window.setView = setView;
+
+	function renderCards() {
+		container.innerHTML = '';
+		var shown = 0, hidden = 0;
+		verses.forEach(function(_, idx) {
+			var v = verseState[idx];
+			if (currentView === 'errors' && isPerfect(v)) { hidden++; return; }
+			var isCompact = currentView === 'all' && isPerfect(v) && !expandedPerfect[idx];
+			var card = buildCard(idx, isCompact);
+			if (focusedIndex === idx) card.classList.add('focused');
+			container.appendChild(card);
+			shown++;
+		});
+		if (hidden > 0) {
+			var notice = document.createElement('div');
+			notice.className = 'bcm-hidden-notice';
+			notice.textContent = hidden + ' perfect verse' + (hidden !== 1 ? 's' : '') +
+				' hidden \u2014 switch to \u201call\u201d view to see them.';
+			container.insertBefore(notice, container.firstChild);
+		}
+		if (shown === 0 && hidden > 0) {
+			var allGood = document.createElement('div');
+			allGood.className = 'bcm-hidden-notice';
+			allGood.style.cssText = 'font-size:1.1em;padding:2em';
+			allGood.textContent = 'No errors \u2014 all ' + verses.length + ' verses identified perfectly.';
+			container.appendChild(allGood);
+		}
+	}
+
+	renderCards();
+
+	// --- Focus / panel ---
+	var panel = document.getElementById('bcm-panel');
+	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
+
+	function positionPanel(idx) {
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		// getBoundingClientRect().top is viewport-relative — exactly what position:fixed needs
+		var cardTop = card.getBoundingClientRect().top;
+		var minTop = stickyHeaderH + 8;
+		var maxTop = window.innerHeight - (panel.offsetHeight || 120) - 8;
+		panel.style.top = Math.min(Math.max(cardTop, minTop), maxTop) + 'px';
+	}
+
+	function focusCard(idx) {
+		if (focusedIndex !== null) {
+			var prev = document.getElementById('verse-card-' + focusedIndex);
+			if (prev) prev.classList.remove('focused');
+		}
+		focusedIndex = idx;
+		var card = document.getElementById('verse-card-' + idx);
+		if (card) card.classList.add('focused');
+		panel.classList.add('visible');
+		positionPanel(idx);
+	}
+
+	// Keep panel aligned as user scrolls
+	window.addEventListener('scroll', function() {
+		if (focusedIndex !== null) positionPanel(focusedIndex);
+	}, { passive: true });
+
+	// --- Click-to-edit, auto-save on blur ---
+	function startEdit(idx) {
+		if (editingIndex === idx) return;
+		if (editingIndex !== null) commitEdit(editingIndex);
+
+		editingIndex = idx;
+		var rawDiv  = document.getElementById('verse-raw-' + idx);
+		var textDiv = document.getElementById('verse-raw-text-' + idx);
+
+		var ta = document.createElement('textarea');
+		ta.id = 'verse-edit-ta-' + idx;
+		ta.value = verseState[idx].text_raw || '';
+		ta.style.height = (textDiv.offsetHeight || 80) + 'px';
+		ta.addEventListener('blur', function() { commitEdit(idx); });
+		ta.addEventListener('keydown', function(e) {
+			// Esc cancels, Ctrl+Enter commits
+			if (e.key === 'Escape') { e.preventDefault(); cancelEdit(idx); }
+		});
+		ta.addEventListener('click', function(e) { e.stopPropagation(); });
+
+		rawDiv.insertBefore(ta, textDiv);
+		textDiv.style.display = 'none';
+		ta.focus();
+
+		// Also focus the card in the panel
+		focusCard(idx);
+	}
+
+	function commitEdit(idx) {
+		var ta = document.getElementById('verse-edit-ta-' + idx);
+		if (ta) verseState[idx].text_raw = ta.value;
+		finishEdit(idx);
+	}
+
+	function cancelEdit(idx) {
+		finishEdit(idx);
+	}
+
+	function finishEdit(idx) {
+		if (editingIndex === idx) editingIndex = null;
+		var rawDiv  = document.getElementById('verse-raw-' + idx);
+		var textDiv = document.getElementById('verse-raw-text-' + idx);
+		var ta      = document.getElementById('verse-edit-ta-' + idx);
+		if (textDiv) { textDiv.textContent = verseState[idx].text_raw || ''; textDiv.style.display = ''; }
+		if (ta) ta.remove();
+	}
+
+	// --- Panel actions ---
+	function getPanelSettings() {
+		return {
+			from_scheme:    settings.from_scheme || 'Auto',
+			resplit_option: document.getElementById('panel-resplit').value,
+			weights:        document.getElementById('panel-weights').checked,
+			morae:          document.getElementById('panel-morae').checked,
+			gaRas:          document.getElementById('panel-garas').checked,
+			alignment:      document.getElementById('panel-align').checked,
+		};
+	}
+
+	window.panelReidentify = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		if (editingIndex === idx) commitEdit(idx);
+
+		var ps = getPanelSettings();
+		var v = verseState[idx];
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (scanDiv) scanDiv.classList.add('stale');
+		var btn = document.getElementById('btn-reidentify');
+		btn.disabled = true; btn.textContent = '\u2026';
+
+		var fd = new FormData();
+		fd.append('input_text',   v.text_raw || '');
+		fd.append('from_scheme',  ps.from_scheme);
+		fd.append('resplit_option', ps.resplit_option);
+		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
+		fd.append('show_morae',     ps.morae     ? 'true' : 'false');
+		fd.append('show_gaRas',     ps.gaRas     ? 'true' : 'false');
+		fd.append('show_alignment', ps.alignment ? 'true' : 'false');
+
+		fetch('/api/identify-meter', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
+			.then(function(r) { return r.json(); })
+			.then(function(data) {
+				verseState[idx].meter_label          = data.meter_label_full  || verseState[idx].meter_label;
+				verseState[idx].identification_score = data.identification_score !== undefined
+					? data.identification_score : verseState[idx].identification_score;
+				verseState[idx].text_syllabified     = data.text_syllabified   || verseState[idx].text_syllabified;
+				verseState[idx].syllable_weights     = data.syllable_weights    || verseState[idx].syllable_weights;
+				verseState[idx].morae_per_line       = data.morae_per_line      || verseState[idx].morae_per_line;
+				verseState[idx].gaRa_abbreviations   = data.gaRa_abbreviations  || verseState[idx].gaRa_abbreviations;
+				verseState[idx].diagnostic           = data.diagnostic != null ? data.diagnostic : verseState[idx].diagnostic;
+				verseState[idx].summary              = data.result               || verseState[idx].summary;
+				updateCardHeader(idx);
+				updateCardScansion(idx);
+			})
+			.catch(function(err) {
+				if (scanDiv) scanDiv.classList.remove('stale');
+				alert('Re-identification failed: ' + err);
+			})
+			.finally(function() { btn.disabled = false; btn.textContent = 'Identify Meter'; });
+	};
+
+	window.panelScan = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		if (editingIndex === idx) commitEdit(idx);
+
+		var ps = getPanelSettings();
+		var v = verseState[idx];
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (scanDiv) scanDiv.classList.add('stale');
+		var btn = document.getElementById('btn-scan');
+		btn.disabled = true; btn.textContent = '\u2026';
+
+		var fd = new FormData();
+		fd.append('input_text',   v.text_raw || '');
+		fd.append('from_scheme',  ps.from_scheme);
+		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
+		fd.append('show_morae',     ps.morae     ? 'true' : 'false');
+		fd.append('show_gaRas',     ps.gaRas     ? 'true' : 'false');
+		fd.append('show_alignment', ps.alignment ? 'true' : 'false');
+
+		fetch('/api/scan', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
+			.then(function(r) { return r.json(); })
+			.then(function(data) {
+				verseState[idx].text_syllabified   = data.text_syllabified   || verseState[idx].text_syllabified;
+				verseState[idx].syllable_weights   = data.syllable_weights    || verseState[idx].syllable_weights;
+				verseState[idx].morae_per_line     = data.morae_per_line      || verseState[idx].morae_per_line;
+				verseState[idx].gaRa_abbreviations = data.gaRa_abbreviations  || verseState[idx].gaRa_abbreviations;
+				updateCardScansion(idx);
+			})
+			.catch(function(err) {
+				if (scanDiv) scanDiv.classList.remove('stale');
+				alert('Scan failed: ' + err);
+			})
+			.finally(function() { btn.disabled = false; btn.textContent = 'Scan'; });
+	};
+
+	// --- Export ---
+	function downloadFile(content, filename, mimeType) {
+		var blob = new Blob([content], { type: mimeType });
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+		URL.revokeObjectURL(url);
+	}
+	window.exportTxt = function() {
+		var lines = [];
+		verseState.forEach(function(v) {
+			lines.push(v.text_raw || ''); lines.push('');
+			lines.push(v.summary || '');  lines.push('');
+		});
+		lines.push('sam\u0101ptam: ' + verseState.length + ' pady\u0101ni' +
+			(duration ? ', ' + duration.toFixed(6) + ' k\u1e63a\u1e47\u0101\u1e25' : ''));
+		downloadFile(lines.join('\n'), 'batch_meter_results.txt', 'text/plain;charset=utf-8');
+	};
+	window.exportCsv = function() {
+		var rows = [['verse_number','verse_text','meter_label','syllable_weights','identification_score']];
+		verseState.forEach(function(v, i) {
+			rows.push([i+1,
+				'"' + (v.text_raw||'').replace(/"/g,'""') + '"',
+				'"' + (v.meter_label||'').replace(/"/g,'""') + '"',
+				'"' + (v.syllable_weights||'').replace(/"/g,'""') + '"',
+				v.identification_score||0]);
+		});
+		downloadFile(rows.map(function(r){return r.join(',');}).join('\n'),
+			'batch_meter_results.csv','text/csv;charset=utf-8');
+	};
+
+	function escHtml(s) {
+		return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+	}
+})();
+</script>
+</body>
+</html>

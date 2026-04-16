@@ -74,13 +74,14 @@ def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scri
 
 def do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment):
 	V = S.scan(input_text, from_scheme=from_scheme)
-	return V.summarize(
+	summary = V.summarize(
 		show_weights=show_weights,
 		show_morae=show_morae,
 		show_gaRas=show_gaRas,
 		show_alignment=show_alignment,
 		show_label=False,
 	)
+	return summary, V
 
 def do_identify_meter(input_text, from_scheme, resplit_option, show_weights, show_morae, show_gaRas, show_alignment):
 	"""Returns (summary_text, meter_label_hk, melody_options_list)."""
@@ -129,6 +130,22 @@ def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_202
 		result = split_result
 	return result
 
+def serialize_diagnostic(diag):
+	"""Serialize a Verse.diagnostic value to a JSON-safe dict."""
+	if diag is None:
+		return None
+	if not isinstance(diag, dict):
+		return None
+	result = {}
+	for half_key, d in diag.items():
+		result[half_key] = {
+			"perfect_id_label": d.perfect_id_label,
+			"imperfect_id_label": d.imperfect_id_label,
+			"failure_code": d.failure_code,
+			"problem_syllables": d.problem_syllables,
+		}
+	return result
+
 def resolve_from_scheme(input_text, from_scheme):
 	"""If from_scheme is 'Auto', detect it. Returns (resolved, detected, confidence)."""
 	if from_scheme != "Auto":
@@ -160,6 +177,7 @@ extra_option_names = [
 	"preserve_compound_hyphens",
 	"preserve_punctuation",
 	"splitter_model",
+	"batch_correction_mode",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -233,6 +251,7 @@ def _init_session_defaults():
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
+		"batch_correction_mode": 0,
 	}
 	for k, v in defaults.items():
 		session.setdefault(k, v)
@@ -361,28 +380,77 @@ def upload_file():
 			starting_time = datetime.now().time()
 
 			verses = input_data.splitlines() # during post \n >> \r\n
-			output_data = ''
-			for verse in verses:
 
-				summary, meter_label_hk, melody_options_list, V = do_identify_meter(
-					verse,
-					from_scheme=resolved_from_scheme,
-					resplit_option=session["resplit_option"],
-					show_weights=session["weights"],
-					show_morae=session["morae"],
-					show_gaRas=session["gaRas"],
-					show_alignment=session["alignment"],
+			if session.get("batch_correction_mode"):
+
+				verse_data = []
+				for verse in verses:
+					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
+						verse,
+						from_scheme=resolved_from_scheme,
+						resplit_option=session["resplit_option"],
+						show_weights=session["weights"],
+						show_morae=session["morae"],
+						show_gaRas=session["gaRas"],
+						show_alignment=session["alignment"],
+					)
+					verse_data.append({
+						"text_raw": V.text_raw,
+						"text_syllabified": V.text_syllabified,
+						"syllable_weights": V.syllable_weights,
+						"morae_per_line": V.morae_per_line,
+						"gaRa_abbreviations": V.gaRa_abbreviations,
+						"meter_label": V.meter_label,
+						"identification_score": V.identification_score,
+						"diagnostic": serialize_diagnostic(V.diagnostic),
+						"summary": summary,
+					})
+
+				ending_time = datetime.now().time()
+				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+				duration_secs = delta.seconds + delta.microseconds / 1000000
+
+				import json as _json
+				return render_template(
+					"batch_meter_results.html",
+					batch_data_json=_json.dumps({
+						"verses": verse_data,
+						"settings": {
+							"resplit_option": session["resplit_option"],
+							"from_scheme": resolved_from_scheme,
+							"weights": session["weights"],
+							"morae": session["morae"],
+							"gaRas": session["gaRas"],
+							"alignment": session["alignment"],
+						},
+						"duration_secs": duration_secs,
+					}),
 				)
 
-				output_data += V.text_raw + '\n\n' + summary + '\n'
+			else:
 
-			ending_time = datetime.now().time()
+				output_data = ''
+				for verse in verses:
 
-			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-			duration_secs = delta.seconds + delta.microseconds / 1000000
-			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
+					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
+						verse,
+						from_scheme=resolved_from_scheme,
+						resplit_option=session["resplit_option"],
+						show_weights=session["weights"],
+						show_morae=session["morae"],
+						show_gaRas=session["gaRas"],
+						show_alignment=session["alignment"],
+					)
 
-			output_fn_suffix = '_meter_identified'
+					output_data += V.text_raw + '\n\n' + summary + '\n'
+
+				ending_time = datetime.now().time()
+
+				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+				duration_secs = delta.seconds + delta.microseconds / 1000000
+				output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
+
+				output_fn_suffix = '_meter_identified'
 
 		elif session["skrutable_action"] == "split":
 
@@ -489,7 +557,8 @@ def ocr():
 
 @app.route("/ocr_instructions")
 def ocr_instructions():
-    return render_template("ocr_instructions.html", max_size=MAX_CONTENT_LENGTH_MB)
+	return render_template("ocr_instructions.html", max_size=MAX_CONTENT_LENGTH_MB)
+
 
 @app.route('/api', methods=["GET"])
 def api_landing():
@@ -645,7 +714,7 @@ def api_scan():
 		return inputs # == error_msg
 
 	resolved, detected, confidence = resolve_from_scheme(inputs["input_text"], inputs["from_scheme"])
-	result = do_scan(
+	result, V = do_scan(
 		inputs["input_text"],
 		from_scheme=resolved,
 		show_weights=inputs["show_weights"],
@@ -654,7 +723,12 @@ def api_scan():
 		show_alignment=inputs["show_alignment"],
 	)
 
-	return api_response(result, detected_scheme=detected, detection_confidence=confidence)
+	return api_response(result, detected_scheme=detected, detection_confidence=confidence,
+		text_syllabified=V.text_syllabified,
+		syllable_weights=V.syllable_weights,
+		morae_per_line=V.morae_per_line,
+		gaRa_abbreviations=V.gaRa_abbreviations,
+	)
 
 @app.route('/api/identify-meter', methods=["GET", "POST"])
 def api_identify_meter():
@@ -693,7 +767,15 @@ def api_identify_meter():
 	)
 
 	return api_response(summary, meter_label=meter_label_hk, melody_options=melody_options_list,
-		detected_scheme=detected, detection_confidence=confidence)
+		detected_scheme=detected, detection_confidence=confidence,
+		meter_label_full=V.meter_label,
+		identification_score=V.identification_score,
+		text_syllabified=V.text_syllabified,
+		syllable_weights=V.syllable_weights,
+		morae_per_line=V.morae_per_line,
+		gaRa_abbreviations=V.gaRa_abbreviations,
+		diagnostic=serialize_diagnostic(V.diagnostic),
+	)
 
 
 @app.route('/api/split', methods=["GET", "POST"])

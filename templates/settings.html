@@ -22,6 +22,12 @@
 				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">ã / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
 			</p>
 
+			<h2>meter identification</h2>
+			<p>
+				<input type="checkbox" id="batch_correction_mode" name="batch_correction_mode" value="batch_correction_mode" {% if batch_correction_mode|default(0)|int %}checked{% endif %}>
+				<label for="batch_correction_mode">batch correction mode (file upload: show interactive HTML results instead of plain-text download)</label>
+			</p>
+
 			<h2>splitting</h2>
 			<p>
 				<input type="checkbox" id="preserve_punctuation" name="preserve_punctuation" value="preserve_punctuation" {% if preserve_punctuation|default(1)|int %}checked{% endif %}>
@@ -96,6 +102,8 @@
 			document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
 		fd.append("splitter_model",
 			document.getElementById("splitter_model").value);
+		fd.append("batch_correction_mode",
+			document.getElementById("batch_correction_mode").checked ? "true" : "false");
 		fetch("/api/save-settings", { method: "POST", body: fd });
 	}
 
@@ -110,6 +118,7 @@
 	document.getElementById("preserve_anunasika").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
+	document.getElementById("batch_correction_mode").addEventListener("change", saveAll);
 
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
@@ -118,6 +127,7 @@
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
+		document.getElementById("batch_correction_mode").checked = false;
 		toggle_preserve_compound_hyphens();
 		updateExamples();
 		saveAll();
