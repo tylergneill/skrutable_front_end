@@ -493,6 +493,10 @@ def upload_file():
 		)
 		return response
 
+@app.route("/batch-meter-results", methods=["GET"])
+def batch_meter_results():
+	return redirect("/?expired=batch")
+
 @app.route("/ocr", methods=["GET", "POST"])
 def ocr():
 	if request.method == "GET":

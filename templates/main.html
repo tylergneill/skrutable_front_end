@@ -72,6 +72,12 @@
 <script src="/assets/js/settings.js"></script>
 <script>
 
+	// --- Expired session notice ---
+	if (new URLSearchParams(window.location.search).get('expired') === 'batch') {
+		window.history.replaceState(null, '', '/');
+		alert('Batch meter results are not stored — please re-upload your file to regenerate them.\n\nTip: use the "export .txt" or "export .csv" buttons on the results page to save your work before navigating away.');
+	}
+
 	// --- Page globals ---
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
