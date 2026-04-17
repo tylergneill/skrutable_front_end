@@ -60,10 +60,10 @@ async function build() {
     const sidepanelPath = path.join(targetDistDir, 'ui', 'sidepanel.html');
     let sidepanelHtml = await fs.readFile(sidepanelPath, 'utf-8');
     if (releaseMode) {
-      const { version } = await fs.readJson(path.join(projectRoot, 'package.json'));
-      const cdnUrl = `https://cdn.jsdelivr.net/npm/skrutable-js@${version}/dist/skrutable.bundle.js`;
-      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', cdnUrl);
-      console.log(`Bundle src: CDN (${cdnUrl})`);
+      const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
+      await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
+      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', '../dist/skrutable.bundle.js');
+      console.log('Bundle src: local (../dist/skrutable.bundle.js)');
     } else {
       const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
       await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
