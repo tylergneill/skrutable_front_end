@@ -8,6 +8,8 @@
 	<title>skrutable — meter identification batch correction mode</title>
 	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
 	<style>
+		/* Override global height:100% so sticky children work throughout the page */
+		html, body { height: auto; min-height: 100%; }
 		body { padding: 0; margin: 0; }
 
 		/* === Sticky header === */
@@ -23,32 +25,54 @@
 		.bcm-header-right { display: flex; gap: 0.5em; align-items: center; }
 
 		/* === Stats block === */
-		.bcm-stats-block { margin: 0.75em 1em 0 30%; padding: 0; }
+		.bcm-stats-block {
+			position: sticky; top: 2.8em; z-index: 90;
+			/* Full-width sticky — margin breaks sticky, use padding instead */
+			padding: 0.6em 1em 0 calc(30% + 1em);
+			background: var(--body-bg, var(--pre-bg));
+			margin: 0 0 1.25em 0;
+		}
 		.bcm-stats-summary {
 			display: flex; gap: 1em; flex-wrap: wrap; align-items: center;
-			font-size: 0.9em; padding: 0.4em 0.75em;
+			font-size: 1em; padding: 0.55em 1em;
 			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
 		}
-		.bcm-stat       { color: var(--main-text); }
+		.bcm-stat       { color: var(--main-text); font-size: 1em; }
 		.bcm-stat-dim   { color: var(--main-text); opacity: 0.5; font-size: 0.9em; }
 
 		/* Filter pill buttons */
 		.bcm-filter-btn {
 			display: inline-flex; align-items: center; gap: 0.4em;
-			padding: 0.2em 0.75em; border-radius: 999px; border: none;
-			font-size: 0.85em; font-weight: 600; cursor: pointer;
+			padding: 0.25em 0.9em; border-radius: 999px; border: none;
+			font-size: 0.9em; font-weight: 600; cursor: pointer;
 			user-select: none; transition: opacity 0.15s, box-shadow 0.15s;
 			box-shadow: inset 0 0 0 2px transparent;
 		}
-		.bcm-filter-btn.correct {
-			background: #4caf50; color: #fff;
-		}
-		.bcm-filter-btn.needs-correction {
-			background: #e05050; color: #fff;
-		}
+		.bcm-filter-btn.correct { background: #4caf50; color: #fff; }
+		.bcm-filter-btn.needs-correction { background: #e05050; color: #fff; }
 		.bcm-filter-btn.off { opacity: 0.45; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.4); filter: saturate(0.4); }
 		.bcm-filter-btn:hover { filter: brightness(1.1); }
 		.bcm-filter-spinner { font-size: 0.8em; display: none; }
+
+		/* Refresh button */
+		.btn-refresh {
+			background: var(--btn-bg); color: var(--btn-text);
+			border: 1px solid var(--input-border); border-radius: 4px;
+			padding: 0.25em 0.7em; cursor: pointer; font-size: 0.9em;
+			font-weight: 600; line-height: 1.4;
+			transition: background 0.15s;
+		}
+		.btn-refresh:hover { background: var(--btn-bg-hover); }
+
+		/* Nav arrow buttons */
+		.btn-nav {
+			background: var(--btn-bg); color: var(--btn-text);
+			border: 1px solid var(--input-border); border-radius: 4px;
+			padding: 0.2em 0.55em; cursor: pointer; font-size: 1em;
+			line-height: 1.2; transition: background 0.15s;
+		}
+		.btn-nav:hover { background: var(--btn-bg-hover); }
+		.btn-nav:disabled { opacity: 0.35; cursor: default; }
 
 		/* === Meter type breakdown === */
 		.bcm-meter-counts {
@@ -66,8 +90,11 @@
 		.bcm-meter-counts-toggle:hover { text-decoration: underline; }
 		.meter-count-row { display: flex; gap: 0.5em; padding: 0.15em 0; border-bottom: 1px solid var(--input-border); }
 		.meter-count-row:last-child { border-bottom: none; }
+		.meter-count-row.has-needs { background: rgba(224,80,80,0.08); border-radius: 2px; }
+		[data-theme="dark"] .meter-count-row.has-needs { background: rgba(224,80,80,0.14); }
 		.meter-count-label { flex: 1; }
 		.meter-count-n { font-weight: bold; min-width: 3em; text-align: right; }
+		.meter-count-needs { font-weight: bold; color: #e05050; min-width: 3.5em; text-align: right; }
 		.meter-count-pct { color: #777; min-width: 3.5em; text-align: right; }
 
 		/* === Verse list === */
@@ -253,7 +280,9 @@
 </div>
 
 <div class="bcm-stats-block">
-	<div class="bcm-stats-summary" id="bcm-stats-summary"></div>
+	<div class="bcm-stats-summary" id="bcm-stats-summary">
+		<!-- nav arrows appended here by JS, after the pills -->
+	</div>
 	<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type breakdown</button>
 	<div class="bcm-meter-counts" id="bcm-meter-counts"></div>
 </div>
@@ -332,13 +361,15 @@
 	var needsCount   = verses.length - perfectCount;
 
 	var meterCounts = {};
+	var meterNeedsCounts = {};
 	verses.forEach(function(v) {
 		var lbl = v.meter_label || 'na ki\u1e43cid adhyavasitam';
 		var base = lbl.split(' (')[0].trim();
 		meterCounts[base] = (meterCounts[base] || 0) + 1;
+		if (!isPerfect(v)) meterNeedsCounts[base] = (meterNeedsCounts[base] || 0) + 1;
 	});
 	var meterList = Object.keys(meterCounts).map(function(k) {
-		return { label: k, n: meterCounts[k] };
+		return { label: k, n: meterCounts[k], needs: meterNeedsCounts[k] || 0 };
 	}).sort(function(a, b) { return b.n - a.n; });
 
 	var statsEl = document.getElementById('bcm-stats-summary');
@@ -362,14 +393,42 @@
 	btnNeeds.innerHTML = needsCount + ' need correction <span class="bcm-filter-spinner" id="spin-needs">&#8987;</span>';
 	btnNeeds.addEventListener('click', function() { toggleFilter('needs'); });
 	statsEl.appendChild(btnNeeds);
+	// Refresh button
+	var btnRefresh = document.createElement('button');
+	btnRefresh.id = 'btn-refresh';
+	btnRefresh.className = 'btn-refresh';
+	btnRefresh.title = 'Refresh counts and hide resolved verses';
+	btnRefresh.textContent = '\u21bb refresh';
+	btnRefresh.addEventListener('click', refreshView);
+	statsEl.appendChild(btnRefresh);
+	// Spacer to push nav arrows to the right
+	var spacer = document.createElement('span');
+	spacer.style.flex = '1';
+	statsEl.appendChild(spacer);
+	// Nav arrows
+	var btnNavUp = document.createElement('button');
+	btnNavUp.className = 'btn-nav';
+	btnNavUp.id = 'btn-nav-up';
+	btnNavUp.title = 'Previous verse needing correction';
+	btnNavUp.textContent = '\u2191';
+	btnNavUp.addEventListener('click', function() { navigateNeeds(-1); });
+	statsEl.appendChild(btnNavUp);
+	var btnNavDown = document.createElement('button');
+	btnNavDown.className = 'btn-nav';
+	btnNavDown.id = 'btn-nav-down';
+	btnNavDown.title = 'Next verse needing correction';
+	btnNavDown.textContent = '\u2193';
+	btnNavDown.addEventListener('click', function() { navigateNeeds(1); });
+	statsEl.appendChild(btnNavDown);
 
 	var countsEl = document.getElementById('bcm-meter-counts');
 	meterList.forEach(function(m) {
 		var pct = (100 * m.n / verses.length).toFixed(1);
 		var row = document.createElement('div');
-		row.className = 'meter-count-row';
+		row.className = 'meter-count-row' + (m.needs > 0 ? ' has-needs' : '');
 		row.innerHTML = '<span class="meter-count-label">' + escHtml(m.label) + '</span>' +
 			'<span class="meter-count-n">' + m.n + '</span>' +
+			(m.needs > 0 ? '<span class="meter-count-needs">' + m.needs + ' \u2717</span>' : '<span class="meter-count-needs"></span>') +
 			'<span class="meter-count-pct">' + pct + '%</span>';
 		countsEl.appendChild(row);
 	});
@@ -708,6 +767,64 @@
 		else                     { showNeeds   = !showNeeds;   triggerRender('spin-needs'); }
 	}
 
+	function refreshView() {
+		// Recount from current verseState
+		var newPerfect = verseState.filter(isPerfect).length;
+		var newNeeds   = verseState.length - newPerfect;
+		perfectCount = newPerfect;
+		needsCount   = newNeeds;
+		// Update pill labels
+		var bc = document.getElementById('btn-filter-correct');
+		var bn = document.getElementById('btn-filter-needs');
+		if (bc) bc.innerHTML = newPerfect + ' correct <span class="bcm-filter-spinner" id="spin-correct">&#8987;</span>';
+		if (bn) bn.innerHTML = newNeeds   + ' need correction <span class="bcm-filter-spinner" id="spin-needs">&#8987;</span>';
+		// Re-render: cards no longer matching current filter disappear
+		expandedPerfect = {};
+		renderCards();
+	}
+
+	function navigateNeeds(dir) {
+		// Build ordered list of indices that need correction and are currently rendered
+		var needsIndices = [];
+		verseState.forEach(function(v, idx) {
+			if (!isPerfect(v) && document.getElementById('verse-card-' + idx)) {
+				needsIndices.push(idx);
+			}
+		});
+		if (needsIndices.length === 0) return;
+
+		var currentPos = needsIndices.indexOf(focusedIndex);
+		var nextPos;
+		if (currentPos === -1) {
+			nextPos = dir >= 0 ? 0 : needsIndices.length - 1;
+		} else {
+			nextPos = currentPos + dir;
+			if (nextPos < 0) nextPos = needsIndices.length - 1;
+			if (nextPos >= needsIndices.length) nextPos = 0;
+		}
+		var targetIdx = needsIndices[nextPos];
+
+		// Focus without repositioning the panel yet (scroll hasn't happened)
+		if (focusedIndex !== null) {
+			var prev = document.getElementById('verse-card-' + focusedIndex);
+			if (prev) prev.classList.remove('focused');
+		}
+		focusedIndex = targetIdx;
+		var card = document.getElementById('verse-card-' + targetIdx);
+		if (card) card.classList.add('focused');
+		panel.classList.add('visible');
+
+		// Scroll card to just below the sticky stats block, then pin panel
+		var statsBlock = document.querySelector('.bcm-stats-block');
+		var statsBottom = statsBlock ? statsBlock.getBoundingClientRect().bottom : 0;
+		var panelTop = statsBottom + 8;
+		var cardAbsTop = card ? card.getBoundingClientRect().top + window.scrollY : 0;
+		var scrollTarget = cardAbsTop - panelTop;
+		window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+		// After scroll completes the card will be at panelTop in the viewport
+		panel.style.top = panelTop + 'px';
+	}
+
 	function renderCards() {
 		container.innerHTML = '';
 		verses.forEach(function(_, idx) {
@@ -735,6 +852,8 @@
 	// --- Focus / panel ---
 	var panel = document.getElementById('bcm-panel');
 	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
+	// Pin stats block directly below the sticky header
+	document.querySelector('.bcm-stats-block').style.top = stickyHeaderH + 'px';
 
 	function positionPanel(idx) {
 		var card = document.getElementById('verse-card-' + idx);
