@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="/assets/favicon.png">
 	<link rel="stylesheet" href="/assets/css/skrutable.css">
+	<script src="https://cdn.jsdelivr.net/npm/skrutable-js@2.1.4/dist/skrutable.bundle.js"></script>
 	<title>skrutable — batch meter correction mode</title>
 	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
 	<style>
@@ -398,6 +399,8 @@
 
 <script>
 (function() {
+	var _pageStart = performance.now();
+
 	// Fix URL without a reload
 	if (window.history && window.history.replaceState) {
 		window.history.replaceState(null, '', '/batch-meter-correction');
@@ -462,67 +465,26 @@
 		document.getElementById('btn-mode-scan').classList.toggle('active', mode === 'scan');
 		document.getElementById('btn-mode-identify').classList.toggle('active', mode === 'identify');
 		document.getElementById('panel-resplit').disabled = (mode === 'scan');
-		// Re-run on focused card
-		if (focusedIndex !== null) scheduleAutoRun();
+		// Scan results never come preloaded — always need an API call when switching to scan.
+		// Switching back to identify restores the preloaded result; just re-render from verseState.
+		if (focusedIndex !== null) {
+			if (mode === 'scan') scheduleAutoRun();
+			else updateCardScansion(focusedIndex);
+		}
 	};
 
-	// --- Display scheme & SLP transliteration ---
-	var displayScheme = 'IAST';
-
-	// SLP1 → IAST character map (vowels + consonants that differ from SLP)
-	var SLP_TO_IAST = {
-		'a':'a','A':'ā','i':'i','I':'ī','u':'u','U':'ū',
-		'f':'ṛ','F':'ṝ','x':'ḷ','e':'e','E':'ai','o':'o','O':'au',
-		'k':'k','K':'kh','g':'g','G':'gh','N':'ṅ',
-		'c':'c','C':'ch','j':'j','J':'jh','Y':'ñ',
-		'w':'ṭ','W':'ṭh','q':'ḍ','Q':'ḍh','R':'ṇ',
-		't':'t','T':'th','d':'d','D':'dh','n':'n',
-		'p':'p','P':'ph','b':'b','B':'bh','m':'m',
-		'y':'y','r':'r','l':'l','v':'v',
-		'z':'ś','S':'ṣ','s':'s','h':'h',
-		'M':'ṃ','H':'ḥ','Z':'~','L':'ḻ',
-		"'":'ʼ'
-	};
-	// SLP1 → Devanagari
-	var SLP_TO_DEV = {
-		'a':'अ','A':'आ','i':'इ','I':'ई','u':'उ','U':'ऊ',
-		'f':'ऋ','F':'ॠ','x':'ऌ','e':'ए','E':'ऐ','o':'ओ','O':'औ',
-		'k':'क','K':'ख','g':'ग','G':'घ','N':'ङ',
-		'c':'च','C':'छ','j':'ज','J':'झ','Y':'ञ',
-		'w':'ट','W':'ठ','q':'ड','Q':'ढ','R':'ण',
-		't':'त','T':'थ','d':'द','D':'ध','n':'न',
-		'p':'प','P':'फ','b':'ब','B':'भ','m':'म',
-		'y':'य','r':'र','l':'ल','v':'व',
-		'z':'श','S':'ष','s':'स','h':'ह',
-		'M':'ं','H':'ः','Z':'ँ','L':'ळ',
-		"'":'ऽ'
-	};
-	// SLP1 → HK
-	var SLP_TO_HK = {
-		'a':'a','A':'A','i':'i','I':'I','u':'u','U':'U',
-		'f':'R','F':'RR','x':'lR','e':'e','E':'ai','o':'o','O':'au',
-		'k':'k','K':'kh','g':'g','G':'gh','N':'G',
-		'c':'c','C':'ch','j':'j','J':'jh','Y':'J',
-		'w':'T','W':'Th','q':'D','Q':'Dh','R':'N',
-		't':'t','T':'th','d':'d','D':'dh','n':'n',
-		'p':'p','P':'ph','b':'b','B':'bh','m':'m',
-		'y':'y','r':'r','l':'l','v':'v',
-		'z':'z','S':'S','s':'s','h':'h',
-		'M':'M','H':'H','Z':'~','L':'L',
-		"'":'.'
-	};
-
-	function slpChar(c, scheme) {
-		if (scheme === 'SLP') return c;
-		var map = scheme === 'IAST' ? SLP_TO_IAST : scheme === 'DEV' ? SLP_TO_DEV : SLP_TO_HK;
-		return map[c] !== undefined ? map[c] : c;
+	// --- skrutable-js transliterator ---
+	var T = new Skrutable.Transliterator();
+	function transliterate(text, fromScheme, toScheme) {
+		return T.transliterate(text, fromScheme, toScheme);
 	}
+
+	// --- Display scheme ---
+	var displayScheme = 'IAST';
 
 	function slpToDisplay(s, scheme) {
 		if (!s || scheme === 'SLP') return s;
-		var out = '';
-		for (var i = 0; i < s.length; i++) out += slpChar(s[i], scheme);
-		return out;
+		return transliterate(s, 'SLP', scheme);
 	}
 
 	document.getElementById('display-scheme').addEventListener('change', function() {
@@ -587,7 +549,7 @@
 	var countSpan = document.createElement('span');
 	countSpan.className = 'bcm-stat';
 	countSpan.innerHTML = fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') +
-		(duration ? ' (' + duration.toFixed(1) + 's)' : '') +
+		' <span id="timing-label" style="font-size:0.8em;opacity:0.6;cursor:default" title=""></span>' +
 		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
 	statsEl.appendChild(countSpan);
 	// Correct pill button
@@ -844,31 +806,13 @@
 		var body = document.createElement('div');
 		body.className = 'verse-card-body';
 
-		// Left: raw text — click to edit, blur to save
-		// Split into lines matching pāda boundaries if not already multi-line
-		var displayText = v.text_raw || '';
-		var numPadasInit = (v.text_syllabified || '').split('\n').filter(function(p) { return p.trim(); }).length;
-		if (numPadasInit > 1 && displayText.indexOf('\n') === -1) {
-			// Try splitting on / and // markers (Sanskrit pāda separators)
-			// Replace // first (end-of-verse), then / (mid-verse), trimming whitespace around them
-			var slashSplit = displayText
-				.replace(/\s*\/\/\s*/g, '\n')
-				.replace(/\s*\/\s*/g, '\n')
-				.split('\n').map(function(s) { return s.trim(); })
-				.filter(function(s) { return s.length > 0; });
-			if (slashSplit.length === numPadasInit) {
-				displayText = slashSplit.join('\n');
-				verseState[idx].text_raw = displayText;
-			}
-		}
-
 		var rawDiv = document.createElement('div');
 		rawDiv.className = 'verse-raw';
 		rawDiv.id = 'verse-raw-' + idx;
 		var textDiv = document.createElement('div');
 		textDiv.className = 'verse-raw-text';
 		textDiv.id = 'verse-raw-text-' + idx;
-		textDiv.textContent = displayText;
+		textDiv.textContent = v.text_raw || '';
 		textDiv.title = 'Click to edit';
 		textDiv.addEventListener('click', function(e) { e.stopPropagation(); startEdit(idx); });
 		rawDiv.appendChild(textDiv);
@@ -961,7 +905,13 @@
 		var morae     = v.morae_per_line || [];
 		var diag      = v.diagnostic || null;
 		var isUpajati    = v.meter_label && v.meter_label.indexOf('upaj\u0101ti') >= 0;
-		var isJati       = !isUpajati && v.meter_label && v.meter_label.indexOf('j\u0101ti') >= 0;
+		var isJati       = !isUpajati && v.meter_label && (
+			v.meter_label.indexOf('j\u0101ti') >= 0 ||   // āryājāti, etc.
+			v.meter_label.indexOf('\u0101ry\u0101') >= 0 || // āryā
+			v.meter_label.indexOf('g\u012bti') >= 0 ||   // gīti, upagīti, udgīti
+			v.meter_label.indexOf('vait\u0101l\u012bya') >= 0 || // vaitālīya class
+			v.meter_label.indexOf('m\u0101tr\u0101') >= 0  // mātrā- prefix meters
+		);
 		var isUnknownM   = !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0;
 		var isAnustubh   = v.meter_label && (
 			v.meter_label.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
@@ -1267,6 +1217,18 @@
 	renderCards();
 	updateFilterUI();
 
+	// Show timing as a tooltip on a small indicator
+	// performance.now() is relative to navigationStart (time origin), so it measures
+	// wall-clock time from the moment the browser started loading this page.
+	var loadMs = performance.now();
+	var timingEl = document.getElementById('timing-label');
+	if (timingEl) {
+		timingEl.textContent = '⏱';
+		var tip = (duration ? 'identified in ' + duration.toFixed(1) + 's, ' : '') +
+			'loaded in ' + (loadMs / 1000).toFixed(1) + 's';
+		timingEl.title = tip;
+	}
+
 	// --- Focus / panel ---
 	var panel = document.getElementById('bcm-panel');
 	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
@@ -1300,8 +1262,92 @@
 		if (card) card.classList.add('focused');
 		panel.classList.add('visible');
 		positionPanel(idx);
-		// Auto-run on first focus of a new card
-		scheduleAutoRun();
+
+		// Try to split raw text into pāda lines on first focus (display only — no API call)
+		var v = verseState[idx];
+		if (v.text_syllabified && v.text_raw && v.text_raw.indexOf('\n') === -1) {
+			var split = splitRawIntoPadas(v.text_raw, v.text_syllabified);
+			if (split) {
+				verseState[idx].text_raw = split;
+				var textDiv = document.getElementById('verse-raw-text-' + idx);
+				if (textDiv) textDiv.textContent = split;
+			}
+		}
+	}
+
+	function splitRawIntoPadas(raw, syllabified) {
+		// Returns raw text with \n inserted before each pāda 2..N, or null if failed.
+		if (raw.indexOf('\n') !== -1) return null; // already split
+
+		// Fast path: if the text contains / separators, use them directly.
+		// Strip trailing citation (// N.N.N or similar) first.
+		var citation = '';
+		var textForSplit = raw.replace(/\s*\/\/\s*[\d.]+\s*$/, function(m) { citation = m; return ''; }).trim();
+		if (textForSplit.indexOf('/') !== -1) {
+			var slashPadas = textForSplit.split('/').map(function(p) { return p.trim(); }).filter(function(p) { return p.length; });
+			if (slashPadas.length >= 2) {
+				var result = slashPadas.join('\n');
+				if (citation) result += '\n' + citation.trim();
+				console.log('[split] slash path — lines:', slashPadas);
+				return result;
+			}
+		}
+
+		// Slow path: use syllabified pāda boundaries to find split points in raw text.
+		var sylPadas = syllabified.split('\n').filter(function(p) { return p.trim(); });
+		if (sylPadas.length < 2) return null;
+
+		// Transliterate raw text to SLP using skrutable-js, then strip non-letters for comparison
+		var rawSlp = transliterate(raw, 'Auto', 'SLP');
+		// rawSlp and raw have same length (char-for-char substitution), so positions map directly
+		var rawNorm = '';
+		var normToOrig = [];
+		for (var oi = 0; oi < rawSlp.length; oi++) {
+			if (/[a-zA-Z]/.test(rawSlp[oi])) { rawNorm += rawSlp[oi].toLowerCase(); normToOrig.push(oi); }
+		}
+
+		console.log('[split] slow path | rawNorm:', rawNorm, '\n  sylPadas:', sylPadas);
+
+		var lines = [];
+		var searchFrom = 0;
+		var lastOrigPos = 0;
+		var ok = true;
+
+		for (var pi = 1; pi < sylPadas.length; pi++) {
+			// Syllabified pādas are already SLP — just strip spaces and non-letters
+			var padaNorm = sylPadas[pi].replace(/[^a-zA-Z]/g, '').toLowerCase();
+			// Window: search between expected start and expected end of this pāda, with slack
+			var windowStart = Math.max(searchFrom, Math.floor(pi / sylPadas.length * rawNorm.length) - Math.max(10, Math.floor(rawNorm.length * 0.1)));
+			var windowEnd = Math.min(
+				Math.floor((pi + 1) / sylPadas.length * rawNorm.length) + Math.max(20, Math.floor(rawNorm.length * 0.15)),
+				rawNorm.length
+			);
+
+			var found = -1;
+			var foundPrefLen = -1;
+			for (var prefLen = padaNorm.length; prefLen >= Math.ceil(padaNorm.length * 0.5); prefLen--) {
+				var needle = padaNorm.slice(0, prefLen);
+				var hit = rawNorm.indexOf(needle, windowStart);
+				if (hit !== -1 && hit < windowEnd) { found = hit; foundPrefLen = prefLen; break; }
+			}
+			console.log('[split] pada', pi+1, '| norm:', padaNorm, '| window:', windowStart, '-', windowEnd, '| found at:', found, 'prefLen:', foundPrefLen);
+			if (found === -1) { ok = false; break; }
+
+			var origPos = normToOrig[found];
+			while (origPos > 0 && raw[origPos - 1] !== ' ') origPos--;
+
+			lines.push(raw.slice(lastOrigPos, origPos).trim());
+			lastOrigPos = origPos;
+			searchFrom = found + Math.ceil(padaNorm.length * 0.5);
+		}
+		lines.push(raw.slice(lastOrigPos).trim());
+
+		if (!ok || lines.length !== sylPadas.length || lines.some(function(l) { return !l.length; })) {
+			console.log('[split] FAILED — lines:', lines);
+			return null;
+		}
+		console.log('[split] SUCCESS — lines:', lines);
+		return lines.join('\n');
 	}
 
 	// --- Auto-run on option changes ---
@@ -1419,6 +1465,8 @@
 		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
 		var seq = fetchSeq[idx];
 
+		console.log('[identify-meter] idx:', idx, '\n  text:', JSON.stringify(text), '\n  from_scheme:', ps.from_scheme, '\n  resplit_option:', ps.resplit_option, '\n  weights:', ps.weights, 'morae:', ps.morae, 'gaRas:', ps.gaRas, 'alignment:', ps.alignment);
+
 		var fd = new FormData();
 		fd.append('input_text',   text);
 		fd.append('from_scheme',  ps.from_scheme);
@@ -1432,6 +1480,7 @@
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
 				if (fetchSeq[idx] !== seq) return; // stale response
+				console.log('[identify-meter] response idx:', idx, '\n  meter_label:', data.meter_label_full, '\n  score:', data.identification_score, '\n  result:', data.result);
 				verseState[idx].text_raw             = text;
 				verseState[idx].meter_label          = data.meter_label_full  || verseState[idx].meter_label;
 				verseState[idx].identification_score = data.identification_score !== undefined
