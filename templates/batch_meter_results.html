@@ -28,7 +28,7 @@
 		.bcm-stats-block {
 			position: sticky; top: 2.8em; z-index: 90;
 			/* Full-width sticky — margin breaks sticky, use padding instead */
-			padding: 0.6em 1em 0 calc(30% + 1em);
+			padding: 0.6em 1em 0 calc(18% + 1em);
 			background: var(--body-bg, var(--pre-bg));
 			margin: 0 0 1.25em 0;
 		}
@@ -120,7 +120,7 @@
 		/* === Verse list === */
 		.bcm-verses {
 			padding: 0 1em 4em;
-			margin-left: 30%;   /* leave room for fixed panel column */
+			margin-left: 18%;   /* leave room for fixed panel column */
 			display: flex; flex-direction: column; gap: 0.75em;
 		}
 		.bcm-hidden-notice { text-align: center; color: var(--main-text); opacity: 0.6; font-size: 0.85em; padding: 0.5em; }
@@ -244,8 +244,8 @@
 		.syl-box.problem { background: #e8a0a0; }
 		[data-theme="dark"] .syl-box.problem { background: #7a3030; }
 
-		/* mora annotation (jāti only) */
-		.pada-mora { font-size: 0.75em; color: #777; margin-bottom: 2px; }
+		/* mora annotation — inline after the pāda row */
+		.pada-mora { font-size: 0.8em; color: #777; white-space: nowrap; align-self: flex-end; padding-bottom: 2px; }
 		[data-theme="dark"] .pada-mora { color: #999; }
 
 		.verse-scansion.stale { opacity: 0.35; }
@@ -254,7 +254,7 @@
 		.bcm-panel {
 			position: fixed;
 			left: 1em;
-			right: 71%;
+			right: 83%;
 			top: 4em;    /* updated by JS */
 			background: var(--sidebar-bg);
 			color: var(--sidebar-text);
@@ -266,11 +266,53 @@
 			transition: top 0.18s ease;
 		}
 		.bcm-panel.visible { visibility: visible; }
-		/* Override action-row border color to match sidebar */
-		.bcm-panel .action-row { border-bottom-color: rgba(255,255,255,0.2); }
-		.bcm-panel .action-row:last-child { border-bottom: none; }
+		.panel-section-top {
+			padding-bottom: 0.4em;
+			margin-bottom: 0.4em;
+			border-bottom: 1px solid rgba(255,255,255,0.15);
+		}
+		.panel-section-bottom {
+			display: flex; flex-direction: column; gap: 0.3em;
+		}
+		.bcm-panel .checkbox-group {
+			display: grid; grid-template-columns: 1fr 1fr; gap: 0.1em 0.75em;
+			font-size: 0.85em;
+		}
+		.bcm-panel .checkbox-group label { white-space: nowrap; cursor: pointer; }
+		#panel-resplit {
+			width: 100%; font-size: 0.85em;
+			background: var(--input-bg); color: var(--main-text);
+			border: 1px solid var(--input-border); border-radius: 3px;
+			padding: 0.25em 0.4em;
+		}
+		#panel-resplit:disabled { opacity: 0.4; cursor: default; }
 
 		/* === Header buttons === */
+		/* === Mode pill toggle — matches main page input-toggle === */
+		.panel-mode-toggle {
+			display: flex;
+			border-radius: 20px;
+			overflow: hidden;
+			background: var(--sidebar-bg-dark);
+			padding: 2px;
+			margin-bottom: 0.4em;
+		}
+		.panel-mode-btn {
+			flex: 1;
+			padding: 0.25rem 0.4rem;
+			font-size: 0.8rem;
+			border: none;
+			border-radius: 20px;
+			background: transparent;
+			color: var(--sidebar-accent);
+			cursor: pointer;
+			transition: background 0.15s, color 0.15s;
+		}
+		.panel-mode-btn.active {
+			background: var(--sidebar-text);
+			color: var(--sidebar-bg-dark);
+		}
+
 		.btn-export {
 			background: var(--btn-bg); color: var(--btn-text);
 			border: none; border-radius: 3px; padding: 0.3em 0.7em;
@@ -293,6 +335,15 @@
 		<h1>batch meter correction mode</h1>
 	</div>
 	<div class="bcm-header-right">
+		<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+			display:
+			<select id="display-scheme" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+				<option value="IAST" selected>IAST</option>
+				<option value="SLP">SLP</option>
+				<option value="DEV">DEV</option>
+				<option value="HK">HK</option>
+			</select>
+		</label>
 		<button class="btn-export" onclick="exportTxt()">export .txt</button>
 		<button class="btn-export" onclick="exportCsv()">export .csv</button>
 		<button class="btn-theme" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
@@ -312,30 +363,28 @@
 
 <div class="bcm-verses" id="bcm-verses"></div>
 
-<!-- Floating tool panel (left side) — uses same action-row classes as sidebar -->
+<!-- Floating tool panel (left side) -->
 <div class="bcm-panel" id="bcm-panel">
-	<div class="action-row">
-		<button class="btn btn-primary action-btn" id="btn-scan" onclick="panelScan()">Scan</button>
-		<div class="action-options">
-			<div class="checkbox-group">
-				<label><input type="checkbox" id="panel-weights" checked> lglgl</label>
-				<label><input type="checkbox" id="panel-morae"> {mora}</label>
-				<label><input type="checkbox" id="panel-garas" checked> [ga&#7751;a]</label>
-				<label><input type="checkbox" id="panel-align"> align</label>
-			</div>
+	<div class="panel-section-top">
+		<div class="checkbox-group">
+			<label><input type="checkbox" id="panel-weights" checked> lglgl</label>
+			<label><input type="checkbox" id="panel-morae"> {mora}</label>
+			<label><input type="checkbox" id="panel-garas" checked> [ga&#7751;a]</label>
+			<label><input type="checkbox" id="panel-align"> align</label>
 		</div>
 	</div>
-	<div class="action-row">
-		<button class="btn btn-primary action-btn" id="btn-reidentify" onclick="panelReidentify()">Identify Meter</button>
-		<div class="action-options">
-			<select id="panel-resplit">
-				<option value="none">don't resplit</option>
-				<option value="resplit_lite">resplit lite</option>
-				<option value="resplit_lite_keep_mid" selected>resplit lite keep mid</option>
-				<option value="resplit_max">resplit max</option>
-				<option value="resplit_max_keep_mid">resplit max keep mid</option>
-			</select>
+	<div class="panel-section-bottom">
+		<div class="panel-mode-toggle" id="panel-mode-toggle">
+			<button class="panel-mode-btn" id="btn-mode-scan" onclick="setMode('scan')">Scan</button>
+			<button class="panel-mode-btn active" id="btn-mode-identify" onclick="setMode('identify')">Identify</button>
 		</div>
+		<select id="panel-resplit">
+			<option value="none">don't resplit</option>
+			<option value="resplit_lite">resplit lite</option>
+			<option value="resplit_lite_keep_mid" selected>resplit lite keep mid</option>
+			<option value="resplit_max">resplit max</option>
+			<option value="resplit_max_keep_mid">resplit max keep mid</option>
+		</select>
 	</div>
 </div>
 
@@ -365,12 +414,120 @@
 	var settings = batchData.settings || {};
 	var duration = batchData.duration_secs;
 
-	// Seed panel controls from session settings
-	if (settings.resplit_option) document.getElementById('panel-resplit').value = settings.resplit_option;
-	if (settings.weights  !== undefined) document.getElementById('panel-weights').checked = !!settings.weights;
-	if (settings.morae    !== undefined) document.getElementById('panel-morae').checked   = !!settings.morae;
-	if (settings.gaRas    !== undefined) document.getElementById('panel-garas').checked   = !!settings.gaRas;
-	if (settings.alignment !== undefined) document.getElementById('panel-align').checked  = !!settings.alignment;
+	// --- Per-verse options state ---
+	// Initialize all verses with the session defaults, then each card tracks its own.
+	var defaultOpts = {
+		weights:        settings.weights  !== undefined ? !!settings.weights  : true,
+		morae:          settings.morae    !== undefined ? !!settings.morae    : false,
+		gaRas:          settings.gaRas    !== undefined ? !!settings.gaRas    : true,
+		alignment:      settings.alignment !== undefined ? !!settings.alignment : false,
+		resplit_option: settings.resplit_option || 'resplit_lite_keep_mid',
+	};
+	var verseOpts = verses.map(function() { return Object.assign({}, defaultOpts); });
+
+	function getPanelOpts() {
+		return {
+			weights:        document.getElementById('panel-weights').checked,
+			morae:          document.getElementById('panel-morae').checked,
+			gaRas:          document.getElementById('panel-garas').checked,
+			alignment:      document.getElementById('panel-align').checked,
+			resplit_option: document.getElementById('panel-resplit').value,
+		};
+	}
+
+	function setPanelOpts(opts) {
+		document.getElementById('panel-weights').checked = opts.weights;
+		document.getElementById('panel-morae').checked   = opts.morae;
+		document.getElementById('panel-garas').checked   = opts.gaRas;
+		document.getElementById('panel-align').checked   = opts.alignment;
+		document.getElementById('panel-resplit').value   = opts.resplit_option;
+	}
+
+	// Seed panel with defaults on load
+	setPanelOpts(defaultOpts);
+	document.getElementById('panel-resplit').disabled = false; // identify is default
+
+	// --- Mode toggle (Scan / Identify) ---
+	var currentMode = 'identify';
+	window.setMode = function(mode) {
+		currentMode = mode;
+		document.getElementById('btn-mode-scan').classList.toggle('active', mode === 'scan');
+		document.getElementById('btn-mode-identify').classList.toggle('active', mode === 'identify');
+		document.getElementById('panel-resplit').disabled = (mode === 'scan');
+		// Re-run on focused card
+		if (focusedIndex !== null) scheduleAutoRun();
+	};
+
+	// --- Display scheme & SLP transliteration ---
+	var displayScheme = 'IAST';
+
+	// SLP1 → IAST character map (vowels + consonants that differ from SLP)
+	var SLP_TO_IAST = {
+		'a':'a','A':'ā','i':'i','I':'ī','u':'u','U':'ū',
+		'f':'ṛ','F':'ṝ','x':'ḷ','e':'e','E':'ai','o':'o','O':'au',
+		'k':'k','K':'kh','g':'g','G':'gh','N':'ṅ',
+		'c':'c','C':'ch','j':'j','J':'jh','Y':'ñ',
+		'w':'ṭ','W':'ṭh','q':'ḍ','Q':'ḍh','R':'ṇ',
+		't':'t','T':'th','d':'d','D':'dh','n':'n',
+		'p':'p','P':'ph','b':'b','B':'bh','m':'m',
+		'y':'y','r':'r','l':'l','v':'v',
+		'z':'ś','S':'ṣ','s':'s','h':'h',
+		'M':'ṃ','H':'ḥ','Z':'~','L':'ḻ',
+		"'":'ʼ'
+	};
+	// SLP1 → Devanagari
+	var SLP_TO_DEV = {
+		'a':'अ','A':'आ','i':'इ','I':'ई','u':'उ','U':'ऊ',
+		'f':'ऋ','F':'ॠ','x':'ऌ','e':'ए','E':'ऐ','o':'ओ','O':'औ',
+		'k':'क','K':'ख','g':'ग','G':'घ','N':'ङ',
+		'c':'च','C':'छ','j':'ज','J':'झ','Y':'ञ',
+		'w':'ट','W':'ठ','q':'ड','Q':'ढ','R':'ण',
+		't':'त','T':'थ','d':'द','D':'ध','n':'न',
+		'p':'प','P':'फ','b':'ब','B':'भ','m':'म',
+		'y':'य','r':'र','l':'ल','v':'व',
+		'z':'श','S':'ष','s':'स','h':'ह',
+		'M':'ं','H':'ः','Z':'ँ','L':'ळ',
+		"'":'ऽ'
+	};
+	// SLP1 → HK
+	var SLP_TO_HK = {
+		'a':'a','A':'A','i':'i','I':'I','u':'u','U':'U',
+		'f':'R','F':'RR','x':'lR','e':'e','E':'ai','o':'o','O':'au',
+		'k':'k','K':'kh','g':'g','G':'gh','N':'G',
+		'c':'c','C':'ch','j':'j','J':'jh','Y':'J',
+		'w':'T','W':'Th','q':'D','Q':'Dh','R':'N',
+		't':'t','T':'th','d':'d','D':'dh','n':'n',
+		'p':'p','P':'ph','b':'b','B':'bh','m':'m',
+		'y':'y','r':'r','l':'l','v':'v',
+		'z':'z','S':'S','s':'s','h':'h',
+		'M':'M','H':'H','Z':'~','L':'L',
+		"'":'.'
+	};
+
+	function slpChar(c, scheme) {
+		if (scheme === 'SLP') return c;
+		var map = scheme === 'IAST' ? SLP_TO_IAST : scheme === 'DEV' ? SLP_TO_DEV : SLP_TO_HK;
+		return map[c] !== undefined ? map[c] : c;
+	}
+
+	function slpToDisplay(s, scheme) {
+		if (!s || scheme === 'SLP') return s;
+		var out = '';
+		for (var i = 0; i < s.length; i++) out += slpChar(s[i], scheme);
+		return out;
+	}
+
+	document.getElementById('display-scheme').addEventListener('change', function() {
+		displayScheme = this.value;
+		// Re-render scansion for all visible cards using each card's own opts
+		verseState.forEach(function(_, idx) {
+			var scanDiv = document.getElementById('verse-scan-' + idx);
+			if (scanDiv) {
+				scanDiv.innerHTML = '';
+				renderScansion(scanDiv, verseState[idx], verseOpts[idx]);
+			}
+		});
+	});
 
 	var PERFECT_SCORE = 9;
 	function isPerfect(v) { return (v.identification_score || 0) >= PERFECT_SCORE; }
@@ -680,13 +837,27 @@
 		body.className = 'verse-card-body';
 
 		// Left: raw text — click to edit, blur to save
+		// If verse has 4 clear pādas and raw text is single-line, offer split version
+		var displayText = v.text_raw || '';
+		var sylPadasInit = (v.text_syllabified || '').split('\n').filter(function(p) { return p.trim(); });
+		if (sylPadasInit.length === 4 && displayText.indexOf('\n') === -1) {
+			// Check if we can reconstruct raw from syllabified (same chars ignoring spaces/hyphens)
+			var sylJoined = sylPadasInit.join(' ').replace(/\s+/g, ' ').trim();
+			var rawNorm = displayText.replace(/\s+/g, ' ').trim();
+			// Use syllabified pāda breaks as newlines in display text if chars match well
+			if (sylJoined.replace(/\s/g,'') === rawNorm.replace(/\s/g,'')) {
+				displayText = sylPadasInit.map(function(p) { return p.trim(); }).join('\n');
+				verseState[idx].text_raw = displayText;
+			}
+		}
+
 		var rawDiv = document.createElement('div');
 		rawDiv.className = 'verse-raw';
 		rawDiv.id = 'verse-raw-' + idx;
 		var textDiv = document.createElement('div');
 		textDiv.className = 'verse-raw-text';
 		textDiv.id = 'verse-raw-text-' + idx;
-		textDiv.textContent = v.text_raw || '';
+		textDiv.textContent = displayText;
 		textDiv.title = 'Click to edit';
 		textDiv.addEventListener('click', function(e) { e.stopPropagation(); startEdit(idx); });
 		rawDiv.appendChild(textDiv);
@@ -696,7 +867,7 @@
 		var scanDiv = document.createElement('div');
 		scanDiv.className = 'verse-scansion';
 		scanDiv.id = 'verse-scan-' + idx;
-		renderScansion(scanDiv, v);
+		renderScansion(scanDiv, v, verseOpts[idx]);
 		body.appendChild(scanDiv);
 
 		card.appendChild(body);
@@ -762,19 +933,31 @@
 		if (!scanDiv) return;
 		scanDiv.classList.remove('stale');
 		scanDiv.innerHTML = '';
-		renderScansion(scanDiv, verseState[idx]);
+		renderScansion(scanDiv, verseState[idx], verseOpts[idx]);
 	}
 
-	function renderScansion(el, v) {
+	function renderScansion(el, v, opts) {
+		// Use per-card options (fall back to panel state if not provided)
+		opts = opts || getPanelOpts();
+		var optWeights   = opts.weights;
+		var optMorae     = opts.morae;
+		var optGaRas     = opts.gaRas;
+		var optAlignment = opts.alignment;
+
 		var sylPadas  = (v.text_syllabified  || '').split('\n').map(function(p) { return p.trim(); });
 		var wtPadas   = (v.syllable_weights   || '').split('\n').map(function(p) { return p.trim(); });
 		var gaRaPadas = (v.gaRa_abbreviations || '').split('\n').map(function(p) { return p.trim(); });
 		var morae     = v.morae_per_line || [];
 		var diag      = v.diagnostic || null;
 		var isJati    = v.meter_label && v.meter_label.indexOf('j\u0101ti') >= 0;
+		var isAnustubh = v.meter_label && (
+			v.meter_label.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
+			v.meter_label.indexOf('anustubh') >= 0 ||
+			v.meter_label.indexOf('ardham eva') >= 0
+		);
 
 		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
-		if (v.meter_label && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
+		if (isAnustubh && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
 			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
 			wtPadas   = [wtPadas[0]   + wtPadas[1],          wtPadas[2]   + wtPadas[3]];
 			gaRaPadas = [gaRaPadas[0] + gaRaPadas[1],        gaRaPadas[2] + gaRaPadas[3]];
@@ -826,18 +1009,24 @@
 			var numSyls   = Math.max(sylList.length, wtList.length);
 
 			function makeSylBox(j) {
-				var syl    = sylList[j] || '';
+				var syl    = slpToDisplay(sylList[j] || '', displayScheme);
 				var wt     = wtList[j]  || '';
 				var isL    = wt.toUpperCase() === 'L';
 				var isG    = wt.toUpperCase() === 'G';
 				var isProb = !lenError && probSet[j];
 				var box    = document.createElement('div');
-				box.className = 'syl-box ' + (isL ? 'L' : isG ? 'G' : '') + (isProb ? ' problem' : '');
-				var sc = document.createElement('div'); sc.className = 'scan';
-				sc.textContent = isL ? 'l' : isG ? 'g' : wt;
-				var sy = document.createElement('div'); sy.className = 'syl';
-				sy.textContent = syl;
-				box.appendChild(sc); box.appendChild(sy);
+				// Only color L/G if weights visible
+				box.className = 'syl-box ' + (optWeights && isL ? 'L' : optWeights && isG ? 'G' : '') + (isProb ? ' problem' : '');
+				if (optWeights) {
+					var sc = document.createElement('div'); sc.className = 'scan';
+					sc.textContent = isL ? 'l' : isG ? 'g' : wt;
+					box.appendChild(sc);
+				}
+				if (optAlignment) {
+					var sy = document.createElement('div'); sy.className = 'syl';
+					sy.textContent = syl;
+					box.appendChild(sy);
+				}
 				return box;
 			}
 
@@ -886,10 +1075,10 @@
 				return GANA_FROM_WEIGHTS[pat] || '?';
 			}
 
-			if (ganaChars.length === 0) {
-				// No gaṇa data — plain syllable boxes
+			if (!optGaRas || ganaChars.length === 0) {
+				// No gaṇa grouping — plain syllable boxes
 				for (var j = 0; j < numSyls; j++) row.appendChild(makeSylBox(j));
-			} else if (numSyls === 8 && ganaChars.length === 4) {
+			} else if (isAnustubh && numSyls === 8 && ganaChars.length === 4) {
 				// Anuṣṭubh: group syls 1-3 and 4-6, leave syls 0 and 7 bare (anceps)
 				// Recompute gaṇa names from actual weights at those positions
 				var g1 = ganaNameFromWeights(wtList, 1);
@@ -925,7 +1114,7 @@
 				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
 			}
 
-			// Wrap row + optional imperfect label in a flex row
+			// Wrap row + optional imperfect label + optional mora count in a flex row
 			var wrap = document.createElement('div');
 			wrap.className = 'pada-row-wrap';
 			wrap.appendChild(row);
@@ -935,15 +1124,13 @@
 				ilbl.textContent = imperfectLabel;
 				wrap.appendChild(ilbl);
 			}
-			el.appendChild(wrap);
-
-			// Mora annotation (jāti only)
-			if (isJati && moraeVal !== undefined) {
-				var mora = document.createElement('div');
+			if (optMorae && moraeVal !== undefined) {
+				var mora = document.createElement('span');
 				mora.className = 'pada-mora';
 				mora.textContent = 'm:\u202f' + moraeVal;
-				el.appendChild(mora);
+				wrap.appendChild(mora);
 			}
+			el.appendChild(wrap);
 		}
 	}
 
@@ -1069,6 +1256,11 @@
 	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
 	// Pin stats block directly below the sticky header
 	document.querySelector('.bcm-stats-block').style.top = stickyHeaderH + 'px';
+	// Show panel immediately on load, positioned below the stats block
+	var statsBlockEl = document.querySelector('.bcm-stats-block');
+	var initialPanelTop = (statsBlockEl ? statsBlockEl.getBoundingClientRect().bottom : stickyHeaderH) + 8;
+	panel.style.top = initialPanelTop + 'px';
+	panel.classList.add('visible');
 
 	function positionPanel(idx) {
 		var card = document.getElementById('verse-card-' + idx);
@@ -1080,15 +1272,47 @@
 
 	function focusCard(idx) {
 		if (focusedIndex !== null) {
+			// Save current panel opts back to the card we're leaving
+			if (verseOpts[focusedIndex]) verseOpts[focusedIndex] = getPanelOpts();
 			var prev = document.getElementById('verse-card-' + focusedIndex);
 			if (prev) prev.classList.remove('focused');
 		}
 		focusedIndex = idx;
+		// Load this card's opts into the panel
+		if (verseOpts[idx]) setPanelOpts(verseOpts[idx]);
 		var card = document.getElementById('verse-card-' + idx);
 		if (card) card.classList.add('focused');
 		panel.classList.add('visible');
 		positionPanel(idx);
+		// Auto-run on first focus of a new card
+		scheduleAutoRun();
 	}
+
+	// --- Auto-run on option changes ---
+	var autoRunTimer = null;
+	function scheduleAutoRun() {
+		clearTimeout(autoRunTimer);
+		autoRunTimer = setTimeout(function() {
+			if (focusedIndex === null) return;
+			if (currentMode === 'identify') panelReidentify();
+			else panelScan();
+		}, 400);
+	}
+
+	// Rendering-only options: save to focused card's opts and re-render only that card
+	['panel-weights','panel-morae','panel-garas','panel-align'].forEach(function(id) {
+		document.getElementById(id).addEventListener('change', function() {
+			if (focusedIndex === null) return;
+			verseOpts[focusedIndex] = getPanelOpts();
+			updateCardScansion(focusedIndex);
+		});
+	});
+	// Resplit only matters in identify mode — triggers API call
+	document.getElementById('panel-resplit').addEventListener('change', function() {
+		if (focusedIndex === null) return;
+		verseOpts[focusedIndex] = getPanelOpts();
+		if (currentMode === 'identify') scheduleAutoRun();
+	});
 
 	// --- Click-to-edit, auto-save on blur ---
 	function startEdit(idx) {
@@ -1105,10 +1329,21 @@
 		ta.style.height = (textDiv.offsetHeight || 80) + 'px';
 		ta.addEventListener('blur', function() { commitEdit(idx); });
 		ta.addEventListener('keydown', function(e) {
-			// Esc cancels, Ctrl+Enter commits
+			// Esc cancels
 			if (e.key === 'Escape') { e.preventDefault(); cancelEdit(idx); }
 		});
 		ta.addEventListener('click', function(e) { e.stopPropagation(); });
+		ta.addEventListener('input', function() {
+			// Auto-run after text change (debounced)
+			clearTimeout(autoRunTimer);
+			autoRunTimer = setTimeout(function() {
+				// Commit current text into verseState without closing editor
+				var ta2 = document.getElementById('verse-edit-ta-' + idx);
+				if (ta2) verseState[idx].text_raw = ta2.value;
+				if (currentMode === 'identify') panelReidentify();
+				else panelScan();
+			}, 700);
+		});
 
 		rawDiv.insertBefore(ta, textDiv);
 		textDiv.style.display = 'none';
@@ -1121,6 +1356,7 @@
 	function commitEdit(idx) {
 		var ta = document.getElementById('verse-edit-ta-' + idx);
 		if (ta) verseState[idx].text_raw = ta.value;
+		clearTimeout(autoRunTimer);
 		finishEdit(idx);
 	}
 
@@ -1139,30 +1375,36 @@
 
 	// --- Panel actions ---
 	function getPanelSettings() {
+		var opts = (focusedIndex !== null && verseOpts[focusedIndex]) ? verseOpts[focusedIndex] : getPanelOpts();
 		return {
 			from_scheme:    settings.from_scheme || 'Auto',
-			resplit_option: document.getElementById('panel-resplit').value,
-			weights:        document.getElementById('panel-weights').checked,
-			morae:          document.getElementById('panel-morae').checked,
-			gaRas:          document.getElementById('panel-garas').checked,
-			alignment:      document.getElementById('panel-align').checked,
+			resplit_option: opts.resplit_option,
+			weights:        opts.weights,
+			morae:          opts.morae,
+			gaRas:          opts.gaRas,
+			alignment:      opts.alignment,
 		};
 	}
+
+	// Track in-flight fetch per verse so we can ignore stale responses
+	var fetchSeq = {};
 
 	window.panelReidentify = function() {
 		if (focusedIndex === null) return;
 		var idx = focusedIndex;
-		if (editingIndex === idx) commitEdit(idx);
+		// Use current textarea value if editing
+		var ta = document.getElementById('verse-edit-ta-' + idx);
+		var text = ta ? ta.value : verseState[idx].text_raw || '';
 
 		var ps = getPanelSettings();
-		var v = verseState[idx];
 		var scanDiv = document.getElementById('verse-scan-' + idx);
 		if (scanDiv) scanDiv.classList.add('stale');
-		var btn = document.getElementById('btn-reidentify');
-		btn.disabled = true; btn.textContent = '\u2026';
+
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		var seq = fetchSeq[idx];
 
 		var fd = new FormData();
-		fd.append('input_text',   v.text_raw || '');
+		fd.append('input_text',   text);
 		fd.append('from_scheme',  ps.from_scheme);
 		fd.append('resplit_option', ps.resplit_option);
 		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
@@ -1173,6 +1415,8 @@
 		fetch('/api/identify-meter', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
+				if (fetchSeq[idx] !== seq) return; // stale response
+				verseState[idx].text_raw             = text;
 				verseState[idx].meter_label          = data.meter_label_full  || verseState[idx].meter_label;
 				verseState[idx].identification_score = data.identification_score !== undefined
 					? data.identification_score : verseState[idx].identification_score;
@@ -1187,25 +1431,25 @@
 			})
 			.catch(function(err) {
 				if (scanDiv) scanDiv.classList.remove('stale');
-				alert('Re-identification failed: ' + err);
-			})
-			.finally(function() { btn.disabled = false; btn.textContent = 'Identify Meter'; });
+				console.error('Re-identification failed:', err);
+			});
 	};
 
 	window.panelScan = function() {
 		if (focusedIndex === null) return;
 		var idx = focusedIndex;
-		if (editingIndex === idx) commitEdit(idx);
+		var ta = document.getElementById('verse-edit-ta-' + idx);
+		var text = ta ? ta.value : verseState[idx].text_raw || '';
 
 		var ps = getPanelSettings();
-		var v = verseState[idx];
 		var scanDiv = document.getElementById('verse-scan-' + idx);
 		if (scanDiv) scanDiv.classList.add('stale');
-		var btn = document.getElementById('btn-scan');
-		btn.disabled = true; btn.textContent = '\u2026';
+
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		var seq = fetchSeq[idx];
 
 		var fd = new FormData();
-		fd.append('input_text',   v.text_raw || '');
+		fd.append('input_text',   text);
 		fd.append('from_scheme',  ps.from_scheme);
 		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
 		fd.append('show_morae',     ps.morae     ? 'true' : 'false');
@@ -1215,6 +1459,8 @@
 		fetch('/api/scan', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
+				if (fetchSeq[idx] !== seq) return;
+				verseState[idx].text_raw           = text;
 				verseState[idx].text_syllabified   = data.text_syllabified   || verseState[idx].text_syllabified;
 				verseState[idx].syllable_weights   = data.syllable_weights    || verseState[idx].syllable_weights;
 				verseState[idx].morae_per_line     = data.morae_per_line      || verseState[idx].morae_per_line;
@@ -1223,9 +1469,8 @@
 			})
 			.catch(function(err) {
 				if (scanDiv) scanDiv.classList.remove('stale');
-				alert('Scan failed: ' + err);
-			})
-			.finally(function() { btn.disabled = false; btn.textContent = 'Scan'; });
+				console.error('Scan failed:', err);
+			});
 	};
 
 	// --- Export ---
