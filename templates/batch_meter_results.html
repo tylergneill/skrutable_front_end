@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="icon" href="/assets/favicon.png">
 	<link rel="stylesheet" href="/assets/css/skrutable.css">
-	<title>skrutable — meter identification batch correction mode</title>
+	<title>skrutable — batch meter correction mode</title>
 	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
 	<style>
 		/* Override global height:100% so sticky children work throughout the page */
@@ -39,10 +39,11 @@
 		}
 		.bcm-stat       { color: var(--main-text); font-size: 1em; }
 		.bcm-stat-dim   { color: var(--main-text); opacity: 0.5; font-size: 0.9em; }
+		.bcm-stat-showing { display: block; font-size: 0.75em; font-weight: normal; opacity: 0.8; margin-top: 0.1em; text-align: center; }
 
 		/* Filter pill buttons */
 		.bcm-filter-btn {
-			display: inline-flex; align-items: center; gap: 0.4em;
+			display: inline-flex; flex-direction: column; align-items: center; gap: 0.1em;
 			padding: 0.25em 0.9em; border-radius: 999px; border: none;
 			font-size: 0.9em; font-weight: 600; cursor: pointer;
 			user-select: none; transition: opacity 0.15s, box-shadow 0.15s;
@@ -74,25 +75,44 @@
 		.btn-nav:hover { background: var(--btn-bg-hover); }
 		.btn-nav:disabled { opacity: 0.35; cursor: default; }
 
-		/* === Meter type breakdown === */
+		/* === Meter type filter === */
 		.bcm-meter-counts {
-			margin-top: 0.4em; padding: 0.5em 0.75em;
+			margin-top: 0.4em; padding: 0.3em 0.75em 0.5em;
 			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
 			font-size: 0.85em; color: var(--main-text); display: none;
 		}
-		.bcm-meter-counts.open { display: block; }
+		.bcm-meter-counts.open { display: block; max-height: 40vh; overflow-y: auto; }
 		.bcm-meter-counts-toggle {
 			background: none; border: none; color: var(--link-color);
-			cursor: pointer; font-size: 0.85em; padding: 0.4em 0.75em;
+			cursor: pointer; font-size: 0.85em; padding: 0.4em 0.75em 0.7em;
 			text-decoration: none; display: flex; align-items: center; gap: 0.4em;
 			font-weight: 600; letter-spacing: 0.01em;
 		}
 		.bcm-meter-counts-toggle:hover { text-decoration: underline; }
-		.meter-count-row { display: flex; gap: 0.5em; padding: 0.15em 0; border-bottom: 1px solid var(--input-border); }
+		.bcm-filter-chips { display: inline-flex; flex-wrap: wrap; gap: 0.3em; margin-left: 0.4em; vertical-align: middle; }
+		.bcm-filter-chip {
+			display: inline-flex; align-items: center; gap: 0.25em;
+			background: var(--input-border); border-radius: 999px;
+			padding: 0.05em 0.5em 0.05em 0.6em; font-size: 0.8em;
+			color: var(--main-text);
+		}
+		.bcm-filter-chip-x {
+			background: none; border: none; cursor: pointer; padding: 0;
+			font-size: 0.9em; line-height: 1; color: var(--main-text); opacity: 0.6;
+		}
+		.bcm-filter-chip-x:hover { opacity: 1; }
+		.meter-filter-header {
+			display: flex; align-items: center; gap: 0.5em;
+			padding: 0.3em 0 0.3em; border-bottom: 2px solid var(--input-border);
+			margin-bottom: 0.15em;
+		}
+		#cb-select-all { flex-shrink: 0; cursor: pointer; margin: 0; }
+		.meter-count-row { display: flex; align-items: center; gap: 0.5em; padding: 0.15em 0; border-bottom: 1px solid var(--input-border); }
 		.meter-count-row:last-child { border-bottom: none; }
 		.meter-count-row.has-needs { background: rgba(224,80,80,0.08); border-radius: 2px; }
 		[data-theme="dark"] .meter-count-row.has-needs { background: rgba(224,80,80,0.14); }
-		.meter-count-label { flex: 1; }
+		.meter-count-row input[type=checkbox] { flex-shrink: 0; cursor: pointer; margin: 0; }
+		.meter-count-label { flex: 1; cursor: pointer; }
 		.meter-count-n { font-weight: bold; min-width: 3em; text-align: right; }
 		.meter-count-needs { font-weight: bold; color: #e05050; min-width: 3.5em; text-align: right; }
 		.meter-count-pct { color: #777; min-width: 3.5em; text-align: right; }
@@ -270,7 +290,7 @@
 <div class="bcm-header">
 	<div class="bcm-header-left">
 		<a href="/">&larr; workbench</a>
-		<h1>meter identification batch correction mode</h1>
+		<h1>batch meter correction mode</h1>
 	</div>
 	<div class="bcm-header-right">
 		<button class="btn-export" onclick="exportTxt()">export .txt</button>
@@ -283,7 +303,10 @@
 	<div class="bcm-stats-summary" id="bcm-stats-summary">
 		<!-- nav arrows appended here by JS, after the pills -->
 	</div>
-	<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type breakdown</button>
+	<div style="display:flex;align-items:center;flex-wrap:wrap;">
+		<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type filter</button>
+		<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
+	</div>
 	<div class="bcm-meter-counts" id="bcm-meter-counts"></div>
 </div>
 
@@ -320,7 +343,7 @@
 (function() {
 	// Fix URL without a reload
 	if (window.history && window.history.replaceState) {
-		window.history.replaceState(null, '', '/batch-meter-results');
+		window.history.replaceState(null, '', '/batch-meter-correction');
 	}
 
 	// --- Dark mode ---
@@ -352,6 +375,7 @@
 	var PERFECT_SCORE = 9;
 	function isPerfect(v) { return (v.identification_score || 0) >= PERFECT_SCORE; }
 	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
+	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
 
 	// Mutable state per verse
 	var verseState = verses.map(function(v) { return Object.assign({}, v); });
@@ -363,8 +387,7 @@
 	var meterCounts = {};
 	var meterNeedsCounts = {};
 	verses.forEach(function(v) {
-		var lbl = v.meter_label || 'na ki\u1e43cid adhyavasitam';
-		var base = lbl.split(' (')[0].trim();
+		var base = meterBase(v);
 		meterCounts[base] = (meterCounts[base] || 0) + 1;
 		if (!isPerfect(v)) meterNeedsCounts[base] = (meterNeedsCounts[base] || 0) + 1;
 	});
@@ -372,25 +395,48 @@
 		return { label: k, n: meterCounts[k], needs: meterNeedsCounts[k] || 0 };
 	}).sort(function(a, b) { return b.n - a.n; });
 
+	function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+	function pillHTML(label, spinId, showingId) {
+		return '<span>' + label + ' <span class="bcm-filter-spinner" id="' + spinId + '">&#8987;</span></span>' +
+			'<span class="bcm-stat-showing" id="' + showingId + '" style="display:none"></span>';
+	}
+
+	function scrollToCard(card) {
+		var statsBlock = document.querySelector('.bcm-stats-block');
+		var panelTop = (statsBlock ? statsBlock.getBoundingClientRect().bottom : 0) + 8;
+		window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - panelTop, behavior: 'smooth' });
+		panel.style.top = panelTop + 'px';
+	}
+
+	function applyMeterFilter() {
+		var noneSelected = meterList.every(function(m) { return meterFilter[m.label] === false; });
+		if (noneSelected) meterList.forEach(function(m) { meterFilter[m.label] = true; });
+		expandedPerfect = {};
+		renderCards();
+		updateFilterUI();
+	}
+
 	var statsEl = document.getElementById('bcm-stats-summary');
 	// Count text
 	var countSpan = document.createElement('span');
 	countSpan.className = 'bcm-stat';
-	countSpan.textContent = verses.length + ' verse' + (verses.length !== 1 ? 's' : '') +
-		(duration ? ' (' + duration.toFixed(1) + 's)' : '');
+	countSpan.innerHTML = fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') +
+		(duration ? ' (' + duration.toFixed(1) + 's)' : '') +
+		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
 	statsEl.appendChild(countSpan);
 	// Correct pill button
 	var btnCorrect = document.createElement('button');
 	btnCorrect.className = 'bcm-filter-btn correct';
 	btnCorrect.id = 'btn-filter-correct';
-	btnCorrect.innerHTML = perfectCount + ' correct <span class="bcm-filter-spinner" id="spin-correct">&#8987;</span>';
+	btnCorrect.innerHTML = pillHTML(fmt(perfectCount) + ' correct', 'spin-correct', 'showing-correct');
 	btnCorrect.addEventListener('click', function() { toggleFilter('correct'); });
 	statsEl.appendChild(btnCorrect);
 	// Needs correction pill button
 	var btnNeeds = document.createElement('button');
 	btnNeeds.className = 'bcm-filter-btn needs-correction';
 	btnNeeds.id = 'btn-filter-needs';
-	btnNeeds.innerHTML = needsCount + ' need correction <span class="bcm-filter-spinner" id="spin-needs">&#8987;</span>';
+	btnNeeds.innerHTML = pillHTML(fmt(needsCount) + ' need correction', 'spin-needs', 'showing-needs');
 	btnNeeds.addEventListener('click', function() { toggleFilter('needs'); });
 	statsEl.appendChild(btnNeeds);
 	// Refresh button
@@ -398,7 +444,7 @@
 	btnRefresh.id = 'btn-refresh';
 	btnRefresh.className = 'btn-refresh';
 	btnRefresh.title = 'Refresh counts and hide resolved verses';
-	btnRefresh.textContent = '\u21bb refresh';
+	btnRefresh.innerHTML = '\u21bb refresh <span class="bcm-filter-spinner" id="spin-refresh">&#8987;</span>';
 	btnRefresh.addEventListener('click', refreshView);
 	statsEl.appendChild(btnRefresh);
 	// Spacer to push nav arrows to the right
@@ -421,23 +467,186 @@
 	btnNavDown.addEventListener('click', function() { navigateNeeds(1); });
 	statsEl.appendChild(btnNavDown);
 
+	// Meter filter state: set of labels currently shown (all selected initially)
+	var meterFilter = {};
+	meterList.forEach(function(m) { meterFilter[m.label] = true; });
+	// Pending state while dropdown is open
+	var meterFilterPending = null;
+
 	var countsEl = document.getElementById('bcm-meter-counts');
+
+	// Header row: indeterminate select-all checkbox
+	var filterHeader = document.createElement('div');
+	filterHeader.className = 'meter-filter-header';
+	var cbSelectAll = document.createElement('input');
+	cbSelectAll.type = 'checkbox';
+	cbSelectAll.id = 'cb-select-all';
+	cbSelectAll.title = 'Select / deselect all';
+	cbSelectAll.addEventListener('click', function() {
+		// On click: if all checked → uncheck all; otherwise → check all
+		var allChecked = meterList.every(function(m) {
+			var cb = document.getElementById('mcb-' + m.label);
+			return cb && cb.checked;
+		});
+		var target = !allChecked;
+		meterList.forEach(function(m) {
+			var cb = document.getElementById('mcb-' + m.label);
+			if (cb) cb.checked = target;
+			meterFilterPending[m.label] = target;
+		});
+		updateSelectAllCb();
+	});
+	filterHeader.appendChild(cbSelectAll);
+	countsEl.appendChild(filterHeader);
+
+	function updateSelectAllCb() {
+		var checkedCount = meterList.filter(function(m) {
+			var cb = document.getElementById('mcb-' + m.label);
+			return cb && cb.checked;
+		}).length;
+		if (checkedCount === 0) {
+			cbSelectAll.checked = false;
+			cbSelectAll.indeterminate = false;
+		} else if (checkedCount === meterList.length) {
+			cbSelectAll.checked = true;
+			cbSelectAll.indeterminate = false;
+		} else {
+			cbSelectAll.checked = false;
+			cbSelectAll.indeterminate = true;
+		}
+	}
+
 	meterList.forEach(function(m) {
 		var pct = (100 * m.n / verses.length).toFixed(1);
 		var row = document.createElement('div');
 		row.className = 'meter-count-row' + (m.needs > 0 ? ' has-needs' : '');
-		row.innerHTML = '<span class="meter-count-label">' + escHtml(m.label) + '</span>' +
-			'<span class="meter-count-n">' + m.n + '</span>' +
-			(m.needs > 0 ? '<span class="meter-count-needs">' + m.needs + ' \u2717</span>' : '<span class="meter-count-needs"></span>') +
-			'<span class="meter-count-pct">' + pct + '%</span>';
+
+		var cb = document.createElement('input');
+		cb.type = 'checkbox';
+		cb.id = 'mcb-' + m.label;
+		cb.checked = true;
+		cb.addEventListener('change', function() {
+			meterFilterPending[m.label] = cb.checked;
+			updateSelectAllCb();
+		});
+
+		var lbl = document.createElement('label');
+		lbl.className = 'meter-count-label';
+		lbl.htmlFor = 'mcb-' + m.label;
+		lbl.textContent = m.label;
+
+		row.appendChild(cb);
+		row.appendChild(lbl);
+
+		var nSpan = document.createElement('span');
+		nSpan.className = 'meter-count-n';
+		nSpan.textContent = m.n;
+		row.appendChild(nSpan);
+
+		var needsSpan = document.createElement('span');
+		needsSpan.className = 'meter-count-needs';
+		needsSpan.textContent = m.needs > 0 ? m.needs + ' \u2717' : '';
+		row.appendChild(needsSpan);
+
+		var pctSpan = document.createElement('span');
+		pctSpan.className = 'meter-count-pct';
+		pctSpan.textContent = pct + '%';
+		row.appendChild(pctSpan);
+
 		countsEl.appendChild(row);
 	});
+
+	function updateFilterUI() {
+		var allOn = meterList.every(function(m) { return meterFilter[m.label] !== false; });
+
+		// Compute filtered counts
+		var shownTotal = 0, shownCorrect = 0, shownNeeds = 0;
+		meterList.forEach(function(m) {
+			if (meterFilter[m.label] !== false) {
+				shownTotal   += m.n;
+				shownCorrect += (m.n - m.needs);
+				shownNeeds   += m.needs;
+			}
+		});
+
+		// Update "showing N" sub-labels — hide when all meters shown
+		var elTotal   = document.getElementById('showing-total');
+		var elCorrect = document.getElementById('showing-correct');
+		var elNeeds   = document.getElementById('showing-needs');
+		if (elTotal)   { elTotal.textContent   = allOn ? '' : 'showing ' + fmt(shownTotal);   elTotal.style.display   = allOn ? 'none' : 'block'; }
+		if (elCorrect) { elCorrect.textContent = allOn ? '' : 'showing ' + fmt(shownCorrect); elCorrect.style.display = allOn ? 'none' : 'block'; }
+		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : 'showing ' + fmt(shownNeeds);   elNeeds.style.display   = allOn ? 'none' : 'block'; }
+
+		// Update chips row — show one chip per selected meter with × to deselect
+		var chipsEl = document.getElementById('bcm-filter-chips');
+		if (!chipsEl) return;
+		chipsEl.innerHTML = '';
+		if (!allOn) {
+			var chipCount = 0;
+			meterList.forEach(function(m) {
+				if (meterFilter[m.label] === false) return;
+				if (chipCount >= 5) return;
+				chipCount++;
+				var chip = document.createElement('span');
+				chip.className = 'bcm-filter-chip';
+				chip.textContent = m.label + '\u00a0';
+				var x = document.createElement('button');
+				x.className = 'bcm-filter-chip-x';
+				x.textContent = '\u00d7';
+				x.title = 'Deselect ' + m.label;
+				x.addEventListener('click', function() {
+					meterFilter[m.label] = false;
+					// Keep pending in sync so closing the dropdown doesn't undo this
+					if (meterFilterPending) meterFilterPending[m.label] = false;
+					// Sync checkbox if dropdown is open
+					var cb = document.getElementById('mcb-' + m.label);
+					if (cb) { cb.checked = false; updateSelectAllCb(); }
+					applyMeterFilter();
+				});
+				chip.appendChild(x);
+				chipsEl.appendChild(chip);
+			});
+			var totalSelected = meterList.filter(function(m) { return meterFilter[m.label] !== false; }).length;
+			if (totalSelected > 5) {
+				var more = document.createElement('span');
+				more.className = 'bcm-filter-chip';
+				more.style.opacity = '0.6';
+				more.textContent = '+' + (totalSelected - 5) + ' more';
+				chipsEl.appendChild(more);
+			}
+		}
+	}
 
 	window.toggleMeterCounts = function() {
 		var el = document.getElementById('bcm-meter-counts');
 		var btn = document.getElementById('meter-counts-toggle');
 		var open = el.classList.toggle('open');
-		btn.innerHTML = (open ? '&#9660;' : '&#9654;') + ' meter type breakdown';
+		btn.innerHTML = (open ? '&#9660;' : '&#9654;') + ' meter type filter';
+		if (open) {
+			var allOn = meterList.every(function(m) { return meterFilter[m.label] !== false; });
+			if (allOn) {
+				// No active filter: show all boxes unchecked so user picks what to include
+				meterFilterPending = {};
+				meterList.forEach(function(m) { meterFilterPending[m.label] = false; });
+			} else {
+				meterFilterPending = Object.assign({}, meterFilter);
+			}
+			meterList.forEach(function(m) {
+				var cb = document.getElementById('mcb-' + m.label);
+				if (cb) cb.checked = !!meterFilterPending[m.label];
+			});
+			updateSelectAllCb();
+		} else {
+			// On close: nothing checked = revert to all-on; otherwise apply selection
+			var noneChecked = meterList.every(function(m) { return meterFilterPending[m.label] === false; });
+			if (noneChecked) {
+				meterList.forEach(function(m) { meterFilter[m.label] = true; });
+			} else {
+				meterFilter = Object.assign({}, meterFilterPending);
+			}
+			applyMeterFilter();
+			meterFilterPending = null;
+		}
 	};
 
 	// --- Header label: just base meter name, no diagnostic detail ---
@@ -768,19 +977,26 @@
 	}
 
 	function refreshView() {
-		// Recount from current verseState
-		var newPerfect = verseState.filter(isPerfect).length;
-		var newNeeds   = verseState.length - newPerfect;
-		perfectCount = newPerfect;
-		needsCount   = newNeeds;
-		// Update pill labels
-		var bc = document.getElementById('btn-filter-correct');
-		var bn = document.getElementById('btn-filter-needs');
-		if (bc) bc.innerHTML = newPerfect + ' correct <span class="bcm-filter-spinner" id="spin-correct">&#8987;</span>';
-		if (bn) bn.innerHTML = newNeeds   + ' need correction <span class="bcm-filter-spinner" id="spin-needs">&#8987;</span>';
-		// Re-render: cards no longer matching current filter disappear
-		expandedPerfect = {};
-		renderCards();
+		var spin = document.getElementById('spin-refresh');
+		if (spin) spin.style.display = 'inline';
+		setTimeout(function() {
+			// Recount from current verseState
+			var newPerfect = verseState.filter(isPerfect).length;
+			var newNeeds   = verseState.length - newPerfect;
+			perfectCount = newPerfect;
+			needsCount   = newNeeds;
+			// Update pill labels
+			var bc = document.getElementById('btn-filter-correct');
+			var bn = document.getElementById('btn-filter-needs');
+			if (bc) bc.innerHTML = pillHTML(fmt(newPerfect) + ' correct', 'spin-correct', 'showing-correct');
+			if (bn) bn.innerHTML = pillHTML(fmt(newNeeds) + ' need correction', 'spin-needs', 'showing-needs');
+			updateFilterUI();
+			// Re-render: cards no longer matching current filter disappear
+			expandedPerfect = {};
+			renderCards();
+			var spin2 = document.getElementById('spin-refresh');
+			if (spin2) spin2.style.display = 'none';
+		}, 0);
 	}
 
 	function navigateNeeds(dir) {
@@ -814,15 +1030,7 @@
 		if (card) card.classList.add('focused');
 		panel.classList.add('visible');
 
-		// Scroll card to just below the sticky stats block, then pin panel
-		var statsBlock = document.querySelector('.bcm-stats-block');
-		var statsBottom = statsBlock ? statsBlock.getBoundingClientRect().bottom : 0;
-		var panelTop = statsBottom + 8;
-		var cardAbsTop = card ? card.getBoundingClientRect().top + window.scrollY : 0;
-		var scrollTarget = cardAbsTop - panelTop;
-		window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
-		// After scroll completes the card will be at panelTop in the viewport
-		panel.style.top = panelTop + 'px';
+		if (card) scrollToCard(card);
 	}
 
 	function renderCards() {
@@ -832,6 +1040,7 @@
 			var perf = isPerfect(v);
 			if (perf  && !showCorrect) return;
 			if (!perf && !showNeeds)   return;
+			if (meterFilter[meterBase(v)] === false) return;
 			var isCompact = perf && !expandedPerfect[idx];
 			var card = buildCard(idx, isCompact);
 			if (focusedIndex === idx) card.classList.add('focused');
@@ -844,10 +1053,16 @@
 			empty.textContent = 'No verses to show \u2014 toggle the buttons above.';
 			container.appendChild(empty);
 		}
+		// If the previously focused card is still visible, scroll it back into view
+		if (focusedIndex !== null) {
+			var focusedCard = document.getElementById('verse-card-' + focusedIndex);
+			if (focusedCard) scrollToCard(focusedCard);
+		}
 	}
 
 	updateFilterButtons();
 	renderCards();
+	updateFilterUI();
 
 	// --- Focus / panel ---
 	var panel = document.getElementById('bcm-panel');
