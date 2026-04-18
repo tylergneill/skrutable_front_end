@@ -204,10 +204,18 @@
 		.pada-row.length-error { background: rgba(180,60,60,0.12); border-radius: 3px; padding: 3px; }
 		[data-theme="dark"] .pada-row.length-error { background: rgba(220,80,80,0.18); }
 
-		/* imperfect label inline to the right of the pāda row */
-		.pada-row-wrap { display: flex; align-items: center; gap: 0.75em; margin-bottom: 6px; flex-wrap: wrap; }
+		/* pāda row + mora + imperfect label all inline */
+		.pada-row-wrap { display: flex; align-items: center; gap: 0.5em; margin-bottom: 6px; flex-wrap: nowrap; }
 		.pada-row-wrap .pada-row { margin-bottom: 0; flex-shrink: 0; }
-		.pada-imperfect-label { font-size: 0.9em; color: #c0392b; font-style: italic; font-family: var(--font-heading); }
+
+		/* imperfect label: shrinks to remaining space, text wraps internally */
+		.pada-imperfect-label {
+			font-size: 0.85em; color: #c0392b; font-style: italic;
+			font-family: var(--font-heading);
+			flex-shrink: 1; min-width: 0;
+			line-height: 1.3; overflow-wrap: break-word;
+			padding-left: 0.5em;
+		}
 		[data-theme="dark"] .pada-imperfect-label { color: #e07070; }
 
 		/* gaṇa group: bracket under boxes + letter below */
@@ -837,16 +845,19 @@
 		body.className = 'verse-card-body';
 
 		// Left: raw text — click to edit, blur to save
-		// If verse has 4 clear pādas and raw text is single-line, offer split version
+		// Split into lines matching pāda boundaries if not already multi-line
 		var displayText = v.text_raw || '';
-		var sylPadasInit = (v.text_syllabified || '').split('\n').filter(function(p) { return p.trim(); });
-		if (sylPadasInit.length === 4 && displayText.indexOf('\n') === -1) {
-			// Check if we can reconstruct raw from syllabified (same chars ignoring spaces/hyphens)
-			var sylJoined = sylPadasInit.join(' ').replace(/\s+/g, ' ').trim();
-			var rawNorm = displayText.replace(/\s+/g, ' ').trim();
-			// Use syllabified pāda breaks as newlines in display text if chars match well
-			if (sylJoined.replace(/\s/g,'') === rawNorm.replace(/\s/g,'')) {
-				displayText = sylPadasInit.map(function(p) { return p.trim(); }).join('\n');
+		var numPadasInit = (v.text_syllabified || '').split('\n').filter(function(p) { return p.trim(); }).length;
+		if (numPadasInit > 1 && displayText.indexOf('\n') === -1) {
+			// Try splitting on / and // markers (Sanskrit pāda separators)
+			// Replace // first (end-of-verse), then / (mid-verse), trimming whitespace around them
+			var slashSplit = displayText
+				.replace(/\s*\/\/\s*/g, '\n')
+				.replace(/\s*\/\s*/g, '\n')
+				.split('\n').map(function(s) { return s.trim(); })
+				.filter(function(s) { return s.length > 0; });
+			if (slashSplit.length === numPadasInit) {
+				displayText = slashSplit.join('\n');
 				verseState[idx].text_raw = displayText;
 			}
 		}
@@ -949,12 +960,17 @@
 		var gaRaPadas = (v.gaRa_abbreviations || '').split('\n').map(function(p) { return p.trim(); });
 		var morae     = v.morae_per_line || [];
 		var diag      = v.diagnostic || null;
-		var isJati    = v.meter_label && v.meter_label.indexOf('j\u0101ti') >= 0;
-		var isAnustubh = v.meter_label && (
+		var isUpajati    = v.meter_label && v.meter_label.indexOf('upaj\u0101ti') >= 0;
+		var isJati       = !isUpajati && v.meter_label && v.meter_label.indexOf('j\u0101ti') >= 0;
+		var isUnknownM   = !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0;
+		var isAnustubh   = v.meter_label && (
 			v.meter_label.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
 			v.meter_label.indexOf('anustubh') >= 0 ||
 			v.meter_label.indexOf('ardham eva') >= 0
 		);
+		// Mora only meaningful for jāti (counts define the meter) and unknown (diagnostic aid)
+		// Suppress for anuṣṭubh, samavṛtta, ardhasamavṛtta, upajāti
+		var showMora = isJati || isUnknownM;
 
 		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
 		if (isAnustubh && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
@@ -1114,21 +1130,21 @@
 				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
 			}
 
-			// Wrap row + optional imperfect label + optional mora count in a flex row
+			// Boxes row + mora + imperfect label all inline, vertically centered
 			var wrap = document.createElement('div');
 			wrap.className = 'pada-row-wrap';
 			wrap.appendChild(row);
+			if (optMorae && showMora && moraeVal !== undefined) {
+				var mora = document.createElement('span');
+				mora.className = 'pada-mora';
+				mora.textContent = 'm:\u202f' + moraeVal;
+				wrap.appendChild(mora);
+			}
 			if (showImperfect) {
 				var ilbl = document.createElement('span');
 				ilbl.className = 'pada-imperfect-label';
 				ilbl.textContent = imperfectLabel;
 				wrap.appendChild(ilbl);
-			}
-			if (optMorae && moraeVal !== undefined) {
-				var mora = document.createElement('span');
-				mora.className = 'pada-mora';
-				mora.textContent = 'm:\u202f' + moraeVal;
-				wrap.appendChild(mora);
 			}
 			el.appendChild(wrap);
 		}
