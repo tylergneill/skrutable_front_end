@@ -484,8 +484,14 @@
 		});
 	});
 
-	var PERFECT_SCORE = 9;
-	function isPerfect(v) { return (v.identification_score || 0) >= PERFECT_SCORE; }
+	function isPerfect(v) {
+		var d = v.diagnostic;
+		if (!d) return false;
+		if (d.type === 'pada') return !!d.perfect_id_label;
+		// half-type (anuṣṭubh): both halves must be perfect
+		if (d.type === 'half') return !!(d.ab && d.ab.perfect_id_label && d.cd && d.cd.perfect_id_label);
+		return false;
+	}
 	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
 
@@ -786,13 +792,37 @@
 	}
 
 	// --- Diagnostic helpers ---
+	// Returns { d, withinHalf, probSet } or null.
+	// probSet is pre-resolved: keys are syllable indices (0-based) that are problematic for this pāda.
 	function getPadaDiag(diag, padaIdx) {
 		if (!diag) return null;
+
+		if (diag.type === 'pada') {
+			// samavṛtta / upajāti: single Diagnostic, problem_syllables keyed "1"–"4" (JSON string keys)
+			var padaKey = String(padaIdx + 1);
+			var probList = diag.problem_syllables && diag.problem_syllables[padaKey];
+			var probSet = {};
+			if (probList) probList.forEach(function(i) { probSet[i] = true; });
+			// imperfect label only shown once — on the first pāda that has problems (or pada 0 if none)
+			var showLabel = (function() {
+				for (var k = 1; k <= 4; k++) {
+					var pl = diag.problem_syllables && diag.problem_syllables[String(k)];
+					if (pl && pl.length > 0) return (String(k) === padaKey);
+				}
+				return padaIdx === 0; // no problems anywhere: show on first pāda
+			})();
+			return { d: diag, withinHalf: null, probSet: probSet, showLabel: showLabel };
+		}
+
+		// anuṣṭubh: diag has keys 'ab'/'cd', each with 'odd'/'even' problem_syllables
 		var halfKey    = (padaIdx <= 1) ? 'ab' : 'cd';
 		var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
 		var d = diag[halfKey];
 		if (!d) return null;
-		return { d: d, withinHalf: withinHalf };
+		var probList2 = d.problem_syllables && d.problem_syllables[withinHalf];
+		var probSet2 = {};
+		if (probList2) probList2.forEach(function(i) { probSet2[i] = true; });
+		return { d: d, withinHalf: withinHalf, probSet: probSet2, showLabel: null };
 	}
 	function isLengthError(fc) { return fc === 'hypermetric' || fc === 'hypometric'; }
 
@@ -943,17 +973,13 @@
 			var padaDiag   = getPadaDiag(diag, p);
 			var d          = padaDiag ? padaDiag.d : null;
 			var withinHalf = padaDiag ? padaDiag.withinHalf : null;
-			var probSet    = {};
-			if (d && d.problem_syllables && withinHalf && d.problem_syllables[withinHalf]) {
-				d.problem_syllables[withinHalf].forEach(function(i) { probSet[i] = true; });
-			}
+			var probSet    = padaDiag ? padaDiag.probSet : {};
 			// Only tint row red if THIS pāda has problem syllables (not just because its half does)
 			var lenError = d && isLengthError(d.failure_code) && Object.keys(probSet).length > 0;
 
-			// Imperfect label: show on the pāda where problem syllables are highlighted.
-			// For rule failures: show on the 'odd' pāda if odd has problems, else 'even'.
-			// For length errors: show on the 'even' pāda (last of the half).
-			// Fall back to 'even' if unclear.
+			// Imperfect label placement:
+			// pada-type (samavṛtta/upajāti): getPadaDiag already decided via showLabel
+			// half-type (anuṣṭubh): show on whichever pāda within the half has problems
 			var imperfectLabel = null;
 			if (d) {
 				imperfectLabel = d.imperfect_id_label ||
@@ -961,13 +987,17 @@
 			}
 			var showImperfect = false;
 			if (imperfectLabel && d) {
-				// Show label on whichever pāda has non-empty problem_syllables.
-				// For length errors the whole row is tinted, but label still goes on the affected pāda.
-				var oddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
-				var evenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
-				if (oddProbs  && withinHalf === 'odd')  showImperfect = true;
-				else if (evenProbs && withinHalf === 'even') showImperfect = true;
-				else if (!oddProbs && !evenProbs) showImperfect = (withinHalf === 'even' || numPadas <= 2);
+				if (padaDiag && padaDiag.showLabel !== null) {
+					// pada-type: pre-computed
+					showImperfect = padaDiag.showLabel;
+				} else {
+					// half-type (anuṣṭubh): show on whichever pāda within the half has problems
+					var oddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
+					var evenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
+					if (oddProbs  && withinHalf === 'odd')  showImperfect = true;
+					else if (evenProbs && withinHalf === 'even') showImperfect = true;
+					else if (!oddProbs && !evenProbs) showImperfect = (withinHalf === 'even' || numPadas <= 2);
+				}
 			}
 
 			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
