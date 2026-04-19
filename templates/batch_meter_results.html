@@ -15,7 +15,7 @@
 
 		/* === Sticky header === */
 		.bcm-header {
-			position: sticky; top: 0; z-index: 100;
+			position: sticky; top: 0; z-index: 40;
 			background: var(--sidebar-bg); color: var(--sidebar-text);
 			display: flex; align-items: center; justify-content: space-between;
 			padding: 0.5em 1em; gap: 0.75em; flex-wrap: wrap;
@@ -27,7 +27,7 @@
 
 		/* === Stats block === */
 		.bcm-stats-block {
-			position: sticky; top: 2.8em; z-index: 90;
+			position: sticky; top: 2.8em; z-index: 40;
 			/* Full-width sticky — margin breaks sticky, use padding instead */
 			padding: 0.6em 1em 0 calc(18% + 1em);
 			background: var(--body-bg, var(--pre-bg));
@@ -383,9 +383,9 @@
 		</div>
 	</div>
 	<div class="panel-section-bottom">
-		<div class="panel-mode-toggle" id="panel-mode-toggle">
-			<button class="panel-mode-btn" id="btn-mode-scan" onclick="setMode('scan')">Scan</button>
-			<button class="panel-mode-btn active" id="btn-mode-identify" onclick="setMode('identify')">Identify</button>
+		<div style="display:flex; gap:0.4em;">
+			<button class="panel-mode-btn" id="btn-mode-scan" onclick="panelScan()">Scan</button>
+			<button class="panel-mode-btn" id="btn-mode-identify" onclick="panelReidentify()">Identify</button>
 		</div>
 		<select id="panel-resplit">
 			<option value="none">don't resplit</option>
@@ -456,22 +456,7 @@
 
 	// Seed panel with defaults on load
 	setPanelOpts(defaultOpts);
-	document.getElementById('panel-resplit').disabled = false; // identify is default
-
-	// --- Mode toggle (Scan / Identify) ---
-	var currentMode = 'identify';
-	window.setMode = function(mode) {
-		currentMode = mode;
-		document.getElementById('btn-mode-scan').classList.toggle('active', mode === 'scan');
-		document.getElementById('btn-mode-identify').classList.toggle('active', mode === 'identify');
-		document.getElementById('panel-resplit').disabled = (mode === 'scan');
-		// Scan results never come preloaded — always need an API call when switching to scan.
-		// Switching back to identify restores the preloaded result; just re-render from verseState.
-		if (focusedIndex !== null) {
-			if (mode === 'scan') scheduleAutoRun();
-			else updateCardScansion(focusedIndex);
-		}
-	};
+	document.getElementById('panel-resplit').disabled = false;
 
 	// --- skrutable-js transliterator ---
 	var T = new Skrutable.Transliterator();
@@ -505,26 +490,24 @@
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
 
 	// Mutable state per verse
-	var verseState = verses.map(function(v) {
-		var s = Object.assign({}, v);
-		if (s.text_raw) s.text_raw = s.text_raw.replace(/(\s+[/|।])\s+/g, '$1\n\n');
-		return s;
-	});
+	var verseState = verses.map(function(v) { return Object.assign({}, v); });
 
 	// --- Stats ---
 	var perfectCount = verses.filter(isPerfect).length;
 	var needsCount   = verses.length - perfectCount;
 
-	var meterCounts = {};
-	var meterNeedsCounts = {};
-	verses.forEach(function(v) {
-		var base = meterBase(v);
-		meterCounts[base] = (meterCounts[base] || 0) + 1;
-		if (!isPerfect(v)) meterNeedsCounts[base] = (meterNeedsCounts[base] || 0) + 1;
-	});
-	var meterList = Object.keys(meterCounts).map(function(k) {
-		return { label: k, n: meterCounts[k], needs: meterNeedsCounts[k] || 0 };
-	}).sort(function(a, b) { return b.n - a.n; });
+	function buildMeterList(stateArr) {
+		var mc = {}, mnc = {};
+		stateArr.forEach(function(v) {
+			var base = meterBase(v);
+			mc[base] = (mc[base] || 0) + 1;
+			if (!isPerfect(v)) mnc[base] = (mnc[base] || 0) + 1;
+		});
+		return Object.keys(mc).map(function(k) {
+			return { label: k, n: mc[k], needs: mnc[k] || 0 };
+		}).sort(function(a, b) { return b.n - a.n; });
+	}
+	var meterList = buildMeterList(verseState);
 
 	function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
@@ -647,45 +630,50 @@
 		}
 	}
 
-	meterList.forEach(function(m) {
-		var pct = (100 * m.n / verses.length).toFixed(1);
-		var row = document.createElement('div');
-		row.className = 'meter-count-row' + (m.needs > 0 ? ' has-needs' : '');
+	function buildMeterFilterRows() {
+		var total = verseState.length;
+		countsEl.querySelectorAll('.meter-count-row').forEach(function(r) { r.remove(); });
+		meterList.forEach(function(m) {
+			var pct = (100 * m.n / total).toFixed(1);
+			var row = document.createElement('div');
+			row.className = 'meter-count-row' + (m.needs > 0 ? ' has-needs' : '');
 
-		var cb = document.createElement('input');
-		cb.type = 'checkbox';
-		cb.id = 'mcb-' + m.label;
-		cb.checked = true;
-		cb.addEventListener('change', function() {
-			meterFilterPending[m.label] = cb.checked;
-			updateSelectAllCb();
+			var cb = document.createElement('input');
+			cb.type = 'checkbox';
+			cb.id = 'mcb-' + m.label;
+			cb.checked = meterFilter[m.label] !== false;
+			cb.addEventListener('change', function() {
+				meterFilterPending[m.label] = cb.checked;
+				updateSelectAllCb();
+			});
+
+			var lbl = document.createElement('label');
+			lbl.className = 'meter-count-label';
+			lbl.htmlFor = 'mcb-' + m.label;
+			lbl.textContent = m.label;
+
+			row.appendChild(cb);
+			row.appendChild(lbl);
+
+			var nSpan = document.createElement('span');
+			nSpan.className = 'meter-count-n';
+			nSpan.textContent = m.n;
+			row.appendChild(nSpan);
+
+			var needsSpan = document.createElement('span');
+			needsSpan.className = 'meter-count-needs';
+			needsSpan.textContent = m.needs > 0 ? m.needs + ' \u2717' : '';
+			row.appendChild(needsSpan);
+
+			var pctSpan = document.createElement('span');
+			pctSpan.className = 'meter-count-pct';
+			pctSpan.textContent = pct + '%';
+			row.appendChild(pctSpan);
+
+			countsEl.appendChild(row);
 		});
-
-		var lbl = document.createElement('label');
-		lbl.className = 'meter-count-label';
-		lbl.htmlFor = 'mcb-' + m.label;
-		lbl.textContent = m.label;
-
-		row.appendChild(cb);
-		row.appendChild(lbl);
-
-		var nSpan = document.createElement('span');
-		nSpan.className = 'meter-count-n';
-		nSpan.textContent = m.n;
-		row.appendChild(nSpan);
-
-		var needsSpan = document.createElement('span');
-		needsSpan.className = 'meter-count-needs';
-		needsSpan.textContent = m.needs > 0 ? m.needs + ' \u2717' : '';
-		row.appendChild(needsSpan);
-
-		var pctSpan = document.createElement('span');
-		pctSpan.className = 'meter-count-pct';
-		pctSpan.textContent = pct + '%';
-		row.appendChild(pctSpan);
-
-		countsEl.appendChild(row);
-	});
+	}
+	buildMeterFilterRows();
 
 	function updateFilterUI() {
 		var allOn = meterList.every(function(m) { return meterFilter[m.label] !== false; });
@@ -779,6 +767,15 @@
 			meterFilterPending = null;
 		}
 	};
+
+	// Close meter filter dropdown when clicking outside it
+	document.addEventListener('click', function(e) {
+		var el = document.getElementById('bcm-meter-counts');
+		var btn = document.getElementById('meter-counts-toggle');
+		if (el && el.classList.contains('open') && !el.contains(e.target) && !btn.contains(e.target)) {
+			closeMeterFilter();
+		}
+	});
 
 	// --- Header label: just base meter name, no diagnostic detail ---
 	function buildHeaderLabel(v) {
@@ -1137,7 +1134,8 @@
 		var spin = document.getElementById('spin-refresh');
 		if (spin) spin.style.display = 'inline';
 		setTimeout(function() {
-			// Recount from current verseState
+			// Rebuild meter list and recount from current verseState
+			meterList = buildMeterList(verseState);
 			var newPerfect = verseState.filter(isPerfect).length;
 			var newNeeds   = verseState.length - newPerfect;
 			perfectCount = newPerfect;
@@ -1147,6 +1145,8 @@
 			var bn = document.getElementById('btn-filter-needs');
 			if (bc) bc.innerHTML = pillHTML(fmt(newPerfect) + ' correct', 'spin-correct', 'showing-correct');
 			if (bn) bn.innerHTML = pillHTML(fmt(newNeeds) + ' need correction', 'spin-needs', 'showing-needs');
+			// Rebuild filter rows with updated counts
+			buildMeterFilterRows();
 			updateFilterUI();
 			// Re-render: cards no longer matching current filter disappear
 			expandedPerfect = {};
@@ -1252,7 +1252,13 @@
 		panel.style.top = cardTop + 'px';
 	}
 
+	function closeMeterFilter() {
+		var el = document.getElementById('bcm-meter-counts');
+		if (el && el.classList.contains('open')) window.toggleMeterCounts();
+	}
+
 	function focusCard(idx) {
+		closeMeterFilter();
 		if (focusedIndex !== null) {
 			// Save current panel opts back to the card we're leaving
 			if (verseOpts[focusedIndex]) verseOpts[focusedIndex] = getPanelOpts();
@@ -1270,16 +1276,6 @@
 	}
 
 	// --- Auto-run on option changes ---
-	var autoRunTimer = null;
-	function scheduleAutoRun() {
-		clearTimeout(autoRunTimer);
-		autoRunTimer = setTimeout(function() {
-			if (focusedIndex === null) return;
-			if (currentMode === 'identify') panelReidentify();
-			else panelScan();
-		}, 400);
-	}
-
 	// Rendering-only options: save to focused card's opts and re-render only that card
 	['panel-weights','panel-morae','panel-garas','panel-align'].forEach(function(id) {
 		document.getElementById(id).addEventListener('change', function() {
@@ -1287,12 +1283,6 @@
 			verseOpts[focusedIndex] = getPanelOpts();
 			updateCardScansion(focusedIndex);
 		});
-	});
-	// Resplit only matters in identify mode — triggers API call
-	document.getElementById('panel-resplit').addEventListener('change', function() {
-		if (focusedIndex === null) return;
-		verseOpts[focusedIndex] = getPanelOpts();
-		if (currentMode === 'identify') scheduleAutoRun();
 	});
 
 	// --- Click-to-edit, auto-save on blur ---
@@ -1314,17 +1304,6 @@
 			if (e.key === 'Escape') { e.preventDefault(); cancelEdit(idx); }
 		});
 		ta.addEventListener('click', function(e) { e.stopPropagation(); });
-		ta.addEventListener('input', function() {
-			// Auto-run after text change (debounced)
-			clearTimeout(autoRunTimer);
-			autoRunTimer = setTimeout(function() {
-				// Commit current text into verseState without closing editor
-				var ta2 = document.getElementById('verse-edit-ta-' + idx);
-				if (ta2) verseState[idx].text_raw = ta2.value;
-				if (currentMode === 'identify') panelReidentify();
-				else panelScan();
-			}, 700);
-		});
 
 		rawDiv.insertBefore(ta, textDiv);
 		textDiv.style.display = 'none';
@@ -1337,7 +1316,6 @@
 	function commitEdit(idx) {
 		var ta = document.getElementById('verse-edit-ta-' + idx);
 		if (ta) verseState[idx].text_raw = ta.value;
-		clearTimeout(autoRunTimer);
 		finishEdit(idx);
 	}
 
@@ -1384,8 +1362,6 @@
 		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
 		var seq = fetchSeq[idx];
 
-		console.log('[identify-meter] idx:', idx, '\n  text:', JSON.stringify(text), '\n  from_scheme:', ps.from_scheme, '\n  resplit_option:', ps.resplit_option, '\n  weights:', ps.weights, 'morae:', ps.morae, 'gaRas:', ps.gaRas, 'alignment:', ps.alignment);
-
 		var fd = new FormData();
 		fd.append('input_text',   text);
 		fd.append('from_scheme',  ps.from_scheme);
@@ -1399,8 +1375,6 @@
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
 				if (fetchSeq[idx] !== seq) return; // stale response
-				console.log('[identify-meter] response idx:', idx, '\n  meter_label:', data.meter_label_full, '\n  score:', data.identification_score, '\n  result:', data.result);
-				verseState[idx].text_raw             = text;
 				verseState[idx].meter_label          = data.meter_label_full  || verseState[idx].meter_label;
 				verseState[idx].identification_score = data.identification_score !== undefined
 					? data.identification_score : verseState[idx].identification_score;
@@ -1444,7 +1418,6 @@
 			.then(function(r) { return r.json(); })
 			.then(function(data) {
 				if (fetchSeq[idx] !== seq) return;
-				verseState[idx].text_raw           = text;
 				verseState[idx].text_syllabified   = data.text_syllabified   || verseState[idx].text_syllabified;
 				verseState[idx].syllable_weights   = data.syllable_weights    || verseState[idx].syllable_weights;
 				verseState[idx].morae_per_line     = data.morae_per_line      || verseState[idx].morae_per_line;
