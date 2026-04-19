@@ -505,7 +505,11 @@
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
 
 	// Mutable state per verse
-	var verseState = verses.map(function(v) { return Object.assign({}, v); });
+	var verseState = verses.map(function(v) {
+		var s = Object.assign({}, v);
+		if (s.text_raw) s.text_raw = s.text_raw.replace(/(\s+[/|।])\s+/g, '$1\n\n');
+		return s;
+	});
 
 	// --- Stats ---
 	var perfectCount = verses.filter(isPerfect).length;
@@ -1263,125 +1267,6 @@
 		panel.classList.add('visible');
 		positionPanel(idx);
 
-		// Try to split raw text into pāda lines on first focus (display only — no API call)
-		var v = verseState[idx];
-		if (v.text_syllabified && v.text_raw && v.text_raw.indexOf('\n') === -1) {
-			var split = splitRawIntoPadas(v.text_raw, v.text_syllabified, verseOpts[idx].resplit_option);
-			if (split) {
-				verseState[idx].text_raw = split;
-				var textDiv = document.getElementById('verse-raw-text-' + idx);
-				if (textDiv) textDiv.textContent = split;
-			}
-		}
-	}
-
-	function splitRawIntoPadas(raw, syllabified, resplitOption) {
-		// Returns raw text with \n inserted before each pāda 2..N, or null if failed.
-		if (raw.indexOf('\n') !== -1) return null; // already split
-
-		var sylPadas = syllabified.split('\n').filter(function(p) { return p.trim(); });
-		if (sylPadas.length < 2) return null;
-
-		// Strip trailing citation (// N.N.N or similar) before splitting.
-		var citation = '';
-		var textForSplit = raw.replace(/\s*\/\/\s*[\d.]+\s*$/, function(m) { citation = m; return ''; }).trim();
-
-		// Determine slash-separated chunks (pāda-group separators).
-		var slashChunks = textForSplit.indexOf('/') !== -1
-			? textForSplit.split('/').map(function(p) { return p.trim(); }).filter(function(p) { return p.length; })
-			: null;
-
-		// If slash count matches pāda count exactly, use slashes directly.
-		if (slashChunks && slashChunks.length === sylPadas.length) {
-			var lastChunk = slashChunks[slashChunks.length - 1];
-			if (citation) slashChunks[slashChunks.length - 1] = lastChunk + ' ' + citation.trim();
-			var result = slashChunks.join('\n');
-			console.log('[split] slash-exact path — lines:', slashChunks);
-			return result;
-		}
-
-		// Keep-mid: the slash is a mid-verse marker (between śloka halves).
-		// With keep_mid resplit options, slashes separate groups of pādas evenly.
-		var keepMid = resplitOption && resplitOption.indexOf('keep_mid') !== -1;
-
-		// Helper: split one raw chunk into N pādas using syllabified data.
-		// sylGroup is the array of sylPadas for this chunk; rawChunk is the raw text.
-		function splitChunk(rawChunk, sylGroup) {
-			if (sylGroup.length === 1) return [rawChunk];
-			var chunkSlp = transliterate(rawChunk, 'Auto', 'SLP');
-			var chunkNorm = '';
-			var normToOrig = [];
-			for (var oi = 0; oi < chunkSlp.length; oi++) {
-				if (/[a-zA-Z]/.test(chunkSlp[oi])) { chunkNorm += chunkSlp[oi].toLowerCase(); normToOrig.push(oi); }
-			}
-			var lines = [];
-			var searchFrom = 0;
-			var lastOrigPos = 0;
-			for (var pi = 1; pi < sylGroup.length; pi++) {
-				var padaNorm = sylGroup[pi].replace(/[^a-zA-Z]/g, '').toLowerCase();
-				// Window lower bound: the expected start of this pāda (minus slack).
-				// This prevents sandhi false positives where the pāda-N prefix appears
-				// inside pāda N-1 (e.g. "d" + "antarikṣāt" = "dantarikṣāt").
-				var expectedStart = Math.floor(pi / sylGroup.length * chunkNorm.length);
-				var slack = Math.max(6, Math.floor(chunkNorm.length * 0.1));
-				var windowStart = Math.max(searchFrom, expectedStart - slack);
-				var windowEnd = Math.min(
-					expectedStart + slack + Math.ceil(chunkNorm.length / sylGroup.length),
-					chunkNorm.length
-				);
-				var found = -1;
-				for (var prefLen = padaNorm.length; prefLen >= Math.ceil(padaNorm.length * 0.5); prefLen--) {
-					var hit = chunkNorm.indexOf(padaNorm.slice(0, prefLen), windowStart);
-					if (hit !== -1 && hit < windowEnd) { found = hit; break; }
-				}
-				console.log('[split] pada', pi+1, 'of chunk | norm:', padaNorm, '| window:', windowStart, '-', windowEnd, '| found at:', found);
-				if (found === -1) return null;
-				// Insert newline at the exact match position — no word-boundary adjustment.
-				// Sandhi means pāda starts may be mid-word; that's fine for display alignment.
-				var origPos = normToOrig[found];
-				lines.push(rawChunk.slice(lastOrigPos, origPos).trim());
-				lastOrigPos = origPos;
-				searchFrom = found + Math.ceil(padaNorm.length * 0.5);
-			}
-			lines.push(rawChunk.slice(lastOrigPos).trim());
-			if (lines.length !== sylGroup.length || lines.some(function(l) { return !l.length; })) return null;
-			return lines;
-		}
-
-		var allLines = [];
-
-		// Hybrid path: slashes anchor chunk boundaries, slow path splits within each chunk.
-		// Use when keep_mid is set (slashes are guaranteed half-verse markers) or when
-		// the slash count divides the pāda count evenly.
-		if (slashChunks && (keepMid || sylPadas.length % slashChunks.length === 0)) {
-			var padasPerChunk = sylPadas.length / slashChunks.length;
-			console.log('[split] hybrid path | slashChunks:', slashChunks.length, 'padasPerChunk:', padasPerChunk);
-			var ok = true;
-			for (var ci = 0; ci < slashChunks.length; ci++) {
-				var sylGroup = sylPadas.slice(ci * padasPerChunk, (ci + 1) * padasPerChunk);
-				var chunkLines = splitChunk(slashChunks[ci], sylGroup);
-				if (!chunkLines) { ok = false; break; }
-				allLines = allLines.concat(chunkLines);
-			}
-			if (ok && allLines.length === sylPadas.length && allLines.every(function(l) { return l.length; })) {
-				if (citation) allLines[allLines.length - 1] += ' ' + citation.trim();
-				console.log('[split] hybrid SUCCESS — lines:', allLines);
-				return allLines.join('\n');
-			}
-			allLines = []; // fall through to pure slow path
-		}
-
-		// Pure slow path: no useful slashes, search across entire raw text.
-		console.log('[split] pure slow path');
-		var chunkLines = splitChunk(textForSplit, sylPadas);
-		if (!chunkLines) {
-			console.log('[split] FAILED');
-			return null;
-		}
-		allLines = chunkLines;
-		if (citation) allLines[allLines.length - 1] += ' ' + citation.trim();
-		console.log('[split] pure slow SUCCESS — lines:', allLines);
-		return allLines.join('\n');
 	}
 
 	// --- Auto-run on option changes ---
