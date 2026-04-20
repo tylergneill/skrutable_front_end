@@ -411,6 +411,7 @@ def upload_file():
 						"syllable_weights": V.syllable_weights,
 						"morae_per_line": V.morae_per_line,
 						"gaRa_abbreviations": V.gaRa_abbreviations,
+						"mAtragaNa_abbreviations": V.mAtragaNa_abbreviations,
 						"meter_label": V.meter_label,
 						"identification_score": V.identification_score,
 						"diagnostic": serialize_diagnostic(V.diagnostic),
@@ -789,6 +790,7 @@ def api_identify_meter():
 		syllable_weights=V.syllable_weights,
 		morae_per_line=V.morae_per_line,
 		gaRa_abbreviations=V.gaRa_abbreviations,
+		mAtragaNa_abbreviations=V.mAtragaNa_abbreviations,
 		diagnostic=serialize_diagnostic(V.diagnostic),
 	)
 
