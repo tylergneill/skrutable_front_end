@@ -178,24 +178,22 @@
 
 		.verse-card-body { display: flex; gap: 0; }
 
-		/* === Left column: raw text (click-to-edit) === */
+		/* === Left column: raw text (always-editable textarea) === */
 		.verse-raw {
 			flex: 0 0 auto; width: 34%; min-width: 160px; max-width: 38%;
 			box-sizing: border-box; border-right: 1px solid var(--input-border);
+			display: flex; flex-direction: column;
 		}
-		.verse-raw-text {
-			padding: 0.5em 0.6em;
-			font-family: var(--font-heading); font-size: 0.95em;
-			white-space: pre-wrap; word-break: break-word;
-			color: var(--main-text); min-height: 3em;
+		.verse-raw-textarea {
+			display: block; width: 100%; box-sizing: border-box; flex: 1;
+			font-family: 'Menlo', 'DejaVu Sans Mono', 'Courier New', monospace;
+			font-size: 0.9em; line-height: 1.55;
+			background: transparent; color: var(--main-text);
+			border: none; outline: none; resize: none; overflow: hidden;
+			padding: 0.5em 0.6em; min-height: 3em;
+			cursor: text;
 		}
-		.verse-raw textarea {
-			display: block; width: 100%; box-sizing: border-box;
-			font-family: var(--font-heading); font-size: 0.95em;
-			background: var(--input-bg); color: var(--main-text);
-			border: none; border-left: 3px solid var(--btn-bg);
-			padding: 0.5em 0.6em; resize: none; outline: none;
-		}
+		.verse-raw-textarea:focus { background: transparent; }
 
 		/* === Right column: L/G scansion === */
 		.verse-scansion { flex: 1 1 auto; padding: 0.5em 0.75em; overflow-x: auto; }
@@ -334,6 +332,17 @@
 			padding: 0.2em 0.5em; cursor: pointer; font-size: 0.9em;
 		}
 		.btn-theme:hover { background: rgba(255,255,255,0.1); }
+
+		/* Font size control */
+		.bcm-font-ctrl { display: flex; align-items: center; gap: 0.25em; }
+		.btn-font {
+			background: none; border: 1px solid var(--sidebar-accent);
+			color: var(--sidebar-accent); border-radius: 3px;
+			padding: 0.1em 0.45em; cursor: pointer; font-size: 1em; line-height: 1.3;
+			font-weight: bold;
+		}
+		.btn-font:hover { background: rgba(255,255,255,0.1); }
+		.btn-font:disabled { opacity: 0.3; cursor: default; }
 	</style>
 </head>
 <body>
@@ -355,6 +364,11 @@
 		</label>
 		<button class="btn-export" onclick="exportTxt()">export .txt</button>
 		<button class="btn-export" onclick="exportCsv()">export .csv</button>
+		<div class="bcm-font-ctrl">
+			<button class="btn-font" id="btn-font-dec" title="Decrease font size">−</button>
+			<button class="btn-font" id="btn-font-reset" title="Reset font size">A</button>
+			<button class="btn-font" id="btn-font-inc" title="Increase font size">+</button>
+		</div>
 		<button class="btn-theme" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
 	</div>
 </div>
@@ -418,6 +432,30 @@
 		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
 	});
 	if (localStorage.getItem('theme')) applyTheme(localStorage.getItem('theme') === 'dark');
+
+	// --- Font size ---
+	var FONT_SIZES = [12, 13, 14, 15, 16, 18, 20, 22, 24];
+	var fontIdx = (function() {
+		var saved = parseInt(localStorage.getItem('bcm-font-idx'));
+		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 4;
+	})();
+	function applyFontSize() {
+		document.body.style.fontSize = FONT_SIZES[fontIdx] + 'px';
+		document.getElementById('btn-font-dec').disabled = fontIdx <= 0;
+		document.getElementById('btn-font-inc').disabled = fontIdx >= FONT_SIZES.length - 1;
+		localStorage.setItem('bcm-font-idx', fontIdx);
+	}
+	var DEFAULT_FONT_IDX = 4;
+	document.getElementById('btn-font-dec').addEventListener('click', function() {
+		if (fontIdx > 0) { fontIdx--; applyFontSize(); }
+	});
+	document.getElementById('btn-font-reset').addEventListener('click', function() {
+		fontIdx = DEFAULT_FONT_IDX; applyFontSize();
+	});
+	document.getElementById('btn-font-inc').addEventListener('click', function() {
+		if (fontIdx < FONT_SIZES.length - 1) { fontIdx++; applyFontSize(); }
+	});
+	applyFontSize();
 
 	// --- Data ---
 	var batchData = {{ batch_data_json | safe }};
@@ -828,7 +866,6 @@
 	var container = document.getElementById('bcm-verses');
 	var currentView = 'errors';
 	var focusedIndex = null;
-	var editingIndex = null;
 
 	function buildCardBody(card, idx) {
 		var v = verseState[idx];
@@ -838,13 +875,20 @@
 		var rawDiv = document.createElement('div');
 		rawDiv.className = 'verse-raw';
 		rawDiv.id = 'verse-raw-' + idx;
-		var textDiv = document.createElement('div');
-		textDiv.className = 'verse-raw-text';
-		textDiv.id = 'verse-raw-text-' + idx;
-		textDiv.textContent = v.text_raw || '';
-		textDiv.title = 'Click to edit';
-		textDiv.addEventListener('click', function(e) { e.stopPropagation(); startEdit(idx); });
-		rawDiv.appendChild(textDiv);
+		var ta = document.createElement('textarea');
+		ta.className = 'verse-raw-textarea';
+		ta.id = 'verse-raw-text-' + idx;
+		ta.value = v.text_raw || '';
+		ta.spellcheck = false;
+		ta.rows = Math.max((v.text_raw || '').split('\n').length, 3);
+		ta.addEventListener('input', function() {
+			verseState[idx].text_raw = ta.value;
+			ta.style.height = 'auto';
+			ta.style.height = ta.scrollHeight + 'px';
+		});
+		ta.addEventListener('focus', function(e) { e.stopPropagation(); focusCard(idx); });
+		ta.addEventListener('click', function(e) { e.stopPropagation(); });
+		rawDiv.appendChild(ta);
 		body.appendChild(rawDiv);
 
 		// Right: scansion
@@ -1348,53 +1392,6 @@
 		});
 	});
 
-	// --- Click-to-edit, auto-save on blur ---
-	function startEdit(idx) {
-		if (editingIndex === idx) return;
-		if (editingIndex !== null) commitEdit(editingIndex);
-
-		editingIndex = idx;
-		var rawDiv  = document.getElementById('verse-raw-' + idx);
-		var textDiv = document.getElementById('verse-raw-text-' + idx);
-
-		var ta = document.createElement('textarea');
-		ta.id = 'verse-edit-ta-' + idx;
-		ta.value = verseState[idx].text_raw || '';
-		ta.style.height = (textDiv.offsetHeight || 80) + 'px';
-		ta.addEventListener('blur', function() { commitEdit(idx); });
-		ta.addEventListener('keydown', function(e) {
-			// Esc cancels
-			if (e.key === 'Escape') { e.preventDefault(); cancelEdit(idx); }
-		});
-		ta.addEventListener('click', function(e) { e.stopPropagation(); });
-
-		rawDiv.insertBefore(ta, textDiv);
-		textDiv.style.display = 'none';
-		ta.focus();
-
-		// Also focus the card in the panel
-		focusCard(idx);
-	}
-
-	function commitEdit(idx) {
-		var ta = document.getElementById('verse-edit-ta-' + idx);
-		if (ta) verseState[idx].text_raw = ta.value;
-		finishEdit(idx);
-	}
-
-	function cancelEdit(idx) {
-		finishEdit(idx);
-	}
-
-	function finishEdit(idx) {
-		if (editingIndex === idx) editingIndex = null;
-		var rawDiv  = document.getElementById('verse-raw-' + idx);
-		var textDiv = document.getElementById('verse-raw-text-' + idx);
-		var ta      = document.getElementById('verse-edit-ta-' + idx);
-		if (textDiv) { textDiv.textContent = verseState[idx].text_raw || ''; textDiv.style.display = ''; }
-		if (ta) ta.remove();
-	}
-
 	// --- Panel actions ---
 	function getPanelSettings() {
 		var opts = (focusedIndex !== null && verseOpts[focusedIndex]) ? verseOpts[focusedIndex] : getPanelOpts();
@@ -1414,9 +1411,7 @@
 	window.panelReidentify = function() {
 		if (focusedIndex === null) return;
 		var idx = focusedIndex;
-		// Use current textarea value if editing
-		var ta = document.getElementById('verse-edit-ta-' + idx);
-		var text = ta ? ta.value : verseState[idx].text_raw || '';
+		var text = verseState[idx].text_raw || '';
 
 		var ps = getPanelSettings();
 		var scanDiv = document.getElementById('verse-scan-' + idx);
@@ -1460,8 +1455,7 @@
 	window.panelScan = function() {
 		if (focusedIndex === null) return;
 		var idx = focusedIndex;
-		var ta = document.getElementById('verse-edit-ta-' + idx);
-		var text = ta ? ta.value : verseState[idx].text_raw || '';
+		var text = verseState[idx].text_raw || '';
 
 		var ps = getPanelSettings();
 		var scanDiv = document.getElementById('verse-scan-' + idx);
