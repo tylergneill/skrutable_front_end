@@ -129,9 +129,14 @@
 			if (clearLink) clearLink.style.visibility = "hidden";
 			workbenchView.style.display = "none";
 			uploadView.style.display = "";
-			currentAction = "";
+			// Pre-select upload action based on last-used workbench action
+			var prev = currentAction;
+			if (prev === "transliterate") currentAction = "transliterate";
+			else if (prev === "scan" || prev === "identify meter") currentAction = "identify meter";
+			else if (prev === "split") currentAction = "split";
+			else currentAction = "";
 			document.getElementById("repeat_action_button").disabled = true;
-			highlightUploadButton("");
+			highlightUploadButton(currentAction);
 			updateOptionsDisplay();
 			actionBtns.forEach(function(b) { b.disabled = true; });
 		} else {
@@ -550,8 +555,15 @@
 	var dropzone = document.getElementById('fileDropzone');
 	var fileInput = document.getElementById('fileInput');
 	var dropLabel = document.getElementById('dropzoneLabel');
+	function formatBytes(bytes) {
+		if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+		return (bytes / 1024).toFixed(2) + ' KB';
+	}
+	function setDropLabel(file) {
+		dropLabel.textContent = file ? file.name + ' (' + formatBytes(file.size) + ')' : 'Drop file here or click to choose';
+	}
 	fileInput.addEventListener('change', function() {
-		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+		setDropLabel(fileInput.files[0] || null);
 		updateOptionsDisplay();
 	});
 	dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('dragover'); });
@@ -560,7 +572,7 @@
 		e.preventDefault();
 		dropzone.classList.remove('dragover');
 		fileInput.files = e.dataTransfer.files;
-		dropLabel.textContent = fileInput.files[0]?.name || 'Drop file here or click to choose';
+		setDropLabel(fileInput.files[0] || null);
 		updateOptionsDisplay();
 	});
 
