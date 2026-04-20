@@ -783,12 +783,10 @@
 		}
 	});
 
-	// --- Header label: just base meter name, no diagnostic detail ---
 	function buildHeaderLabel(v) {
 		var lbl = v.meter_label || 'unidentified';
-		// Strip the parenthetical detail, keep only the base name
-		var base = lbl.split(' (')[0].trim();
-		return base || lbl;
+		if (isPerfect(v)) return lbl.split(' (')[0].trim() || lbl;
+		return lbl;
 	}
 
 	// --- Diagnostic helpers ---
