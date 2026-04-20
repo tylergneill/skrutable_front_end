@@ -1070,9 +1070,44 @@
 				return GANA_FROM_WEIGHTS[pat] || '?';
 			}
 
+			// Mātrā-gaṇa syllable counts: named gaṇas have fixed counts; others = 1 per char
+			var MATRA_GANA_SYLS = { 'ja': 3, 'kha': 4, 'bha': 3, 'sa': 3 };
+			function matraGanaSylCount(name) { return MATRA_GANA_SYLS[name] || name.length; }
+
+			// Build mātrā-gaṇa groups for a jāti pāda
+			function makeMatraGanaGroup(name, startIdx, count) {
+				if (count === 1) return makeBareBox(startIdx);
+				var group = document.createElement('div');
+				group.className = 'gana-group';
+				var boxes = document.createElement('div');
+				boxes.className = 'gana-group-boxes';
+				for (var k = 0; k < count && startIdx + k < numSyls; k++) {
+					boxes.appendChild(makeSylBox(startIdx + k));
+				}
+				group.appendChild(boxes);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label';
+				lbl.textContent = name;
+				group.appendChild(lbl);
+				return group;
+			}
+
+			var matraGanaPadas = (v.mAtragaNa_abbreviations || '').split('\n').map(function(s) { return s.trim(); });
+			var matraGanaNames = matraGanaPadas[p] ? matraGanaPadas[p].split(' ').filter(Boolean) : [];
+
 			if (!optGaRas || ganaChars.length === 0) {
 				// No gaṇa grouping — plain syllable boxes
 				for (var j = 0; j < numSyls; j++) row.appendChild(makeSylBox(j));
+			} else if (isJati && matraGanaNames.length > 0) {
+				// Jāti: use mātrā-gaṇa groupings from mAtragaNa_abbreviations
+				var sylIdx = 0;
+				matraGanaNames.forEach(function(name) {
+					var count = matraGanaSylCount(name);
+					row.appendChild(makeMatraGanaGroup(name, sylIdx, count));
+					sylIdx += count;
+				});
+				// any leftover syllables (shouldn't happen but be safe)
+				while (sylIdx < numSyls) { row.appendChild(makeBareBox(sylIdx++)); }
 			} else if (isAnustubh && numSyls === 8 && ganaChars.length === 4) {
 				// Anuṣṭubh: group syls 1-3 and 4-6, leave syls 0 and 7 bare (anceps)
 				// Recompute gaṇa names from actual weights at those positions
@@ -1409,8 +1444,9 @@
 				verseState[idx].text_syllabified     = data.text_syllabified   || verseState[idx].text_syllabified;
 				verseState[idx].syllable_weights     = data.syllable_weights    || verseState[idx].syllable_weights;
 				verseState[idx].morae_per_line       = data.morae_per_line      || verseState[idx].morae_per_line;
-				verseState[idx].gaRa_abbreviations   = data.gaRa_abbreviations  || verseState[idx].gaRa_abbreviations;
-				verseState[idx].diagnostic           = data.diagnostic != null ? data.diagnostic : verseState[idx].diagnostic;
+				verseState[idx].gaRa_abbreviations       = data.gaRa_abbreviations       || verseState[idx].gaRa_abbreviations;
+				verseState[idx].mAtragaNa_abbreviations  = data.mAtragaNa_abbreviations  != null ? data.mAtragaNa_abbreviations : verseState[idx].mAtragaNa_abbreviations;
+				verseState[idx].diagnostic               = data.diagnostic != null ? data.diagnostic : verseState[idx].diagnostic;
 				verseState[idx].summary              = data.result               || verseState[idx].summary;
 				updateCardHeader(idx);
 				updateCardScansion(idx);
@@ -1449,7 +1485,8 @@
 				verseState[idx].text_syllabified   = data.text_syllabified   || verseState[idx].text_syllabified;
 				verseState[idx].syllable_weights   = data.syllable_weights    || verseState[idx].syllable_weights;
 				verseState[idx].morae_per_line     = data.morae_per_line      || verseState[idx].morae_per_line;
-				verseState[idx].gaRa_abbreviations = data.gaRa_abbreviations  || verseState[idx].gaRa_abbreviations;
+				verseState[idx].gaRa_abbreviations      = data.gaRa_abbreviations      || verseState[idx].gaRa_abbreviations;
+				verseState[idx].mAtragaNa_abbreviations = data.mAtragaNa_abbreviations != null ? data.mAtragaNa_abbreviations : verseState[idx].mAtragaNa_abbreviations;
 				updateCardScansion(idx);
 			})
 			.catch(function(err) {
