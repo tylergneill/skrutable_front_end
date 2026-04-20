@@ -294,30 +294,32 @@
 		}
 		#panel-resplit:disabled { opacity: 0.4; cursor: default; }
 
-		/* === Header buttons === */
-		/* === Mode pill toggle — matches main page input-toggle === */
+		/* === Panel action buttons — match sidebar btn-primary style === */
 		.panel-mode-toggle {
 			display: flex;
-			border-radius: 20px;
-			overflow: hidden;
-			background: var(--sidebar-bg-dark);
-			padding: 2px;
+			gap: 0.4em;
 			margin-bottom: 0.4em;
 		}
 		.panel-mode-btn {
 			flex: 1;
-			padding: 0.25rem 0.4rem;
-			font-size: 0.8rem;
-			border: none;
-			border-radius: 20px;
-			background: transparent;
-			color: var(--sidebar-accent);
+			padding: 0.3rem 0.4rem;
+			font-size: 0.85rem;
+			font-weight: 500;
+			border: 1px solid rgba(255,255,255,0.25);
+			border-radius: 4px;
+			background: var(--btn-bg);
+			color: var(--btn-text);
 			cursor: pointer;
-			transition: background 0.15s, color 0.15s;
+			transition: background 0.15s, border-color 0.15s;
+		}
+		.panel-mode-btn:hover {
+			background: var(--btn-bg-hover);
+			border-color: rgba(255,255,255,0.4);
 		}
 		.panel-mode-btn.active {
 			background: var(--sidebar-text);
 			color: var(--sidebar-bg-dark);
+			border-color: var(--sidebar-text);
 		}
 
 		.btn-export {
@@ -397,7 +399,7 @@
 		</div>
 	</div>
 	<div class="panel-section-bottom">
-		<div style="display:flex; gap:0.4em;">
+		<div class="panel-mode-toggle">
 			<button class="panel-mode-btn" id="btn-mode-scan" onclick="panelScan()">Scan</button>
 			<button class="panel-mode-btn" id="btn-mode-identify" onclick="panelReidentify()">Identify</button>
 		</div>

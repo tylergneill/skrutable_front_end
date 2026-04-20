@@ -521,7 +521,7 @@
 		}
 
 		// Build header row (only if there are extra settings columns)
-		var html = '';
+		var html = hasExtra ? '<div class="settings-grid">' : '';
 		if (hasExtra) {
 			html += '<div class="settings-row settings-header-row">';
 			html += '<div class="settings-cell">change in sidebar</div>';
@@ -539,6 +539,7 @@
 			html += '</div>';
 		}
 
+		if (hasExtra) html += '</div>';
 		container.innerHTML = html;
 	}
 
