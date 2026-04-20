@@ -195,25 +195,62 @@
 		}
 		.verse-raw-textarea:focus { background: transparent; }
 
-		/* === Right column: L/G scansion === */
-		.verse-scansion { flex: 1 1 auto; padding: 0.5em 0.75em; overflow-x: auto; }
+		/* === Right column: L/G scansion — grid layout === */
+		.verse-scansion {
+			flex: 1 1 auto;
+			padding: 0.5em 0.75em;
+			display: flex;
+			align-items: flex-start;
+			min-width: 0;
+			overflow: hidden;
+		}
+
+		/* Scroll container: shrinks to content width, but never wider than available space */
+		.scansion-scroll {
+			display: block;
+			flex: 0 1 max-content;
+			overflow-x: auto;
+			min-width: 0;
+			max-width: 100%;
+			scrollbar-width: thin;
+			scrollbar-color: var(--input-border, #aaa) transparent;
+		}
+		.scansion-scroll-inner {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			width: max-content;
+		}
+
+		/* Label column: fixed width, only present when there's a label */
+		.scansion-label-col {
+			flex: 0 0 9em;
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			padding-left: 0.6em;
+		}
+		.pada-label-slot {
+			display: flex;
+			align-items: flex-start;
+			min-height: 0;
+		}
 
 		/* pāda row */
-		.pada-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; margin-bottom: 6px; }
+		.pada-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
 		.pada-row.length-error { background: rgba(180,60,60,0.12); border-radius: 3px; padding: 3px; }
 		[data-theme="dark"] .pada-row.length-error { background: rgba(220,80,80,0.18); }
 
-		/* pāda row + mora + imperfect label all inline */
-		.pada-row-wrap { display: flex; align-items: center; gap: 0.5em; margin-bottom: 6px; flex-wrap: nowrap; }
-		.pada-row-wrap .pada-row { margin-bottom: 0; flex-shrink: 0; }
+		/* pāda row + mora inline */
+		.pada-row-wrap { display: flex; align-items: center; gap: 0.5em; flex-wrap: nowrap; }
+		.pada-row-wrap .pada-row { flex-shrink: 0; }
 
-		/* imperfect label: shrinks to remaining space, text wraps internally */
+		/* imperfect label inside label col slot */
 		.pada-imperfect-label {
 			font-size: 0.85em; color: #c0392b; font-style: italic;
 			font-family: var(--font-heading);
-			flex-shrink: 1; min-width: 0;
 			line-height: 1.3; overflow-wrap: break-word;
-			padding-left: 0.5em;
+			word-break: break-word;
 		}
 		[data-theme="dark"] .pada-imperfect-label { color: #e07070; }
 
@@ -981,11 +1018,11 @@
 		var diag      = v.diagnostic || null;
 		var isUpajati    = v.meter_label && v.meter_label.indexOf('upaj\u0101ti') >= 0;
 		var isJati       = !isUpajati && v.meter_label && (
-			v.meter_label.indexOf('j\u0101ti') >= 0 ||   // āryājāti, etc.
-			v.meter_label.indexOf('\u0101ry\u0101') >= 0 || // āryā
-			v.meter_label.indexOf('g\u012bti') >= 0 ||   // gīti, upagīti, udgīti
-			v.meter_label.indexOf('vait\u0101l\u012bya') >= 0 || // vaitālīya class
-			v.meter_label.indexOf('m\u0101tr\u0101') >= 0  // mātrā- prefix meters
+			v.meter_label.indexOf('j\u0101ti') >= 0 ||
+			v.meter_label.indexOf('\u0101ry\u0101') >= 0 ||
+			v.meter_label.indexOf('g\u012bti') >= 0 ||
+			v.meter_label.indexOf('vait\u0101l\u012bya') >= 0 ||
+			v.meter_label.indexOf('m\u0101tr\u0101') >= 0
 		);
 		var isUnknownM   = !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0;
 		var isAnustubh   = v.meter_label && (
@@ -993,8 +1030,6 @@
 			v.meter_label.indexOf('anustubh') >= 0 ||
 			v.meter_label.indexOf('ardham eva') >= 0
 		);
-		// Mora only meaningful for jāti (counts define the meter) and unknown (diagnostic aid)
-		// Suppress for anuṣṭubh, samavṛtta, ardhasamavṛtta, upajāti
 		var showMora = isJati || isUnknownM;
 
 		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
@@ -1007,6 +1042,77 @@
 
 		var numPadas  = Math.max(sylPadas.length, wtPadas.length);
 
+		// Derive gaṇa name from 3-syllable weight pattern (lowercase l/g)
+		var GANA_FROM_WEIGHTS = {
+			'lll': 'n', 'llg': 't', 'lgl': 'j', 'lgg': 'y',
+			'gll': 'B', 'glg': 'r', 'ggl': 's', 'ggg': 'm'
+		};
+		function ganaNameFromWeights(wList, start) {
+			var pat = '';
+			for (var k = 0; k < 3; k++) pat += (wList[start + k] || '').toLowerCase();
+			return GANA_FROM_WEIGHTS[pat] || '?';
+		}
+
+		// Mātrā-gaṇa syllable counts: named gaṇas have fixed counts; others = 1 per char
+		var MATRA_GANA_SYLS = { 'ja': 3, 'kha': 4, 'bha': 3, 'sa': 3 };
+		function matraGanaSylCount(name) { return MATRA_GANA_SYLS[name] || name.length; }
+
+		// Collect imperfect labels to decide if we need the label column
+		var imperfectLabels = [];   // one entry per pāda: label string or null
+		var anyLabel = false;
+
+		// First pass: compute imperfect labels for all pādas
+		for (var p = 0; p < numPadas; p++) {
+			var sylStr0 = sylPadas[p] || '';
+			var wtStr0  = wtPadas[p]  || '';
+			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); continue; }
+
+			var padaDiag0   = getPadaDiag(diag, p);
+			var d0          = padaDiag0 ? padaDiag0.d : null;
+			var withinHalf0 = padaDiag0 ? padaDiag0.withinHalf : null;
+			var imperfectLabel0 = null;
+			if (d0) {
+				imperfectLabel0 = d0.imperfect_id_label ||
+					(d0.failure_code && !d0.perfect_id_label ? d0.failure_code : null);
+			}
+			var showImperfect0 = false;
+			if (imperfectLabel0 && d0) {
+				if (padaDiag0 && padaDiag0.showLabel !== null) {
+					showImperfect0 = padaDiag0.showLabel;
+				} else {
+					var oddProbs0  = d0.problem_syllables && d0.problem_syllables['odd']  && d0.problem_syllables['odd'].length  > 0;
+					var evenProbs0 = d0.problem_syllables && d0.problem_syllables['even'] && d0.problem_syllables['even'].length > 0;
+					if (oddProbs0  && withinHalf0 === 'odd')  showImperfect0 = true;
+					else if (evenProbs0 && withinHalf0 === 'even') showImperfect0 = true;
+					else if (!oddProbs0 && !evenProbs0) showImperfect0 = (withinHalf0 === 'even' || numPadas <= 2);
+				}
+			}
+			var lbl0 = showImperfect0 ? imperfectLabel0 : null;
+			imperfectLabels.push(lbl0);
+			if (lbl0) anyLabel = true;
+		}
+
+
+		// Build the scroll container (grid col 1)
+		var scrollEl = document.createElement('div');
+		scrollEl.className = 'scansion-scroll';
+		var innerEl = document.createElement('div');
+		innerEl.className = 'scansion-scroll-inner';
+		scrollEl.appendChild(innerEl);
+		el.appendChild(scrollEl);
+
+		// Build the label column (grid col 2) — always created when anyLabel
+		var labelColEl = null;
+		if (anyLabel) {
+			labelColEl = document.createElement('div');
+			labelColEl.className = 'scansion-label-col';
+			el.appendChild(labelColEl);
+		}
+
+		// Second pass: build rows
+		var rowWraps = [];   // parallel to pādas (for height alignment)
+		var labelSlots = []; // parallel
+
 		for (var p = 0; p < numPadas; p++) {
 			var sylStr   = sylPadas[p]  || '';
 			var wtStr    = wtPadas[p]   || '';
@@ -1016,33 +1122,8 @@
 
 			var padaDiag   = getPadaDiag(diag, p);
 			var d          = padaDiag ? padaDiag.d : null;
-			var withinHalf = padaDiag ? padaDiag.withinHalf : null;
 			var probSet    = padaDiag ? padaDiag.probSet : {};
-			// Only tint row red if THIS pāda has problem syllables (not just because its half does)
-			var lenError = d && isLengthError(d.failure_code) && Object.keys(probSet).length > 0;
-
-			// Imperfect label placement:
-			// pada-type (samavṛtta/upajāti): getPadaDiag already decided via showLabel
-			// half-type (anuṣṭubh): show on whichever pāda within the half has problems
-			var imperfectLabel = null;
-			if (d) {
-				imperfectLabel = d.imperfect_id_label ||
-					(d.failure_code && !d.perfect_id_label ? d.failure_code : null);
-			}
-			var showImperfect = false;
-			if (imperfectLabel && d) {
-				if (padaDiag && padaDiag.showLabel !== null) {
-					// pada-type: pre-computed
-					showImperfect = padaDiag.showLabel;
-				} else {
-					// half-type (anuṣṭubh): show on whichever pāda within the half has problems
-					var oddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
-					var evenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
-					if (oddProbs  && withinHalf === 'odd')  showImperfect = true;
-					else if (evenProbs && withinHalf === 'even') showImperfect = true;
-					else if (!oddProbs && !evenProbs) showImperfect = (withinHalf === 'even' || numPadas <= 2);
-				}
-			}
+			var lenError   = d && isLengthError(d.failure_code) && Object.keys(probSet).length > 0;
 
 			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
 			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });
@@ -1056,7 +1137,6 @@
 				var isG    = wt.toUpperCase() === 'G';
 				var isProb = !lenError && probSet[j];
 				var box    = document.createElement('div');
-				// Only color L/G if weights visible
 				box.className = 'syl-box ' + (optWeights && isL ? 'L' : optWeights && isG ? 'G' : '') + (isProb ? ' problem' : '');
 				if (optWeights) {
 					var sc = document.createElement('div'); sc.className = 'scan';
@@ -1071,7 +1151,6 @@
 				return box;
 			}
 
-			// Bare single syllable with no gaṇa label below (for anceps positions)
 			function makeBareBox(j) {
 				var wrap = document.createElement('div');
 				wrap.className = 'gana-single';
@@ -1085,7 +1164,6 @@
 				return wrap;
 			}
 
-			// Gaṇa group: bracket + label below covering 3 syllables starting at sylIdx
 			function makeGanaGroup(gChar, startIdx) {
 				var group = document.createElement('div');
 				group.className = 'gana-group';
@@ -1105,22 +1183,6 @@
 			var row = document.createElement('div');
 			row.className = 'pada-row' + (lenError ? ' length-error' : '');
 
-			// Derive gaṇa name from 3-syllable weight pattern (lowercase l/g)
-			var GANA_FROM_WEIGHTS = {
-				'lll': 'n', 'llg': 't', 'lgl': 'j', 'lgg': 'y',
-				'gll': 'B', 'glg': 'r', 'ggl': 's', 'ggg': 'm'
-			};
-			function ganaNameFromWeights(wList, start) {
-				var pat = '';
-				for (var k = 0; k < 3; k++) pat += (wList[start + k] || '').toLowerCase();
-				return GANA_FROM_WEIGHTS[pat] || '?';
-			}
-
-			// Mātrā-gaṇa syllable counts: named gaṇas have fixed counts; others = 1 per char
-			var MATRA_GANA_SYLS = { 'ja': 3, 'kha': 4, 'bha': 3, 'sa': 3 };
-			function matraGanaSylCount(name) { return MATRA_GANA_SYLS[name] || name.length; }
-
-			// Build mātrā-gaṇa groups for a jāti pāda
 			function makeMatraGanaGroup(name, startIdx, count) {
 				if (count === 1) return makeBareBox(startIdx);
 				var group = document.createElement('div');
@@ -1141,22 +1203,18 @@
 			var matraGanaPadas = (v.mAtragaNa_abbreviations || '').split('\n').map(function(s) { return s.trim(); });
 			var matraGanaNames = matraGanaPadas[p] ? matraGanaPadas[p].split(' ').filter(Boolean) : [];
 
-			if (!optGaRas || ganaChars.length === 0) {
+			if (!optGaRas) {
 				// No gaṇa grouping — plain syllable boxes
 				for (var j = 0; j < numSyls; j++) row.appendChild(makeSylBox(j));
 			} else if (isJati && matraGanaNames.length > 0) {
-				// Jāti: use mātrā-gaṇa groupings from mAtragaNa_abbreviations
 				var sylIdx = 0;
 				matraGanaNames.forEach(function(name) {
 					var count = matraGanaSylCount(name);
 					row.appendChild(makeMatraGanaGroup(name, sylIdx, count));
 					sylIdx += count;
 				});
-				// any leftover syllables (shouldn't happen but be safe)
 				while (sylIdx < numSyls) { row.appendChild(makeBareBox(sylIdx++)); }
 			} else if (isAnustubh && numSyls === 8 && ganaChars.length === 4) {
-				// Anuṣṭubh: group syls 1-3 and 4-6, leave syls 0 and 7 bare (anceps)
-				// Recompute gaṇa names from actual weights at those positions
 				var g1 = ganaNameFromWeights(wtList, 1);
 				var g2 = ganaNameFromWeights(wtList, 4);
 				row.appendChild(makeBareBox(0));
@@ -1164,15 +1222,23 @@
 				row.appendChild(makeGanaGroup(g2, 4));
 				row.appendChild(makeBareBox(7));
 			} else {
-				// Samavṛtta / other: gaṇas from syl 0, then singles with labels for remainder
+				// Samavṛtta / other (incl. hypermetric pādas).
+				// If ganaChars is empty but we want grouping, derive from weights.
+				var effectiveGanas = ganaChars;
+				if (effectiveGanas.length === 0 && numSyls >= 3) {
+					effectiveGanas = [];
+					for (var gi0 = 0; gi0 + 2 < numSyls; gi0 += 3) {
+						effectiveGanas.push(ganaNameFromWeights(wtList, gi0));
+					}
+				}
 				var triCount    = Math.floor(numSyls / 3);
-				var numTriGanas = Math.min(triCount, ganaChars.length);
+				var numTriGanas = Math.min(triCount, effectiveGanas.length);
 				var sylIdx = 0;
 				for (var gi = 0; gi < numTriGanas; gi++) {
-					row.appendChild(makeGanaGroup(ganaChars[gi], sylIdx));
+					row.appendChild(makeGanaGroup(effectiveGanas[gi], sylIdx));
 					sylIdx += 3;
 				}
-				var singleChars = ganaChars.slice(numTriGanas);
+				var singleChars = effectiveGanas.slice(numTriGanas);
 				singleChars.forEach(function(gChar) {
 					var wrap = document.createElement('div');
 					wrap.className = 'gana-single';
@@ -1186,11 +1252,9 @@
 					wrap.appendChild(lbl);
 					row.appendChild(wrap);
 				});
-				// Any remaining syllables beyond gaṇa coverage
 				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
 			}
 
-			// Boxes row + mora + imperfect label all inline, vertically centered
 			var wrap = document.createElement('div');
 			wrap.className = 'pada-row-wrap';
 			wrap.appendChild(row);
@@ -1200,13 +1264,32 @@
 				mora.textContent = 'm:\u202f' + moraeVal;
 				wrap.appendChild(mora);
 			}
-			if (showImperfect) {
-				var ilbl = document.createElement('span');
-				ilbl.className = 'pada-imperfect-label';
-				ilbl.textContent = imperfectLabel;
-				wrap.appendChild(ilbl);
+			innerEl.appendChild(wrap);
+			rowWraps.push(wrap);
+
+			// Label slot (always push one per visible row, even if empty)
+			if (anyLabel) {
+				var slot = document.createElement('div');
+				slot.className = 'pada-label-slot';
+				var labelText = imperfectLabels[p];
+				if (labelText) {
+					var ilbl = document.createElement('span');
+					ilbl.className = 'pada-imperfect-label';
+					ilbl.textContent = labelText;
+					slot.appendChild(ilbl);
+				}
+				labelColEl.appendChild(slot);
+				labelSlots.push(slot);
 			}
-			el.appendChild(wrap);
+		}
+
+		// After DOM insertion, align label slot heights to their corresponding row wrap heights
+		if (anyLabel && rowWraps.length === labelSlots.length) {
+			requestAnimationFrame(function() {
+				for (var i = 0; i < rowWraps.length; i++) {
+					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
+				}
+			});
 		}
 	}
 
