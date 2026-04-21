@@ -562,12 +562,7 @@
 	});
 
 	function isPerfect(v) {
-		var d = v.diagnostic;
-		if (!d) return false;
-		if (d.type === 'pada') return !!d.perfect_id_label;
-		// half-type (anuṣṭubh): both halves must be perfect
-		if (d.type === 'half') return !!(d.ab && d.ab.perfect_id_label && d.cd && d.cd.perfect_id_label);
-		return false;
+		return v.identification_score >= 9;
 	}
 	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
@@ -878,22 +873,22 @@
 		if (diag.type === 'pada') {
 			// Samavṛtta / upajāti / jāti: fields are dicts keyed by pada number "1"–"4" (JSON string)
 			var padaKey = String(padaIdx + 1);
-			var fc  = diag.failure_code        && diag.failure_code[padaKey];
-			var il  = diag.imperfect_id_label  && diag.imperfect_id_label[padaKey];
-			var ps  = diag.problem_syllables   && diag.problem_syllables[padaKey];
-			var lenError = fc === 'hypermetric' || fc === 'hypometric';
+			var engLabel = diag.imperfect_label_english   && diag.imperfect_label_english[padaKey];
+			var sktLabel = diag.imperfect_label_sanskrit  && diag.imperfect_label_sanskrit[padaKey];
+			var ps       = diag.problem_syllables         && diag.problem_syllables[padaKey];
+			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
 			// Show label on the first pada that carries one; fall back to pada 0
 			var showLabel = false;
-			if (il) {
+			if (sktLabel) {
 				var firstKey = null;
 				for (var k = 1; k <= numPadas; k++) {
-					if (diag.imperfect_id_label && diag.imperfect_id_label[String(k)]) { firstKey = k; break; }
+					if (diag.imperfect_label_sanskrit && diag.imperfect_label_sanskrit[String(k)]) { firstKey = k; break; }
 				}
 				showLabel = (firstKey === null) ? (padaIdx === 0) : (firstKey === padaIdx + 1);
 			}
-			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? il : null };
+			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? sktLabel : null };
 		}
 
 		if (diag.type === 'half') {
@@ -902,21 +897,21 @@
 			var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
 			var d = diag[halfKey];
 			if (!d) return empty;
-			var fc2  = d.failure_code       && d.failure_code[withinHalf];
-			var il2  = d.imperfect_id_label && d.imperfect_id_label[withinHalf];
-			var ps2  = d.problem_syllables  && d.problem_syllables[withinHalf];
-			var lenError2 = fc2 === 'hypermetric' || fc2 === 'hypometric';
+			var engLabel2 = d.imperfect_label_english  && d.imperfect_label_english[withinHalf];
+			var sktLabel2 = d.imperfect_label_sanskrit && d.imperfect_label_sanskrit[withinHalf];
+			var ps2       = d.problem_syllables        && d.problem_syllables[withinHalf];
+			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
 			var showLabel2 = false;
-			if (il2) {
+			if (sktLabel2) {
 				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? il2 : null };
+			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? sktLabel2 : null };
 		}
 
 		return empty;
