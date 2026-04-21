@@ -867,39 +867,60 @@
 	}
 
 	// --- Diagnostic helpers ---
-	// Returns { d, withinHalf, probSet } or null.
-	// probSet is pre-resolved: keys are syllable indices (0-based) that are problematic for this pāda.
-	function getPadaDiag(diag, padaIdx) {
-		if (!diag) return null;
+	// Returns { probSet, isLenError, imperfectLabel } for a given pāda index (0-based).
+	// probSet: obj mapping 0-based syllable idx → true (empty when isLenError — row gets pink bg instead)
+	// isLenError: row-level highlight (hypermetric/hypometric)
+	// imperfectLabel: string to show to the right of this pāda row, or null
+	function getPadaDiagInfo(diag, padaIdx, numPadas) {
+		var empty = { probSet: {}, isLenError: false, imperfectLabel: null };
+		if (!diag) return empty;
 
 		if (diag.type === 'pada') {
-			// samavṛtta / upajāti: single Diagnostic, problem_syllables keyed "1"–"4" (JSON string keys)
+			// Samavṛtta / upajāti / jāti: fields are dicts keyed by pada number "1"–"4" (JSON string)
 			var padaKey = String(padaIdx + 1);
-			var probList = diag.problem_syllables && diag.problem_syllables[padaKey];
+			var fc  = diag.failure_code        && diag.failure_code[padaKey];
+			var il  = diag.imperfect_id_label  && diag.imperfect_id_label[padaKey];
+			var ps  = diag.problem_syllables   && diag.problem_syllables[padaKey];
+			var lenError = fc === 'hypermetric' || fc === 'hypometric';
 			var probSet = {};
-			if (probList) probList.forEach(function(i) { probSet[i] = true; });
-			// imperfect label only shown once — on the first pāda that has problems (or pada 0 if none)
-			var showLabel = (function() {
-				for (var k = 1; k <= 4; k++) {
-					var pl = diag.problem_syllables && diag.problem_syllables[String(k)];
-					if (pl && pl.length > 0) return (String(k) === padaKey);
+			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
+			// Show label on the first pada that carries one; fall back to pada 0
+			var showLabel = false;
+			if (il) {
+				var firstKey = null;
+				for (var k = 1; k <= numPadas; k++) {
+					if (diag.imperfect_id_label && diag.imperfect_id_label[String(k)]) { firstKey = k; break; }
 				}
-				return padaIdx === 0; // no problems anywhere: show on first pāda
-			})();
-			return { d: diag, withinHalf: null, probSet: probSet, showLabel: showLabel };
+				showLabel = (firstKey === null) ? (padaIdx === 0) : (firstKey === padaIdx + 1);
+			}
+			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? il : null };
 		}
 
-		// anuṣṭubh: diag has keys 'ab'/'cd', each with 'odd'/'even' problem_syllables
-		var halfKey    = (padaIdx <= 1) ? 'ab' : 'cd';
-		var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
-		var d = diag[halfKey];
-		if (!d) return null;
-		var probList2 = d.problem_syllables && d.problem_syllables[withinHalf];
-		var probSet2 = {};
-		if (probList2) probList2.forEach(function(i) { probSet2[i] = true; });
-		return { d: d, withinHalf: withinHalf, probSet: probSet2, showLabel: null };
+		if (diag.type === 'half') {
+			// Anuṣṭubh: keyed 'ab'/'cd', each Diagnostic uses 'odd'/'even' sub-keys
+			var halfKey    = (padaIdx <= 1) ? 'ab' : 'cd';
+			var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
+			var d = diag[halfKey];
+			if (!d) return empty;
+			var fc2  = d.failure_code       && d.failure_code[withinHalf];
+			var il2  = d.imperfect_id_label && d.imperfect_id_label[withinHalf];
+			var ps2  = d.problem_syllables  && d.problem_syllables[withinHalf];
+			var lenError2 = fc2 === 'hypermetric' || fc2 === 'hypometric';
+			var probSet2 = {};
+			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
+			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
+			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
+			var showLabel2 = false;
+			if (il2) {
+				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
+				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
+				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
+			}
+			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? il2 : null };
+		}
+
+		return empty;
 	}
-	function isLengthError(fc) { return fc === 'hypermetric' || fc === 'hypometric'; }
 
 	// --- Card building ---
 	var container = document.getElementById('bcm-verses');
@@ -1061,35 +1082,16 @@
 		var imperfectLabels = [];   // one entry per pāda: label string or null
 		var anyLabel = false;
 
-		// First pass: compute imperfect labels for all pādas
+		// First pass: compute per-pāda diag info and imperfect labels
+		var padaDiagInfos = [];
 		for (var p = 0; p < numPadas; p++) {
 			var sylStr0 = sylPadas[p] || '';
 			var wtStr0  = wtPadas[p]  || '';
-			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); continue; }
-
-			var padaDiag0   = getPadaDiag(diag, p);
-			var d0          = padaDiag0 ? padaDiag0.d : null;
-			var withinHalf0 = padaDiag0 ? padaDiag0.withinHalf : null;
-			var imperfectLabel0 = null;
-			if (d0) {
-				imperfectLabel0 = d0.imperfect_id_label ||
-					(d0.failure_code && !d0.perfect_id_label ? d0.failure_code : null);
-			}
-			var showImperfect0 = false;
-			if (imperfectLabel0 && d0) {
-				if (padaDiag0 && padaDiag0.showLabel !== null) {
-					showImperfect0 = padaDiag0.showLabel;
-				} else {
-					var oddProbs0  = d0.problem_syllables && d0.problem_syllables['odd']  && d0.problem_syllables['odd'].length  > 0;
-					var evenProbs0 = d0.problem_syllables && d0.problem_syllables['even'] && d0.problem_syllables['even'].length > 0;
-					if (oddProbs0  && withinHalf0 === 'odd')  showImperfect0 = true;
-					else if (evenProbs0 && withinHalf0 === 'even') showImperfect0 = true;
-					else if (!oddProbs0 && !evenProbs0) showImperfect0 = (withinHalf0 === 'even' || numPadas <= 2);
-				}
-			}
-			var lbl0 = showImperfect0 ? imperfectLabel0 : null;
-			imperfectLabels.push(lbl0);
-			if (lbl0) anyLabel = true;
+			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); padaDiagInfos.push(null); continue; }
+			var info0 = getPadaDiagInfo(diag, p, numPadas);
+			padaDiagInfos.push(info0);
+			imperfectLabels.push(info0.imperfectLabel);
+			if (info0.imperfectLabel) anyLabel = true;
 		}
 
 
@@ -1120,10 +1122,9 @@
 			var moraeVal = morae[p];
 			if (!sylStr && !wtStr) continue;
 
-			var padaDiag   = getPadaDiag(diag, p);
-			var d          = padaDiag ? padaDiag.d : null;
-			var probSet    = padaDiag ? padaDiag.probSet : {};
-			var lenError   = d && isLengthError(d.failure_code) && Object.keys(probSet).length > 0;
+			var info     = padaDiagInfos[p] || { probSet: {}, isLenError: false, imperfectLabel: null };
+			var probSet  = info.probSet;
+			var lenError = info.isLenError;
 
 			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
 			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });

@@ -134,26 +134,22 @@ def serialize_diagnostic(diag):
 	"""Serialize a Verse.diagnostic value to a JSON-safe dict."""
 	if diag is None:
 		return None
-	# Bare Diagnostic (samavṛtta, upajāti): problem_syllables keyed 1–4 (int)
 	from skrutable.meter_identification import Diagnostic
-	if isinstance(diag, Diagnostic):
+	def _serialize_one(d):
 		return {
-			"type": "pada",
-			"perfect_id_label": diag.perfect_id_label,
-			"imperfect_id_label": diag.imperfect_id_label,
-			"failure_code": diag.failure_code,
-			"problem_syllables": diag.problem_syllables,
+			"perfect_id_label": d.perfect_id_label,
+			"imperfect_id_label": d.imperfect_id_label,  # dict w/ int or str keys, or None
+			"failure_code": d.failure_code,               # dict w/ int or str keys, or None
+			"problem_syllables": d.problem_syllables,     # dict w/ int or str keys, or None
 		}
-	# Dict of Diagnostics (anuṣṭubh): keys 'ab'/'cd', each a Diagnostic
+	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
+	if isinstance(diag, Diagnostic):
+		return {"type": "pada", **_serialize_one(diag)}
+	# Dict of Diagnostics (anuṣṭubh): keys 'ab'/'cd', each Diagnostic keyed by 'odd'/'even'
 	if isinstance(diag, dict):
 		result = {"type": "half"}
 		for half_key, d in diag.items():
-			result[half_key] = {
-				"perfect_id_label": d.perfect_id_label,
-				"imperfect_id_label": d.imperfect_id_label,
-				"failure_code": d.failure_code,
-				"problem_syllables": d.problem_syllables,
-			}
+			result[half_key] = _serialize_one(d)
 		return result
 	return None
 
