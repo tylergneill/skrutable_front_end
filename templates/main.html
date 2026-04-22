@@ -232,6 +232,7 @@
 	}
 
 	async function doTransliterate() {
+		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("transliterate_button");
 		setButtonLoading(btn, true);
 		try {
@@ -261,6 +262,7 @@
 	}
 
 	async function doScan() {
+		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("scan_button");
 		setButtonLoading(btn, true);
 		try {
@@ -291,6 +293,7 @@
 	}
 
 	async function doIdentifyMeter() {
+		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("identify_meter_button");
 		setButtonLoading(btn, true);
 		try {
@@ -332,6 +335,7 @@
 	}
 
 	async function doSplit() {
+		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("split_button");
 		setButtonLoading(btn, true);
 		try {

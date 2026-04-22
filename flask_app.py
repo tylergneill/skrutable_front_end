@@ -159,6 +159,8 @@ def resolve_from_scheme(input_text, from_scheme):
 		return from_scheme, None, None
 	try:
 		detected = SD.detect_scheme(input_text)
+		if detected is None:
+			return "IAST", None, None
 		return detected, detected, SD.confidence
 	except Exception:
 		return "IAST", "IAST", "low"
