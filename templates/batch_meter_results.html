@@ -1510,8 +1510,10 @@
 	var timingEl = document.getElementById('timing-label');
 	if (timingEl) {
 		timingEl.textContent = '⏱';
-		var tip = (duration ? 'identified in ' + duration.toFixed(1) + 's, ' : '') +
-			'loaded in ' + (loadMs / 1000).toFixed(1) + 's';
+		var loadSecs = loadMs / 1000;
+		var tip = duration
+			? 'identified in ' + duration.toFixed(1) + 's + ' + (loadSecs - duration).toFixed(1) + 's to load (' + loadSecs.toFixed(1) + 's total)'
+			: 'loaded in ' + loadSecs.toFixed(1) + 's';
 		timingEl.title = tip;
 	}
 
