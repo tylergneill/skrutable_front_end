@@ -15,15 +15,43 @@
 
 		/* === Sticky header === */
 		.bcm-header {
-			position: sticky; top: 0; z-index: 40;
+			position: sticky; top: 0; z-index: 50;
 			background: var(--sidebar-bg); color: var(--sidebar-text);
 			display: flex; align-items: center; justify-content: space-between;
-			padding: 0.5em 1em; gap: 0.75em; flex-wrap: wrap;
+			padding: 0.5em 1em; gap: 0.75em;
 		}
 		.bcm-header-left { display: flex; align-items: center; gap: 0.75em; flex-wrap: wrap; }
 		.bcm-header a { color: var(--sidebar-accent); font-size: 0.9em; }
 		.bcm-header h1 { font-family: var(--font-heading); font-size: 1em; font-weight: normal; color: var(--sidebar-text); margin: 0; }
 		.bcm-header-right { display: flex; gap: 0.5em; align-items: center; }
+
+		/* === Burger menu (narrow screens) === */
+		.bcm-burger-btn {
+			background: none; border: 1px solid var(--sidebar-accent);
+			color: var(--sidebar-accent); border-radius: 3px;
+			padding: 0.2em 0.5em; cursor: pointer; font-size: 1.1em; line-height: 1.2;
+		}
+		.bcm-burger-btn:hover { background: rgba(255,255,255,0.1); }
+		.bcm-burger-dropdown {
+			display: none;
+			position: absolute; top: 100%; right: 0;
+			background: var(--sidebar-bg); border: 1px solid var(--input-border);
+			border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+			padding: 0.6em 0.8em; z-index: 100;
+			flex-direction: column; gap: 0.6em; min-width: 14em;
+		}
+		.bcm-burger-dropdown.open { display: flex; }
+		.bcm-burger-dropdown label,
+		.bcm-burger-dropdown .bcm-font-ctrl,
+		.bcm-burger-dropdown .btn-export,
+		.bcm-burger-dropdown .btn-theme { width: 100%; box-sizing: border-box; }
+		.bcm-burger-dropdown .btn-export { text-align: left; }
+		.bcm-burger-row { display: flex; gap: 0.4em; }
+		.bcm-burger-wrap { display: none; }
+		@media (max-width: 1100px) {
+			.bcm-header-right { display: none; }
+			.bcm-burger-wrap  { display: block; position: relative; }
+		}
 
 		/* === Stats block === */
 		.bcm-stats-block {
@@ -419,6 +447,41 @@
 		</div>
 		<button class="btn-theme" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
 	</div>
+	<div class="bcm-burger-wrap">
+		<button class="bcm-burger-btn" id="bcm-burger-btn">&#9776;</button>
+		<div class="bcm-burger-dropdown" id="bcm-burger-dropdown">
+			<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+				transliterate:
+				<select id="display-scheme-m" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+					<option value="IAST" selected>IAST</option>
+					<option value="SLP">SLP</option>
+					<option value="DEV">DEV</option>
+					<option value="HK">HK</option>
+				</select>
+				<span class="bcm-spinner" id="spin-display-m">&#8987;</span>
+			</label>
+			<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+				explanations:
+				<select id="explanation-lang-m" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+					<option value="sanskrit">Sanskrit</option>
+					<option value="english">English</option>
+				</select>
+				<span class="bcm-spinner" id="spin-explanation-m">&#8987;</span>
+			</label>
+			<div class="bcm-burger-row">
+				<button class="btn-export" style="flex:1;" onclick="exportTxt();closeBurger()">export .txt</button>
+				<button class="btn-export" style="flex:1;" onclick="exportCsv();closeBurger()">export .csv</button>
+			</div>
+			<div style="display:flex;align-items:center;justify-content:space-between;">
+				<div class="bcm-font-ctrl">
+					<button class="btn-font" id="btn-font-dec-m" title="Decrease font size">−</button>
+					<button class="btn-font" id="btn-font-reset-m" title="Reset font size">A</button>
+					<button class="btn-font" id="btn-font-inc-m" title="Increase font size">+</button>
+				</div>
+				<button class="btn-theme" id="dark-mode-toggle-m" title="Toggle dark mode">&#9790;</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="bcm-stats-block">
@@ -469,17 +532,35 @@
 	}
 
 	// --- Dark mode ---
-	var toggle = document.getElementById('dark-mode-toggle');
+	var toggle  = document.getElementById('dark-mode-toggle');
+	var toggleM = document.getElementById('dark-mode-toggle-m');
 	function applyTheme(dark) {
 		document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-		toggle.innerHTML = dark ? '&#9788;' : '&#9790;';
-		toggle.title = dark ? 'Toggle light mode' : 'Toggle dark mode';
+		var icon = dark ? '&#9788;' : '&#9790;';
+		var ttip = dark ? 'Toggle light mode' : 'Toggle dark mode';
+		toggle.innerHTML  = icon; toggle.title  = ttip;
+		toggleM.innerHTML = icon; toggleM.title = ttip;
 		localStorage.setItem('theme', dark ? 'dark' : 'light');
 	}
 	toggle.addEventListener('click', function() {
 		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
 	});
+	toggleM.addEventListener('click', function() {
+		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+	});
 	if (localStorage.getItem('theme')) applyTheme(localStorage.getItem('theme') === 'dark');
+
+	// --- Burger menu ---
+	var burgerBtn      = document.getElementById('bcm-burger-btn');
+	var burgerDropdown = document.getElementById('bcm-burger-dropdown');
+	function closeBurger() { burgerDropdown.classList.remove('open'); }
+	burgerBtn.addEventListener('click', function(e) {
+		e.stopPropagation();
+		burgerDropdown.classList.toggle('open');
+	});
+	document.addEventListener('click', function(e) {
+		if (!burgerDropdown.contains(e.target)) closeBurger();
+	});
 
 	// --- Font size ---
 	var FONT_SIZES = [12, 13, 14, 15, 16, 18, 20, 22, 24];
@@ -491,6 +572,8 @@
 		document.body.style.fontSize = FONT_SIZES[fontIdx] + 'px';
 		document.getElementById('btn-font-dec').disabled = fontIdx <= 0;
 		document.getElementById('btn-font-inc').disabled = fontIdx >= FONT_SIZES.length - 1;
+		document.getElementById('btn-font-dec-m').disabled = fontIdx <= 0;
+		document.getElementById('btn-font-inc-m').disabled = fontIdx >= FONT_SIZES.length - 1;
 		localStorage.setItem('bcm-font-idx', fontIdx);
 	}
 	var DEFAULT_FONT_IDX = 4;
@@ -501,6 +584,15 @@
 		fontIdx = DEFAULT_FONT_IDX; applyFontSize();
 	});
 	document.getElementById('btn-font-inc').addEventListener('click', function() {
+		if (fontIdx < FONT_SIZES.length - 1) { fontIdx++; applyFontSize(); }
+	});
+	document.getElementById('btn-font-dec-m').addEventListener('click', function() {
+		if (fontIdx > 0) { fontIdx--; applyFontSize(); }
+	});
+	document.getElementById('btn-font-reset-m').addEventListener('click', function() {
+		fontIdx = DEFAULT_FONT_IDX; applyFontSize();
+	});
+	document.getElementById('btn-font-inc-m').addEventListener('click', function() {
 		if (fontIdx < FONT_SIZES.length - 1) { fontIdx++; applyFontSize(); }
 	});
 	applyFontSize();
@@ -517,12 +609,17 @@
 	explanationLangSel.value = explanationLang;
 	explanationLangSel.addEventListener('change', function() {
 		var newLang = this.value;
+		var langM = document.getElementById('explanation-lang-m');
+		if (langM) langM.value = newLang;
 		var spin = document.getElementById('spin-explanation');
+		var spinM = document.getElementById('spin-explanation-m');
 		if (spin) spin.style.display = 'inline';
+		if (spinM) spinM.style.display = 'inline';
 		setTimeout(function() {
 			explanationLang = newLang;
 			renderCards();
 			if (spin) spin.style.display = 'none';
+			if (spinM) spinM.style.display = 'none';
 		}, 0);
 	});
 
@@ -608,16 +705,36 @@
 		return transliterate(withVowel, 'SLP', displayScheme);
 	}
 
-	// Set dropdown to match settings
+	// Set dropdowns to match settings (desktop + mobile)
 	(function() {
 		var sel = document.getElementById('display-scheme');
 		if (sel) sel.value = displayScheme;
+		var selM = document.getElementById('display-scheme-m');
+		if (selM) selM.value = displayScheme;
+		var langM = document.getElementById('explanation-lang-m');
+		if (langM) langM.value = explanationLang;
 	})();
+
+	// Sync mobile selects → desktop selects (which carry the real logic)
+	document.getElementById('display-scheme-m').addEventListener('change', function() {
+		var desk = document.getElementById('display-scheme');
+		desk.value = this.value;
+		desk.dispatchEvent(new Event('change'));
+	});
+	document.getElementById('explanation-lang-m').addEventListener('change', function() {
+		var desk = document.getElementById('explanation-lang');
+		desk.value = this.value;
+		desk.dispatchEvent(new Event('change'));
+	});
 
 	document.getElementById('display-scheme').addEventListener('change', function() {
 		var newScheme = this.value;
+		var selM = document.getElementById('display-scheme-m');
+		if (selM) selM.value = newScheme;
 		var spin = document.getElementById('spin-display');
+		var spinM = document.getElementById('spin-display-m');
 		if (spin) spin.style.display = 'inline';
+		if (spinM) spinM.style.display = 'inline';
 		setTimeout(function() {
 			displayScheme = newScheme;
 			verseState.forEach(function(v, idx) {
@@ -640,6 +757,7 @@
 				}
 			});
 			if (spin) spin.style.display = 'none';
+			if (spinM) spinM.style.display = 'none';
 		}, 0);
 	});
 
