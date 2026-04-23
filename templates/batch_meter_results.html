@@ -578,9 +578,11 @@
 	var INDIC_SCHEMES = ['DEV', 'BENGALI', 'GUJARATI'];
 	function iastToDisplay(s) {
 		if (!s || displayScheme === 'IAST') return s;
-		// Meter labels embed bracketed gaṇa sequences like [11: tjg] where each letter is an SLP
-		// consonant abbreviation. For Indic scripts each must become a full akṣara (consonant+a);
-		// for roman scripts the SLP abbreviations are left as-is since they're already readable.
+		return transliterate(s, 'IAST', displayScheme);
+	}
+	// Like iastToDisplay but handles bracketed gaṇa sequences in meter labels ([11: tjg]).
+	function meterLabelToDisplay(s) {
+		if (!s || displayScheme === 'IAST') return s;
 		var isIndic = INDIC_SCHEMES.indexOf(displayScheme) >= 0;
 		var parts = s.split(/(\[[^\]]*\])/);
 		return parts.map(function(part) {
@@ -817,7 +819,7 @@
 			var lbl = document.createElement('label');
 			lbl.className = 'meter-count-label';
 			lbl.htmlFor = 'mcb-' + m.label;
-			lbl.textContent = iastToDisplay(m.label);
+			lbl.textContent = meterLabelToDisplay(m.label);
 
 			row.appendChild(cb);
 			row.appendChild(lbl);
@@ -875,11 +877,11 @@
 				chipCount++;
 				var chip = document.createElement('span');
 				chip.className = 'bcm-filter-chip';
-				chip.textContent = iastToDisplay(m.label) + '\u00a0';
+				chip.textContent = meterLabelToDisplay(m.label) + '\u00a0';
 				var x = document.createElement('button');
 				x.className = 'bcm-filter-chip-x';
 				x.textContent = '\u00d7';
-				x.title = 'Deselect ' + iastToDisplay(m.label);
+				x.title = 'Deselect ' + meterLabelToDisplay(m.label);
 				x.addEventListener('click', function() {
 					meterFilter[m.label] = false;
 					// Keep pending in sync so closing the dropdown doesn't undo this
@@ -947,7 +949,7 @@
 	function buildHeaderLabel(v) {
 		var lbl = v.meter_label || 'unidentified';
 		if (isPerfect(v)) lbl = lbl.split(' (')[0].trim() || lbl;
-		return iastToDisplay(lbl);
+		return meterLabelToDisplay(lbl);
 	}
 
 	// --- Diagnostic helpers ---
