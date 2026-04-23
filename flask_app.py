@@ -430,6 +430,7 @@ def upload_file():
 						"settings": {
 							"resplit_option": session["resplit_option"],
 							"from_scheme": resolved_from_scheme,
+							"to_scheme": session.get("to_scheme", "IAST"),
 							"weights": session["weights"],
 							"morae": session["morae"],
 							"gaRas": session["gaRas"],
