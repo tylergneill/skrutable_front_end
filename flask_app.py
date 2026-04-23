@@ -187,6 +187,7 @@ extra_option_names = [
 	"preserve_punctuation",
 	"splitter_model",
 	"batch_correction_mode",
+	"explanation_language",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -261,6 +262,7 @@ def _init_session_defaults():
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
 		"batch_correction_mode": 0,
+		"explanation_language": "sanskrit",
 	}
 	for k, v in defaults.items():
 		session.setdefault(k, v)
@@ -432,6 +434,7 @@ def upload_file():
 							"morae": session["morae"],
 							"gaRas": session["gaRas"],
 							"alignment": session["alignment"],
+							"explanation_language": session.get("explanation_language", "sanskrit"),
 						},
 						"duration_secs": duration_secs,
 					}),

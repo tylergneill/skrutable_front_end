@@ -401,6 +401,13 @@
 				<option value="HK">HK</option>
 			</select>
 		</label>
+		<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+			explanations:
+			<select id="explanation-lang" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+				<option value="sanskrit">Sanskrit</option>
+				<option value="english">English</option>
+			</select>
+		</label>
 		<button class="btn-export" onclick="exportTxt()">export .txt</button>
 		<button class="btn-export" onclick="exportCsv()">export .csv</button>
 		<div class="bcm-font-ctrl">
@@ -501,6 +508,15 @@
 	var verses = batchData.verses || [];
 	var settings = batchData.settings || {};
 	var duration = batchData.duration_secs;
+
+	// --- Explanation language (initialized from session default, overridable per-page-load) ---
+	var explanationLang = settings.explanation_language || 'sanskrit';
+	var explanationLangSel = document.getElementById('explanation-lang');
+	explanationLangSel.value = explanationLang;
+	explanationLangSel.addEventListener('change', function() {
+		explanationLang = this.value;
+		renderCards();
+	});
 
 	// --- Per-verse options state ---
 	// Initialize all verses with the session defaults, then each card tracks its own.
@@ -875,20 +891,22 @@
 			var padaKey = String(padaIdx + 1);
 			var engLabel = diag.imperfect_label_english   && diag.imperfect_label_english[padaKey];
 			var sktLabel = diag.imperfect_label_sanskrit  && diag.imperfect_label_sanskrit[padaKey];
+			var chosenLabel = explanationLang === 'english' ? engLabel : sktLabel;
 			var ps       = diag.problem_syllables         && diag.problem_syllables[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
 			// Show label on the first pada that carries one; fall back to pada 0
 			var showLabel = false;
-			if (sktLabel) {
+			if (chosenLabel) {
+				var labelSet = explanationLang === 'english' ? diag.imperfect_label_english : diag.imperfect_label_sanskrit;
 				var firstKey = null;
 				for (var k = 1; k <= numPadas; k++) {
-					if (diag.imperfect_label_sanskrit && diag.imperfect_label_sanskrit[String(k)]) { firstKey = k; break; }
+					if (labelSet && labelSet[String(k)]) { firstKey = k; break; }
 				}
 				showLabel = (firstKey === null) ? (padaIdx === 0) : (firstKey === padaIdx + 1);
 			}
-			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? sktLabel : null };
+			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
 		}
 
 		if (diag.type === 'half') {
@@ -899,6 +917,7 @@
 			if (!d) return empty;
 			var engLabel2 = d.imperfect_label_english  && d.imperfect_label_english[withinHalf];
 			var sktLabel2 = d.imperfect_label_sanskrit && d.imperfect_label_sanskrit[withinHalf];
+			var chosenLabel2 = explanationLang === 'english' ? engLabel2 : sktLabel2;
 			var ps2       = d.problem_syllables        && d.problem_syllables[withinHalf];
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
@@ -906,12 +925,12 @@
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
 			var showLabel2 = false;
-			if (sktLabel2) {
+			if (chosenLabel2) {
 				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? sktLabel2 : null };
+			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
 		}
 
 		return empty;
