@@ -41,16 +41,14 @@
 			</p>
 			<p>
 				<label for="splitter_model">model: </label><select id="splitter_model" name="splitter_model">
-					<option value="dharmamitra_2024_sept" {% if splitter_model|default('dharmamitra_2024_sept') == 'dharmamitra_2024_sept' %}selected{% endif %}>2024 Byt5-Sanskrit by Dharmamitra</option>
+					<option value="dharmamitra_2024_sept" {% if splitter_model|default('dharmamitra_2024_sept') == 'dharmamitra_2024_sept' %}selected{% endif %}>2024 ByT5-Sanskrit by Dharmamitra</option>
 					<option value="splitter_2018" {% if splitter_model == 'splitter_2018' %}selected{% endif %}>2018 Sandhi and Compound Splitter</option>
 				</select>
 			</p>
-			<div id="preserve_compound_hyphens_row" style="display: none;">
-				<p>
-					<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" {% if preserve_compound_hyphens|default(1)|int %}checked{% endif %}>
-					<label for="preserve_compound_hyphens">preserve compound hyphens (<span id="hyphens_example_on">dharma-k&#7779;etre</span><span id="hyphens_example_off" style="display:none">dharma k&#7779;etre</span>)</label>
-				</p>
-			</div>
+			<p id="preserve_compound_hyphens_row" style="margin-left:1.5em;">
+				<input type="checkbox" id="preserve_compound_hyphens" name="preserve_compound_hyphens" value="preserve_compound_hyphens" {% if preserve_compound_hyphens|default(1)|int %}checked{% endif %} style="opacity:0.4;">
+				<label for="preserve_compound_hyphens" id="preserve_compound_hyphens_label" style="opacity:0.4;">preserve compound hyphens (<span id="hyphens_example_on">dharma-k&#7779;etre</span><span id="hyphens_example_off" style="display:none">dharma k&#7779;etre</span>)</label>
+			</p>
 
 		</form>
 
@@ -94,13 +92,12 @@
 	}
 
 	function toggle_preserve_compound_hyphens() {
-		const splitterModel = document.getElementById("splitter_model").value;
-		const preserveCompoundHyphensRow = document.getElementById("preserve_compound_hyphens_row");
-		if (splitterModel === "dharmamitra_2024_sept") {
-			preserveCompoundHyphensRow.style.display = "block";
-		} else {
-			preserveCompoundHyphensRow.style.display = "none";
-		}
+		var enabled = document.getElementById("splitter_model").value === "dharmamitra_2024_sept";
+		var cb  = document.getElementById("preserve_compound_hyphens");
+		var lbl = document.getElementById("preserve_compound_hyphens_label");
+		cb.disabled = !enabled;
+		cb.style.opacity  = enabled ? "" : "0.4";
+		lbl.style.opacity = enabled ? "" : "0.4";
 	}
 
 	function saveAll() {
