@@ -27,6 +27,12 @@
 				<input type="checkbox" id="batch_correction_mode" name="batch_correction_mode" value="batch_correction_mode" {% if batch_correction_mode|default(0)|int %}checked{% endif %}>
 				<label for="batch_correction_mode">batch correction mode (file upload: show interactive HTML results instead of plain-text download)</label>
 			</p>
+			<p id="explanation_language_row" style="margin-left:1.5em;">
+				<label for="explanation_language" id="explanation_language_label" style="opacity:0.4;">explanations default: </label><select id="explanation_language" disabled style="opacity:0.4;">
+					<option value="sanskrit" {% if explanation_language|default('sanskrit') == 'sanskrit' %}selected{% endif %}>Sanskrit</option>
+					<option value="english" {% if explanation_language|default('sanskrit') == 'english' %}selected{% endif %}>English</option>
+				</select>
+			</p>
 
 			<h2>splitting</h2>
 			<p>
@@ -78,6 +84,15 @@
 		document.getElementById("anunasika_example_off").style.display = anuOn ? "none" : "";
 	}
 
+	function toggle_explanation_language() {
+		var enabled = document.getElementById("batch_correction_mode").checked;
+		var sel = document.getElementById("explanation_language");
+		var lbl = document.getElementById("explanation_language_label");
+		sel.disabled = !enabled;
+		sel.style.opacity = enabled ? "" : "0.4";
+		lbl.style.opacity = enabled ? "" : "0.4";
+	}
+
 	function toggle_preserve_compound_hyphens() {
 		const splitterModel = document.getElementById("splitter_model").value;
 		const preserveCompoundHyphensRow = document.getElementById("preserve_compound_hyphens_row");
@@ -104,12 +119,15 @@
 			document.getElementById("splitter_model").value);
 		fd.append("batch_correction_mode",
 			document.getElementById("batch_correction_mode").checked ? "true" : "false");
+		fd.append("explanation_language",
+			document.getElementById("explanation_language").value);
 		fetch("/api/save-settings", { method: "POST", body: fd });
 	}
 
 	window.onload = function() {
 		toggle_preserve_compound_hyphens();
 		updateExamples();
+		toggle_explanation_language();
 	}
 
 	document.getElementById("splitter_model").addEventListener("change", function() { toggle_preserve_compound_hyphens(); saveAll(); });
@@ -118,7 +136,8 @@
 	document.getElementById("preserve_anunasika").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
-	document.getElementById("batch_correction_mode").addEventListener("change", saveAll);
+	document.getElementById("batch_correction_mode").addEventListener("change", function() { toggle_explanation_language(); saveAll(); });
+	document.getElementById("explanation_language").addEventListener("change", saveAll);
 
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
@@ -128,6 +147,8 @@
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
 		document.getElementById("batch_correction_mode").checked = false;
+		document.getElementById("explanation_language").value = "sanskrit";
+		toggle_explanation_language();
 		toggle_preserve_compound_hyphens();
 		updateExamples();
 		saveAll();
