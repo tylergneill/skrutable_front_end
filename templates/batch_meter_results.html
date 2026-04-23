@@ -1100,15 +1100,26 @@
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
-			// Show label on the first pada that carries one; fall back to pada 0
+			// Show label on the pada that has bad syllables; if none do, use the first pada
+			// that carries a label (covers length errors where problem_syllables is empty).
 			var showLabel = false;
 			if (chosenLabel) {
 				var labelSet = explanationLang === 'english' ? diag.imperfect_label_english : diag.imperfect_label_sanskrit;
-				var firstKey = null;
+				// Find the first pada (among those sharing this label) that has bad syllables.
+				var badKey = null;
 				for (var k = 1; k <= numPadas; k++) {
-					if (labelSet && labelSet[String(k)]) { firstKey = k; break; }
+					if (labelSet && labelSet[String(k)]) {
+						var kPs = diag.problem_syllables && diag.problem_syllables[String(k)];
+						if (kPs && kPs.length > 0) { badKey = k; break; }
+					}
 				}
-				showLabel = (firstKey === null) ? (padaIdx === 0) : (firstKey === padaIdx + 1);
+				// Fall back to first labeled pada when no bad syllables are reported.
+				if (badKey === null) {
+					for (var k = 1; k <= numPadas; k++) {
+						if (labelSet && labelSet[String(k)]) { badKey = k; break; }
+					}
+				}
+				showLabel = (badKey === null) ? (padaIdx === 0) : (badKey === padaIdx + 1);
 			}
 			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
 		}
