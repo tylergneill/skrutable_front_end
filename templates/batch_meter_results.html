@@ -697,12 +697,23 @@
 			return transliterate(part, 'IAST', displayScheme);
 		}).join('');
 	}
-	// Gaṇa abbreviations are SLP consonants (single char like 'y', 'B') or short syllabic names ('ja', 'kha').
-	// Single consonants need a trailing 'a' so they render as full akṣaras, not consonant+virama.
+	// gaRa_abbreviations: SLP single consonants (n/t/j/y/B/r/s/m) or weight pairs (gg/ll/gl/lg).
+	// Weight pairs need vowels interleaved so skrutable-js sees full syllables.
+	var WEIGHT_PAIR_SLP = { 'gg': 'gaga', 'll': 'lala', 'gl': 'gala', 'lg': 'laga' };
 	function slpGanaToDisplay(s) {
-		if (!s || displayScheme === 'SLP') return s;
-		var withVowel = (s.length === 1) ? s + 'a' : s;
-		return transliterate(withVowel, 'SLP', displayScheme);
+		if (!s) return s;
+		var slp = WEIGHT_PAIR_SLP[s] || (s.length === 1 ? s + 'a' : s);
+		if (displayScheme === 'SLP') return slp;
+		return transliterate(slp, 'SLP', displayScheme);
+	}
+
+	// mAtragaNa_abbreviations: IAST names (ja/bha/sa/kha or single l/g) OR weight pairs (gg/ll/gl/lg).
+	// Weight pairs are SLP weight chars, not IAST text, so route them through slpGanaToDisplay.
+	function iastGanaToDisplay(s) {
+		if (!s) return s;
+		if (WEIGHT_PAIR_SLP[s]) return slpGanaToDisplay(s);
+		if (displayScheme === 'IAST') return s;
+		return transliterate(s, 'IAST', displayScheme);
 	}
 
 	// Set dropdowns to match settings (desktop + mobile)
@@ -1403,7 +1414,7 @@
 				group.appendChild(boxes);
 				var lbl = document.createElement('div');
 				lbl.className = 'gana-label';
-				lbl.textContent = slpGanaToDisplay(name);
+				lbl.textContent = iastGanaToDisplay(name);
 				group.appendChild(lbl);
 				return group;
 			}
