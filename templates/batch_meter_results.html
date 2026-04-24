@@ -84,8 +84,10 @@
 			overflow: hidden;
 		}
 		/* Summary row: col 1-2 empty, stat in col 3, pills in cols 4-5, refresh in col 6 */
-		.bcm-summary-cb   { grid-column: 1 / 3; padding: 0.55em 0 0.55em 1em; }
-		.bcm-summary-stat { grid-column: 3; padding: 0.55em 0; min-width: 0; font-size: 1.1em; font-weight: normal; text-align: center; }
+		.bcm-summary-cb   { grid-column: 1 / 3; padding: 0.2em 0 0.2em 0.5em; display: flex; align-items: center; }
+		.bcm-chips-row    { grid-column: 1 / -1; padding: 0 0.5em 0.3em; display: none; }
+		.bcm-chips-row.has-chips { display: block; }
+		.bcm-summary-stat { grid-column: 3; padding: 0.55em 0; min-width: 0; font-size: 1.1em; font-weight: normal; text-align: center; align-self: stretch; display: flex; flex-direction: column; justify-content: center; align-items: center; white-space: nowrap; }
 		.bcm-summary-correct { grid-column: 4; padding: 0.4em 0; }
 		.bcm-summary-needs   { grid-column: 5; padding: 0.4em 0; }
 		.bcm-summary-refresh { grid-column: 6; padding: 0.4em 1em 0.4em 0.5em; }
@@ -96,8 +98,6 @@
 			margin: 0; display: none;
 		}
 		.bcm-unified.filter-open .bcm-filter-divider { display: block; }
-		/* Toggle row */
-		.bcm-toggle-row { grid-column: 1 / -1; padding: 0 0.5em; }
 		/* Filter header row — just the select-all checkbox, no column labels */
 		.bcm-filter-hdr-collapse { grid-column: 1; }
 		.bcm-filter-hdr-cb       { grid-column: 2; display: flex; align-items: center; justify-content: center; padding: 0.3em 0; }
@@ -132,8 +132,6 @@
 		.bcm-unified .sub-band-1 { background: rgba(0,0,0,0.06); }
 		[data-theme="dark"] .bcm-unified .sub-band-0 { background: rgba(255,255,255,0.02); }
 		[data-theme="dark"] .bcm-unified .sub-band-1 { background: rgba(255,255,255,0.06); }
-		/* Filter chips row */
-		.bcm-chips-row { grid-column: 1 / -1; padding: 0 1em 0.4em; }
 		.bcm-stat { color: var(--main-text); font-size: 1em; }
 		.bcm-stat-showing { display: block; font-size: 0.75em; font-weight: normal; opacity: 0.8; margin-top: 0.1em; text-align: center; }
 		.bcm-nav-col {
@@ -187,22 +185,27 @@
 			font-weight: 600; letter-spacing: 0.01em;
 		}
 		.bcm-meter-counts-toggle:hover { text-decoration: underline; }
-		.bcm-filter-chips { display: inline-flex; flex-wrap: wrap; gap: 0.3em; margin-left: 0.4em; vertical-align: middle; }
+		.bcm-filter-chips { display: flex; flex-wrap: wrap; gap: 0.3em; }
 		.bcm-filter-chip {
-			display: inline-flex; align-items: center; gap: 0.25em;
+			display: inline-flex; align-items: stretch;
 			background: var(--input-border); border-radius: 999px;
-			padding: 0.05em 0.5em 0.05em 0.6em; font-size: 0.8em; color: var(--main-text);
+			font-size: 0.8em; color: var(--main-text); overflow: hidden;
+		}
+		.bcm-filter-chip-label {
+			padding: 0.2em 0.5em 0.2em 0.75em; display: flex; align-items: center;
 		}
 		.bcm-filter-chip-x {
-			background: none; border: none; cursor: pointer; padding: 0;
-			font-size: 0.9em; line-height: 1; color: var(--main-text); opacity: 0.6;
+			display: flex; align-items: center; justify-content: center;
+			padding: 0.2em 0.65em;
+			background: none; border: none; border-left: 1px solid rgba(128,128,128,0.35);
+			cursor: pointer; color: var(--main-text); font-size: 1.1em; line-height: 1;
+			border-radius: 0 999px 999px 0;
+			transition: background 0.12s;
 		}
-		.bcm-filter-chip-x:hover { opacity: 1; }
+		.bcm-filter-chip-x:hover { background: rgba(128,128,128,0.25); }
 		/* Filter rows hidden until open */
-		.bcm-filter-row { display: contents; }
-		.bcm-filter-row > * { display: none; }
-		.bcm-unified.filter-open .bcm-filter-row > * { display: flex; align-items: center; }
-		.bcm-unified.filter-open .bcm-filter-row > span { display: block; }
+		.bcm-filter-row { display: none; }
+		.bcm-unified.filter-open .bcm-filter-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; align-items: center; }
 		/* Scroll container wraps just the data rows */
 		.bcm-filter-scroll {
 			grid-column: 1 / -1; display: none;
@@ -552,15 +555,16 @@
 
 <div class="bcm-stats-block">
 	<div class="bcm-unified" id="bcm-unified">
-		<!-- Summary row cells: cb | stat | correct-pill | needs-pill | refresh -->
-		<div class="bcm-summary-cb"></div>
+		<!-- Summary row cells: toggle | stat | correct-pill | needs-pill | refresh -->
+		<div class="bcm-summary-cb">
+			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">filter &#9654;</button>
+		</div>
 		<div class="bcm-summary-stat bcm-stat" id="bcm-stats-summary"><!-- verse count --></div>
 		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
 		<div class="bcm-summary-needs" id="bcm-summary-needs"><!-- red pill --></div>
 		<div class="bcm-summary-refresh" id="bcm-summary-refresh"><!-- refresh --></div>
-		<!-- Toggle + chips row -->
-		<div class="bcm-toggle-row">
-			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type filter</button>
+		<!-- Chips row — full width, below summary -->
+		<div class="bcm-chips-row" id="bcm-chips-row">
 			<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
 		</div>
 		<!-- Filter header row (shown when open) -->
@@ -1037,9 +1041,9 @@
 	function initMeterFilter() {
 		meterList.forEach(function(cat) {
 			if (cat.members.length > 0) {
-				cat.members.forEach(function(m) { meterFilter[m.label] = true; });
+				cat.members.forEach(function(m) { if (!(m.label in meterFilter)) meterFilter[m.label] = true; });
 			} else {
-				meterFilter[cat.cat] = true;
+				if (!(cat.cat in meterFilter)) meterFilter[cat.cat] = true;
 			}
 		});
 	}
@@ -1268,9 +1272,12 @@
 
 		// Chips: one per active category (or samavṛtta sub-meter), up to 5
 		var chipsEl = document.getElementById('bcm-filter-chips');
+		var chipsRowEl = document.getElementById('bcm-chips-row');
 		if (!chipsEl) return;
 		chipsEl.innerHTML = '';
+		if (chipsRowEl) chipsRowEl.classList.remove('has-chips');
 		if (!allOn) {
+			if (chipsRowEl) chipsRowEl.classList.add('has-chips');
 			var chipCount = 0;
 			// Collect active keys with display labels
 			var activeItems = [];
@@ -1288,11 +1295,14 @@
 				chipCount++;
 				var chip = document.createElement('span');
 				chip.className = 'bcm-filter-chip';
-				chip.textContent = item.display + '\u00a0';
+				var chipLbl = document.createElement('span');
+				chipLbl.className = 'bcm-filter-chip-label';
+				chipLbl.textContent = item.display;
+				chip.appendChild(chipLbl);
 				var x = document.createElement('button');
 				x.className = 'bcm-filter-chip-x';
 				x.textContent = '\u00d7';
-				x.title = '';
+				x.title = 'remove filter';
 				(function(key) {
 					x.addEventListener('click', function() {
 						meterFilter[key] = false;
@@ -1322,7 +1332,7 @@
 		var unifiedEl = document.getElementById('bcm-unified');
 		var btn = document.getElementById('meter-counts-toggle');
 		var open = unifiedEl.classList.toggle('filter-open');
-		btn.innerHTML = (open ? '&#9660;' : '&#9654;') + ' meter type filter';
+		btn.innerHTML = 'filter ' + (open ? '&#9660;' : '&#9654;');
 		if (open) {
 
 			var allKeys = getAllFilterKeys();
