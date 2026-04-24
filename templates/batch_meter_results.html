@@ -66,16 +66,17 @@
 			margin: 0 0 1.25em 0;
 		}
 		/* Column size tokens — single source of truth
-		 * Cols: [collapse 1.2em] [cb 1em] [label 1fr] [correct] [needs] [pct (2x wide)]
+		 * Cols: [collapse 1.2em] [cb 1em] [label 1fr] [pct-total] [correct] [needs] [pct]
 		 */
 		.bcm-unified {
 			--col-collapse: 1.2em;
 			--col-cb: 1em;
+			--col-pct-total: 6em;
 			--col-correct: 8.25em;
 			--col-needs: 9.75em;
-			--col-pct: 9em;
+			--col-pct: 6.3em;
 			display: grid;
-			grid-template-columns: var(--col-collapse) var(--col-cb) 1fr var(--col-correct) var(--col-needs) var(--col-pct);
+			grid-template-columns: var(--col-collapse) var(--col-cb) 1fr var(--col-pct-total) var(--col-correct) var(--col-needs) var(--col-pct);
 			align-items: center;
 			column-gap: 0.5em;
 			max-width: 66%;
@@ -88,9 +89,9 @@
 		.bcm-chips-row    { grid-column: 1 / -1; padding: 0 0.5em 0.3em; display: none; }
 		.bcm-chips-row.has-chips { display: block; }
 		.bcm-summary-stat { grid-column: 3; padding: 0.55em 0; min-width: 0; font-size: 1.1em; font-weight: normal; text-align: center; align-self: stretch; display: flex; flex-direction: column; justify-content: center; align-items: center; white-space: nowrap; }
-		.bcm-summary-correct { grid-column: 4; padding: 0.4em 0; }
-		.bcm-summary-needs   { grid-column: 5; padding: 0.4em 0; }
-		.bcm-summary-refresh { grid-column: 6; padding: 0.4em 1em 0.4em 0.5em; }
+		.bcm-summary-correct { grid-column: 5; padding: 0.4em 0; }
+		.bcm-summary-needs   { grid-column: 6; padding: 0.4em 0; }
+		.bcm-summary-refresh { grid-column: 7; padding: 0.4em 1em 0.4em 0.5em; }
 		/* Divider between summary and filter rows */
 		.bcm-filter-divider {
 			grid-column: 1 / -1;
@@ -102,9 +103,10 @@
 		.bcm-filter-hdr-collapse { grid-column: 1; }
 		.bcm-filter-hdr-cb       { grid-column: 2; display: flex; align-items: center; justify-content: center; padding: 0.3em 0; }
 		.bcm-filter-hdr-spacer   { grid-column: 3; }
-		.bcm-filter-hdr-correct  { grid-column: 4; }
-		.bcm-filter-hdr-needs    { grid-column: 5; }
-		.bcm-filter-hdr-pct      { grid-column: 6; }
+		.bcm-filter-hdr-pct-total { grid-column: 4; }
+		.bcm-filter-hdr-correct  { grid-column: 5; }
+		.bcm-filter-hdr-needs    { grid-column: 6; }
+		.bcm-filter-hdr-pct      { grid-column: 7; }
 		/* Data row cells */
 		.bcm-cat-collapse-cell { grid-column: 1; display: flex; align-items: center; justify-content: center; }
 		.bcm-cat-collapse { background: none; border: none; cursor: pointer; font-size: 0.8em; color: var(--main-text); opacity: 0.55; padding: 0; }
@@ -114,9 +116,10 @@
 		.bcm-cat-cb input, .bcm-sub-cb input { cursor: pointer; margin: 0; }
 		.bcm-cat-label { grid-column: 3; font-weight: 600; cursor: pointer; padding: 0.25em 0 0.25em 0.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 		.bcm-sub-label { grid-column: 3; cursor: pointer; padding: 0.15em 0 0.15em 1.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-		.bcm-row-correct { grid-column: 4; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #4caf50; padding-right: 3.5em; }
-		.bcm-row-needs   { grid-column: 5; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #e05050; padding-right: 3.5em; }
-		.bcm-row-pct     { grid-column: 6; display: flex; align-items: center; justify-content: flex-end; font-size: 0.85em; opacity: 0.55; padding-right: 3.5em; }
+		.bcm-row-pct-total { grid-column: 4; display: flex; align-items: center; justify-content: flex-end; font-size: 0.85em; opacity: 0.7; padding-right: 2em; }
+		.bcm-row-correct { grid-column: 5; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #4caf50; padding-right: 2em; }
+		.bcm-row-needs   { grid-column: 6; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #e05050; padding-right: 2em; }
+		.bcm-row-pct     { grid-column: 7; display: flex; align-items: center; justify-content: flex-end; font-size: 0.85em; opacity: 0.55; padding-right: 2em; }
 		/* Row dividers */
 		.bcm-cat-divider { grid-column: 1 / -1; height: 0; border: none; border-top: 2px solid var(--input-border); margin: 0; }
 		.bcm-sub-divider { grid-column: 1 / -1; height: 0; border: none; border-top: 1px solid var(--input-border); margin: 0; }
@@ -572,6 +575,7 @@
 			<span class="bcm-filter-hdr-collapse"></span>
 			<span class="bcm-filter-hdr-cb"><input type="checkbox" id="cb-select-all" title="Select / deselect all"></span>
 			<span class="bcm-filter-hdr-spacer"></span>
+			<span class="bcm-filter-hdr-pct-total"></span>
 			<span class="bcm-filter-hdr-correct"></span>
 			<span class="bcm-filter-hdr-needs"></span>
 			<span class="bcm-filter-hdr-pct"></span>
@@ -1119,21 +1123,33 @@
 	// Track which categories are collapsed (all start expanded).
 	var catCollapsed = {};
 
+	var totalVerses = verses.length;
+
 	function appendGridRow(container, bandClass, collapseEl, cbEl, labelEl, n, needs) {
 		var correct = n - needs;
 		[collapseEl, cbEl, labelEl].forEach(function(el) {
 			el.classList.add(bandClass);
 			container.appendChild(el);
 		});
+		var pctTotalSpan = document.createElement('span');
+		pctTotalSpan.className = 'bcm-row-pct-total ' + bandClass;
+		pctTotalSpan.title = 'of all verses, this meter type';
+		if (n > 0 && totalVerses > 0) {
+			var pctTotalVal = 100 * n / totalVerses;
+			pctTotalSpan.textContent = pctTotalVal < 0.05 ? '<0.1%' : pctTotalVal.toFixed(1) + '%';
+		}
 		var correctSpan = document.createElement('span');
 		correctSpan.className = 'bcm-row-correct ' + bandClass;
-		correctSpan.textContent = correct > 0 ? correct : '';
+		correctSpan.textContent = correct > 0 ? fmt(correct) : '';
 		var needsSpan = document.createElement('span');
 		needsSpan.className = 'bcm-row-needs ' + bandClass;
-		needsSpan.textContent = needs > 0 ? needs : '';
+		needsSpan.textContent = needs > 0 ? fmt(needs) : '';
 		var pctSpan = document.createElement('span');
 		pctSpan.className = 'bcm-row-pct ' + bandClass;
-		pctSpan.textContent = n > 0 ? Math.round(100 * needs / n) + '%' : '';
+		pctSpan.title = 'of this meter type, needs correction';
+		var pctVal = n > 0 ? (100 * needs / n) : 0;
+		pctSpan.textContent = (n > 0 && pctVal >= 0.05) ? pctVal.toFixed(1) + '%' : '';
+		container.appendChild(pctTotalSpan);
 		container.appendChild(correctSpan);
 		container.appendChild(needsSpan);
 		container.appendChild(pctSpan);
@@ -1204,7 +1220,7 @@
 
 			appendGridRow(countsEl, bandClass, collapseCell, cbCell, catLbl, cat.n, cat.needs);
 			var ch = countsEl.children;
-			for (var i = ch.length - 3; i < ch.length; i++) { ch[i].dataset.filterRow = '1'; }
+			for (var i = ch.length - 4; i < ch.length; i++) { ch[i].dataset.filterRow = '1'; }
 
 			if (hasSubs && !collapsed) {
 				var subBand = 0;
@@ -1241,7 +1257,7 @@
 
 					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl, m.n, m.needs);
 					var ch2 = countsEl.children;
-					for (var j = ch2.length - 3; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
+					for (var j = ch2.length - 4; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
 				});
 			}
 		});
