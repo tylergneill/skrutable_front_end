@@ -54,18 +54,88 @@
 		}
 
 		/* === Stats block === */
+		/*
+		 * The stats summary row and every meter filter row share ONE CSS grid defined on
+		 * .bcm-unified. Columns: [cb ~1em] [label 1fr] [correct] [needs] [pct] [extra auto]
+		 * This guarantees pixel-perfect column alignment with zero JS measurement.
+		 */
 		.bcm-stats-block {
 			position: sticky; top: 2.8em; z-index: 40;
-			/* Full-width sticky — margin breaks sticky, use padding instead */
 			padding: 0.6em 1em 0 calc(18% + 1em);
 			background: var(--body-bg, var(--pre-bg));
 			margin: 0 0 1.25em 0;
 		}
-		.bcm-stats-summary {
-			display: flex; gap: 1em; flex-wrap: wrap; align-items: center;
-			font-size: 1em; padding: 0.55em 1em;
+		/* Column size tokens — single source of truth
+		 * Cols: [collapse 1.2em] [cb 1em] [label 1fr] [correct] [needs] [pct (2x wide)]
+		 */
+		.bcm-unified {
+			--col-collapse: 1.2em;
+			--col-cb: 1em;
+			--col-correct: 8.25em;
+			--col-needs: 9.75em;
+			--col-pct: 9em;
+			display: grid;
+			grid-template-columns: var(--col-collapse) var(--col-cb) 1fr var(--col-correct) var(--col-needs) var(--col-pct);
+			align-items: center;
+			column-gap: 0.5em;
+			max-width: 66%;
 			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
+			font-size: 0.9em; color: var(--main-text);
+			overflow: hidden;
 		}
+		/* Summary row: col 1-2 empty, stat in col 3, pills in cols 4-5, refresh in col 6 */
+		.bcm-summary-cb   { grid-column: 1 / 3; padding: 0.55em 0 0.55em 1em; }
+		.bcm-summary-stat { grid-column: 3; padding: 0.55em 0; min-width: 0; font-size: 1.1em; font-weight: normal; text-align: center; }
+		.bcm-summary-correct { grid-column: 4; padding: 0.4em 0; }
+		.bcm-summary-needs   { grid-column: 5; padding: 0.4em 0; }
+		.bcm-summary-refresh { grid-column: 6; padding: 0.4em 1em 0.4em 0.5em; }
+		/* Divider between summary and filter rows */
+		.bcm-filter-divider {
+			grid-column: 1 / -1;
+			height: 0; border: none; border-top: 1px solid var(--input-border);
+			margin: 0; display: none;
+		}
+		.bcm-unified.filter-open .bcm-filter-divider { display: block; }
+		/* Toggle row */
+		.bcm-toggle-row { grid-column: 1 / -1; padding: 0 0.5em; }
+		/* Filter header row — just the select-all checkbox, no column labels */
+		.bcm-filter-hdr-collapse { grid-column: 1; }
+		.bcm-filter-hdr-cb       { grid-column: 2; display: flex; align-items: center; justify-content: center; padding: 0.3em 0; }
+		.bcm-filter-hdr-spacer   { grid-column: 3; }
+		.bcm-filter-hdr-correct  { grid-column: 4; }
+		.bcm-filter-hdr-needs    { grid-column: 5; }
+		.bcm-filter-hdr-pct      { grid-column: 6; }
+		/* Data row cells */
+		.bcm-cat-collapse-cell { grid-column: 1; display: flex; align-items: center; justify-content: center; }
+		.bcm-cat-collapse { background: none; border: none; cursor: pointer; font-size: 0.8em; color: var(--main-text); opacity: 0.55; padding: 0; }
+		.bcm-cat-collapse:hover { opacity: 1; }
+		.bcm-cat-cb  { grid-column: 2; display: flex; align-items: center; justify-content: center; }
+		.bcm-sub-cb  { grid-column: 2; display: flex; align-items: center; justify-content: center; }
+		.bcm-cat-cb input, .bcm-sub-cb input { cursor: pointer; margin: 0; }
+		.bcm-cat-label { grid-column: 3; font-weight: 600; cursor: pointer; padding: 0.25em 0 0.25em 0.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.bcm-sub-label { grid-column: 3; cursor: pointer; padding: 0.15em 0 0.15em 1.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.bcm-row-correct { grid-column: 4; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #4caf50; padding-right: 3.5em; }
+		.bcm-row-needs   { grid-column: 5; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #e05050; padding-right: 3.5em; }
+		.bcm-row-pct     { grid-column: 6; display: flex; align-items: center; justify-content: flex-end; font-size: 0.85em; opacity: 0.55; padding-right: 3.5em; }
+		/* Row dividers */
+		.bcm-cat-divider { grid-column: 1 / -1; height: 0; border: none; border-top: 2px solid var(--input-border); margin: 0; }
+		.bcm-sub-divider { grid-column: 1 / -1; height: 0; border: none; border-top: 1px solid var(--input-border); margin: 0; }
+		/* Alternating band colors via data-band on a sentinel element */
+		.bcm-band-bg      { grid-column: 1 / -1; display: none; }
+		/* Band coloring: apply background to all cells in a band using JS data-band on the row wrapper —
+		   since we're in a flat grid (no row wrappers), use nth-of-type trick via JS-added classes instead */
+		.bcm-unified .band-0 { background: rgba(0,0,0,0.03); }
+		.bcm-unified .band-1 { background: rgba(0,0,0,0.08); }
+		[data-theme="dark"] .bcm-unified .band-0 { background: rgba(255,255,255,0.03); }
+		[data-theme="dark"] .bcm-unified .band-1 { background: rgba(255,255,255,0.08); }
+		.bcm-unified .sub-band-0 { background: rgba(0,0,0,0.02); }
+		.bcm-unified .sub-band-1 { background: rgba(0,0,0,0.06); }
+		[data-theme="dark"] .bcm-unified .sub-band-0 { background: rgba(255,255,255,0.02); }
+		[data-theme="dark"] .bcm-unified .sub-band-1 { background: rgba(255,255,255,0.06); }
+		/* Filter chips row */
+		.bcm-chips-row { grid-column: 1 / -1; padding: 0 1em 0.4em; }
+		.bcm-stat { color: var(--main-text); font-size: 1em; }
+		.bcm-stat-showing { display: block; font-size: 0.75em; font-weight: normal; opacity: 0.8; margin-top: 0.1em; text-align: center; }
 		.bcm-nav-col {
 			position: fixed; left: 1em; right: 83%;
 			display: flex; gap: 0.4em; justify-content: center;
@@ -75,10 +145,10 @@
 		.bcm-stat-dim   { color: var(--main-text); opacity: 0.5; font-size: 0.9em; }
 		.bcm-stat-showing { display: block; font-size: 0.75em; font-weight: normal; opacity: 0.8; margin-top: 0.1em; text-align: center; }
 
-		/* Filter pill buttons */
+		/* Filter pill buttons — left-aligned within their grid cell, 75% of column width */
 		.bcm-filter-btn {
-			display: inline-flex; flex-direction: column; align-items: center; gap: 0.1em;
-			padding: 0.25em 0.9em; border-radius: 999px; border: none;
+			display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1em;
+			width: 75%; padding: 0.25em 0.2em; border-radius: 999px; border: none;
 			font-size: 0.9em; font-weight: 600; cursor: pointer;
 			user-select: none; transition: opacity 0.15s, box-shadow 0.15s;
 			box-shadow: inset 0 0 0 2px transparent;
@@ -103,22 +173,16 @@
 		.btn-nav {
 			background: var(--btn-bg); color: var(--btn-text);
 			border: 1px solid var(--input-border); border-radius: 4px;
-			padding: 0.2em 0.55em; cursor: pointer; font-size: 1em;
-			line-height: 1.2; transition: background 0.15s;
+			padding: 0.5em 1.4em; cursor: pointer; font-size: 0.9em;
+			font-weight: 600; line-height: 1.4; transition: background 0.15s;
 		}
 		.btn-nav:hover { background: var(--btn-bg-hover); }
 		.btn-nav:disabled { opacity: 0.35; cursor: default; }
 
-		/* === Meter type filter === */
-		.bcm-meter-counts {
-			margin-top: 0.4em; padding: 0.3em 0.75em 0.5em;
-			background: var(--pre-bg); border-radius: 4px; border: 1px solid var(--input-border);
-			font-size: 0.85em; color: var(--main-text); display: none;
-		}
-		.bcm-meter-counts.open { display: block; max-height: 40vh; overflow-y: auto; }
+		/* === Meter type filter (now integrated into .bcm-unified grid) === */
 		.bcm-meter-counts-toggle {
 			background: none; border: none; color: var(--link-color);
-			cursor: pointer; font-size: 0.85em; padding: 0.4em 0.75em 0.7em;
+			cursor: pointer; font-size: 0.85em; padding: 0.4em 0.5em;
 			text-decoration: none; display: flex; align-items: center; gap: 0.4em;
 			font-weight: 600; letter-spacing: 0.01em;
 		}
@@ -127,50 +191,25 @@
 		.bcm-filter-chip {
 			display: inline-flex; align-items: center; gap: 0.25em;
 			background: var(--input-border); border-radius: 999px;
-			padding: 0.05em 0.5em 0.05em 0.6em; font-size: 0.8em;
-			color: var(--main-text);
+			padding: 0.05em 0.5em 0.05em 0.6em; font-size: 0.8em; color: var(--main-text);
 		}
 		.bcm-filter-chip-x {
 			background: none; border: none; cursor: pointer; padding: 0;
 			font-size: 0.9em; line-height: 1; color: var(--main-text); opacity: 0.6;
 		}
 		.bcm-filter-chip-x:hover { opacity: 1; }
-		.meter-filter-header {
-			display: flex; align-items: center; gap: 0.5em;
-			padding: 0.3em 0 0.3em; border-bottom: 2px solid var(--input-border);
-			margin-bottom: 0.15em;
+		/* Filter rows hidden until open */
+		.bcm-filter-row { display: contents; }
+		.bcm-filter-row > * { display: none; }
+		.bcm-unified.filter-open .bcm-filter-row > * { display: flex; align-items: center; }
+		.bcm-unified.filter-open .bcm-filter-row > span { display: block; }
+		/* Scroll container wraps just the data rows */
+		.bcm-filter-scroll {
+			grid-column: 1 / -1; display: none;
+			max-height: 40vh; overflow-y: auto;
 		}
-		#cb-select-all { flex-shrink: 0; cursor: pointer; margin: 0; }
-		.meter-filter-col-spacer { flex: 1; }
-		.meter-col-hdr { text-align: center; font-size: 0.8em; padding: 0.1em 0.4em; border-radius: 3px; }
-		.meter-count-pct-hdr { pointer-events: none; color: var(--main-text); opacity: 0.6; width: 2.5em; text-align: center; }
-		.meter-count-correct-hdr { width: 5.5em; }
-		.meter-count-needs-hdr { width: 6.5em; }
-		.meter-count-pct { width: 2.5em; text-align: center; font-size: 0.85em; opacity: 0.55; color: var(--main-text); }
-		.meter-cat-row { display: flex; align-items: center; gap: 0.5em; padding: 0.25em 0; border-bottom: 2px solid var(--input-border); font-weight: 600; }
-		.meter-cat-row input[type=checkbox] { flex-shrink: 0; cursor: pointer; margin: 0; }
-		.meter-cat-row:last-child { border-bottom: none; }
-		.meter-cat-label { flex: 1; cursor: pointer; }
-		.meter-cat-collapse { background: none; border: none; cursor: pointer; padding: 0 0.2em; font-size: 0.8em; color: var(--main-text); opacity: 0.55; }
-		.meter-cat-collapse:hover { opacity: 1; }
-		.meter-sub-section { padding-left: 1.2em; border-bottom: 2px solid var(--input-border); }
-		.meter-sub-section:last-child { border-bottom: none; }
-		.meter-count-row { display: flex; align-items: center; gap: 0.5em; padding: 0.15em 0; border-bottom: 1px solid var(--input-border); }
-		.meter-count-row:last-child { border-bottom: none; }
-		.meter-count-row input[type=checkbox] { flex-shrink: 0; cursor: pointer; margin: 0; }
-		.meter-count-label { flex: 1; cursor: pointer; }
-		/* Alternating group hues — set via JS data-band attribute */
-		.meter-cat-row[data-band="0"], .meter-cat-row[data-band="0"] + .meter-sub-section { background: rgba(0,0,0,0.03); }
-		.meter-cat-row[data-band="1"], .meter-cat-row[data-band="1"] + .meter-sub-section { background: rgba(0,0,0,0.08); }
-		[data-theme="dark"] .meter-cat-row[data-band="0"], [data-theme="dark"] .meter-cat-row[data-band="0"] + .meter-sub-section { background: rgba(255,255,255,0.03); }
-		[data-theme="dark"] .meter-cat-row[data-band="1"], [data-theme="dark"] .meter-cat-row[data-band="1"] + .meter-sub-section { background: rgba(255,255,255,0.08); }
-		/* Alternating sub-row hues within a category */
-		.meter-count-row[data-band="0"] { background: rgba(0,0,0,0.02); }
-		.meter-count-row[data-band="1"] { background: rgba(0,0,0,0.06); }
-		[data-theme="dark"] .meter-count-row[data-band="0"] { background: rgba(255,255,255,0.02); }
-		[data-theme="dark"] .meter-count-row[data-band="1"] { background: rgba(255,255,255,0.06); }
-		.meter-count-correct { font-weight: bold; color: #4caf50; width: 5.5em; text-align: center; }
-		.meter-count-needs { font-weight: bold; color: #e05050; width: 6.5em; text-align: center; }
+		.bcm-unified.filter-open .bcm-filter-scroll { display: grid; grid-template-columns: subgrid; }
+		.bcm-filter-scroll > * { display: flex; align-items: center; }
 
 		/* === Verse list === */
 		.bcm-verses {
@@ -513,14 +552,30 @@
 <div class="bcm-nav-col" id="bcm-nav-col"></div>
 
 <div class="bcm-stats-block">
-	<div class="bcm-stats-summary" id="bcm-stats-summary">
-		<!-- pills and refresh appended here by JS -->
+	<div class="bcm-unified" id="bcm-unified">
+		<!-- Summary row cells: cb | stat | correct-pill | needs-pill | refresh -->
+		<div class="bcm-summary-cb"></div>
+		<div class="bcm-summary-stat bcm-stat" id="bcm-stats-summary"><!-- verse count --></div>
+		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
+		<div class="bcm-summary-needs" id="bcm-summary-needs"><!-- red pill --></div>
+		<div class="bcm-summary-refresh" id="bcm-summary-refresh"><!-- refresh --></div>
+		<!-- Toggle + chips row -->
+		<div class="bcm-toggle-row">
+			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type filter</button>
+			<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
+		</div>
+		<!-- Filter header row (shown when open) -->
+		<div class="bcm-filter-row" id="bcm-filter-header-row">
+			<span class="bcm-filter-hdr-collapse"></span>
+			<span class="bcm-filter-hdr-cb"><input type="checkbox" id="cb-select-all" title="Select / deselect all"></span>
+			<span class="bcm-filter-hdr-spacer"></span>
+			<span class="bcm-filter-hdr-correct"></span>
+			<span class="bcm-filter-hdr-needs"></span>
+			<span class="bcm-filter-hdr-pct"></span>
+		</div>
+		<!-- Scrollable data rows injected here -->
+		<div class="bcm-filter-scroll" id="bcm-meter-counts"></div>
 	</div>
-	<div style="display:flex;align-items:center;flex-wrap:wrap;">
-		<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">&#9654; meter type filter</button>
-		<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
-	</div>
-	<div class="bcm-meter-counts" id="bcm-meter-counts"></div>
 </div>
 
 <div class="bcm-verses" id="bcm-verses"></div>
@@ -594,7 +649,7 @@
 	var FONT_SIZES = [12, 13, 14, 15, 16, 18, 20, 22, 24];
 	var fontIdx = (function() {
 		var saved = parseInt(localStorage.getItem('bcm-font-idx'));
-		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 4;
+		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 6;
 	})();
 	function applyFontSize() {
 		document.body.style.fontSize = FONT_SIZES[fontIdx] + 'px';
@@ -604,7 +659,7 @@
 		document.getElementById('btn-font-inc-m').disabled = fontIdx >= FONT_SIZES.length - 1;
 		localStorage.setItem('bcm-font-idx', fontIdx);
 	}
-	var DEFAULT_FONT_IDX = 4;
+	var DEFAULT_FONT_IDX = 6;
 	document.getElementById('btn-font-dec').addEventListener('click', function() {
 		if (fontIdx > 0) { fontIdx--; applyFontSize(); }
 	});
@@ -786,6 +841,7 @@
 			});
 			currentFromScheme = displayScheme;
 			buildMeterFilterRows();
+
 			updateFilterUI();
 			verseState.forEach(function(_, idx) {
 				updateCardHeader(idx);
@@ -949,36 +1005,25 @@
 		updateFilterUI();
 	}
 
+	// Summary row \u2014 each element goes into its own grid cell
 	var statsEl = document.getElementById('bcm-stats-summary');
-	// Count text
-	var countSpan = document.createElement('span');
-	countSpan.className = 'bcm-stat';
-	countSpan.innerHTML = fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') +
+	statsEl.innerHTML = fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') +
 		' <span id="timing-label" style="font-size:0.8em;opacity:0.6;cursor:default" title=""></span>' +
 		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
-	statsEl.appendChild(countSpan);
-	// Spacer to center pills
-	var spacerL = document.createElement('span');
-	spacerL.style.flex = '1';
-	statsEl.appendChild(spacerL);
-	// Correct pill button
+	// Correct pill
 	var btnCorrect = document.createElement('button');
 	btnCorrect.className = 'bcm-filter-btn correct';
 	btnCorrect.id = 'btn-filter-correct';
 	btnCorrect.innerHTML = pillHTML(fmt(perfectCount) + ' correct', 'spin-correct', 'showing-correct');
 	btnCorrect.addEventListener('click', function() { toggleFilter('correct'); });
-	statsEl.appendChild(btnCorrect);
-	// Needs correction pill button
+	document.getElementById('bcm-summary-correct').appendChild(btnCorrect);
+	// Needs pill
 	var btnNeeds = document.createElement('button');
 	btnNeeds.className = 'bcm-filter-btn needs-correction';
 	btnNeeds.id = 'btn-filter-needs';
 	btnNeeds.innerHTML = pillHTML(fmt(needsCount) + ' need correction', 'spin-needs', 'showing-needs');
 	btnNeeds.addEventListener('click', function() { toggleFilter('needs'); });
-	statsEl.appendChild(btnNeeds);
-	// Spacer to push refresh right
-	var spacerR = document.createElement('span');
-	spacerR.style.flex = '1';
-	statsEl.appendChild(spacerR);
+	document.getElementById('bcm-summary-needs').appendChild(btnNeeds);
 	// Refresh button
 	var btnRefresh = document.createElement('button');
 	btnRefresh.id = 'btn-refresh';
@@ -986,7 +1031,7 @@
 	btnRefresh.title = 'Refresh counts and hide resolved verses';
 	btnRefresh.innerHTML = '\u21bb refresh <span class="bcm-spinner" id="spin-refresh">&#8987;</span>';
 	btnRefresh.addEventListener('click', refreshView);
-	statsEl.appendChild(btnRefresh);
+	document.getElementById('bcm-summary-refresh').appendChild(btnRefresh);
 
 	// Meter filter state: keys are filter keys (category name or specific samavṛtta meter name).
 	var meterFilter = {};
@@ -1005,13 +1050,8 @@
 
 	var countsEl = document.getElementById('bcm-meter-counts');
 
-	// Header row: indeterminate select-all checkbox
-	var filterHeader = document.createElement('div');
-	filterHeader.className = 'meter-filter-header';
-	var cbSelectAll = document.createElement('input');
-	cbSelectAll.type = 'checkbox';
-	cbSelectAll.id = 'cb-select-all';
-	cbSelectAll.title = 'Select / deselect all';
+	// cb-select-all is in the HTML; wire it up here
+	var cbSelectAll = document.getElementById('cb-select-all');
 	cbSelectAll.addEventListener('click', function() {
 		var allKeys = getAllFilterKeys();
 		var allChecked = allKeys.every(function(k) {
@@ -1024,26 +1064,9 @@
 			if (cb) cb.checked = target;
 			meterFilterPending[k] = target;
 		});
-		// Sync category checkboxes
 		meterList.forEach(function(cat) { updateCatCb(cat); });
 		updateSelectAllCb();
 	});
-	filterHeader.appendChild(cbSelectAll);
-	// Spacer fills label area, then column headers above the data columns
-	var colHeaderSpacer = document.createElement('span');
-	colHeaderSpacer.className = 'meter-filter-col-spacer';
-	filterHeader.appendChild(colHeaderSpacer);
-	var pctHdr = document.createElement('span');
-	pctHdr.className = 'meter-col-hdr meter-count-pct-hdr';
-	pctHdr.textContent = '%';
-	filterHeader.appendChild(pctHdr);
-	var correctHdr = document.createElement('span');
-	correctHdr.className = 'meter-col-hdr meter-count-correct-hdr';
-	filterHeader.appendChild(correctHdr);
-	var needsHdr = document.createElement('span');
-	needsHdr.className = 'meter-col-hdr meter-count-needs-hdr';
-	filterHeader.appendChild(needsHdr);
-	countsEl.appendChild(filterHeader);
 
 	function getAllFilterKeys() {
 		var keys = [];
@@ -1093,35 +1116,59 @@
 	// Track which categories are collapsed (all start expanded).
 	var catCollapsed = {};
 
-	function makeCountCols(n, needs) {
+	function appendGridRow(container, bandClass, collapseEl, cbEl, labelEl, n, needs) {
 		var correct = n - needs;
-		var pctSpan = document.createElement('span');
-		pctSpan.className = 'meter-count-pct';
-		pctSpan.textContent = n > 0 ? Math.round(100 * correct / n) + '%' : '';
+		[collapseEl, cbEl, labelEl].forEach(function(el) {
+			el.classList.add(bandClass);
+			container.appendChild(el);
+		});
 		var correctSpan = document.createElement('span');
-		correctSpan.className = 'meter-count-correct';
+		correctSpan.className = 'bcm-row-correct ' + bandClass;
 		correctSpan.textContent = correct > 0 ? correct : '';
 		var needsSpan = document.createElement('span');
-		needsSpan.className = 'meter-count-needs';
+		needsSpan.className = 'bcm-row-needs ' + bandClass;
 		needsSpan.textContent = needs > 0 ? needs : '';
-		return [pctSpan, correctSpan, needsSpan];
+		var pctSpan = document.createElement('span');
+		pctSpan.className = 'bcm-row-pct ' + bandClass;
+		pctSpan.textContent = n > 0 ? Math.round(100 * needs / n) + '%' : '';
+		container.appendChild(correctSpan);
+		container.appendChild(needsSpan);
+		container.appendChild(pctSpan);
 	}
 
 	function buildMeterFilterRows() {
-		countsEl.querySelectorAll('.meter-count-row, .meter-cat-row, .meter-sub-section').forEach(function(r) { r.remove(); });
+		Array.from(countsEl.children).forEach(function(el) {
+			if (el.dataset.filterRow) el.remove();
+		});
 
 		var band = 0;
 		meterList.forEach(function(cat) {
 			var hasSubs = cat.members.length > 0;
 			var collapsed = !!catCollapsed[cat.cat];
-
-			// --- Category row ---
-			var catRow = document.createElement('div');
-			catRow.className = 'meter-cat-row';
-			catRow.dataset.cat = cat.cat;
-			catRow.dataset.band = band % 2;
+			var bandClass = 'band-' + (band % 2);
 			band++;
 
+			// Col 1: collapse button (or empty placeholder)
+			var collapseCell = document.createElement('span');
+			collapseCell.className = 'bcm-cat-collapse-cell';
+			collapseCell.dataset.filterRow = '1';
+			if (hasSubs) {
+				var collapseBtn = document.createElement('button');
+				collapseBtn.className = 'bcm-cat-collapse';
+				collapseBtn.title = '';
+				collapseBtn.textContent = collapsed ? '\u25b6' : '\u25bc';
+				collapseBtn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					catCollapsed[cat.cat] = !catCollapsed[cat.cat];
+					buildMeterFilterRows();
+				});
+				collapseCell.appendChild(collapseBtn);
+			}
+
+			// Col 2: checkbox
+			var cbCell = document.createElement('span');
+			cbCell.className = 'bcm-cat-cb';
+			cbCell.dataset.filterRow = '1';
 			var catCb = document.createElement('input');
 			catCb.type = 'checkbox';
 			catCb.id = hasSubs ? 'mcb-cat-' + cat.cat : 'mcb-' + cat.cat;
@@ -1143,42 +1190,34 @@
 				}
 				updateSelectAllCb();
 			});
-			if (hasSubs) {
-				var collapseBtn = document.createElement('button');
-				collapseBtn.className = 'meter-cat-collapse';
-				collapseBtn.title = '';
-				collapseBtn.textContent = collapsed ? '\u25b6' : '\u25bc';
-				collapseBtn.addEventListener('click', function(e) {
-					e.stopPropagation();
-					catCollapsed[cat.cat] = !catCollapsed[cat.cat];
-					buildMeterFilterRows();
-				});
-				catRow.appendChild(collapseBtn);
-			}
+			cbCell.appendChild(catCb);
 
-			catRow.appendChild(catCb);
-
+			// Col 3: label
 			var catLbl = document.createElement('label');
-			catLbl.className = 'meter-count-label meter-cat-label';
+			catLbl.className = 'bcm-cat-label';
+			catLbl.dataset.filterRow = '1';
 			catLbl.htmlFor = catCb.id;
 			catLbl.textContent = meterLabelToDisplay(cat.cat);
-			catRow.appendChild(catLbl);
 
-			makeCountCols(cat.n, cat.needs).forEach(function(el) { catRow.appendChild(el); });
+			appendGridRow(countsEl, bandClass, collapseCell, cbCell, catLbl, cat.n, cat.needs);
+			var ch = countsEl.children;
+			for (var i = ch.length - 3; i < ch.length; i++) { ch[i].dataset.filterRow = '1'; }
 
-			countsEl.appendChild(catRow);
-
-			// --- Sub-rows (samavṛtta members) ---
 			if (hasSubs && !collapsed) {
-				var subSection = document.createElement('div');
-				subSection.className = 'meter-sub-section';
 				var subBand = 0;
 				cat.members.forEach(function(m) {
-					var row = document.createElement('div');
-					row.className = 'meter-count-row';
-					row.dataset.band = subBand % 2;
+					var subBandClass = 'sub-band-' + (subBand % 2);
 					subBand++;
 
+					// Col 1: empty for sub-rows
+					var subCollapseCell = document.createElement('span');
+					subCollapseCell.className = 'bcm-cat-collapse-cell';
+					subCollapseCell.dataset.filterRow = '1';
+
+					// Col 2: checkbox
+					var subCbCell = document.createElement('span');
+					subCbCell.className = 'bcm-sub-cb';
+					subCbCell.dataset.filterRow = '1';
 					var cb = document.createElement('input');
 					cb.type = 'checkbox';
 					cb.id = 'mcb-' + m.label;
@@ -1188,18 +1227,19 @@
 						updateCatCb(cat);
 						updateSelectAllCb();
 					});
+					subCbCell.appendChild(cb);
 
-					var lbl = document.createElement('label');
-					lbl.className = 'meter-count-label';
-					lbl.htmlFor = 'mcb-' + m.label;
-					lbl.textContent = meterLabelToDisplay(m.label);
+					// Col 3: label
+					var subLbl = document.createElement('label');
+					subLbl.className = 'bcm-sub-label';
+					subLbl.dataset.filterRow = '1';
+					subLbl.htmlFor = 'mcb-' + m.label;
+					subLbl.textContent = meterLabelToDisplay(m.label);
 
-					row.appendChild(cb);
-					row.appendChild(lbl);
-					makeCountCols(m.n, m.needs).forEach(function(el) { row.appendChild(el); });
-					subSection.appendChild(row);
+					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl, m.n, m.needs);
+					var ch2 = countsEl.children;
+					for (var j = ch2.length - 3; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
 				});
-				countsEl.appendChild(subSection);
 			}
 		});
 	}
@@ -1280,11 +1320,12 @@
 	}
 
 	window.toggleMeterCounts = function() {
-		var el = document.getElementById('bcm-meter-counts');
+		var unifiedEl = document.getElementById('bcm-unified');
 		var btn = document.getElementById('meter-counts-toggle');
-		var open = el.classList.toggle('open');
+		var open = unifiedEl.classList.toggle('filter-open');
 		btn.innerHTML = (open ? '&#9660;' : '&#9654;') + ' meter type filter';
 		if (open) {
+
 			var allKeys = getAllFilterKeys();
 			var allOn = allKeys.every(function(k) { return meterFilter[k] !== false; });
 			if (allOn) {
@@ -1318,9 +1359,9 @@
 
 	// Close meter filter dropdown when clicking outside it
 	document.addEventListener('click', function(e) {
-		var el = document.getElementById('bcm-meter-counts');
+		var unifiedEl = document.getElementById('bcm-unified');
 		var btn = document.getElementById('meter-counts-toggle');
-		if (el && el.classList.contains('open') && !el.contains(e.target) && !btn.contains(e.target)) {
+		if (unifiedEl && unifiedEl.classList.contains('filter-open') && !unifiedEl.contains(e.target) && !btn.contains(e.target)) {
 			closeMeterFilter();
 		}
 	});
@@ -1820,6 +1861,7 @@
 			if (bn) bn.innerHTML = pillHTML(fmt(newNeeds) + ' need correction', 'spin-needs', 'showing-needs');
 			// Rebuild filter rows with updated counts
 			buildMeterFilterRows();
+
 			updateFilterUI();
 			// Re-render: cards no longer matching current filter disappear
 			expandedPerfect = {};
@@ -1930,8 +1972,13 @@
 	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
 	// Pin stats block directly below the sticky header
 	document.querySelector('.bcm-stats-block').style.top = stickyHeaderH + 'px';
-	// Pin nav col to align vertically with the stats summary row
-	navColEl.style.top = (stickyHeaderH + 8) + 'px';
+	// Pin nav col to vertically center with the stats summary pill row
+	var statsSummaryEl = document.getElementById('bcm-stats-summary');
+	var summaryRect = statsSummaryEl ? statsSummaryEl.getBoundingClientRect() : null;
+	var navTop = summaryRect
+		? summaryRect.top + (summaryRect.height / 2) - (navColEl.offsetHeight / 2)
+		: stickyHeaderH + 8;
+	navColEl.style.top = navTop + 'px';
 	// Show panel below the stats block
 	var statsBlockEl = document.querySelector('.bcm-stats-block');
 	var initialPanelTop = (statsBlockEl ? statsBlockEl.getBoundingClientRect().bottom : stickyHeaderH) + 8;
@@ -1947,8 +1994,8 @@
 	}
 
 	function closeMeterFilter() {
-		var el = document.getElementById('bcm-meter-counts');
-		if (el && el.classList.contains('open')) window.toggleMeterCounts();
+		var unifiedEl = document.getElementById('bcm-unified');
+		if (unifiedEl && unifiedEl.classList.contains('filter-open')) window.toggleMeterCounts();
 	}
 
 	function focusCard(idx) {
