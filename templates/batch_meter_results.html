@@ -392,7 +392,7 @@
 			position: fixed;
 			left: 1em;
 			right: 83%;
-			top: 4em;    /* updated by JS */
+			top: -9999px;
 			background: var(--sidebar-bg);
 			color: var(--sidebar-text);
 			border-radius: 6px;
@@ -400,9 +400,8 @@
 			box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 			z-index: 50;
 			visibility: hidden;
-			transition: top 0.18s ease;
 		}
-		.bcm-panel.visible { visibility: visible; }
+		.bcm-panel.visible { visibility: visible; transition: top 0.18s ease; }
 		.panel-section-top {
 			padding-bottom: 0.4em;
 			margin-bottom: 0.4em;
