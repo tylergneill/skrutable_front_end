@@ -863,7 +863,13 @@
 		alignment:      settings.alignment !== undefined ? !!settings.alignment : false,
 		resplit_option: settings.resplit_option || 'resplit_lite_keep_mid',
 	};
-	var verseOpts = verses.map(function() { return Object.assign({}, defaultOpts); });
+	var verseOpts = verses.map(function(v) {
+		var opts = Object.assign({}, defaultOpts);
+		// Morae are only meaningful for jāti and unknown meters; suppress for all others at load time.
+		// The user can re-enable per card via the panel checkbox.
+		if (!isMoraeRelevant(v)) opts.morae = false;
+		return opts;
+	});
 
 	function getPanelOpts() {
 		return {
@@ -1009,6 +1015,12 @@
 	}
 	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
+	function isMoraeRelevant(v) {
+		var lbl = v.meter_label || '';
+		if (!lbl || lbl.indexOf('adhyavasitam') >= 0) return true; // unknown: show mora
+		return lbl.indexOf('j\u0101ti') >= 0 || lbl.indexOf('\u0101ry\u0101') >= 0 ||
+			lbl.indexOf('g\u012bti') >= 0 || lbl.indexOf('vait\u0101l\u012bya') >= 0 || lbl.indexOf('m\u0101tr\u0101') >= 0;
+	}
 
 	// The 6 top-level filter categories.
 	var METER_CATEGORIES = [
@@ -1736,8 +1748,6 @@
 			v.meter_label.indexOf('anustubh') >= 0 ||
 			v.meter_label.indexOf('ardham eva') >= 0
 		);
-		var showMora = isJati || isUnknownM;
-
 		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
 		if (isAnustubh && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
 			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
@@ -1944,7 +1954,7 @@
 			var wrap = document.createElement('div');
 			wrap.className = 'pada-row-wrap';
 			wrap.appendChild(row);
-			if (optMorae && showMora && moraeVal !== undefined) {
+			if (optMorae && moraeVal !== undefined) {
 				var mora = document.createElement('span');
 				mora.className = 'pada-mora';
 				mora.textContent = 'm:\u202f' + moraeVal;
@@ -2242,6 +2252,11 @@
 				verseState[idx].mAtragaNa_abbreviations  = data.mAtragaNa_abbreviations  != null ? data.mAtragaNa_abbreviations : verseState[idx].mAtragaNa_abbreviations;
 				verseState[idx].diagnostic               = data.diagnostic != null ? data.diagnostic : verseState[idx].diagnostic;
 				verseState[idx].summary              = data.result               || verseState[idx].summary;
+				// If meter changed between jāti/unknown and other, update morae opt and re-sync panel
+				if (!isMoraeRelevant(verseState[idx])) {
+					verseOpts[idx].morae = false;
+				}
+				if (focusedIndex === idx) setPanelOpts(verseOpts[idx]);
 				updateCardHeader(idx);
 				updateCardScansion(idx);
 			})
