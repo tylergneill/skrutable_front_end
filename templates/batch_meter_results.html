@@ -1011,7 +1011,19 @@
 	});
 
 	function isPerfect(v) {
-		return v.identification_score >= 9;
+		if (isUnknown(v)) return false;
+		var d = v.diagnostic;
+		if (d.type === 'pada') {
+			var ils = d.imperfect_label_sanskrit;
+			return !ils || Object.keys(ils).length === 0;
+		}
+		if (d.type === 'half') {
+			var abIls = d.ab && d.ab.imperfect_label_sanskrit;
+			var cdIls = d.cd && d.cd.imperfect_label_sanskrit;
+			return (!abIls || Object.keys(abIls).length === 0) &&
+			       (!cdIls || Object.keys(cdIls).length === 0);
+		}
+		return false;
 	}
 	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
 	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
