@@ -706,9 +706,9 @@
 	</div>
 	<div class="panel-section-bottom">
 		<div class="panel-mode-toggle">
+			<button class="panel-mode-btn" id="btn-mode-clear" onclick="panelClear()">Clear</button>
 			<button class="panel-mode-btn" id="btn-mode-scan" onclick="panelScan()">Scan</button>
 			<button class="panel-mode-btn" id="btn-mode-identify" onclick="panelReidentify()">Identify</button>
-			<button class="panel-mode-btn" id="btn-mode-clear" onclick="panelClear()">Clear</button>
 		</div>
 		<select id="panel-resplit">
 			<option value="none">don't resplit</option>
@@ -738,9 +738,9 @@
 			<label><input type="checkbox" id="sheet-align"> align</label>
 		</div>
 		<div class="panel-mode-toggle">
+			<button class="panel-mode-btn" id="sheet-btn-clear">Clear</button>
 			<button class="panel-mode-btn" id="sheet-btn-scan">Scan</button>
 			<button class="panel-mode-btn" id="sheet-btn-identify">Identify</button>
-			<button class="panel-mode-btn" id="sheet-btn-clear">Clear</button>
 		</div>
 		<select id="sheet-resplit">
 			<option value="none">don't resplit</option>
@@ -1755,6 +1755,10 @@
 		scanDiv.classList.remove('stale');
 		scanDiv.innerHTML = '';
 		renderScansion(scanDiv, verseState[idx], verseOpts[idx]);
+		// Restore normal two-column layout (may have been collapsed by Clear)
+		var rawDiv = document.getElementById('verse-raw-' + idx);
+		if (rawDiv) { rawDiv.style.width = ''; rawDiv.style.maxWidth = ''; rawDiv.style.borderRight = ''; }
+		if (scanDiv.children.length > 0) scanDiv.style.display = '';
 	}
 
 	function renderScansion(el, v, opts) {
@@ -2365,6 +2369,11 @@
 		};
 		updateCardHeader(idx);
 		updateCardScansion(idx);
+		// Expand raw text column to full width when scansion is empty
+		var rawDiv = document.getElementById('verse-raw-' + idx);
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (rawDiv) { rawDiv.style.width = '100%'; rawDiv.style.maxWidth = '100%'; rawDiv.style.borderRight = 'none'; }
+		if (scanDiv) scanDiv.style.display = 'none';
 	};
 
 	// --- Export ---
