@@ -708,6 +708,7 @@
 		<div class="panel-mode-toggle">
 			<button class="panel-mode-btn" id="btn-mode-scan" onclick="panelScan()">Scan</button>
 			<button class="panel-mode-btn" id="btn-mode-identify" onclick="panelReidentify()">Identify</button>
+			<button class="panel-mode-btn" id="btn-mode-clear" onclick="panelClear()">Clear</button>
 		</div>
 		<select id="panel-resplit">
 			<option value="none">don't resplit</option>
@@ -739,6 +740,7 @@
 		<div class="panel-mode-toggle">
 			<button class="panel-mode-btn" id="sheet-btn-scan">Scan</button>
 			<button class="panel-mode-btn" id="sheet-btn-identify">Identify</button>
+			<button class="panel-mode-btn" id="sheet-btn-clear">Clear</button>
 		</div>
 		<select id="sheet-resplit">
 			<option value="none">don't resplit</option>
@@ -2320,6 +2322,29 @@
 			});
 	};
 
+	window.panelClear = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		// Invalidate any in-flight fetch so its response is ignored
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		// Wipe all derived state, preserving only the raw text
+		var raw = verseState[idx].text_raw;
+		verseState[idx] = {
+			text_raw:                raw,
+			text_syllabified:        '',
+			syllable_weights:        '',
+			morae_per_line:          [],
+			gaRa_abbreviations:      '',
+			mAtragaNa_abbreviations: '',
+			meter_label:             '',
+			identification_score:    0,
+			diagnostic:              null,
+			summary:                 '',
+		};
+		updateCardHeader(idx);
+		updateCardScansion(idx);
+	};
+
 	// --- Export ---
 	function downloadFile(content, filename, mimeType) {
 		var blob = new Blob([content], { type: mimeType });
@@ -2431,6 +2456,10 @@
 		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
 		closeBottomSheet();
 		panelReidentify();
+	});
+	document.getElementById('sheet-btn-clear').addEventListener('click', function() {
+		closeBottomSheet();
+		panelClear();
 	});
 
 	SHEET_FIELD_MAP.forEach(function(pair) {
