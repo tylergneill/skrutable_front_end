@@ -1015,6 +1015,7 @@
 	function isPerfect(v) {
 		if (isUnknown(v)) return false;
 		var d = v.diagnostic;
+		if (!d) return false;
 		if (d.type === 'pada') {
 			var ils = d.imperfect_label_sanskrit;
 			return !ils || Object.keys(ils).length === 0;
@@ -1120,6 +1121,27 @@
 	// --- Stats ---
 	var perfectCount = verses.filter(isPerfect).length;
 	var needsCount   = verses.length - perfectCount;
+
+	// Safety valve: if the vast majority need correction, identification almost certainly
+	// failed (e.g. wrong resplit option). Rendering thousands of full scansion cards will
+	// lock the browser. Show an error page instead and let the user resubmit.
+	var NEEDS_CORRECTION_LIMIT = 1000;
+	if (needsCount > NEEDS_CORRECTION_LIMIT) {
+		document.getElementById('bcm-verses').innerHTML =
+			'<div style="max-width:40em;margin:4em auto;padding:1.5em 2em;' +
+			'background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;' +
+			'border-left:5px solid #e05050;font-family:var(--font-body);color:var(--main-text);">' +
+			'<p style="font-size:1.2em;font-weight:bold;margin:0 0 0.5em">' +
+			fmt(needsCount) + ' of ' + fmt(verses.length) + ' verses need correction — too many to display.</p>' +
+			'<p style="margin:0 0 1em;opacity:0.8">This usually means the wrong resplit option was used. ' +
+			'Please <a href="/" style="color:var(--link-color)">go back to the workbench</a> and resubmit with a different setting.</p>' +
+			'<p style="margin:0;font-size:0.85em;opacity:0.6">Processed in ' +
+			(duration ? duration.toFixed(1) + 's' : '?s') + ' — ' + fmt(verses.length) + ' verse' +
+			(verses.length !== 1 ? 's' : '') + ' total, ' + fmt(perfectCount) + ' identified correctly.</p>' +
+			'</div>';
+		// Skip all further initialization — nothing else is safe to render.
+		return;
+	}
 
 	// Returns a list of category objects:
 	// { cat: string, n: number, needs: number, members: [{label, n, needs}] }
