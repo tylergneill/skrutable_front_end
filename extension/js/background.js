@@ -51,6 +51,7 @@ async function openAppPanel(tab) {
 browser.action.onClicked.addListener(async (tab) => {
   await openAppPanel(tab);
 
+  // Delay gives the side panel time to open and register its runtime.onMessage listener before we send.
   setTimeout(async () => {
     if (!validTabUrl(tab)) {
       browser.runtime.sendMessage({ action: ACTIONS.invalidTabPrompt });
@@ -123,6 +124,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       tabId: currentTab.id,
       selectionText: info.selectionText,
     };
+    // Same delay rationale as icon click: side panel needs time to register its listener.
     setTimeout(() => browser.runtime.sendMessage(msg).catch(() => {}), 250);
   });
 });

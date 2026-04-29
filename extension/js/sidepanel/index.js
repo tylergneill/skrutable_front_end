@@ -47,6 +47,7 @@ const DEFAULTS = {
 };
 
 const FONT_SIZE_MAP = { small: "1rem", medium: "1.15rem", large: "1.3rem" };
+// External dependency: melody MP3s hosted on skrutable.info — update if path changes.
 const MELODY_BASE = "https://www.skrutable.info/assets/melodies/";
 // --- Page state ---
 var currentAction = "";

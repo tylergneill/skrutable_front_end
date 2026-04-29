@@ -26,6 +26,9 @@ function processBackgroundJs(content, targetBrowser) {
     const trimmed = line.trim();
     if (trimmed.startsWith('// #if_build_is ')) {
       const browser = trimmed.substring('// #if_build_is '.length).trim().toLowerCase();
+      if (!['chrome', 'firefox'].includes(browser)) {
+        console.warn(`Warning: unrecognized preprocessor target '${browser}' in background.js — both branches will be included.`);
+      }
       if (targetBrowser === browser) inTarget = true;
       else inOther = true;
       continue;
@@ -38,6 +41,12 @@ function processBackgroundJs(content, targetBrowser) {
 
 async function build() {
   try {
+    const { version: pkgVersion } = await fs.readJson(path.join(projectRoot, 'package.json'));
+    const { version: manifestVersion } = await fs.readJson(path.join(extensionRoot, 'manifest.common.json'));
+    if (pkgVersion !== manifestVersion) {
+      console.warn(`Warning: package.json version (${pkgVersion}) differs from manifest version (${manifestVersion}).`);
+    }
+
     console.log(`Cleaning ${targetDistDir}...`);
     await fs.emptyDir(targetDistDir);
 
@@ -60,14 +69,18 @@ async function build() {
     const sidepanelPath = path.join(targetDistDir, 'ui', 'sidepanel.html');
     let sidepanelHtml = await fs.readFile(sidepanelPath, 'utf-8');
     if (releaseMode) {
-      const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
-      await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
-      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', '../dist/skrutable.bundle.js');
-      console.log('Bundle src: local (../dist/skrutable.bundle.js)');
+      const { version } = await fs.readJson(path.join(projectRoot, 'package.json'));
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/skrutable-js@${version}/dist/skrutable.bundle.js`;
+      sidepanelHtml = sidepanelHtml.replaceAll('__SKRUTABLE_BUNDLE_SRC__', cdnUrl);
+      console.log(`Bundle src: CDN (${cdnUrl})`);
     } else {
       const bundleSrc = path.join(distDir, 'skrutable.bundle.js');
+      if (!await fs.pathExists(bundleSrc)) {
+        console.error(`Error: ${bundleSrc} not found. Run 'npm run build' first.`);
+        process.exit(1);
+      }
       await fs.copy(bundleSrc, path.join(targetDistDir, 'dist', 'skrutable.bundle.js'));
-      sidepanelHtml = sidepanelHtml.replace('__SKRUTABLE_BUNDLE_SRC__', '../dist/skrutable.bundle.js');
+      sidepanelHtml = sidepanelHtml.replaceAll('__SKRUTABLE_BUNDLE_SRC__', '../dist/skrutable.bundle.js');
       console.log('Bundle src: local (../dist/skrutable.bundle.js)');
     }
     await fs.writeFile(sidepanelPath, sidepanelHtml, 'utf-8');
