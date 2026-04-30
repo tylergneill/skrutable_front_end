@@ -944,9 +944,9 @@
 		var elTotal   = document.getElementById('showing-total');
 		var elCorrect = document.getElementById('showing-correct');
 		var elNeeds   = document.getElementById('showing-needs');
-		if (elTotal)   { elTotal.textContent   = allOn ? '' : 'showing ' + fmt(shownTotal);   elTotal.style.display   = allOn ? 'none' : 'block'; }
-		if (elCorrect) { elCorrect.textContent = allOn ? '' : 'showing ' + fmt(shownCorrect); elCorrect.style.display = allOn ? 'none' : 'block'; }
-		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : 'showing ' + fmt(shownNeeds);   elNeeds.style.display   = allOn ? 'none' : 'block'; }
+		if (elTotal)   { elTotal.textContent   = allOn ? '' : fmt(shownTotal) + ' selected';   elTotal.style.display   = allOn ? 'none' : 'block'; }
+		if (elCorrect) { elCorrect.textContent = allOn ? '' : fmt(shownCorrect) + ' selected'; elCorrect.style.display = allOn ? 'none' : 'block'; }
+		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : fmt(shownNeeds) + ' selected';   elNeeds.style.display   = allOn ? 'none' : 'block'; }
 
 		// Chips: one per active category (or samavṛtta sub-meter), up to 5
 		var chipsEl = document.getElementById('bcm-filter-chips');
