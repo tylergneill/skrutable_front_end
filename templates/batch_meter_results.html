@@ -1948,6 +1948,58 @@
 	sheetCloseBtn.addEventListener('click', closeBottomSheet);
 	document.addEventListener('keydown', function(e) {
 		if (e.key === 'Escape' && bottomSheet.classList.contains('open')) closeBottomSheet();
+
+		// Global hotkeys — skip when typing in a textarea or input
+		if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+		if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+		switch (e.key) {
+			case 's': e.preventDefault(); panelScan();       break;
+			case 'i': e.preventDefault(); panelReidentify(); break;
+			case 'c': e.preventDefault(); panelClear();      break;
+			case 'l':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var wEl = document.getElementById('panel-weights');
+					wEl.checked = !wEl.checked;
+					wEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'g':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var gEl = document.getElementById('panel-garas');
+					gEl.checked = !gEl.checked;
+					gEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'm':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var mEl = document.getElementById('panel-morae');
+					mEl.checked = !mEl.checked;
+					mEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'a':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var aEl = document.getElementById('panel-align');
+					aEl.checked = !aEl.checked;
+					aEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'r':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var rEl = document.getElementById('panel-resplit');
+					rEl.selectedIndex = (rEl.selectedIndex + 1) % rEl.options.length;
+					rEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'ArrowUp':   e.preventDefault(); navigateNeeds(-1); break;
+			case 'ArrowDown': e.preventDefault(); navigateNeeds(1);  break;
+		}
 	});
 	bottomSheet.addEventListener('click', function(e) { e.stopPropagation(); });
 
