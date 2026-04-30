@@ -222,6 +222,22 @@
 		var saved = parseInt(localStorage.getItem('bcm-font-idx'));
 		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 6;
 	})();
+	function realignLabelSlots() {
+		requestAnimationFrame(function() {
+			document.querySelectorAll('.verse-scansion').forEach(function(scanEl) {
+				var scrollInner = scanEl.querySelector('.scansion-scroll-inner');
+				var labelCol    = scanEl.querySelector('.scansion-label-col');
+				if (!scrollInner || !labelCol) return;
+				var rowWraps  = scrollInner.querySelectorAll('.pada-row-wrap');
+				var labelSlots = labelCol.querySelectorAll('.pada-label-slot');
+				if (rowWraps.length !== labelSlots.length) return;
+				for (var i = 0; i < rowWraps.length; i++) {
+					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
+				}
+			});
+		});
+	}
+
 	function applyFontSize() {
 		document.body.style.fontSize = FONT_SIZES[fontIdx] + 'px';
 		document.getElementById('btn-font-dec').disabled = fontIdx <= 0;
@@ -229,6 +245,7 @@
 		document.getElementById('btn-font-dec-m').disabled = fontIdx <= 0;
 		document.getElementById('btn-font-inc-m').disabled = fontIdx >= FONT_SIZES.length - 1;
 		localStorage.setItem('bcm-font-idx', fontIdx);
+		realignLabelSlots();
 	}
 	var DEFAULT_FONT_IDX = 6;
 	document.getElementById('btn-font-dec').addEventListener('click', function() {
