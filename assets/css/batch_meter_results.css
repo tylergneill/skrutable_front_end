@@ -252,7 +252,9 @@ body { padding: 0; margin: 0; }
 }
 .bcm-filter-btn.correct { background: #4caf50; color: #fff; }
 .bcm-filter-btn.needs-correction { background: #e05050; color: #fff; }
-.bcm-filter-btn.off { opacity: 0.45; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.4); filter: saturate(0.4); }
+.bcm-filter-btn.off { background: transparent; box-shadow: inset 0 0 0 2px currentColor; }
+.bcm-filter-btn.correct.off { color: #4caf50; }
+.bcm-filter-btn.needs-correction.off { color: #e05050; }
 .bcm-filter-btn:hover { filter: brightness(1.1); }
 .bcm-spinner { font-size: 0.8em; display: none; }
 
