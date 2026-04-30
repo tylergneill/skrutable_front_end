@@ -428,6 +428,7 @@ body { padding: 0; margin: 0; }
 .pada-label-slot {
 	display: flex;
 	align-items: flex-start;
+	padding-top: 0.3em;
 	min-height: 0;
 }
 
