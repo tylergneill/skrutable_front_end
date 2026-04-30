@@ -222,9 +222,45 @@
 		var saved = parseInt(localStorage.getItem('bcm-font-idx'));
 		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 6;
 	})();
+	function alignGanaColumnsInScansion(scanEl) {
+		var rows = Array.prototype.slice.call(scanEl.querySelectorAll('.pada-row'));
+		if (rows.length < 2) return;
+		// Reset any previously applied minWidth so we measure natural widths
+		rows.forEach(function(row) {
+			Array.prototype.forEach.call(row.children, function(el) { el.style.minWidth = ''; });
+		});
+		// Group rows by child count — only align within same-length groups
+		var groups = {};
+		rows.forEach(function(row) {
+			var n = row.children.length;
+			if (!groups[n]) groups[n] = [];
+			groups[n].push(row);
+		});
+		Object.keys(groups).forEach(function(n) {
+			var grp = groups[n];
+			if (grp.length < 2) return;
+			var maxWidths = [];
+			grp.forEach(function(row) {
+				Array.prototype.forEach.call(row.children, function(el, i) {
+					var w = el.offsetWidth;
+					if (maxWidths[i] === undefined || w > maxWidths[i]) maxWidths[i] = w;
+				});
+			});
+			grp.forEach(function(row) {
+				Array.prototype.forEach.call(row.children, function(el, i) {
+					if (maxWidths[i] !== undefined) el.style.minWidth = maxWidths[i] + 'px';
+				});
+			});
+		});
+	}
+
 	function realignLabelSlots() {
 		requestAnimationFrame(function() {
 			document.querySelectorAll('.verse-scansion').forEach(function(scanEl) {
+				var card = scanEl.closest('.verse-card');
+				var idx  = card ? parseInt(card.dataset.idx, 10) : NaN;
+				var vLbl = !isNaN(idx) && verseState[idx] ? meterBase(verseState[idx]) : '';
+				if (meterCategoryOf(vLbl) !== 'jāti') alignGanaColumnsInScansion(scanEl);
 				var scrollInner = scanEl.querySelector('.scansion-scroll-inner');
 				var labelCol    = scanEl.querySelector('.scansion-label-col');
 				if (!scrollInner || !labelCol) return;
@@ -1457,14 +1493,15 @@
 			}
 		}
 
-		// After DOM insertion, align label slot heights to their corresponding row wrap heights
-		if (anyLabel && rowWraps.length === labelSlots.length) {
-			requestAnimationFrame(function() {
+		// After DOM insertion, align gaṇa columns and label slot heights
+		requestAnimationFrame(function() {
+			if (!isJati) alignGanaColumnsInScansion(el);
+			if (anyLabel && rowWraps.length === labelSlots.length) {
 				for (var i = 0; i < rowWraps.length; i++) {
 					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
 				}
-			});
-		}
+			}
+		});
 	}
 
 	// --- View management ---
