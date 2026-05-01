@@ -9,7 +9,7 @@ COPY --chown=sanskrit:appgroup templates /app/templates
 COPY --chown=sanskrit:appgroup ./*.py /app/
 COPY --chown=sanskrit:appgroup ./VERSION /app/
 USER sanskrit
-ENV PORT=5011
+ENV PORT=5012
 CMD gunicorn 'flask_app:app' \
   --bind 0.0.0.0:$PORT \
   --workers 1 \
@@ -18,4 +18,4 @@ CMD gunicorn 'flask_app:app' \
   --log-level info \
   --error-logfile - \
   --no-control-socket
-EXPOSE 5011
+EXPOSE 5012
