@@ -282,6 +282,9 @@
 		document.getElementById('btn-font-inc-m').disabled = fontIdx >= FONT_SIZES.length - 1;
 		localStorage.setItem('bcm-font-idx', fontIdx);
 		realignLabelSlots();
+		var hdr = document.querySelector('.bcm-header');
+		var stats = document.querySelector('.bcm-stats-block');
+		if (hdr && stats) stats.style.top = hdr.getBoundingClientRect().height + 'px';
 	}
 	var DEFAULT_FONT_IDX = 6;
 	document.getElementById('btn-font-dec').addEventListener('click', function() {
