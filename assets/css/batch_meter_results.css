@@ -156,7 +156,7 @@ body { padding: 0; margin: 0; }
  * This guarantees pixel-perfect column alignment with zero JS measurement.
  */
 .bcm-stats-block {
-	position: sticky; top: 2.8em; z-index: 40;
+	position: sticky; top: 0; z-index: 40;
 	padding: 0.6em 1em 0 calc(18% + 1em);
 	background: var(--body-bg, var(--pre-bg));
 	margin: 0 0 0.3em 0;
