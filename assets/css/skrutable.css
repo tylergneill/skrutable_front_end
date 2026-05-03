@@ -790,6 +790,18 @@ table tbody tr:nth-child(even) {
 .upload-file-info .settings-group {
 	margin: 0.75em 0 1.5em;
 }
+.upload-file-info .settings-grid {
+	position: relative;
+}
+.upload-file-info .settings-grid::after {
+	content: '';
+	position: absolute;
+	top: 0; bottom: 0;
+	left: 50%;
+	width: 1px;
+	background: #ccc;
+	pointer-events: none;
+}
 .upload-file-info .settings-row {
 	display: flex;
 	gap: 2em;
@@ -798,14 +810,24 @@ table tbody tr:nth-child(even) {
 	flex: 1;
 	min-width: 0;
 }
+.upload-file-info .settings-header-row {
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 0.4em;
+	margin-bottom: 0.5em;
+}
 .upload-file-info .settings-header-row .settings-cell {
 	font-size: 0.85em;
 	color: #888;
-	padding-bottom: 0.3em;
 }
 .upload-file-info .settings-header-row a {
 	color: inherit;
 	text-decoration: underline;
+}
+[data-theme="dark"] .upload-file-info .settings-grid::after {
+	background: #444;
+}
+[data-theme="dark"] .upload-file-info .settings-header-row {
+	border-bottom-color: #444;
 }
 .upload-file-info .settings-summary {
 	border-collapse: collapse;
