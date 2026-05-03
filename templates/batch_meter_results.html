@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" href="/assets/favicon.png">
+	<link rel="stylesheet" href="/assets/css/skrutable.css">
+	<link rel="stylesheet" href="/assets/css/batch_meter_results.css">
+	<script src="https://cdn.jsdelivr.net/npm/skrutable-js@2.1.4/dist/skrutable.bundle.js"></script>
+	<title>skrutable — batch meter correction mode</title>
+	<script>if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+</head>
+<body>
+
+<div class="bcm-header">
+	<div class="bcm-header-left">
+		<a href="/">&larr; workbench</a>
+		<h1>batch meter correction mode</h1>
+	</div>
+	<div class="bcm-header-right">
+		<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+			transliterate:
+			<select id="display-scheme" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+				<option value="IAST" selected>IAST</option>
+				<option value="SLP">SLP</option>
+				<option value="DEV">DEV</option>
+				<option value="HK">HK</option>
+			</select>
+			<span class="bcm-spinner" id="spin-display">&#8987;</span>
+		</label>
+		<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+			explanations:
+			<select id="explanation-lang" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+				<option value="sanskrit">Sanskrit</option>
+				<option value="english">English</option>
+			</select>
+			<span class="bcm-spinner" id="spin-explanation">&#8987;</span>
+		</label>
+		<button class="btn-export" onclick="exportTxt()">export .txt</button>
+		<button class="btn-export" onclick="exportCsv()">export .csv</button>
+		<div class="bcm-font-ctrl">
+			<button class="btn-font" id="btn-font-dec" title="Decrease font size">−</button>
+			<button class="btn-font" id="btn-font-reset" title="Reset font size">A</button>
+			<button class="btn-font" id="btn-font-inc" title="Increase font size">+</button>
+		</div>
+		<button class="btn-theme" id="dark-mode-toggle" title="Toggle dark mode">&#9790;</button>
+	</div>
+	<div class="bcm-burger-wrap">
+		<button class="bcm-burger-btn" id="bcm-burger-btn">&#9776;</button>
+		<div class="bcm-burger-dropdown" id="bcm-burger-dropdown">
+			<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+				transliterate:
+				<select id="display-scheme-m" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+					<option value="IAST" selected>IAST</option>
+					<option value="SLP">SLP</option>
+					<option value="DEV">DEV</option>
+					<option value="HK">HK</option>
+				</select>
+				<span class="bcm-spinner" id="spin-display-m">&#8987;</span>
+			</label>
+			<label style="font-size:0.85em;color:var(--sidebar-text);display:flex;align-items:center;gap:0.3em;">
+				explanations:
+				<select id="explanation-lang-m" style="font-size:1em;padding:0.15em 0.3em;border-radius:3px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--main-text);">
+					<option value="sanskrit">Sanskrit</option>
+					<option value="english">English</option>
+				</select>
+				<span class="bcm-spinner" id="spin-explanation-m">&#8987;</span>
+			</label>
+			<div class="bcm-burger-row">
+				<button class="btn-export" style="flex:1;" onclick="exportTxt();closeBurger()">export .txt</button>
+				<button class="btn-export" style="flex:1;" onclick="exportCsv();closeBurger()">export .csv</button>
+			</div>
+			<div style="display:flex;align-items:center;justify-content:space-between;">
+				<div class="bcm-font-ctrl">
+					<button class="btn-font" id="btn-font-dec-m" title="Decrease font size">−</button>
+					<button class="btn-font" id="btn-font-reset-m" title="Reset font size">A</button>
+					<button class="btn-font" id="btn-font-inc-m" title="Increase font size">+</button>
+				</div>
+				<button class="btn-theme" id="dark-mode-toggle-m" title="Toggle dark mode">&#9790;</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="bcm-nav-col" id="bcm-nav-col"></div>
+
+<div class="bcm-stats-block">
+	<div class="bcm-unified" id="bcm-unified">
+		<!-- Summary row cells: toggle | stat | correct-pill | needs-pill | refresh -->
+		<div class="bcm-summary-cb">
+			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">filter &#9654;</button>
+		</div>
+		<div class="bcm-summary-stat bcm-stat" id="bcm-stats-summary"><!-- verse count --></div>
+		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
+		<div class="bcm-summary-needs" id="bcm-summary-needs"><!-- red pill --></div>
+		<div class="bcm-summary-refresh" id="bcm-summary-refresh"><!-- refresh --></div>
+		<!-- Chips row — full width, below summary -->
+		<div class="bcm-chips-row" id="bcm-chips-row">
+			<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
+		</div>
+		<!-- Filter header row (shown when open) -->
+		<div class="bcm-filter-row" id="bcm-filter-header-row">
+			<span class="bcm-filter-hdr-collapse"></span>
+			<span class="bcm-filter-hdr-cb"><input type="checkbox" id="cb-select-all" title="Select / deselect all"></span>
+			<span class="bcm-filter-hdr-spacer"></span>
+			<span class="bcm-filter-hdr-pct-total"></span>
+			<span class="bcm-filter-hdr-correct"></span>
+			<span class="bcm-filter-hdr-needs"></span>
+			<span class="bcm-filter-hdr-pct"></span>
+		</div>
+		<!-- Scrollable data rows injected here -->
+		<div class="bcm-filter-scroll" id="bcm-meter-counts"></div>
+	</div>
+</div>
+
+<div class="bcm-verses" id="bcm-verses"></div>
+
+<!-- Floating tool panel (left side) -->
+<div class="bcm-panel" id="bcm-panel">
+	<div class="panel-section-top">
+		<div class="checkbox-group">
+			<label><input type="checkbox" id="panel-weights" checked> lglgl</label>
+			<label><input type="checkbox" id="panel-morae"> {mora}</label>
+			<label><input type="checkbox" id="panel-garas" checked> [ga&#7751;a]</label>
+			<label><input type="checkbox" id="panel-align"> align</label>
+		</div>
+	</div>
+	<div class="panel-section-bottom">
+		<div class="panel-mode-toggle">
+			<button class="panel-mode-btn" id="btn-mode-clear" onclick="panelClear()">Clear</button>
+			<button class="panel-mode-btn" id="btn-mode-scan" onclick="panelScan()">Scan</button>
+			<button class="panel-mode-btn" id="btn-mode-identify" onclick="panelReidentify()">Identify</button>
+		</div>
+		<select id="panel-resplit">
+			<option value="none">don't resplit</option>
+			<option value="resplit_lite">resplit lite</option>
+			<option value="resplit_lite_keep_mid" selected>resplit lite keep mid</option>
+			<option value="resplit_max">resplit max</option>
+			<option value="resplit_max_keep_mid">resplit max keep mid</option>
+		</select>
+	</div>
+</div>
+
+<!-- Mobile overlay backdrop -->
+<div id="bcm-sheet-overlay"></div>
+
+<!-- Mobile bottom sheet (mirrors panel content with sheet-* IDs) -->
+<div id="bcm-bottom-sheet" role="dialog" aria-modal="true" aria-label="Verse options">
+	<div class="bcm-sheet-handle"></div>
+	<div class="bcm-sheet-header">
+		<span class="bcm-sheet-title">verse options</span>
+		<button class="bcm-sheet-close" id="bcm-sheet-close-btn" aria-label="Close">&#x2715;</button>
+	</div>
+	<div class="bcm-sheet-body">
+		<div class="checkbox-group">
+			<label><input type="checkbox" id="sheet-weights" checked> lglgl</label>
+			<label><input type="checkbox" id="sheet-morae"> {mora}</label>
+			<label><input type="checkbox" id="sheet-garas" checked> [ga&#7751;a]</label>
+			<label><input type="checkbox" id="sheet-align"> align</label>
+		</div>
+		<div class="panel-mode-toggle">
+			<button class="panel-mode-btn" id="sheet-btn-clear">Clear</button>
+			<button class="panel-mode-btn" id="sheet-btn-scan">Scan</button>
+			<button class="panel-mode-btn" id="sheet-btn-identify">Identify</button>
+		</div>
+		<select id="sheet-resplit">
+			<option value="none">don't resplit</option>
+			<option value="resplit_lite">resplit lite</option>
+			<option value="resplit_lite_keep_mid" selected>resplit lite keep mid</option>
+			<option value="resplit_max">resplit max</option>
+			<option value="resplit_max_keep_mid">resplit max keep mid</option>
+		</select>
+	</div>
+</div>
+
+<!-- Mobile bottom nav bar (buttons injected by JS) -->
+<div id="bcm-mobile-nav-bar"></div>
+
+<script>
+(function() {
+	var _pageStart = performance.now();
+
+	// Fix URL without a reload
+	if (window.history && window.history.replaceState) {
+		window.history.replaceState(null, '', '/batch-meter-correction');
+	}
+
+	// --- Dark mode ---
+	var toggle  = document.getElementById('dark-mode-toggle');
+	var toggleM = document.getElementById('dark-mode-toggle-m');
+	function applyTheme(dark) {
+		document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+		var icon = dark ? '&#9788;' : '&#9790;';
+		var ttip = dark ? 'Toggle light mode' : 'Toggle dark mode';
+		toggle.innerHTML  = icon; toggle.title  = ttip;
+		toggleM.innerHTML = icon; toggleM.title = ttip;
+		localStorage.setItem('theme', dark ? 'dark' : 'light');
+	}
+	toggle.addEventListener('click', function() {
+		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+	});
+	toggleM.addEventListener('click', function() {
+		applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+	});
+	if (localStorage.getItem('theme')) applyTheme(localStorage.getItem('theme') === 'dark');
+
+	// --- Burger menu ---
+	var burgerBtn      = document.getElementById('bcm-burger-btn');
+	var burgerDropdown = document.getElementById('bcm-burger-dropdown');
+	function closeBurger() { burgerDropdown.classList.remove('open'); }
+	burgerBtn.addEventListener('click', function(e) {
+		e.stopPropagation();
+		burgerDropdown.classList.toggle('open');
+	});
+	document.addEventListener('click', function(e) {
+		if (!burgerDropdown.contains(e.target)) closeBurger();
+	});
+
+	// --- Font size ---
+	var FONT_SIZES = [12, 13, 14, 15, 16, 18, 20, 22, 24];
+	var fontIdx = (function() {
+		var saved = parseInt(localStorage.getItem('bcm-font-idx'));
+		return (!isNaN(saved) && saved >= 0 && saved < FONT_SIZES.length) ? saved : 6;
+	})();
+	function alignGanaColumnsInScansion(scanEl) {
+		var rows = Array.prototype.slice.call(scanEl.querySelectorAll('.pada-row'));
+		if (rows.length < 2) return;
+		// Reset any previously applied minWidth so we measure natural widths
+		rows.forEach(function(row) {
+			Array.prototype.forEach.call(row.children, function(el) { el.style.minWidth = ''; });
+		});
+		// Group rows by child count — only align within same-length groups
+		var groups = {};
+		rows.forEach(function(row) {
+			var n = row.children.length;
+			if (!groups[n]) groups[n] = [];
+			groups[n].push(row);
+		});
+		Object.keys(groups).forEach(function(n) {
+			var grp = groups[n];
+			if (grp.length < 2) return;
+			var maxWidths = [];
+			grp.forEach(function(row) {
+				Array.prototype.forEach.call(row.children, function(el, i) {
+					var w = el.offsetWidth;
+					if (maxWidths[i] === undefined || w > maxWidths[i]) maxWidths[i] = w;
+				});
+			});
+			grp.forEach(function(row) {
+				Array.prototype.forEach.call(row.children, function(el, i) {
+					if (maxWidths[i] !== undefined) el.style.minWidth = maxWidths[i] + 'px';
+				});
+			});
+		});
+	}
+
+	function realignLabelSlots() {
+		requestAnimationFrame(function() {
+			document.querySelectorAll('.verse-scansion').forEach(function(scanEl) {
+				var card = scanEl.closest('.verse-card');
+				var idx  = card ? parseInt(card.dataset.idx, 10) : NaN;
+				var vLbl = !isNaN(idx) && verseState[idx] ? meterBase(verseState[idx]) : '';
+				if (meterCategoryOf(vLbl) !== 'jāti') alignGanaColumnsInScansion(scanEl);
+				var scrollInner = scanEl.querySelector('.scansion-scroll-inner');
+				var labelCol    = scanEl.querySelector('.scansion-label-col');
+				if (!scrollInner || !labelCol) return;
+				var rowWraps  = scrollInner.querySelectorAll('.pada-row-wrap');
+				var labelSlots = labelCol.querySelectorAll('.pada-label-slot');
+				if (rowWraps.length !== labelSlots.length) return;
+				for (var i = 0; i < rowWraps.length; i++) {
+					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
+				}
+			});
+		});
+	}
+
+	function applyFontSize() {
+		document.body.style.fontSize = FONT_SIZES[fontIdx] + 'px';
+		document.getElementById('btn-font-dec').disabled = fontIdx <= 0;
+		document.getElementById('btn-font-inc').disabled = fontIdx >= FONT_SIZES.length - 1;
+		document.getElementById('btn-font-dec-m').disabled = fontIdx <= 0;
+		document.getElementById('btn-font-inc-m').disabled = fontIdx >= FONT_SIZES.length - 1;
+		localStorage.setItem('bcm-font-idx', fontIdx);
+		realignLabelSlots();
+		var hdr = document.querySelector('.bcm-header');
+		var stats = document.querySelector('.bcm-stats-block');
+		if (hdr && stats) stats.style.top = hdr.getBoundingClientRect().height + 'px';
+	}
+	var DEFAULT_FONT_IDX = 6;
+	document.getElementById('btn-font-dec').addEventListener('click', function() {
+		if (fontIdx > 0) { fontIdx--; applyFontSize(); }
+	});
+	document.getElementById('btn-font-reset').addEventListener('click', function() {
+		fontIdx = DEFAULT_FONT_IDX; applyFontSize();
+	});
+	document.getElementById('btn-font-inc').addEventListener('click', function() {
+		if (fontIdx < FONT_SIZES.length - 1) { fontIdx++; applyFontSize(); }
+	});
+	document.getElementById('btn-font-dec-m').addEventListener('click', function() {
+		if (fontIdx > 0) { fontIdx--; applyFontSize(); }
+	});
+	document.getElementById('btn-font-reset-m').addEventListener('click', function() {
+		fontIdx = DEFAULT_FONT_IDX; applyFontSize();
+	});
+	document.getElementById('btn-font-inc-m').addEventListener('click', function() {
+		if (fontIdx < FONT_SIZES.length - 1) { fontIdx++; applyFontSize(); }
+	});
+	applyFontSize();
+
+	// --- Data ---
+	var batchData = {{ batch_data_json | safe }};
+	var verses = batchData.verses || [];
+	var settings = batchData.settings || {};
+	var duration = batchData.duration_secs;
+
+	// --- Explanation language (initialized from session default, overridable per-page-load) ---
+	var explanationLang = settings.explanation_language || 'sanskrit';
+	var explanationLangSel = document.getElementById('explanation-lang');
+	explanationLangSel.value = explanationLang;
+	explanationLangSel.addEventListener('change', function() {
+		var newLang = this.value;
+		var langM = document.getElementById('explanation-lang-m');
+		if (langM) langM.value = newLang;
+		var spin = document.getElementById('spin-explanation');
+		var spinM = document.getElementById('spin-explanation-m');
+		if (spin) spin.style.display = 'inline';
+		if (spinM) spinM.style.display = 'inline';
+		setTimeout(function() {
+			explanationLang = newLang;
+			renderCards();
+			if (spin) spin.style.display = 'none';
+			if (spinM) spinM.style.display = 'none';
+		}, 0);
+	});
+
+	// --- Per-verse options state ---
+	// Initialize all verses with the session defaults, then each card tracks its own.
+	var defaultOpts = {
+		weights:        settings.weights  !== undefined ? !!settings.weights  : true,
+		morae:          settings.morae    !== undefined ? !!settings.morae    : false,
+		gaRas:          settings.gaRas    !== undefined ? !!settings.gaRas    : true,
+		alignment:      settings.alignment !== undefined ? !!settings.alignment : false,
+		resplit_option: settings.resplit_option || 'resplit_lite_keep_mid',
+	};
+	var verseOpts = verses.map(function(v) {
+		var opts = Object.assign({}, defaultOpts);
+		// Morae are only meaningful for jāti and unknown meters; suppress for all others at load time.
+		// The user can re-enable per card via the panel checkbox.
+		if (!isMoraeRelevant(v)) opts.morae = false;
+		return opts;
+	});
+
+	function getPanelOpts() {
+		return {
+			weights:        document.getElementById('panel-weights').checked,
+			morae:          document.getElementById('panel-morae').checked,
+			gaRas:          document.getElementById('panel-garas').checked,
+			alignment:      document.getElementById('panel-align').checked,
+			resplit_option: document.getElementById('panel-resplit').value,
+		};
+	}
+
+	function setPanelOpts(opts) {
+		document.getElementById('panel-weights').checked = opts.weights;
+		document.getElementById('panel-morae').checked   = opts.morae;
+		document.getElementById('panel-garas').checked   = opts.gaRas;
+		document.getElementById('panel-align').checked   = opts.alignment;
+		document.getElementById('panel-resplit').value   = opts.resplit_option;
+	}
+
+	// Seed panel with defaults on load
+	setPanelOpts(defaultOpts);
+	document.getElementById('panel-resplit').disabled = false;
+
+	// --- skrutable-js transliterator ---
+	var T = new Skrutable.Transliterator();
+	function transliterate(text, fromScheme, toScheme) {
+		return T.transliterate(text, fromScheme, toScheme);
+	}
+
+	// --- Display scheme ---
+	var displayScheme = settings.to_scheme || 'IAST';
+	// Track which scheme the raw text is currently in (starts as from_scheme if concrete, null if Auto)
+	var currentFromScheme = (settings.from_scheme && settings.from_scheme !== 'Auto') ? settings.from_scheme : null;
+
+
+	function slpToDisplay(s) {
+		if (!s || displayScheme === 'SLP') return s;
+		return transliterate(s, 'SLP', displayScheme);
+	}
+	var INDIC_SCHEMES = ['DEV', 'BENGALI', 'GUJARATI'];
+	function iastToDisplay(s) {
+		if (!s || displayScheme === 'IAST') return s;
+		return transliterate(s, 'IAST', displayScheme);
+	}
+	// Like iastToDisplay but handles bracketed gaṇa sequences in meter labels ([11: tjg]).
+	function meterLabelToDisplay(s) {
+		if (!s || displayScheme === 'IAST') return s;
+		var isIndic = INDIC_SCHEMES.indexOf(displayScheme) >= 0;
+		var parts = s.split(/(\[[^\]]*\])/);
+		return parts.map(function(part) {
+			if (part.charAt(0) === '[' && part.charAt(part.length - 1) === ']') {
+				var inner = part.slice(1, -1);
+				if (isIndic) {
+					var translated = inner.replace(/([a-zA-Z])|([^a-zA-Z]+)/g, function(m, letter, nonletter) {
+						if (letter) return transliterate(letter + 'a', 'SLP', displayScheme);
+						return transliterate(nonletter, 'IAST', displayScheme);
+					});
+					return '[' + translated + ']';
+				}
+				return part; // roman: keep SLP abbreviations unchanged
+			}
+			return transliterate(part, 'IAST', displayScheme);
+		}).join('');
+	}
+	// gaRa_abbreviations: SLP single consonants (n/t/j/y/B/r/s/m) or weight pairs (gg/ll/gl/lg).
+	// Weight pairs need vowels interleaved so skrutable-js sees full syllables.
+	var WEIGHT_PAIR_SLP = { 'gg': 'gaga', 'll': 'lala', 'gl': 'gala', 'lg': 'laga' };
+	function slpGanaToDisplay(s) {
+		if (!s) return s;
+		var slp = WEIGHT_PAIR_SLP[s] || (s.length === 1 ? s + 'a' : s);
+		if (displayScheme === 'SLP') return slp;
+		return transliterate(slp, 'SLP', displayScheme);
+	}
+
+	// mAtragaNa_abbreviations: IAST names (ja/bha/sa/kha or single l/g) OR weight pairs (gg/ll/gl/lg).
+	// Weight pairs are SLP weight chars, not IAST text, so route them through slpGanaToDisplay.
+	function iastGanaToDisplay(s) {
+		if (!s) return s;
+		if (WEIGHT_PAIR_SLP[s]) return slpGanaToDisplay(s);
+		if (displayScheme === 'IAST') return s;
+		return transliterate(s, 'IAST', displayScheme);
+	}
+
+	// Set dropdowns to match settings (desktop + mobile)
+	(function() {
+		var sel = document.getElementById('display-scheme');
+		if (sel) sel.value = displayScheme;
+		var selM = document.getElementById('display-scheme-m');
+		if (selM) selM.value = displayScheme;
+		var langM = document.getElementById('explanation-lang-m');
+		if (langM) langM.value = explanationLang;
+	})();
+
+	// Sync mobile selects → desktop selects (which carry the real logic)
+	document.getElementById('display-scheme-m').addEventListener('change', function() {
+		var desk = document.getElementById('display-scheme');
+		desk.value = this.value;
+		desk.dispatchEvent(new Event('change'));
+	});
+	document.getElementById('explanation-lang-m').addEventListener('change', function() {
+		var desk = document.getElementById('explanation-lang');
+		desk.value = this.value;
+		desk.dispatchEvent(new Event('change'));
+	});
+
+	document.getElementById('display-scheme').addEventListener('change', function() {
+		var newScheme = this.value;
+		var selM = document.getElementById('display-scheme-m');
+		if (selM) selM.value = newScheme;
+		var spin = document.getElementById('spin-display');
+		var spinM = document.getElementById('spin-display-m');
+		if (spin) spin.style.display = 'inline';
+		if (spinM) spinM.style.display = 'inline';
+		setTimeout(function() {
+			displayScheme = newScheme;
+			verseState.forEach(function(v, idx) {
+				if (v.text_raw && currentFromScheme) {
+					var newText = transliterate(v.text_raw, currentFromScheme, displayScheme);
+					v.text_raw = newText;
+					var ta = document.getElementById('verse-raw-text-' + idx);
+					if (ta) ta.value = newText;
+				}
+			});
+			currentFromScheme = displayScheme;
+			buildMeterFilterRows();
+
+			updateFilterUI();
+			verseState.forEach(function(_, idx) {
+				updateCardHeader(idx);
+				var scanDiv = document.getElementById('verse-scan-' + idx);
+				if (scanDiv) {
+					scanDiv.innerHTML = '';
+					renderScansion(scanDiv, verseState[idx], verseOpts[idx]);
+				}
+			});
+			if (spin) spin.style.display = 'none';
+			if (spinM) spinM.style.display = 'none';
+		}, 0);
+	});
+
+	function isPerfect(v) {
+		if (isUnknown(v)) return false;
+		var d = v.diagnostic;
+		if (!d) return false;
+		if (d.type === 'pada') {
+			var ils = d.imperfect_label_sanskrit;
+			return !ils || Object.keys(ils).length === 0;
+		}
+		if (d.type === 'half') {
+			var abIls = d.ab && d.ab.imperfect_label_sanskrit;
+			var cdIls = d.cd && d.cd.imperfect_label_sanskrit;
+			return (!abIls || Object.keys(abIls).length === 0) &&
+			       (!cdIls || Object.keys(cdIls).length === 0);
+		}
+		return false;
+	}
+	function isUnknown(v) { return !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0; }
+	function meterBase(v) { return (v.meter_label || 'na ki\u1e43cid adhyavasitam').split(' (')[0].trim(); }
+	function isMoraeRelevant(v) {
+		var lbl = v.meter_label || '';
+		if (!lbl || lbl.indexOf('adhyavasitam') >= 0) return true; // unknown: show mora
+		return lbl.indexOf('j\u0101ti') >= 0 || lbl.indexOf('\u0101ry\u0101') >= 0 ||
+			lbl.indexOf('g\u012bti') >= 0 || lbl.indexOf('vait\u0101l\u012bya') >= 0 || lbl.indexOf('m\u0101tr\u0101') >= 0;
+	}
+
+	// The 6 top-level filter categories.
+	var METER_CATEGORIES = [
+		'anuṣṭubh', 'samavṛtta', 'upajāti', 'ardhasamavṛtta', 'viṣamavṛtta', 'jāti',
+		'na kiṃcid adhyavasitam'
+	];
+
+	// Known ardhasamavṛtta meter name prefixes.
+	var ARDHASAMAVRTTA_NAMES = [
+		'aparavaktra', 'upacitra', 'puṣpitāgrā', 'viyoginī', 'vegavatī',
+		'hariṇaplutā', 'aupacchandasika', 'ajñātārdhasamavṛtta'
+	];
+
+	// Jāti sub-categories shown as members in the filter.
+	var JATI_SUBCATS = ['āryā', 'gīti', 'upagīti', 'udgīti', 'āryāgīti'];
+
+	function meterCategoryOf(label) {
+		if (!label || label.indexOf('adhyavasitam') >= 0) return 'na kiṃcid adhyavasitam';
+		if (label.indexOf('anuṣṭubh') >= 0 || label.indexOf('anustubh') >= 0) return 'anuṣṭubh';
+		if (label.indexOf('upajāti') >= 0) return 'upajāti';
+		// Check ardhasamavṛtta by known meter names (they don't contain 'ardhasamavṛtta' in label)
+		for (var i = 0; i < ARDHASAMAVRTTA_NAMES.length; i++) {
+			if (label.indexOf(ARDHASAMAVRTTA_NAMES[i]) === 0) return 'ardhasamavṛtta';
+		}
+		if (label.indexOf('ardhasamavṛtta') >= 0) return 'ardhasamavṛtta';
+		if (label.indexOf('udgatā') === 0) return 'viṣamavṛtta';
+		for (var j = 0; j < JATI_SUBCATS.length; j++) {
+			if (label.indexOf(JATI_SUBCATS[j]) === 0) return 'jāti';
+		}
+		if (label.indexOf('jāti') >= 0 || label.indexOf('vaitālīya') >= 0 || label.indexOf('mātrā') >= 0) return 'jāti';
+		return 'samavṛtta';
+	}
+
+	// Sub-category key within jāti or upajāti (used as filter key for their members).
+	function meterSubcatKey(label) {
+		var cat = meterCategoryOf(label);
+		if (cat === 'jāti') {
+			for (var j = 0; j < JATI_SUBCATS.length; j++) {
+				if (label.indexOf(JATI_SUBCATS[j]) === 0) return JATI_SUBCATS[j];
+			}
+			return 'jāti (other)';
+		}
+		if (cat === 'upajāti') {
+			// Detect family by syllable count in brackets: [11: = triṣṭubh, [12: = jagatī, mixed = other
+			var has11 = label.indexOf('[11:') >= 0;
+			var has12 = label.indexOf('[12:') >= 0;
+			if (has11 && !has12) return 'upajāti (triṣṭubh, 11)';
+			if (has12 && !has11) return 'upajāti (jagatī, 12)';
+			return 'upajāti (mixed)';
+		}
+		if (cat === 'ardhasamavṛtta') {
+			// Use the meter name (the part before ' ='), or the full label for ajñāta
+			for (var a = 0; a < ARDHASAMAVRTTA_NAMES.length; a++) {
+				if (label.indexOf(ARDHASAMAVRTTA_NAMES[a]) === 0) return ARDHASAMAVRTTA_NAMES[a];
+			}
+			return 'ardhasamavṛtta (other)';
+		}
+		return null;
+	}
+
+	// Filter key: samavṛtta → specific meter; jāti/upajāti → subcat; others → category.
+	function meterFilterKey(v) {
+		var base = meterBase(v);
+		var cat = meterCategoryOf(base);
+		if (cat === 'samavṛtta') return base;
+		var sub = meterSubcatKey(base);
+		if (sub) return sub;
+		return cat;
+	}
+
+	// Mutable state per verse
+	var verseState = verses.map(function(v) { return Object.assign({}, v); });
+
+	// If initial displayScheme differs from the raw text scheme, pre-transliterate all text_raw values
+	// so the textareas show the correct scheme on first render.
+	if (currentFromScheme && currentFromScheme !== displayScheme) {
+		verseState.forEach(function(v) {
+			if (v.text_raw) v.text_raw = transliterate(v.text_raw, currentFromScheme, displayScheme);
+		});
+		currentFromScheme = displayScheme;
+	}
+
+	// --- Stats ---
+	var perfectCount = verses.filter(isPerfect).length;
+	var needsCount   = verses.length - perfectCount;
+
+	// Safety valve: if the vast majority need correction, identification almost certainly
+	// failed (e.g. wrong resplit option). Rendering thousands of full scansion cards will
+	// lock the browser. Show an error page instead and let the user resubmit.
+	var NEEDS_CORRECTION_LIMIT = 1000;
+	if (needsCount > NEEDS_CORRECTION_LIMIT) {
+		document.getElementById('bcm-verses').innerHTML =
+			'<div style="max-width:40em;margin:4em auto;padding:1.5em 2em;' +
+			'background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;' +
+			'border-left:5px solid #e05050;font-family:var(--font-body);color:var(--main-text);">' +
+			'<p style="font-size:1.2em;font-weight:bold;margin:0 0 0.5em">' +
+			fmt(needsCount) + ' of ' + fmt(verses.length) + ' verses need correction — too many to display.</p>' +
+			'<p style="margin:0 0 1em;opacity:0.8">This usually means the wrong resplit option was used. ' +
+			'Please <a href="/" style="color:var(--link-color)">go back to the workbench</a> and resubmit with a different setting.</p>' +
+			'<p style="margin:0;font-size:0.85em;opacity:0.6">Processed in ' +
+			(duration ? duration.toFixed(1) + 's' : '?s') + ' — ' + fmt(verses.length) + ' verse' +
+			(verses.length !== 1 ? 's' : '') + ' total, ' + fmt(perfectCount) + ' identified correctly.</p>' +
+			'</div>';
+		// Skip all further initialization — nothing else is safe to render.
+		return;
+	}
+
+	// Returns a list of category objects:
+	// { cat: string, n: number, needs: number, members: [{label, n, needs}] }
+	// For samavṛtta, members lists individual meter names (each its own filter key).
+	// For other categories, members is empty (category IS the filter key).
+	// Categories that show sub-members in the filter dropdown.
+	var CATS_WITH_MEMBERS = ['samavṛtta', 'jāti', 'upajāti', 'ardhasamavṛtta'];
+
+	function buildMeterList(stateArr) {
+		var catN = {}, catNeeds = {}, memberN = {}, memberNeeds = {};
+		stateArr.forEach(function(v) {
+			var base = meterBase(v);
+			var cat = meterCategoryOf(base);
+			if (!catN[cat]) { catN[cat] = 0; catNeeds[cat] = 0; }
+			catN[cat]++;
+			if (!isPerfect(v)) catNeeds[cat]++;
+			// Track sub-members for samavṛtta (by base), jāti and upajāti (by subcat key)
+			var memberKey = (cat === 'samavṛtta') ? base : meterSubcatKey(base);
+			if (memberKey) {
+				if (!memberN[cat]) { memberN[cat] = {}; memberNeeds[cat] = {}; }
+				memberN[cat][memberKey] = (memberN[cat][memberKey] || 0) + 1;
+				if (!isPerfect(v)) memberNeeds[cat][memberKey] = (memberNeeds[cat][memberKey] || 0) + 1;
+			}
+		});
+		return METER_CATEGORIES.filter(function(cat) { return catN[cat] > 0; }).map(function(cat) {
+			var members = [];
+			if (CATS_WITH_MEMBERS.indexOf(cat) >= 0 && memberN[cat]) {
+				members = Object.keys(memberN[cat]).map(function(k) {
+					return { label: k, n: memberN[cat][k], needs: memberNeeds[cat][k] || 0 };
+				}).sort(function(a, b) { return b.n - a.n; });
+			}
+			return { cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members };
+		});
+	}
+	var meterList = buildMeterList(verseState);
+
+	function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+	function pillHTML(label, spinId, showingId) {
+		return '<span>' + label + ' <span class="bcm-spinner" id="' + spinId + '">&#8987;</span></span>' +
+			'<span class="bcm-stat-showing" id="' + showingId + '" style="display:none"></span>';
+	}
+
+	function scrollToCard(card) {
+		var statsBlock = document.querySelector('.bcm-stats-block');
+		var panelTop = (statsBlock ? statsBlock.getBoundingClientRect().bottom : 0) + 8;
+		window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - panelTop, behavior: 'smooth' });
+		panel.style.top = panelTop + 'px';
+	}
+
+	function applyMeterFilter() {
+		var allKeys = getAllFilterKeys();
+		var noneSelected = allKeys.every(function(k) { return meterFilter[k] === false; });
+		if (noneSelected) allKeys.forEach(function(k) { meterFilter[k] = true; });
+		expandedPerfect = {};
+		renderCards();
+		updateFilterUI();
+	}
+
+	// Summary row \u2014 each element goes into its own grid cell
+	var statsEl = document.getElementById('bcm-stats-summary');
+	statsEl.innerHTML = '<span style="white-space:nowrap"><span id="timing-label" style="font-size:1.6em;opacity:0.6;cursor:default" title=""></span>&nbsp;&nbsp;' + fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
+		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
+	// Correct pill
+	var btnCorrect = document.createElement('button');
+	btnCorrect.className = 'bcm-filter-btn correct';
+	btnCorrect.id = 'btn-filter-correct';
+	btnCorrect.innerHTML = pillHTML(fmt(perfectCount) + '<br>correct', 'spin-correct', 'showing-correct');
+	btnCorrect.addEventListener('click', function() { toggleFilter('correct'); });
+	document.getElementById('bcm-summary-correct').appendChild(btnCorrect);
+	// Needs pill
+	var btnNeeds = document.createElement('button');
+	btnNeeds.className = 'bcm-filter-btn needs-correction';
+	btnNeeds.id = 'btn-filter-needs';
+	btnNeeds.innerHTML = pillHTML(fmt(needsCount) + ' need<br>correction', 'spin-needs', 'showing-needs');
+	btnNeeds.addEventListener('click', function() { toggleFilter('needs'); });
+	document.getElementById('bcm-summary-needs').appendChild(btnNeeds);
+	// Refresh button
+	var btnRefresh = document.createElement('button');
+	btnRefresh.id = 'btn-refresh';
+	btnRefresh.className = 'btn-refresh';
+	btnRefresh.title = 'Refresh counts and hide resolved verses';
+	btnRefresh.innerHTML = '\u21bb refresh <span class="bcm-spinner" id="spin-refresh">&#8987;</span>';
+	btnRefresh.addEventListener('click', refreshView);
+	document.getElementById('bcm-summary-refresh').appendChild(btnRefresh);
+
+	// Meter filter state: keys are filter keys (category name or specific samavṛtta meter name).
+	var meterFilter = {};
+	function initMeterFilter() {
+		meterList.forEach(function(cat) {
+			if (cat.members.length > 0) {
+				cat.members.forEach(function(m) { if (!(m.label in meterFilter)) meterFilter[m.label] = true; });
+			} else {
+				if (!(cat.cat in meterFilter)) meterFilter[cat.cat] = true;
+			}
+		});
+	}
+	initMeterFilter();
+	// Pending state while dropdown is open
+	var meterFilterPending = null;
+
+	var countsEl = document.getElementById('bcm-meter-counts');
+
+	// cb-select-all is in the HTML; wire it up here
+	var cbSelectAll = document.getElementById('cb-select-all');
+	cbSelectAll.addEventListener('click', function() {
+		var allKeys = getAllFilterKeys();
+		var allChecked = allKeys.every(function(k) {
+			var cb = document.getElementById('mcb-' + k);
+			return cb && cb.checked;
+		});
+		var target = !allChecked;
+		allKeys.forEach(function(k) {
+			var cb = document.getElementById('mcb-' + k);
+			if (cb) cb.checked = target;
+			meterFilterPending[k] = target;
+		});
+		meterList.forEach(function(cat) { updateCatCb(cat); });
+		updateSelectAllCb();
+	});
+
+	function getAllFilterKeys() {
+		var keys = [];
+		meterList.forEach(function(cat) {
+			if (cat.members.length > 0) {
+				cat.members.forEach(function(m) { keys.push(m.label); });
+			} else {
+				keys.push(cat.cat);
+			}
+		});
+		return keys;
+	}
+
+	function updateSelectAllCb() {
+		var keys = getAllFilterKeys();
+		var checkedCount = keys.filter(function(k) {
+			var cb = document.getElementById('mcb-' + k);
+			return cb && cb.checked;
+		}).length;
+		if (checkedCount === 0) {
+			cbSelectAll.checked = false; cbSelectAll.indeterminate = false;
+		} else if (checkedCount === keys.length) {
+			cbSelectAll.checked = true; cbSelectAll.indeterminate = false;
+		} else {
+			cbSelectAll.checked = false; cbSelectAll.indeterminate = true;
+		}
+	}
+
+	// Update a category-level checkbox to reflect its members' state.
+	function updateCatCb(cat) {
+		var catCb = document.getElementById('mcb-cat-' + cat.cat);
+		if (!catCb) return;
+		if (cat.members.length === 0) return;
+		var checkedCount = cat.members.filter(function(m) {
+			var cb = document.getElementById('mcb-' + m.label);
+			return cb && cb.checked;
+		}).length;
+		if (checkedCount === 0) {
+			catCb.checked = false; catCb.indeterminate = false;
+		} else if (checkedCount === cat.members.length) {
+			catCb.checked = true; catCb.indeterminate = false;
+		} else {
+			catCb.checked = false; catCb.indeterminate = true;
+		}
+	}
+
+	// Track which categories are collapsed (all start expanded).
+	var catCollapsed = {};
+
+	var totalVerses = verses.length;
+
+	function appendGridRow(container, bandClass, collapseEl, cbEl, labelEl, n, needs) {
+		var correct = n - needs;
+		[collapseEl, cbEl, labelEl].forEach(function(el) {
+			el.classList.add(bandClass);
+			container.appendChild(el);
+		});
+		var pctTotalSpan = document.createElement('span');
+		pctTotalSpan.className = 'bcm-row-pct-total ' + bandClass;
+		pctTotalSpan.title = 'of all verses, this meter type';
+		if (n > 0 && totalVerses > 0) {
+			var pctTotalVal = 100 * n / totalVerses;
+			pctTotalSpan.textContent = pctTotalVal < 0.05 ? '<0.1%' : pctTotalVal.toFixed(1) + '%';
+		}
+		var correctSpan = document.createElement('span');
+		correctSpan.className = 'bcm-row-correct ' + bandClass;
+		correctSpan.textContent = correct > 0 ? fmt(correct) : '';
+		var needsSpan = document.createElement('span');
+		needsSpan.className = 'bcm-row-needs ' + bandClass;
+		needsSpan.textContent = needs > 0 ? fmt(needs) : '';
+		var pctSpan = document.createElement('span');
+		pctSpan.className = 'bcm-row-pct ' + bandClass;
+		pctSpan.title = 'of this meter type, needs correction';
+		var pctVal = n > 0 ? (100 * needs / n) : 0;
+		pctSpan.textContent = (n > 0 && pctVal >= 0.05) ? pctVal.toFixed(1) + '%' : '';
+		container.appendChild(pctTotalSpan);
+		container.appendChild(correctSpan);
+		container.appendChild(needsSpan);
+		container.appendChild(pctSpan);
+	}
+
+	function buildMeterFilterRows() {
+		Array.from(countsEl.children).forEach(function(el) {
+			if (el.dataset.filterRow) el.remove();
+		});
+
+		var band = 0;
+		meterList.forEach(function(cat) {
+			var hasSubs = cat.members.length > 0;
+			var collapsed = !!catCollapsed[cat.cat];
+			var bandClass = 'band-' + (band % 2);
+			band++;
+
+			// Col 1: collapse button (or empty placeholder)
+			var collapseCell = document.createElement('span');
+			collapseCell.className = 'bcm-cat-collapse-cell';
+			collapseCell.dataset.filterRow = '1';
+			if (hasSubs) {
+				var collapseBtn = document.createElement('button');
+				collapseBtn.className = 'bcm-cat-collapse';
+				collapseBtn.title = '';
+				collapseBtn.textContent = collapsed ? '\u25b6' : '\u25bc';
+				collapseBtn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					catCollapsed[cat.cat] = !catCollapsed[cat.cat];
+					buildMeterFilterRows();
+				});
+				collapseCell.appendChild(collapseBtn);
+			}
+
+			// Col 2: checkbox
+			var cbCell = document.createElement('span');
+			cbCell.className = 'bcm-cat-cb';
+			cbCell.dataset.filterRow = '1';
+			var catCb = document.createElement('input');
+			catCb.type = 'checkbox';
+			catCb.id = hasSubs ? 'mcb-cat-' + cat.cat : 'mcb-' + cat.cat;
+			var activeFilter = meterFilterPending || meterFilter;
+			catCb.checked = hasSubs
+				? cat.members.every(function(m) { return activeFilter[m.label] !== false; })
+				: activeFilter[cat.cat] !== false;
+			catCb.addEventListener('click', function() {
+				if (hasSubs) {
+					var target = catCb.checked;
+					cat.members.forEach(function(m) {
+						var mcb = document.getElementById('mcb-' + m.label);
+						if (mcb) mcb.checked = target;
+						meterFilterPending[m.label] = target;
+					});
+					catCb.indeterminate = false;
+				} else {
+					meterFilterPending[cat.cat] = catCb.checked;
+				}
+				updateSelectAllCb();
+			});
+			cbCell.appendChild(catCb);
+
+			// Col 3: label
+			var catLbl = document.createElement('label');
+			catLbl.className = 'bcm-cat-label';
+			catLbl.dataset.filterRow = '1';
+			catLbl.htmlFor = catCb.id;
+			catLbl.textContent = meterLabelToDisplay(cat.cat);
+
+			appendGridRow(countsEl, bandClass, collapseCell, cbCell, catLbl, cat.n, cat.needs);
+			var ch = countsEl.children;
+			for (var i = ch.length - 4; i < ch.length; i++) { ch[i].dataset.filterRow = '1'; }
+
+			if (hasSubs && !collapsed) {
+				var subBand = 0;
+				cat.members.forEach(function(m) {
+					var subBandClass = 'sub-band-' + (subBand % 2);
+					subBand++;
+
+					// Col 1: empty for sub-rows
+					var subCollapseCell = document.createElement('span');
+					subCollapseCell.className = 'bcm-cat-collapse-cell';
+					subCollapseCell.dataset.filterRow = '1';
+
+					// Col 2: checkbox
+					var subCbCell = document.createElement('span');
+					subCbCell.className = 'bcm-sub-cb';
+					subCbCell.dataset.filterRow = '1';
+					var cb = document.createElement('input');
+					cb.type = 'checkbox';
+					cb.id = 'mcb-' + m.label;
+					cb.checked = (meterFilterPending || meterFilter)[m.label] !== false;
+					cb.addEventListener('change', function() {
+						meterFilterPending[m.label] = cb.checked;
+						updateCatCb(cat);
+						updateSelectAllCb();
+					});
+					subCbCell.appendChild(cb);
+
+					// Col 3: label
+					var subLbl = document.createElement('label');
+					subLbl.className = 'bcm-sub-label';
+					subLbl.dataset.filterRow = '1';
+					subLbl.htmlFor = 'mcb-' + m.label;
+					subLbl.textContent = meterLabelToDisplay(m.label);
+
+					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl, m.n, m.needs);
+					var ch2 = countsEl.children;
+					for (var j = ch2.length - 4; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
+				});
+			}
+		});
+	}
+	buildMeterFilterRows();
+
+	function updateFilterUI() {
+		var allKeys = getAllFilterKeys();
+		var allOn = allKeys.every(function(k) { return meterFilter[k] !== false; });
+
+		// Compute filtered counts from verseState directly
+		var shownTotal = 0, shownCorrect = 0, shownNeeds = 0;
+		verseState.forEach(function(v) {
+			var key = meterFilterKey(v);
+			if (meterFilter[key] !== false) {
+				shownTotal++;
+				if (isPerfect(v)) shownCorrect++; else shownNeeds++;
+			}
+		});
+
+		// Update "showing N" sub-labels — hide when all meters shown
+		var elTotal   = document.getElementById('showing-total');
+		var elCorrect = document.getElementById('showing-correct');
+		var elNeeds   = document.getElementById('showing-needs');
+		if (elTotal)   { elTotal.textContent   = allOn ? '' : fmt(shownTotal) + ' selected';   elTotal.style.display   = allOn ? 'none' : 'block'; }
+		if (elCorrect) { elCorrect.textContent = allOn ? '' : fmt(shownCorrect) + ' selected'; elCorrect.style.display = allOn ? 'none' : 'block'; }
+		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : fmt(shownNeeds) + ' selected';   elNeeds.style.display   = allOn ? 'none' : 'block'; }
+
+		// Chips: one per active category (or samavṛtta sub-meter), up to 5
+		var chipsEl = document.getElementById('bcm-filter-chips');
+		var chipsRowEl = document.getElementById('bcm-chips-row');
+		if (!chipsEl) return;
+		chipsEl.innerHTML = '';
+		if (chipsRowEl) chipsRowEl.classList.remove('has-chips');
+		if (!allOn) {
+			if (chipsRowEl) chipsRowEl.classList.add('has-chips');
+			var chipCount = 0;
+			// Collect active keys with display labels
+			var activeItems = [];
+			meterList.forEach(function(cat) {
+				if (cat.members.length > 0) {
+					cat.members.forEach(function(m) {
+						if (meterFilter[m.label] !== false) activeItems.push({ key: m.label, display: meterLabelToDisplay(m.label) });
+					});
+				} else {
+					if (meterFilter[cat.cat] !== false) activeItems.push({ key: cat.cat, display: meterLabelToDisplay(cat.cat) });
+				}
+			});
+			activeItems.forEach(function(item) {
+				if (chipCount >= 5) return;
+				chipCount++;
+				var chip = document.createElement('span');
+				chip.className = 'bcm-filter-chip';
+				var chipLbl = document.createElement('span');
+				chipLbl.className = 'bcm-filter-chip-label';
+				chipLbl.textContent = item.display;
+				chip.appendChild(chipLbl);
+				var x = document.createElement('button');
+				x.className = 'bcm-filter-chip-x';
+				x.textContent = '\u00d7';
+				x.title = 'remove filter';
+				(function(key) {
+					x.addEventListener('click', function() {
+						meterFilter[key] = false;
+						if (meterFilterPending) meterFilterPending[key] = false;
+						var cb = document.getElementById('mcb-' + key);
+						if (cb) { cb.checked = false; }
+						// Update parent cat cb if this is a samavṛtta member
+						meterList.forEach(function(cat) { updateCatCb(cat); });
+						updateSelectAllCb();
+						applyMeterFilter();
+					});
+				})(item.key);
+				chip.appendChild(x);
+				chipsEl.appendChild(chip);
+			});
+			if (activeItems.length > 5) {
+				var more = document.createElement('span');
+				more.className = 'bcm-filter-chip';
+				more.style.opacity = '0.6';
+				more.textContent = '+' + (activeItems.length - 5) + ' more';
+				chipsEl.appendChild(more);
+			}
+		}
+	}
+
+	window.toggleMeterCounts = function() {
+		var unifiedEl = document.getElementById('bcm-unified');
+		var btn = document.getElementById('meter-counts-toggle');
+		var open = unifiedEl.classList.toggle('filter-open');
+		btn.innerHTML = 'filter ' + (open ? '&#9660;' : '&#9654;');
+		if (open) {
+
+			var allKeys = getAllFilterKeys();
+			var allOn = allKeys.every(function(k) { return meterFilter[k] !== false; });
+			if (allOn) {
+				// No active filter: show all boxes unchecked so user picks what to include
+				meterFilterPending = {};
+				allKeys.forEach(function(k) { meterFilterPending[k] = false; });
+			} else {
+				meterFilterPending = Object.assign({}, meterFilter);
+			}
+			// Sync all leaf checkboxes
+			allKeys.forEach(function(k) {
+				var cb = document.getElementById('mcb-' + k);
+				if (cb) cb.checked = !!meterFilterPending[k];
+			});
+			// Sync category checkboxes
+			meterList.forEach(function(cat) { updateCatCb(cat); });
+			updateSelectAllCb();
+		} else {
+			// On close: nothing checked = revert to all-on; otherwise apply selection
+			var allKeys2 = getAllFilterKeys();
+			var noneChecked = allKeys2.every(function(k) { return meterFilterPending[k] === false; });
+			if (noneChecked) {
+				allKeys2.forEach(function(k) { meterFilter[k] = true; });
+			} else {
+				meterFilter = Object.assign({}, meterFilterPending);
+			}
+			applyMeterFilter();
+			meterFilterPending = null;
+		}
+	};
+
+	// Close meter filter dropdown when clicking outside it
+	document.addEventListener('click', function(e) {
+		var unifiedEl = document.getElementById('bcm-unified');
+		var btn = document.getElementById('meter-counts-toggle');
+		if (unifiedEl && unifiedEl.classList.contains('filter-open') && !unifiedEl.contains(e.target) && !btn.contains(e.target)) {
+			closeMeterFilter();
+		}
+	});
+
+	function buildHeaderLabel(v) {
+		var lbl = v.meter_label || 'unidentified';
+		if (isPerfect(v)) lbl = lbl.split(' (')[0].trim() || lbl;
+		return meterLabelToDisplay(lbl);
+	}
+
+	// --- Diagnostic helpers ---
+	// Returns { probSet, isLenError, imperfectLabel } for a given pāda index (0-based).
+	// probSet: obj mapping 0-based syllable idx → true (empty when isLenError — row gets pink bg instead)
+	// isLenError: row-level highlight (hypermetric/hypometric)
+	// imperfectLabel: string to show to the right of this pāda row, or null
+	function getPadaDiagInfo(diag, padaIdx, numPadas) {
+		var empty = { probSet: {}, isLenError: false, imperfectLabel: null };
+		if (!diag) return empty;
+
+		if (diag.type === 'pada') {
+			// Samavṛtta / upajāti / jāti: fields are dicts keyed by pada number "1"–"4" (JSON string)
+			var padaKey = String(padaIdx + 1);
+			var engLabel = diag.imperfect_label_english   && diag.imperfect_label_english[padaKey];
+			var sktLabel = diag.imperfect_label_sanskrit  && diag.imperfect_label_sanskrit[padaKey];
+			var chosenLabel = explanationLang === 'english' ? engLabel : sktLabel;
+			var ps       = diag.problem_syllables         && diag.problem_syllables[padaKey];
+			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
+			var probSet = {};
+			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
+			// Show label on this pada if it has bad syllables; if this pada has no bad
+			// syllables but is the first labeled pada, show it there as fallback.
+			var showLabel = false;
+			if (chosenLabel) {
+				var myPs = diag.problem_syllables && diag.problem_syllables[padaKey];
+				var myHasBad = myPs && myPs.length > 0;
+				if (myHasBad) {
+					showLabel = true;
+				} else {
+					// fallback: show on the first labeled pada that has no bad syllables
+					var labelSet = explanationLang === 'english' ? diag.imperfect_label_english : diag.imperfect_label_sanskrit;
+					var firstLabeledNoBad = null;
+					for (var k = 1; k <= numPadas; k++) {
+						if (labelSet && labelSet[String(k)]) {
+							var kPs = diag.problem_syllables && diag.problem_syllables[String(k)];
+							if (!kPs || kPs.length === 0) { firstLabeledNoBad = k; break; }
+						}
+					}
+					showLabel = (firstLabeledNoBad === padaIdx + 1);
+				}
+			}
+			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
+		}
+
+		if (diag.type === 'half') {
+			// Anuṣṭubh: keyed 'ab'/'cd', each Diagnostic uses 'odd'/'even' sub-keys
+			var halfKey    = (padaIdx <= 1) ? 'ab' : 'cd';
+			var withinHalf = (padaIdx % 2 === 0) ? 'odd' : 'even';
+			var d = diag[halfKey];
+			if (!d) return empty;
+			var engLabel2 = d.imperfect_label_english  && d.imperfect_label_english[withinHalf];
+			var sktLabel2 = d.imperfect_label_sanskrit && d.imperfect_label_sanskrit[withinHalf];
+			var chosenLabel2 = explanationLang === 'english' ? engLabel2 : sktLabel2;
+			var ps2       = d.problem_syllables        && d.problem_syllables[withinHalf];
+			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
+			var probSet2 = {};
+			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
+			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
+			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
+			var showLabel2 = false;
+			if (chosenLabel2) {
+				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
+				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
+				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
+			}
+			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
+		}
+
+		return empty;
+	}
+
+	// --- Card building ---
+	var container = document.getElementById('bcm-verses');
+	var currentView = 'errors';
+	var focusedIndex = null;
+
+	function buildCardBody(card, idx) {
+		var v = verseState[idx];
+		var body = document.createElement('div');
+		body.className = 'verse-card-body';
+
+		var rawDiv = document.createElement('div');
+		rawDiv.className = 'verse-raw';
+		rawDiv.id = 'verse-raw-' + idx;
+		var ta = document.createElement('textarea');
+		ta.className = 'verse-raw-textarea';
+		ta.id = 'verse-raw-text-' + idx;
+		ta.value = v.text_raw || '';
+		ta.spellcheck = false;
+		ta.rows = Math.max((v.text_raw || '').split('\n').length, 3);
+		ta.addEventListener('input', function() {
+			verseState[idx].text_raw = ta.value;
+			ta.style.height = 'auto';
+			ta.style.height = ta.scrollHeight + 'px';
+		});
+		ta.addEventListener('focus', function(e) { e.stopPropagation(); focusCard(idx); });
+		ta.addEventListener('click', function(e) { e.stopPropagation(); });
+		rawDiv.appendChild(ta);
+		body.appendChild(rawDiv);
+
+		// Right: scansion
+		var scanDiv = document.createElement('div');
+		scanDiv.className = 'verse-scansion';
+		scanDiv.id = 'verse-scan-' + idx;
+		renderScansion(scanDiv, v, verseOpts[idx]);
+		body.appendChild(scanDiv);
+
+		card.appendChild(body);
+	}
+
+	function buildCard(idx, compact) {
+		var v = verseState[idx];
+		var perf = isPerfect(v);
+		var unk  = isUnknown(v);
+		var hdrClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
+
+		var card = document.createElement('div');
+		card.className = 'verse-card ' + hdrClass + (compact ? ' compact' : '');
+		card.id = 'verse-card-' + idx;
+		card.dataset.idx = idx;
+
+		// Header
+		var hdr = document.createElement('div');
+		hdr.className = 'verse-card-header ' + hdrClass;
+		hdr.innerHTML =
+			'<span class="verse-status-dot"></span>' +
+			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
+			'<span class="verse-num">#' + (idx + 1) + '</span>';
+		hdr.addEventListener('click', function(e) {
+			e.stopPropagation();
+			var c = document.getElementById('verse-card-' + idx);
+			if (c && c.classList.contains('compact')) {
+				expandedPerfect[idx] = true;
+				c.classList.remove('compact');
+				// Build body lazily now that it's needed
+				if (!document.getElementById('verse-scan-' + idx)) buildCardBody(c, idx);
+			}
+			focusCard(idx);
+		});
+		card.appendChild(hdr);
+
+		// Body: only built immediately for non-compact cards
+		if (!compact) buildCardBody(card, idx);
+
+		// Click on card (not header/text) also focuses
+		card.addEventListener('click', function(e) { e.stopPropagation(); focusCard(idx); });
+
+		return card;
+	}
+
+	function updateCardHeader(idx) {
+		var v = verseState[idx];
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		var hdr = card.querySelector('.verse-card-header');
+		var perf = isPerfect(v), unk = isUnknown(v);
+		var statusClass = unk ? 'unknown' : perf ? 'perfect' : 'imperfect';
+		card.className = 'verse-card ' + statusClass + (card.classList.contains('focused') ? ' focused' : '') + (card.classList.contains('compact') ? ' compact' : '');
+		hdr.className = 'verse-card-header ' + statusClass;
+		hdr.innerHTML =
+			'<span class="verse-status-dot"></span>' +
+			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
+			'<span class="verse-num">#' + (idx + 1) + '</span>';
+	}
+
+	function updateCardScansion(idx) {
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (!scanDiv) return;
+		scanDiv.classList.remove('stale');
+		scanDiv.innerHTML = '';
+		renderScansion(scanDiv, verseState[idx], verseOpts[idx]);
+		// Restore normal two-column layout (may have been collapsed by Clear)
+		var rawDiv = document.getElementById('verse-raw-' + idx);
+		if (rawDiv) { rawDiv.style.width = ''; rawDiv.style.maxWidth = ''; rawDiv.style.borderRight = ''; }
+		if (scanDiv.children.length > 0) scanDiv.style.display = '';
+	}
+
+	function renderScansion(el, v, opts) {
+		// Use per-card options (fall back to panel state if not provided)
+		opts = opts || getPanelOpts();
+		var optWeights   = opts.weights;
+		var optMorae     = opts.morae;
+		var optGaRas     = opts.gaRas;
+		var optAlignment = opts.alignment;
+
+		var sylPadas  = (v.text_syllabified  || '').split('\n').map(function(p) { return p.trim(); });
+		var wtPadas   = (v.syllable_weights   || '').split('\n').map(function(p) { return p.trim(); });
+		var gaRaPadas = (v.gaRa_abbreviations || '').split('\n').map(function(p) { return p.trim(); });
+		var morae     = v.morae_per_line || [];
+		var diag      = v.diagnostic || null;
+		var isUpajati    = v.meter_label && v.meter_label.indexOf('upaj\u0101ti') >= 0;
+		var isJati       = !isUpajati && v.meter_label && (
+			v.meter_label.indexOf('j\u0101ti') >= 0 ||
+			v.meter_label.indexOf('\u0101ry\u0101') >= 0 ||
+			v.meter_label.indexOf('g\u012bti') >= 0 ||
+			v.meter_label.indexOf('vait\u0101l\u012bya') >= 0 ||
+			v.meter_label.indexOf('m\u0101tr\u0101') >= 0
+		);
+		var isUnknownM   = !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0;
+		var isAnustubh   = v.meter_label && (
+			v.meter_label.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
+			v.meter_label.indexOf('anustubh') >= 0 ||
+			v.meter_label.indexOf('ardham eva') >= 0
+		);
+		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
+		if (isAnustubh && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
+			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
+			wtPadas   = [wtPadas[0]   + wtPadas[1],          wtPadas[2]   + wtPadas[3]];
+			gaRaPadas = [gaRaPadas[0] + gaRaPadas[1],        gaRaPadas[2] + gaRaPadas[3]];
+			morae     = morae.length >= 4 ? [morae[0] + morae[1], morae[2] + morae[3]] : morae;
+		}
+
+		var numPadas  = Math.max(sylPadas.length, wtPadas.length);
+
+		// Derive gaṇa name from 3-syllable weight pattern (lowercase l/g)
+		var GANA_FROM_WEIGHTS = {
+			'lll': 'n', 'llg': 't', 'lgl': 'j', 'lgg': 'y',
+			'gll': 'B', 'glg': 'r', 'ggl': 's', 'ggg': 'm'
+		};
+		function ganaNameFromWeights(wList, start) {
+			var pat = '';
+			for (var k = 0; k < 3; k++) pat += (wList[start + k] || '').toLowerCase();
+			return GANA_FROM_WEIGHTS[pat] || '?';
+		}
+
+		// Mātrā-gaṇa syllable counts: named gaṇas have fixed counts; others = 1 per char
+		var MATRA_GANA_SYLS = { 'ja': 3, 'kha': 4, 'bha': 3, 'sa': 3, 'ma': 3, 'ya': 3, 'ra': 3, 'ta': 3, 'na': 3 };
+		function matraGanaSylCount(name) { return MATRA_GANA_SYLS[name] || name.length; }
+
+		// Collect imperfect labels to decide if we need the label column
+		var imperfectLabels = [];   // one entry per pāda: label string or null
+		var anyLabel = false;
+
+		// First pass: compute per-pāda diag info and imperfect labels
+		var padaDiagInfos = [];
+		for (var p = 0; p < numPadas; p++) {
+			var sylStr0 = sylPadas[p] || '';
+			var wtStr0  = wtPadas[p]  || '';
+			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); padaDiagInfos.push(null); continue; }
+			var info0 = getPadaDiagInfo(diag, p, numPadas);
+			padaDiagInfos.push(info0);
+			imperfectLabels.push(info0.imperfectLabel);
+			if (info0.imperfectLabel) anyLabel = true;
+		}
+
+
+		// Build the scroll container (grid col 1)
+		var scrollEl = document.createElement('div');
+		scrollEl.className = 'scansion-scroll';
+		var innerEl = document.createElement('div');
+		innerEl.className = 'scansion-scroll-inner';
+		scrollEl.appendChild(innerEl);
+		el.appendChild(scrollEl);
+
+		// Build the label column (grid col 2) — always created when anyLabel
+		var labelColEl = null;
+		if (anyLabel) {
+			labelColEl = document.createElement('div');
+			labelColEl.className = 'scansion-label-col';
+			el.appendChild(labelColEl);
+		}
+
+		// Second pass: build rows
+		var rowWraps = [];   // parallel to pādas (for height alignment)
+		var labelSlots = []; // parallel
+
+		for (var p = 0; p < numPadas; p++) {
+			var sylStr   = sylPadas[p]  || '';
+			var wtStr    = wtPadas[p]   || '';
+			var gaRaStr  = gaRaPadas[p] || '';
+			var moraeVal = morae[p];
+			if (!sylStr && !wtStr) continue;
+
+			var info     = padaDiagInfos[p] || { probSet: {}, isLenError: false, imperfectLabel: null };
+			var probSet  = info.probSet;
+			var lenError = info.isLenError;
+
+			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
+			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });
+			var ganaChars = gaRaStr ? gaRaStr.split('') : [];
+			var numSyls   = Math.max(sylList.length, wtList.length);
+
+			function makeSylBox(j) {
+				var syl    = slpToDisplay(sylList[j] || '');
+				var wt     = wtList[j]  || '';
+				var isL    = wt.toUpperCase() === 'L';
+				var isG    = wt.toUpperCase() === 'G';
+				var isProb = !lenError && probSet[j];
+				var box    = document.createElement('div');
+				box.className = 'syl-box ' + (optWeights && isL ? 'L' : optWeights && isG ? 'G' : '') + (isProb ? ' problem' : '');
+				if (optWeights) {
+					var sc = document.createElement('div'); sc.className = 'scan';
+					sc.textContent = isL ? slpGanaToDisplay('l') : isG ? slpGanaToDisplay('g') : wt;
+					box.appendChild(sc);
+				}
+				if (optAlignment) {
+					var sy = document.createElement('div'); sy.className = 'syl';
+					sy.textContent = syl;
+					box.appendChild(sy);
+				}
+				return box;
+			}
+
+			function makeBareBox(j) {
+				var wrap = document.createElement('div');
+				wrap.className = 'gana-single';
+				var boxWrap = document.createElement('div');
+				boxWrap.className = 'gana-single-box';
+				boxWrap.appendChild(makeSylBox(j));
+				wrap.appendChild(boxWrap);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label'; lbl.innerHTML = '&nbsp;';
+				wrap.appendChild(lbl);
+				return wrap;
+			}
+
+			function makeGanaGroup(gChar, startIdx) {
+				var group = document.createElement('div');
+				group.className = 'gana-group';
+				var boxes = document.createElement('div');
+				boxes.className = 'gana-group-boxes';
+				for (var k = 0; k < 3 && startIdx + k < numSyls; k++) {
+					boxes.appendChild(makeSylBox(startIdx + k));
+				}
+				group.appendChild(boxes);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label';
+				lbl.textContent = slpGanaToDisplay(gChar);
+				group.appendChild(lbl);
+				return group;
+			}
+
+			var row = document.createElement('div');
+			row.className = 'pada-row' + (lenError ? ' length-error' : '');
+
+			function makeMatraGanaGroup(name, startIdx, count) {
+				if (count === 1) return makeBareBox(startIdx);
+				var group = document.createElement('div');
+				group.className = 'gana-group';
+				var boxes = document.createElement('div');
+				boxes.className = 'gana-group-boxes';
+				for (var k = 0; k < count && startIdx + k < numSyls; k++) {
+					boxes.appendChild(makeSylBox(startIdx + k));
+				}
+				group.appendChild(boxes);
+				var lbl = document.createElement('div');
+				lbl.className = 'gana-label';
+				lbl.textContent = iastGanaToDisplay(name);
+				group.appendChild(lbl);
+				return group;
+			}
+
+			var matraGanaPadas = (v.mAtragaNa_abbreviations || '').split('\n').map(function(s) { return s.trim(); });
+			var matraGanaNames = matraGanaPadas[p] ? matraGanaPadas[p].split(' ').filter(Boolean) : [];
+
+			if (!optGaRas) {
+				// No gaṇa grouping — plain syllable boxes
+				for (var j = 0; j < numSyls; j++) row.appendChild(makeSylBox(j));
+			} else if (isJati && matraGanaNames.length > 0) {
+				var sylIdx = 0;
+				matraGanaNames.forEach(function(name) {
+					var count = matraGanaSylCount(name);
+					row.appendChild(makeMatraGanaGroup(name, sylIdx, count));
+					sylIdx += count;
+				});
+				while (sylIdx < numSyls) { row.appendChild(makeBareBox(sylIdx++)); }
+			} else if (isAnustubh && numSyls === 8 && ganaChars.length === 4) {
+				var g1 = ganaNameFromWeights(wtList, 1);
+				var g2 = ganaNameFromWeights(wtList, 4);
+				row.appendChild(makeBareBox(0));
+				row.appendChild(makeGanaGroup(g1, 1));
+				row.appendChild(makeGanaGroup(g2, 4));
+				row.appendChild(makeBareBox(7));
+			} else {
+				// Samavṛtta / other (incl. hypermetric pādas).
+				// If ganaChars is empty but we want grouping, derive from weights.
+				var effectiveGanas = ganaChars;
+				if (effectiveGanas.length === 0 && numSyls >= 3) {
+					effectiveGanas = [];
+					for (var gi0 = 0; gi0 + 2 < numSyls; gi0 += 3) {
+						effectiveGanas.push(ganaNameFromWeights(wtList, gi0));
+					}
+				}
+				var triCount    = Math.floor(numSyls / 3);
+				var numTriGanas = Math.min(triCount, effectiveGanas.length);
+				var sylIdx = 0;
+				for (var gi = 0; gi < numTriGanas; gi++) {
+					row.appendChild(makeGanaGroup(effectiveGanas[gi], sylIdx));
+					sylIdx += 3;
+				}
+				var singleChars = effectiveGanas.slice(numTriGanas);
+				singleChars.forEach(function(gChar) {
+					var wrap = document.createElement('div');
+					wrap.className = 'gana-single';
+					var boxWrap = document.createElement('div');
+					boxWrap.className = 'gana-single-box';
+					if (sylIdx < numSyls) boxWrap.appendChild(makeSylBox(sylIdx++));
+					wrap.appendChild(boxWrap);
+					var lbl = document.createElement('div');
+					lbl.className = 'gana-label';
+					lbl.textContent = slpGanaToDisplay(gChar);
+					wrap.appendChild(lbl);
+					row.appendChild(wrap);
+				});
+				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
+			}
+
+			var wrap = document.createElement('div');
+			wrap.className = 'pada-row-wrap';
+			wrap.appendChild(row);
+			if (optMorae && moraeVal !== undefined) {
+				var mora = document.createElement('span');
+				mora.className = 'pada-mora';
+				mora.textContent = 'm:\u202f' + moraeVal;
+				wrap.appendChild(mora);
+			}
+			innerEl.appendChild(wrap);
+			rowWraps.push(wrap);
+
+			// Label slot (always push one per visible row, even if empty)
+			if (anyLabel) {
+				var slot = document.createElement('div');
+				slot.className = 'pada-label-slot';
+				var labelText = imperfectLabels[p];
+				if (labelText) {
+					var ilbl = document.createElement('span');
+					ilbl.className = 'pada-imperfect-label';
+					ilbl.textContent = (explanationLang === 'sanskrit') ? iastToDisplay(labelText) : labelText;
+					slot.appendChild(ilbl);
+				}
+				labelColEl.appendChild(slot);
+				labelSlots.push(slot);
+			}
+		}
+
+		// After DOM insertion, align gaṇa columns and label slot heights
+		requestAnimationFrame(function() {
+			if (!isJati) alignGanaColumnsInScansion(el);
+			if (anyLabel && rowWraps.length === labelSlots.length) {
+				for (var i = 0; i < rowWraps.length; i++) {
+					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
+				}
+			}
+		});
+	}
+
+	// --- View management ---
+	// Two independent booleans: show correct / show needs-correction
+	var showCorrect = false;
+	var showNeeds   = true;
+	var expandedPerfect = {};
+
+	function updateFilterButtons() {
+		var bc = document.getElementById('btn-filter-correct');
+		var bn = document.getElementById('btn-filter-needs');
+		if (bc) bc.classList.toggle('off', !showCorrect);
+		if (bn) bn.classList.toggle('off', !showNeeds);
+	}
+
+	function triggerRender(spinId) {
+		var spin = document.getElementById(spinId);
+		if (spin) spin.style.display = 'inline';
+		updateFilterButtons();
+		setTimeout(function() {
+			expandedPerfect = {};
+			renderCards();
+			if (spin) spin.style.display = 'none';
+		}, 0);
+	}
+
+	function toggleFilter(which) {
+		if (which === 'correct') { showCorrect = !showCorrect; triggerRender('spin-correct'); }
+		else                     { showNeeds   = !showNeeds;   triggerRender('spin-needs'); }
+	}
+
+	function refreshView() {
+		var spin = document.getElementById('spin-refresh');
+		if (spin) spin.style.display = 'inline';
+		setTimeout(function() {
+			// Rebuild meter list and recount from current verseState
+			meterList = buildMeterList(verseState);
+			initMeterFilter(); // seed any new filter keys
+			var newPerfect = verseState.filter(isPerfect).length;
+			var newNeeds   = verseState.length - newPerfect;
+			perfectCount = newPerfect;
+			needsCount   = newNeeds;
+			// Update pill labels
+			var bc = document.getElementById('btn-filter-correct');
+			var bn = document.getElementById('btn-filter-needs');
+			if (bc) bc.innerHTML = pillHTML(fmt(newPerfect) + '<br>correct', 'spin-correct', 'showing-correct');
+			if (bn) bn.innerHTML = pillHTML(fmt(newNeeds) + ' need<br>correction', 'spin-needs', 'showing-needs');
+			// Rebuild filter rows with updated counts
+			buildMeterFilterRows();
+
+			updateFilterUI();
+			// Re-render: cards no longer matching current filter disappear
+			expandedPerfect = {};
+			renderCards();
+			var spin2 = document.getElementById('spin-refresh');
+			if (spin2) spin2.style.display = 'none';
+		}, 0);
+	}
+
+	function navigateNeeds(dir) {
+		// Build ordered list of indices that need correction and are currently rendered
+		var needsIndices = [];
+		verseState.forEach(function(v, idx) {
+			if (!isPerfect(v) && document.getElementById('verse-card-' + idx)) {
+				needsIndices.push(idx);
+			}
+		});
+		if (needsIndices.length === 0) return;
+
+		var currentPos = needsIndices.indexOf(focusedIndex);
+		var nextPos;
+		if (currentPos === -1) {
+			nextPos = dir >= 0 ? 0 : needsIndices.length - 1;
+		} else {
+			nextPos = currentPos + dir;
+			if (nextPos < 0) nextPos = needsIndices.length - 1;
+			if (nextPos >= needsIndices.length) nextPos = 0;
+		}
+		var targetIdx = needsIndices[nextPos];
+
+		// Focus without repositioning the panel yet (scroll hasn't happened)
+		if (focusedIndex !== null) {
+			var prev = document.getElementById('verse-card-' + focusedIndex);
+			if (prev) prev.classList.remove('focused');
+		}
+		focusedIndex = targetIdx;
+		var card = document.getElementById('verse-card-' + targetIdx);
+		if (card) card.classList.add('focused');
+		panel.classList.add('visible');
+
+		if (card) scrollToCard(card);
+	}
+
+	function renderCards() {
+		container.innerHTML = '';
+		verses.forEach(function(_, idx) {
+			var v = verseState[idx];
+			var perf = isPerfect(v);
+			if (perf  && !showCorrect) return;
+			if (!perf && !showNeeds)   return;
+			if (meterFilter[meterFilterKey(v)] === false) return;
+			var isCompact = perf && !expandedPerfect[idx];
+			var card = buildCard(idx, isCompact);
+			if (focusedIndex === idx) card.classList.add('focused');
+			container.appendChild(card);
+		});
+		if (container.children.length === 0) {
+			var empty = document.createElement('div');
+			empty.className = 'bcm-hidden-notice';
+			empty.style.cssText = 'font-size:1.1em;padding:2em';
+			empty.textContent = 'No verses to show \u2014 toggle the buttons above.';
+			container.appendChild(empty);
+		}
+		// If the previously focused card is still visible, scroll it back into view
+		if (focusedIndex !== null) {
+			var focusedCard = document.getElementById('verse-card-' + focusedIndex);
+			if (focusedCard) scrollToCard(focusedCard);
+		}
+	}
+
+	updateFilterButtons();
+	renderCards();
+	updateFilterUI();
+
+	// Show timing as a tooltip on a small indicator
+	// performance.now() is relative to navigationStart (time origin), so it measures
+	// wall-clock time from the moment the browser started loading this page.
+	var loadMs = performance.now();
+	var timingEl = document.getElementById('timing-label');
+	if (timingEl) {
+		timingEl.textContent = '⏱';
+		var loadSecs = loadMs / 1000;
+		var tip = duration
+			? 'identified in ' + duration.toFixed(1) + 's + ' + (loadSecs - duration).toFixed(1) + 's to load (' + loadSecs.toFixed(1) + 's total)'
+			: 'loaded in ' + loadSecs.toFixed(1) + 's';
+		timingEl.title = tip;
+	}
+
+	// --- Nav arrows (left column) ---
+	var navColEl = document.getElementById('bcm-nav-col');
+	var btnNavUp = document.createElement('button');
+	btnNavUp.className = 'btn-nav';
+	btnNavUp.id = 'btn-nav-up';
+	btnNavUp.title = 'Previous verse needing correction';
+	btnNavUp.textContent = '↑';
+	btnNavUp.addEventListener('click', function() { navigateNeeds(-1); });
+	navColEl.appendChild(btnNavUp);
+	var btnNavDown = document.createElement('button');
+	btnNavDown.className = 'btn-nav';
+	btnNavDown.id = 'btn-nav-down';
+	btnNavDown.title = 'Next verse needing correction';
+	btnNavDown.textContent = '↓';
+	btnNavDown.addEventListener('click', function() { navigateNeeds(1); });
+	navColEl.appendChild(btnNavDown);
+
+	// --- Focus / panel ---
+	var panel = document.getElementById('bcm-panel');
+	var stickyHeaderH = document.querySelector('.bcm-header').offsetHeight || 48;
+	// Pin stats block directly below the sticky header
+	document.querySelector('.bcm-stats-block').style.top = stickyHeaderH + 'px';
+	// Pin nav col to vertically center with the stats summary pill row
+	var statsSummaryEl = document.getElementById('bcm-stats-summary');
+	var summaryRect = statsSummaryEl ? statsSummaryEl.getBoundingClientRect() : null;
+	var navTop = summaryRect
+		? summaryRect.top + (summaryRect.height / 2) - (navColEl.offsetHeight / 2)
+		: stickyHeaderH + 8;
+	navColEl.style.top = navTop + 'px';
+	// Show panel below the stats block
+	var statsBlockEl = document.querySelector('.bcm-stats-block');
+	var initialPanelTop = (statsBlockEl ? statsBlockEl.getBoundingClientRect().bottom : stickyHeaderH) + 8;
+	panel.style.top = initialPanelTop + 'px';
+	panel.classList.add('visible');
+
+	function positionPanel(idx) {
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		// Set top once from current viewport position — stays put until next card is focused
+		var cardTop = card.getBoundingClientRect().top;
+		panel.style.top = cardTop + 'px';
+	}
+
+	function closeMeterFilter() {
+		var unifiedEl = document.getElementById('bcm-unified');
+		if (unifiedEl && unifiedEl.classList.contains('filter-open')) window.toggleMeterCounts();
+	}
+
+	function focusCard(idx) {
+		closeMeterFilter();
+		if (focusedIndex !== null) {
+			// Save current panel opts back to the card we're leaving
+			if (verseOpts[focusedIndex]) verseOpts[focusedIndex] = getPanelOpts();
+			var prev = document.getElementById('verse-card-' + focusedIndex);
+			if (prev) prev.classList.remove('focused');
+		}
+		focusedIndex = idx;
+		// Load this card's opts into the panel
+		if (verseOpts[idx]) setPanelOpts(verseOpts[idx]);
+		var card = document.getElementById('verse-card-' + idx);
+		if (card) card.classList.add('focused');
+		panel.classList.add('visible');
+		positionPanel(idx);
+
+	}
+
+	// --- Auto-run on option changes ---
+	// Rendering-only options: save to focused card's opts and re-render only that card
+	['panel-weights','panel-morae','panel-garas','panel-align'].forEach(function(id) {
+		document.getElementById(id).addEventListener('change', function() {
+			if (focusedIndex === null) return;
+			verseOpts[focusedIndex] = getPanelOpts();
+			updateCardScansion(focusedIndex);
+		});
+	});
+	// Resplit dropdown: save to focused card's opts (no re-render needed, takes effect on next Identify)
+	document.getElementById('panel-resplit').addEventListener('change', function() {
+		if (focusedIndex === null) return;
+		verseOpts[focusedIndex] = getPanelOpts();
+	});
+
+	// --- Panel actions ---
+	function getPanelSettings() {
+		var opts = (focusedIndex !== null && verseOpts[focusedIndex]) ? verseOpts[focusedIndex] : getPanelOpts();
+		return {
+			from_scheme:    currentFromScheme || settings.from_scheme || 'IAST',
+			resplit_option: opts.resplit_option,
+			weights:        opts.weights,
+			morae:          opts.morae,
+			gaRas:          opts.gaRas,
+			alignment:      opts.alignment,
+		};
+	}
+
+	// Track in-flight fetch per verse so we can ignore stale responses
+	var fetchSeq = {};
+
+	window.panelReidentify = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		var text = verseState[idx].text_raw || '';
+
+		var ps = getPanelSettings();
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (scanDiv) scanDiv.classList.add('stale');
+
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		var seq = fetchSeq[idx];
+
+		var fd = new FormData();
+		fd.append('input_text',   text);
+		fd.append('from_scheme',  ps.from_scheme);
+		fd.append('resplit_option', ps.resplit_option);
+		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
+		fd.append('show_morae',     ps.morae     ? 'true' : 'false');
+		fd.append('show_gaRas',     ps.gaRas     ? 'true' : 'false');
+		fd.append('show_alignment', ps.alignment ? 'true' : 'false');
+
+		fetch('/api/identify-meter', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
+			.then(function(r) { return r.json(); })
+			.then(function(data) {
+				if (fetchSeq[idx] !== seq) return; // stale response
+				verseState[idx].meter_label          = data.meter_label_full  || verseState[idx].meter_label;
+				verseState[idx].identification_score = data.identification_score !== undefined
+					? data.identification_score : verseState[idx].identification_score;
+				verseState[idx].text_syllabified     = data.text_syllabified   || verseState[idx].text_syllabified;
+				verseState[idx].syllable_weights     = data.syllable_weights    || verseState[idx].syllable_weights;
+				verseState[idx].morae_per_line       = data.morae_per_line      || verseState[idx].morae_per_line;
+				verseState[idx].gaRa_abbreviations       = data.gaRa_abbreviations       || verseState[idx].gaRa_abbreviations;
+				verseState[idx].mAtragaNa_abbreviations  = data.mAtragaNa_abbreviations  != null ? data.mAtragaNa_abbreviations : verseState[idx].mAtragaNa_abbreviations;
+				verseState[idx].diagnostic               = data.diagnostic != null ? data.diagnostic : verseState[idx].diagnostic;
+				verseState[idx].summary              = data.result               || verseState[idx].summary;
+				// If meter changed between jāti/unknown and other, update morae opt and re-sync panel
+				if (!isMoraeRelevant(verseState[idx])) {
+					verseOpts[idx].morae = false;
+				}
+				if (focusedIndex === idx) setPanelOpts(verseOpts[idx]);
+				updateCardHeader(idx);
+				updateCardScansion(idx);
+			})
+			.catch(function(err) {
+				if (scanDiv) scanDiv.classList.remove('stale');
+				console.error('Re-identification failed:', err);
+			});
+	};
+
+	window.panelScan = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		var text = verseState[idx].text_raw || '';
+
+		var ps = getPanelSettings();
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (scanDiv) scanDiv.classList.add('stale');
+
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		var seq = fetchSeq[idx];
+
+		var fd = new FormData();
+		fd.append('input_text',   text);
+		fd.append('from_scheme',  ps.from_scheme);
+		fd.append('show_weights',   ps.weights   ? 'true' : 'false');
+		fd.append('show_morae',     ps.morae     ? 'true' : 'false');
+		fd.append('show_gaRas',     ps.gaRas     ? 'true' : 'false');
+		fd.append('show_alignment', ps.alignment ? 'true' : 'false');
+
+		fetch('/api/scan', { method: 'POST', headers: { Accept: 'application/json' }, body: fd })
+			.then(function(r) { return r.json(); })
+			.then(function(data) {
+				if (fetchSeq[idx] !== seq) return;
+				verseState[idx].text_syllabified   = data.text_syllabified   || verseState[idx].text_syllabified;
+				verseState[idx].syllable_weights   = data.syllable_weights    || verseState[idx].syllable_weights;
+				verseState[idx].morae_per_line     = data.morae_per_line      || verseState[idx].morae_per_line;
+				verseState[idx].gaRa_abbreviations      = data.gaRa_abbreviations      || verseState[idx].gaRa_abbreviations;
+				verseState[idx].mAtragaNa_abbreviations = data.mAtragaNa_abbreviations != null ? data.mAtragaNa_abbreviations : verseState[idx].mAtragaNa_abbreviations;
+				updateCardScansion(idx);
+			})
+			.catch(function(err) {
+				if (scanDiv) scanDiv.classList.remove('stale');
+				console.error('Scan failed:', err);
+			});
+	};
+
+	window.panelClear = function() {
+		if (focusedIndex === null) return;
+		var idx = focusedIndex;
+		// Invalidate any in-flight fetch so its response is ignored
+		fetchSeq[idx] = (fetchSeq[idx] || 0) + 1;
+		// Wipe all derived state, preserving only the raw text
+		var raw = verseState[idx].text_raw;
+		verseState[idx] = {
+			text_raw:                raw,
+			text_syllabified:        '',
+			syllable_weights:        '',
+			morae_per_line:          [],
+			gaRa_abbreviations:      '',
+			mAtragaNa_abbreviations: '',
+			meter_label:             '',
+			identification_score:    0,
+			diagnostic:              null,
+			summary:                 '',
+		};
+		updateCardHeader(idx);
+		updateCardScansion(idx);
+		// Expand raw text column to full width when scansion is empty
+		var rawDiv = document.getElementById('verse-raw-' + idx);
+		var scanDiv = document.getElementById('verse-scan-' + idx);
+		if (rawDiv) { rawDiv.style.width = '100%'; rawDiv.style.maxWidth = '100%'; rawDiv.style.borderRight = 'none'; }
+		if (scanDiv) scanDiv.style.display = 'none';
+	};
+
+	// --- Export ---
+	function downloadFile(content, filename, mimeType) {
+		var blob = new Blob([content], { type: mimeType });
+		var url = URL.createObjectURL(blob);
+		var a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+		URL.revokeObjectURL(url);
+	}
+	// Warn before navigating away — dismissed automatically when user exports
+	var exported = false;
+	window.addEventListener('beforeunload', function(e) {
+		if (!exported) {
+			e.preventDefault();
+			e.returnValue = '';  // required for Chrome
+		}
+	});
+
+	window.exportTxt = function() {
+		exported = true;
+		var lines = [];
+		verseState.forEach(function(v) {
+			lines.push(v.text_raw || ''); lines.push('');
+			lines.push(v.summary || '');  lines.push('');
+		});
+		lines.push('sam\u0101ptam: ' + verseState.length + ' pady\u0101ni' +
+			(duration ? ', ' + duration.toFixed(6) + ' k\u1e63a\u1e47\u0101\u1e25' : ''));
+		downloadFile(lines.join('\n'), 'batch_meter_results.txt', 'text/plain;charset=utf-8');
+	};
+	window.exportCsv = function() {
+		exported = true;
+		var rows = [['verse_number','verse_text','meter_label','syllable_weights','identification_score']];
+		verseState.forEach(function(v, i) {
+			rows.push([i+1,
+				'"' + (v.text_raw||'').replace(/"/g,'""') + '"',
+				'"' + (v.meter_label||'').replace(/"/g,'""') + '"',
+				'"' + (v.syllable_weights||'').replace(/"/g,'""') + '"',
+				v.identification_score||0]);
+		});
+		downloadFile(rows.map(function(r){return r.join(',');}).join('\n'),
+			'batch_meter_results.csv','text/csv;charset=utf-8');
+	};
+
+	function escHtml(s) {
+		return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+	}
+
+	// === Mobile bottom sheet + nav bar ===
+
+	function isMobileLayout() {
+		return window.matchMedia('(max-width: 768px)').matches;
+	}
+
+	var SHEET_FIELD_MAP = [
+		['panel-weights', 'sheet-weights'],
+		['panel-morae',   'sheet-morae'],
+		['panel-garas',   'sheet-garas'],
+		['panel-align',   'sheet-align'],
+	];
+	function syncPanelToSheet() {
+		SHEET_FIELD_MAP.forEach(function(pair) {
+			var p = document.getElementById(pair[0]), s = document.getElementById(pair[1]);
+			if (p && s) s.checked = p.checked;
+		});
+		var pr = document.getElementById('panel-resplit'), sr = document.getElementById('sheet-resplit');
+		if (pr && sr) sr.value = pr.value;
+	}
+	function syncSheetToPanel() {
+		SHEET_FIELD_MAP.forEach(function(pair) {
+			var p = document.getElementById(pair[0]), s = document.getElementById(pair[1]);
+			if (p && s) p.checked = s.checked;
+		});
+		var pr = document.getElementById('panel-resplit'), sr = document.getElementById('sheet-resplit');
+		if (pr && sr) pr.value = sr.value;
+	}
+
+	var sheetOverlay  = document.getElementById('bcm-sheet-overlay');
+	var bottomSheet   = document.getElementById('bcm-bottom-sheet');
+	var sheetCloseBtn = document.getElementById('bcm-sheet-close-btn');
+
+	function openBottomSheet(idx) {
+		focusCard(idx);
+		syncPanelToSheet();
+		sheetOverlay.classList.add('open');
+		bottomSheet.classList.add('open');
+	}
+	function closeBottomSheet() {
+		syncSheetToPanel();
+		if (focusedIndex !== null) {
+			verseOpts[focusedIndex] = getPanelOpts();
+			updateCardScansion(focusedIndex);
+		}
+		sheetOverlay.classList.remove('open');
+		bottomSheet.classList.remove('open');
+	}
+	sheetOverlay.addEventListener('click', closeBottomSheet);
+	sheetCloseBtn.addEventListener('click', closeBottomSheet);
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape' && bottomSheet.classList.contains('open')) closeBottomSheet();
+
+		// Global hotkeys — skip when typing in a textarea or input
+		if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+		if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+		switch (e.key) {
+			case 's': e.preventDefault(); panelScan();       break;
+			case 'i': e.preventDefault(); panelReidentify(); break;
+			case 'c': e.preventDefault(); panelClear();      break;
+			case 'l':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var wEl = document.getElementById('panel-weights');
+					wEl.checked = !wEl.checked;
+					wEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'g':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var gEl = document.getElementById('panel-garas');
+					gEl.checked = !gEl.checked;
+					gEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'm':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var mEl = document.getElementById('panel-morae');
+					mEl.checked = !mEl.checked;
+					mEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'a':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var aEl = document.getElementById('panel-align');
+					aEl.checked = !aEl.checked;
+					aEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'r':
+				e.preventDefault();
+				if (focusedIndex !== null) {
+					var rEl = document.getElementById('panel-resplit');
+					rEl.selectedIndex = (rEl.selectedIndex + 1) % rEl.options.length;
+					rEl.dispatchEvent(new Event('change'));
+				}
+				break;
+			case 'ArrowUp':   e.preventDefault(); navigateNeeds(-1); break;
+			case 'ArrowDown': e.preventDefault(); navigateNeeds(1);  break;
+		}
+	});
+	bottomSheet.addEventListener('click', function(e) { e.stopPropagation(); });
+
+	document.getElementById('sheet-btn-scan').addEventListener('click', function() {
+		syncSheetToPanel();
+		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
+		closeBottomSheet();
+		panelScan();
+	});
+	document.getElementById('sheet-btn-identify').addEventListener('click', function() {
+		syncSheetToPanel();
+		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
+		closeBottomSheet();
+		panelReidentify();
+	});
+	document.getElementById('sheet-btn-clear').addEventListener('click', function() {
+		closeBottomSheet();
+		panelClear();
+	});
+
+	SHEET_FIELD_MAP.forEach(function(pair) {
+		var s = document.getElementById(pair[1]), p = document.getElementById(pair[0]);
+		if (!s || !p) return;
+		s.addEventListener('change', function() {
+			p.checked = s.checked;
+			p.dispatchEvent(new Event('change'));
+		});
+	});
+	document.getElementById('sheet-resplit').addEventListener('change', function() {
+		var pr = document.getElementById('panel-resplit');
+		if (pr) pr.value = this.value;
+	});
+
+	var mobileNavBar = document.getElementById('bcm-mobile-nav-bar');
+	if (mobileNavBar) {
+		var btnMUp = document.createElement('button');
+		btnMUp.className = 'btn-nav';
+		btnMUp.textContent = '↑';
+		btnMUp.title = 'Previous verse needing correction';
+		var btnMDown = document.createElement('button');
+		btnMDown.className = 'btn-nav';
+		btnMDown.textContent = '↓';
+		btnMDown.title = 'Next verse needing correction';
+		btnMUp.addEventListener('click', function() {
+			navigateNeeds(-1);
+			if (bottomSheet.classList.contains('open')) syncPanelToSheet();
+		});
+		btnMDown.addEventListener('click', function() {
+			navigateNeeds(1);
+			if (bottomSheet.classList.contains('open')) syncPanelToSheet();
+		});
+		mobileNavBar.appendChild(btnMUp);
+		mobileNavBar.appendChild(btnMDown);
+	}
+
+	function injectGearButtons() {
+		if (!isMobileLayout()) return;
+		document.querySelectorAll('.verse-card').forEach(function(card) {
+			var hdr = card.querySelector('.verse-card-header');
+			if (!hdr || hdr.querySelector('.bcm-panel-trigger')) return;
+			var idx = parseInt(card.dataset.idx, 10);
+			var btn = document.createElement('button');
+			btn.className = 'bcm-panel-trigger';
+			btn.title = 'Verse options';
+			btn.setAttribute('aria-label', 'Open verse options');
+			btn.textContent = '⚙';
+			btn.addEventListener('click', function(e) {
+				e.stopPropagation();
+				openBottomSheet(idx);
+			});
+			var numSpan = hdr.querySelector('.verse-num');
+			numSpan ? hdr.insertBefore(btn, numSpan) : hdr.appendChild(btn);
+		});
+	}
+	injectGearButtons();
+	new MutationObserver(function() {
+		injectGearButtons();
+	}).observe(document.getElementById('bcm-verses'), { childList: true });
+
+})();
+</script>
+</body>
+</html>

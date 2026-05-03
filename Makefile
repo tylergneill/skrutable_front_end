@@ -21,4 +21,4 @@ run-official:
 	  tylergneill/skrutable-app:$(VERSION)
 
 ngrok:
-	ngrok http --request-header-add="ngrok-skip-browser-warning: true" 5012
+	ngrok http 5012
