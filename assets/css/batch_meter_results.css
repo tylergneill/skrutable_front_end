@@ -435,7 +435,7 @@ body { padding: 0; margin: 0; }
 }
 
 /* pāda row */
-.pada-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+.pada-row { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 6px; }
 .pada-row.length-error { background: rgba(180,60,60,0.12); border-radius: 3px; padding: 3px; }
 [data-theme="dark"] .pada-row.length-error { background: rgba(220,80,80,0.18); }
 
@@ -485,6 +485,8 @@ body { padding: 0; margin: 0; }
 [data-theme="dark"] .syl-box.G .scan { color: #dd6666; }
 .syl-box.problem { background: #e8a0a0; }
 [data-theme="dark"] .syl-box.problem { background: #7a3030; }
+.syl-box.missing-syl { background: transparent; border-style: dashed; border-color: #b04040; }
+[data-theme="dark"] .syl-box.missing-syl { border-color: #dd6666; }
 
 /* mora annotation — inline after the pāda row */
 .pada-mora { font-size: 0.8em; color: #777; white-space: nowrap; align-self: flex-end; padding-bottom: 2px; }
