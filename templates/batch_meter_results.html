@@ -1358,7 +1358,6 @@
 			if (gapIdx !== null) {
 				sylList.splice(gapIdx, 0, '​');  // zero-width space = blank cell marker
 				wtList.splice(gapIdx,  0, '');
-				ganaChars.push('');  // one extra slot so the tail syllable stays inline
 			}
 
 			var numSyls   = Math.max(sylList.length, wtList.length);
@@ -1479,11 +1478,12 @@
 				}
 				var singleChars = effectiveGanas.slice(numTriGanas);
 				singleChars.forEach(function(gChar) {
+					if (sylIdx >= numSyls) return;  // no syllable left to render
 					var wrap = document.createElement('div');
 					wrap.className = 'gana-single';
 					var boxWrap = document.createElement('div');
 					boxWrap.className = 'gana-single-box';
-					if (sylIdx < numSyls) boxWrap.appendChild(makeSylBox(sylIdx++));
+					boxWrap.appendChild(makeSylBox(sylIdx++));
 					wrap.appendChild(boxWrap);
 					var lbl = document.createElement('div');
 					lbl.className = 'gana-label';
