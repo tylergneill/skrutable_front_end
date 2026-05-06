@@ -629,6 +629,7 @@
 
 	function buildMeterList(stateArr) {
 		var catN = {}, catNeeds = {}, memberN = {}, memberNeeds = {};
+		var anustubhHalfPadaWeight = 0;
 		stateArr.forEach(function(v) {
 			var base = meterBase(v);
 			var cat = meterCategoryOf(base);
@@ -642,6 +643,10 @@
 				memberN[cat][memberKey] = (memberN[cat][memberKey] || 0) + 1;
 				if (!isPerfect(v)) memberNeeds[cat][memberKey] = (memberNeeds[cat][memberKey] || 0) + 1;
 			}
+			// Weighted pāda count for anuṣṭubh: ardham eva = 1 half, full = 2 halves
+			if (cat === 'anuṣṭubh') {
+				anustubhHalfPadaWeight += (v.meter_label && v.meter_label.indexOf('ardham eva') >= 0) ? 1 : 2;
+			}
 		});
 		return METER_CATEGORIES.filter(function(cat) { return catN[cat] > 0; }).map(function(cat) {
 			var members = [];
@@ -650,7 +655,8 @@
 					return { label: k, n: memberN[cat][k], needs: memberNeeds[cat][k] || 0 };
 				}).sort(function(a, b) { return b.n - a.n; });
 			}
-			return { cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members };
+			var extra = (cat === 'anuṣṭubh') ? { halfPadaWeight: anustubhHalfPadaWeight } : {};
+			return Object.assign({ cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members }, extra);
 		});
 	}
 	var meterList = buildMeterList(verseState);
@@ -882,6 +888,13 @@
 			catLbl.dataset.filterRow = '1';
 			catLbl.htmlFor = catCb.id;
 			catLbl.textContent = meterLabelToDisplay(cat.cat);
+			if (cat.cat === 'anuṣṭubh' && cat.halfPadaWeight != null) {
+				var wSpan = document.createElement('span');
+				wSpan.className = 'bcm-anustubh-weight';
+				wSpan.title = 'weighted half-pāda count: ardham eva = 1, full verse = 2';
+				wSpan.textContent = ' (' + fmt(cat.halfPadaWeight) + ' half-pādas)';
+				catLbl.appendChild(wSpan);
+			}
 
 			appendGridRow(countsEl, bandClass, collapseCell, cbCell, catLbl, cat.n, cat.needs);
 			var ch = countsEl.children;
