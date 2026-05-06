@@ -111,3 +111,28 @@ Extra settings (e.g. `avoid_virama_indic_scripts`, `preserve_anunasika`) flow th
 - Add any required character mappings or character-set entries in the library.
 
 > **Why the setting can appear to do nothing:** The most common failure mode is wiring steps 1–4 in the front end but forgetting to pass the value through at one call site — typically the JS fetch in `main.html` (step 3) or the `saveSettingsToSession` in `settings.js` (step 4). The session may be correct, but the value is never sent with the API request, so the backend always sees the default.
+
+## Scan Timing Profiling
+
+The backend has a built-in profiling system for measuring meter identification performance across a corpus. It is disabled by default and must never be committed as enabled.
+
+### Enabling profiling
+
+```bash
+make launch-profiling
+# or equivalently:
+./launch.sh --scan-profiling
+```
+
+This sets `SKRUTABLE_DEBUG_TIMING=1` in the environment, which `flask_app.py` detects at startup and patches into the backend library before any imports.
+
+### How to profile a run
+
+1. Start the server with `make launch-profiling`
+2. Upload a verse file and run "identify meter" (batch correction mode or plain text output — both work)
+3. tqdm progress appears in the server terminal during the run
+4. When the run completes, the timing table is printed to stderr and written to `src/skrutable/profiling_debug.txt` in the backend library, then counters reset automatically
+
+### What the table shows
+
+Per-meter-category rows with columns: `total`, `scan∑`, `types∑`, then individual sub-phase columns (`clean`, `transl`, `syl`, `wts`, `mor+g`) and identification-type columns (`anuṣṭ`, `samav`, `ardha✓`, `jāti`, `lev✗sama`, `lev✗ardh`, `lev✗visa`). TOTAL row values are sums of the per-category rows — no separate global counters involved.
