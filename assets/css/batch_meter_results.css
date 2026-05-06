@@ -211,6 +211,7 @@ body { padding: 0; margin: 0; }
 .bcm-sub-cb  { grid-column: 2; display: flex; align-items: center; justify-content: center; }
 .bcm-cat-cb input, .bcm-sub-cb input { cursor: pointer; margin: 0; }
 .bcm-cat-label { grid-column: 3; font-size: 1.1em; font-weight: 600; cursor: pointer; padding: 0.25em 0 0.25em 0.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bcm-anustubh-weight { font-size: 0.78em; font-weight: 400; opacity: 0.6; white-space: nowrap; }
 .bcm-sub-label { grid-column: 3; font-size: 0.9em; cursor: pointer; padding: 0.15em 0 0.15em 1.75em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bcm-row-pct-total { grid-column: 4; display: flex; align-items: center; justify-content: flex-end; font-size: 0.85em; opacity: 0.7; padding-right: 2em; }
 .bcm-row-correct { grid-column: 5; display: flex; align-items: center; justify-content: flex-end; font-weight: bold; color: #4caf50; padding-right: 2em; }
