@@ -434,12 +434,12 @@ def upload_file():
 						"summary": summary,
 					})
 
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report()
-
 				ending_time = datetime.now().time()
 				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
 				duration_secs = delta.seconds + delta.microseconds / 1000000
+
+				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report(wall_clock_secs=duration_secs)
 
 				import json as _json
 				return render_template(
@@ -473,13 +473,14 @@ def upload_file():
 					)
 					output_data += V.text_raw + '\n\n' + summary + '\n'
 
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report()
-
 			ending_time = datetime.now().time()
 
 			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
 			duration_secs = delta.seconds + delta.microseconds / 1000000
+
+			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report(wall_clock_secs=duration_secs)
+
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
 			output_fn_suffix = '_meter_identified'
