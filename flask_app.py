@@ -17,6 +17,10 @@ from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
 from ocr_service import run_google_ocr
 
+if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+	import skrutable.utils as _skrutable_utils
+	_skrutable_utils._DEBUG_TIMING = True
+
 from skrutable import __version__ as BACK_END_VERSION
 from skrutable.transliteration import Transliterator
 from skrutable.scansion import Scanner
@@ -392,10 +396,21 @@ def upload_file():
 
 			verses = input_data.splitlines() # during post \n >> \r\n
 
+			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+				from skrutable.meter_identification import flush_profiling_report, _category_totals
+				from skrutable.utils import _section_totals
+				_section_totals.clear()
+				_category_totals.clear()
+
 			if session.get("batch_correction_mode"):
 
 				verse_data = []
-				for verse in verses:
+				try:
+					from tqdm import tqdm as _tqdm
+					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
+				except ImportError:
+					_verse_iter = verses
+				for verse in _verse_iter:
 					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
 						verse,
 						from_scheme=resolved_from_scheme,
@@ -417,6 +432,9 @@ def upload_file():
 						"diagnostic": serialize_diagnostic(V.diagnostic),
 						"summary": summary,
 					})
+
+				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report()
 
 				ending_time = datetime.now().time()
 				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
@@ -444,7 +462,12 @@ def upload_file():
 			else:
 
 				output_data = ''
-				for verse in verses:
+				try:
+					from tqdm import tqdm as _tqdm
+					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
+				except ImportError:
+					_verse_iter = verses
+				for verse in _verse_iter:
 
 					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
 						verse,
@@ -457,6 +480,9 @@ def upload_file():
 					)
 
 					output_data += V.text_raw + '\n\n' + summary + '\n'
+
+				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report()
 
 				ending_time = datetime.now().time()
 

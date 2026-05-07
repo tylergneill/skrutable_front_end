@@ -1,3 +1,9 @@
+launch:
+	./launch.sh
+
+launch-profiling:
+	./launch.sh --scan-profiling
+
 # for temporary local builds
 # to use: make run
 run:
@@ -8,7 +14,6 @@ run:
 	  -p 5012:5012 \
 	  --name skrutable-dev \
 	  skrutable-app:debug
-
 
 # for official stg and prod builds uploaded to Docker Hub
 # to use: VERSION={version} make run-official
