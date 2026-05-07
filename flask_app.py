@@ -402,23 +402,24 @@ def upload_file():
 				_section_totals.clear()
 				_category_totals.clear()
 
+			r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
+			verse_objects = MI.identify_meter_batch(
+				verses,
+				resplit_option=r_o,
+				resplit_keep_midpoint=r_k_m,
+				from_scheme=resolved_from_scheme,
+			)
+
 			if session.get("batch_correction_mode"):
 
 				verse_data = []
-				try:
-					from tqdm import tqdm as _tqdm
-					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
-				except ImportError:
-					_verse_iter = verses
-				for verse in _verse_iter:
-					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
-						verse,
-						from_scheme=resolved_from_scheme,
-						resplit_option=session["resplit_option"],
+				for V in verse_objects:
+					summary = V.summarize(
 						show_weights=session["weights"],
 						show_morae=session["morae"],
 						show_gaRas=session["gaRas"],
 						show_alignment=session["alignment"],
+						show_label=True,
 					)
 					verse_data.append({
 						"text_raw": V.text_raw,
@@ -462,35 +463,26 @@ def upload_file():
 			else:
 
 				output_data = ''
-				try:
-					from tqdm import tqdm as _tqdm
-					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
-				except ImportError:
-					_verse_iter = verses
-				for verse in _verse_iter:
-
-					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
-						verse,
-						from_scheme=resolved_from_scheme,
-						resplit_option=session["resplit_option"],
+				for V in verse_objects:
+					summary = V.summarize(
 						show_weights=session["weights"],
 						show_morae=session["morae"],
 						show_gaRas=session["gaRas"],
 						show_alignment=session["alignment"],
+						show_label=True,
 					)
-
 					output_data += V.text_raw + '\n\n' + summary + '\n'
 
 				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
 					flush_profiling_report()
 
-				ending_time = datetime.now().time()
+			ending_time = datetime.now().time()
 
-				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-				duration_secs = delta.seconds + delta.microseconds / 1000000
-				output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
+			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+			duration_secs = delta.seconds + delta.microseconds / 1000000
+			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
-				output_fn_suffix = '_meter_identified'
+			output_fn_suffix = '_meter_identified'
 
 		elif session["skrutable_action"] == "split":
 
