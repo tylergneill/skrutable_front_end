@@ -94,6 +94,7 @@
 		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
 		<div class="bcm-summary-needs" id="bcm-summary-needs"><!-- red pill --></div>
 		<div class="bcm-summary-refresh" id="bcm-summary-refresh"><!-- refresh --></div>
+		<div class="bcm-summary-expand" id="bcm-summary-expand"><!-- expand/collapse all --></div>
 		<!-- Chips row — full width, below summary -->
 		<div class="bcm-chips-row" id="bcm-chips-row">
 			<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
@@ -961,7 +962,10 @@
 				var wSpan = document.createElement('span');
 				wSpan.className = 'bcm-anustubh-weight';
 				wSpan.style.marginLeft = '0.5em';
-				wSpan.title = 'full = 2 half-verses; ardham eva = 1 half-verse';
+				var totalHalves = fullVerses * 2 + halfVerses;
+				wSpan.title = fmt(fullVerses) + ' verse' + (fullVerses !== 1 ? 's' : '') + ' with both halves; '
+					+ fmt(halfVerses) + ' verse' + (halfVerses !== 1 ? 's' : '') + ' with one half'
+					+ ' = ' + fmt(totalHalves) + ' half-verses';
 				wSpan.textContent = '(' + fmt(fullVerses) + ' full + ' + fmt(halfVerses) + ' half)';
 				catLbl.appendChild(wSpan);
 			}
@@ -1014,7 +1018,7 @@
 						var tooltipParts = [];
 						if (m.fullVerses > 0) tooltipParts.push(fmt(m.fullVerses) + ' verse' + (m.fullVerses !== 1 ? 's' : '') + ' with both halves ' + m.label);
 						if (singleHalves > 0) tooltipParts.push(fmt(singleHalves) + ' verse' + (singleHalves !== 1 ? 's' : '') + ' with one half ' + m.label);
-						if (tooltipParts.length) hvSpan.title = tooltipParts.join('; ');
+						if (tooltipParts.length) hvSpan.title = tooltipParts.join('; ') + ' = ' + fmt(m.halfVerses) + ' half-verses';
 						subLbl.appendChild(hvSpan);
 					}
 
