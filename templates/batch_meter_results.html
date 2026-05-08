@@ -679,8 +679,8 @@
 		var catN = {}, catNeeds = {}, memberN = {}, memberNeeds = {};
 		var anustubhHalfVerseWeight = 0;
 		// Per-subtype half-verse counts for anuṣṭubh
-		var anustubhSubN = {};
-		ANUSTUBH_SUBTYPES.forEach(function(s) { anustubhSubN[s] = 0; });
+		var anustubhSubN = {}, anustubhSubFull = {};
+		ANUSTUBH_SUBTYPES.forEach(function(s) { anustubhSubN[s] = 0; anustubhSubFull[s] = 0; });
 		stateArr.forEach(function(v) {
 			var base = meterBase(v);
 			var cat = meterCategoryOf(base);
@@ -698,14 +698,16 @@
 			if (cat === 'anuṣṭubh') {
 				var isArdham = v.meter_label && v.meter_label.indexOf('ardham eva') >= 0;
 				anustubhHalfVerseWeight += isArdham ? 1 : 2;
-				anustubhHalfTypes(v.meter_label || '').forEach(function(t) { anustubhSubN[t]++; });
+				var halfTypes = anustubhHalfTypes(v.meter_label || '');
+				halfTypes.forEach(function(t) { anustubhSubN[t]++; });
+				if (halfTypes.length === 2 && halfTypes[0] === halfTypes[1]) anustubhSubFull[halfTypes[0]]++;
 			}
 		});
 		return METER_CATEGORIES.filter(function(cat) { return catN[cat] > 0; }).map(function(cat) {
 			var members = [];
 			if (cat === 'anuṣṭubh') {
 				members = ANUSTUBH_SUBTYPES.map(function(s) {
-					return { label: s, n: anustubhSubN[s], needs: 0, halfVerses: anustubhSubN[s] };
+					return { label: s, n: anustubhSubN[s], needs: 0, halfVerses: anustubhSubN[s], fullVerses: anustubhSubFull[s] };
 				}).sort(function(a, b) {
 					if (a.label === 'ajñātā') return 1;
 					if (b.label === 'ajñātā') return -1;
@@ -1004,7 +1006,15 @@
 						var hvSpan = document.createElement('span');
 						hvSpan.style.marginLeft = '0.5em';
 						hvSpan.style.opacity = m.halfVerses > 0 ? '0.7' : '0.35';
-						hvSpan.textContent = '(' + fmt(m.halfVerses) + ' half-verses)';
+						var singleHalves = m.halfVerses - m.fullVerses * 2;
+						var parts = [];
+						if (m.fullVerses > 0) parts.push(fmt(m.fullVerses) + ' full');
+						if (singleHalves > 0) parts.push(fmt(singleHalves) + ' half');
+						hvSpan.textContent = '(' + (parts.length ? parts.join(' + ') : '0') + ')';
+						var tooltipParts = [];
+						if (m.fullVerses > 0) tooltipParts.push(fmt(m.fullVerses) + ' verse' + (m.fullVerses !== 1 ? 's' : '') + ' with both halves ' + m.label);
+						if (singleHalves > 0) tooltipParts.push(fmt(singleHalves) + ' verse' + (singleHalves !== 1 ? 's' : '') + ' with one half ' + m.label);
+						if (tooltipParts.length) hvSpan.title = tooltipParts.join('; ');
 						subLbl.appendChild(hvSpan);
 					}
 
