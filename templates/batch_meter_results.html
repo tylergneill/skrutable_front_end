@@ -774,6 +774,13 @@
 	btnRefresh.innerHTML = '<span class="btn-label">refresh</span><span class="btn-icon" id="icon-refresh">\u21bb</span><span class="bcm-spinner btn-icon" id="spin-refresh">&#8987;</span>';
 	btnRefresh.addEventListener('click', refreshView);
 	document.getElementById('bcm-summary-refresh').appendChild(btnRefresh);
+
+	var btnExpandAll = document.createElement('button');
+	btnExpandAll.id = 'btn-expand-all';
+	btnExpandAll.className = 'btn-refresh';
+	document.getElementById('bcm-summary-expand').appendChild(btnExpandAll);
+	btnExpandAll.addEventListener('click', toggleExpandAll);
+
 	document.getElementById('bcm-unified').style.visibility = 'visible';
 
 	// Meter filter state: keys are filter keys (category name or specific samavṛtta meter name).
@@ -1684,6 +1691,8 @@
 	var showCorrect = false;
 	var showNeeds   = true;
 	var expandedPerfect = {};
+	var allExpanded = false;
+	var EXPAND_WARN_THRESHOLD = 100;
 
 	function updateFilterButtons() {
 		var bc = document.getElementById('btn-filter-correct');
@@ -1698,6 +1707,7 @@
 		updateFilterButtons();
 		setTimeout(function() {
 			expandedPerfect = {};
+			allExpanded = false;
 			renderCards();
 			if (spin) spin.style.display = 'none';
 		}, 0);
@@ -1706,6 +1716,44 @@
 	function toggleFilter(which) {
 		if (which === 'correct') { showCorrect = !showCorrect; triggerRender('spin-correct'); }
 		else                     { showNeeds   = !showNeeds;   triggerRender('spin-needs'); }
+	}
+
+	function displayedCardCount() {
+		var n = 0;
+		verseState.forEach(function(_, idx) { if (document.getElementById('verse-card-' + idx)) n++; });
+		return n;
+	}
+
+	function updateExpandAllBtn() {
+		var btn = document.getElementById('btn-expand-all');
+		if (!btn) return;
+		var n = displayedCardCount();
+		var warn = n > EXPAND_WARN_THRESHOLD
+			? ' <span style="color:#c00;font-style:normal" title="' + n + ' cards — may be slow">⚠</span>'
+			: '';
+		btn.innerHTML = '<span class="btn-label">' + (allExpanded ? 'collapse all' : 'expand all') + '</span>'
+			+ '<span class="btn-icon">↕' + warn + '</span>';
+		btn.title = (allExpanded ? 'Collapse' : 'Expand') + ' all displayed cards'
+			+ (n > EXPAND_WARN_THRESHOLD ? ' (' + n + ' cards — may be slow)' : '');
+	}
+
+	function toggleExpandAll() {
+		allExpanded = !allExpanded;
+		verseState.forEach(function(_, idx) {
+			var card = document.getElementById('verse-card-' + idx);
+			if (!card) return;
+			if (allExpanded) {
+				if (card.classList.contains('compact')) {
+					expandedPerfect[idx] = true;
+					card.classList.remove('compact');
+					if (!document.getElementById('verse-scan-' + idx)) buildCardBody(card, idx);
+				}
+			} else {
+				card.classList.add('compact');
+				expandedPerfect[idx] = false;
+			}
+		});
+		updateExpandAllBtn();
 	}
 
 	function refreshView() {
@@ -1732,6 +1780,7 @@
 			updateFilterUI();
 			// Re-render: cards no longer matching current filter disappear
 			expandedPerfect = {};
+			allExpanded = false;
 			renderCards();
 			var icon2 = document.getElementById('icon-refresh');
 			var spin2 = document.getElementById('spin-refresh');
@@ -1799,6 +1848,7 @@
 			var focusedCard = document.getElementById('verse-card-' + focusedIndex);
 			if (focusedCard) scrollToCard(focusedCard);
 		}
+		updateExpandAllBtn();
 	}
 
 	updateFilterButtons();
