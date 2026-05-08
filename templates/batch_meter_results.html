@@ -737,6 +737,7 @@
 		var panelTop = (statsBlock ? statsBlock.getBoundingClientRect().bottom : 0) + 8;
 		window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - panelTop, behavior: 'smooth' });
 		panel.style.top = panelTop + 'px';
+		if (isMobileLayout()) setTimeout(function() { positionMobileTrigger(focusedIndex); }, 320);
 	}
 
 	function applyMeterFilter() {
@@ -750,7 +751,7 @@
 
 	// Summary row \u2014 each element goes into its own grid cell
 	var statsEl = document.getElementById('bcm-stats-summary');
-	statsEl.innerHTML = '<span style="white-space:nowrap"><span id="timing-label" style="font-size:1.6em;opacity:0.6;cursor:default" title=""></span>&nbsp;&nbsp;' + fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
+	statsEl.innerHTML = '<span class="bcm-stat-verse-count"><span id="timing-label" style="opacity:0.6;cursor:default" title=""></span>&nbsp;&nbsp;' + fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
 		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
 	// Correct pill
 	var btnCorrect = document.createElement('button');
@@ -1912,6 +1913,28 @@
 		panel.style.top = cardTop + 'px';
 	}
 
+	// Floating wrench trigger for mobile (replaces in-header gear button)
+	var mobileTrigger = document.createElement('button');
+	mobileTrigger.id = 'bcm-mobile-trigger';
+	mobileTrigger.className = 'bcm-mobile-trigger';
+	mobileTrigger.title = 'Verse options';
+	mobileTrigger.textContent = '🛠';
+	document.body.appendChild(mobileTrigger);
+	mobileTrigger.addEventListener('click', function() {
+		openBottomSheet(focusedIndex !== null ? focusedIndex : 0);
+	});
+	function positionMobileTrigger(idx) {
+		if (!isMobileLayout()) return;
+		if (idx === null || idx === undefined) {
+			mobileTrigger.style.top = (document.querySelector('.bcm-stats-block').getBoundingClientRect().bottom + 8) + 'px';
+			return;
+		}
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		mobileTrigger.style.top = Math.max(card.getBoundingClientRect().top, stickyHeaderH + 8) + 'px';
+	}
+	requestAnimationFrame(function() { positionMobileTrigger(null); });
+
 	function closeMeterFilter() {
 		var unifiedEl = document.getElementById('bcm-unified');
 		if (unifiedEl && unifiedEl.classList.contains('filter-open')) window.toggleMeterCounts();
@@ -1932,7 +1955,7 @@
 		if (card) card.classList.add('focused');
 		panel.classList.add('visible');
 		positionPanel(idx);
-
+		if (isMobileLayout()) positionMobileTrigger(idx);
 	}
 
 	// --- Auto-run on option changes ---
@@ -2128,7 +2151,7 @@
 	// === Mobile bottom sheet + nav bar ===
 
 	function isMobileLayout() {
-		return window.matchMedia('(max-width: 768px)').matches;
+		return window.matchMedia('(max-width: 900px)').matches;
 	}
 
 	var SHEET_FIELD_MAP = [
@@ -2235,17 +2258,14 @@
 	document.getElementById('sheet-btn-scan').addEventListener('click', function() {
 		syncSheetToPanel();
 		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
-		closeBottomSheet();
 		panelScan();
 	});
 	document.getElementById('sheet-btn-identify').addEventListener('click', function() {
 		syncSheetToPanel();
 		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
-		closeBottomSheet();
 		panelReidentify();
 	});
 	document.getElementById('sheet-btn-clear').addEventListener('click', function() {
-		closeBottomSheet();
 		panelClear();
 	});
 
@@ -2283,30 +2303,6 @@
 		mobileNavBar.appendChild(btnMUp);
 		mobileNavBar.appendChild(btnMDown);
 	}
-
-	function injectGearButtons() {
-		if (!isMobileLayout()) return;
-		document.querySelectorAll('.verse-card').forEach(function(card) {
-			var hdr = card.querySelector('.verse-card-header');
-			if (!hdr || hdr.querySelector('.bcm-panel-trigger')) return;
-			var idx = parseInt(card.dataset.idx, 10);
-			var btn = document.createElement('button');
-			btn.className = 'bcm-panel-trigger';
-			btn.title = 'Verse options';
-			btn.setAttribute('aria-label', 'Open verse options');
-			btn.textContent = '⚙';
-			btn.addEventListener('click', function(e) {
-				e.stopPropagation();
-				openBottomSheet(idx);
-			});
-			var numSpan = hdr.querySelector('.verse-num');
-			numSpan ? hdr.insertBefore(btn, numSpan) : hdr.appendChild(btn);
-		});
-	}
-	injectGearButtons();
-	new MutationObserver(function() {
-		injectGearButtons();
-	}).observe(document.getElementById('bcm-verses'), { childList: true });
 
 })();
 </script>

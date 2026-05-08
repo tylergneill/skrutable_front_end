@@ -46,38 +46,50 @@ body { padding: 0; margin: 0; }
 #bcm-sheet-overlay,
 #bcm-bottom-sheet,
 #bcm-mobile-nav-bar { display: none; }
+.bcm-mobile-trigger { display: none; }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
 	/* 1a. Kill desktop left-column geometry */
 	.bcm-panel   { display: none !important; }
 	.bcm-nav-col { display: none !important; }
-	.bcm-verses  { margin-left: 0; padding: 0 0.5em 5em; }
-	.bcm-stats-block { padding-left: 0.5em; overflow-x: auto; }
+	/* left padding clears the fixed wrench (0.5em left + 2.2em wide + 0.5em gap) */
+	.bcm-verses  { margin-left: 0 !important; padding: 0 0.5em 5em 3.5em !important; }
+	.bcm-stats-block { padding-left: 3.5em !important; overflow-x: auto; }
 
 	/* 1b. Stats grid scrolls horizontally at narrow widths */
 	.bcm-unified { max-width: none; min-width: max-content; }
 
 	/* 1c. Card body: stack raw above scansion */
-	.verse-card-body { flex-direction: column; }
+	.verse-card-body { flex-direction: column !important; width: 100%; }
 	.verse-raw {
-		width: 100%; max-width: 100%; min-width: 0;
+		width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+		flex: 0 0 auto !important;
+		box-sizing: border-box;
 		border-right: none;
 		border-bottom: 1px solid var(--input-border);
 	}
-	.verse-scansion { padding: 0.4em 0.5em; }
+	/* scansion section scrolls horizontally; label column capped */
+	.verse-scansion { padding: 0.4em 0.5em; overflow-x: auto !important; }
+	.scansion-label-col { flex: 0 0 auto; max-width: 10em; }
+	.pada-imperfect-label { font-size: 0.8em; }
 
-	/* 1d. Gear button injected into card headers by JS */
-	.bcm-panel-trigger {
-		display: inline-flex; align-items: center; justify-content: center;
-		background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3);
-		color: inherit; border-radius: 3px; padding: 0.1em 0.45em;
-		font-size: 0.85em; cursor: pointer; flex-shrink: 0; line-height: 1.4;
-		margin-left: auto;
-	}
-	.bcm-panel-trigger:hover { background: rgba(255,255,255,0.3); }
-	.verse-card.focused .bcm-panel-trigger {
-		background: rgba(0,0,0,0.12); border-color: rgba(0,0,0,0.2); color: #1a1a1a;
+	/* 1d. Stats bar: tighten spacing */
+	.bcm-stat-verse-count { white-space: normal; line-height: 1.2; }
+	#timing-label { font-size: 1em !important; }
+	.bcm-summary-stat { padding-right: 0.5em !important; padding-left: 0.75em !important; }
+	.bcm-summary-expand { padding-left: 0.5em !important; }
+
+	/* 1e. Floating wrench trigger (replaces in-header gear) */
+	.bcm-mobile-trigger {
+		display: flex; position: fixed; left: 0.5em;
+		align-items: center; justify-content: center;
+		width: 2.2em; height: 2.2em;
+		background: var(--btn-bg); color: var(--btn-text);
+		border: 1px solid var(--input-border); border-radius: 4px;
+		cursor: pointer; font-size: 1.1em;
+		box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+		z-index: 45; transition: top 0.18s ease;
 	}
 
 	/* 1e. Bottom sheet overlay */
@@ -147,7 +159,7 @@ body { padding: 0; margin: 0; }
 		flex: 1; max-width: 10em; padding: 0.6em 1em; font-size: 1em; text-align: center;
 	}
 
-} /* end @media (max-width: 768px) */
+} /* end @media (max-width: 900px) */
 
 /* === Stats block === */
 /*
@@ -186,6 +198,8 @@ body { padding: 0; margin: 0; }
 .bcm-chips-row    { grid-column: 1 / -1; padding: 0 0.5em 0.3em; display: none; }
 .bcm-chips-row.has-chips { display: block; }
 .bcm-summary-stat { grid-column: 3 / 5; padding: 0.55em 2em 0.55em 0; min-width: 0; font-size: 1.1em; font-weight: normal; text-align: right; align-self: stretch; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; white-space: nowrap; }
+.bcm-stat-verse-count { white-space: nowrap; }
+#timing-label { font-size: 1.6em; }
 .bcm-summary-correct { grid-column: 5; padding: 0.4em 0; }
 .bcm-summary-needs   { grid-column: 6; padding: 0.4em 0; }
 .bcm-summary-refresh { grid-column: 7; padding: 0.4em 0.5em 0.4em 0.5em; }
