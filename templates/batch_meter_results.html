@@ -734,7 +734,7 @@
 		var allKeys = getAllFilterKeys();
 		var allChecked = allKeys.every(function(k) {
 			var cb = document.getElementById('mcb-' + k);
-			return cb && cb.checked;
+			return cb ? cb.checked : meterFilterPending[k] !== false;
 		});
 		var target = !allChecked;
 		allKeys.forEach(function(k) {
@@ -760,9 +760,10 @@
 
 	function updateSelectAllCb() {
 		var keys = getAllFilterKeys();
+		var activeFilter = meterFilterPending || meterFilter;
 		var checkedCount = keys.filter(function(k) {
 			var cb = document.getElementById('mcb-' + k);
-			return cb && cb.checked;
+			return cb ? cb.checked : activeFilter[k] !== false;
 		}).length;
 		if (checkedCount === 0) {
 			cbSelectAll.checked = false; cbSelectAll.indeterminate = false;
@@ -778,9 +779,10 @@
 		var catCb = document.getElementById('mcb-cat-' + cat.cat);
 		if (!catCb) return;
 		if (cat.members.length === 0) return;
+		var activeFilter = meterFilterPending || meterFilter;
 		var checkedCount = cat.members.filter(function(m) {
 			var cb = document.getElementById('mcb-' + m.label);
-			return cb && cb.checked;
+			return cb ? cb.checked : activeFilter[m.label] !== false;
 		}).length;
 		if (checkedCount === 0) {
 			catCb.checked = false; catCb.indeterminate = false;
