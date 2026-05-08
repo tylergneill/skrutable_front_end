@@ -88,7 +88,7 @@
 	<div class="bcm-unified" id="bcm-unified">
 		<!-- Summary row cells: toggle | stat | correct-pill | needs-pill | refresh -->
 		<div class="bcm-summary-cb">
-			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">filter &#9654;</button>
+			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()"><span class="btn-label">filter</span><span class="btn-icon" id="meter-counts-arrow">&#9654;</span><span class="bcm-spinner btn-icon" id="spin-filter">&#8987;</span></button>
 		</div>
 		<div class="bcm-summary-stat bcm-stat" id="bcm-stats-summary"><!-- verse count --></div>
 		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
@@ -631,7 +631,6 @@
 	}
 
 	// Mutable state per verse
-	// Mutable state per verse
 	var verseState = verses.map(function(v) { return Object.assign({}, v); });
 
 	// If initial displayScheme differs from the raw text scheme, pre-transliterate all text_raw values
@@ -721,7 +720,6 @@
 		});
 	}
 	var meterList = buildMeterList(verseState);
-	var meterList = buildMeterList(verseState);
 
 	function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
@@ -769,9 +767,10 @@
 	btnRefresh.id = 'btn-refresh';
 	btnRefresh.className = 'btn-refresh';
 	btnRefresh.title = 'Refresh counts and hide resolved verses';
-	btnRefresh.innerHTML = '\u21bb refresh <span class="bcm-spinner" id="spin-refresh">&#8987;</span>';
+	btnRefresh.innerHTML = '<span class="btn-label">refresh</span><span class="btn-icon" id="icon-refresh">\u21bb</span><span class="bcm-spinner btn-icon" id="spin-refresh">&#8987;</span>';
 	btnRefresh.addEventListener('click', refreshView);
 	document.getElementById('bcm-summary-refresh').appendChild(btnRefresh);
+	document.getElementById('bcm-unified').style.visibility = 'visible';
 
 	// Meter filter state: keys are filter keys (category name or specific samavṛtta meter name).
 	var meterFilter = {};
@@ -855,8 +854,9 @@
 		}
 	}
 
-	// Track which categories are collapsed (all start expanded).
+	// Track which categories are collapsed (all start collapsed).
 	var catCollapsed = {};
+	CATS_WITH_MEMBERS.forEach(function(cat) { catCollapsed[cat] = true; });
 
 	var totalVerses = verses.length;
 
@@ -1039,7 +1039,8 @@
 		if (elCorrect) { elCorrect.textContent = allOn ? '' : fmt(shownCorrect) + ' selected'; elCorrect.style.display = allOn ? 'none' : 'block'; }
 		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : fmt(shownNeeds) + ' selected';   elNeeds.style.display   = allOn ? 'none' : 'block'; }
 
-		// Chips: one per active category (or samavṛtta sub-meter), up to 5
+		// Chips: one per active category (collapsed if whole category on), individual members otherwise.
+		// For anuṣṭubh sub-members, prefix display with "anuṣṭubh ".
 		var chipsEl = document.getElementById('bcm-filter-chips');
 		var chipsRowEl = document.getElementById('bcm-chips-row');
 		if (!chipsEl) return;
@@ -1048,15 +1049,27 @@
 		if (!allOn) {
 			if (chipsRowEl) chipsRowEl.classList.add('has-chips');
 			var chipCount = 0;
-			// Collect active keys with display labels
+			// Collect chip descriptors: { display, offKeys }
 			var activeItems = [];
 			meterList.forEach(function(cat) {
 				if (cat.members.length > 0) {
-					cat.members.forEach(function(m) {
-						if (meterFilter[m.label] !== false) activeItems.push({ key: m.label, display: meterLabelToDisplay(m.label) });
-					});
+					var onMembers = cat.members.filter(function(m) { return meterFilter[m.label] !== false; });
+					if (onMembers.length === 0) return;
+					if (onMembers.length === cat.members.length) {
+						activeItems.push({
+							display: meterLabelToDisplay(cat.cat),
+							offKeys: cat.members.map(function(m) { return m.label; })
+						});
+					} else {
+						onMembers.forEach(function(m) {
+							var display = cat.cat === 'anuṣṭubh'
+								? meterLabelToDisplay(cat.cat) + ' ' + meterLabelToDisplay(m.label)
+								: meterLabelToDisplay(m.label);
+							activeItems.push({ display: display, offKeys: [m.label] });
+						});
+					}
 				} else {
-					if (meterFilter[cat.cat] !== false) activeItems.push({ key: cat.cat, display: meterLabelToDisplay(cat.cat) });
+					if (meterFilter[cat.cat] !== false) activeItems.push({ display: meterLabelToDisplay(cat.cat), offKeys: [cat.cat] });
 				}
 			});
 			activeItems.forEach(function(item) {
@@ -1070,20 +1083,25 @@
 				chip.appendChild(chipLbl);
 				var x = document.createElement('button');
 				x.className = 'bcm-filter-chip-x';
-				x.textContent = '\u00d7';
+				x.textContent = '×';
 				x.title = 'remove filter';
-				(function(key) {
+				(function(offKeys) {
 					x.addEventListener('click', function() {
-						meterFilter[key] = false;
-						if (meterFilterPending) meterFilterPending[key] = false;
-						var cb = document.getElementById('mcb-' + key);
-						if (cb) { cb.checked = false; }
-						// Update parent cat cb if this is a samavṛtta member
+						offKeys.forEach(function(key) {
+							meterFilter[key] = false;
+							if (meterFilterPending) meterFilterPending[key] = false;
+							var cb = document.getElementById('mcb-' + key);
+							if (cb) cb.checked = false;
+						});
 						meterList.forEach(function(cat) { updateCatCb(cat); });
 						updateSelectAllCb();
-						applyMeterFilter();
+						setFilterBtnSpinner();
+						setTimeout(function() {
+							applyMeterFilter();
+							setFilterBtnArrow(false);
+						}, 0);
 					});
-				})(item.key);
+				})(item.offKeys);
 				chip.appendChild(x);
 				chipsEl.appendChild(chip);
 			});
@@ -1097,11 +1115,24 @@
 		}
 	}
 
+	function setFilterBtnArrow(open) {
+		var arrow = document.getElementById('meter-counts-arrow');
+		var spin  = document.getElementById('spin-filter');
+		if (arrow) { arrow.innerHTML = open ? '&#9660;' : '&#9654;'; arrow.style.display = 'inline'; }
+		if (spin)  spin.style.display = 'none';
+	}
+
+	function setFilterBtnSpinner() {
+		var arrow = document.getElementById('meter-counts-arrow');
+		var spin  = document.getElementById('spin-filter');
+		if (arrow) arrow.style.display = 'none';
+		if (spin)  spin.style.display = 'inline';
+	}
+
 	window.toggleMeterCounts = function() {
 		var unifiedEl = document.getElementById('bcm-unified');
-		var btn = document.getElementById('meter-counts-toggle');
 		var open = unifiedEl.classList.toggle('filter-open');
-		btn.innerHTML = 'filter ' + (open ? '&#9660;' : '&#9654;');
+		setFilterBtnArrow(open);
 		if (open) {
 
 			var allKeys = getAllFilterKeys();
@@ -1130,8 +1161,12 @@
 			} else {
 				meterFilter = Object.assign({}, meterFilterPending);
 			}
-			applyMeterFilter();
 			meterFilterPending = null;
+			setFilterBtnSpinner();
+			setTimeout(function() {
+				applyMeterFilter();
+				setFilterBtnArrow(false);
+			}, 0);
 		}
 	};
 
@@ -1659,7 +1694,9 @@
 	}
 
 	function refreshView() {
+		var icon = document.getElementById('icon-refresh');
 		var spin = document.getElementById('spin-refresh');
+		if (icon) icon.style.display = 'none';
 		if (spin) spin.style.display = 'inline';
 		setTimeout(function() {
 			// Rebuild meter list and recount from current verseState
@@ -1681,7 +1718,9 @@
 			// Re-render: cards no longer matching current filter disappear
 			expandedPerfect = {};
 			renderCards();
+			var icon2 = document.getElementById('icon-refresh');
 			var spin2 = document.getElementById('spin-refresh');
+			if (icon2) icon2.style.display = 'inline';
 			if (spin2) spin2.style.display = 'none';
 		}, 0);
 	}
