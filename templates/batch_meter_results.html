@@ -529,6 +529,33 @@
 	// Jāti sub-categories shown as members in the filter.
 	var JATI_SUBCATS = ['āryā', 'gīti', 'upagīti', 'udgīti', 'āryāgīti'];
 
+	// Anuṣṭubh half-verse subtypes (always shown, even if zero).
+	var ANUSTUBH_SUBTYPES = ['pathyā', 'na-vipulā', 'ra-vipulā', 'ma-vipulā', 'bha-vipulā', 'ajñātā'];
+
+	// Parse an anuṣṭubh meter label and return the subtype for each half-verse present.
+	// e.g. "anuṣṭubh (1,2: pathyā; 3,4: na-vipulā)" → ['pathyā', 'na-vipulā']
+	// e.g. "anuṣṭubh (ardham eva: pathyā)" → ['pathyā']
+	function anustubhHalfTypes(label) {
+		if (!label) return ['ajñātā'];
+		var inner = label.match(/^anuṣṭubh \((.+)\)$/);
+		if (!inner) return ['ajñātā'];
+		var content = inner[1];
+		var known = ANUSTUBH_SUBTYPES.slice(0, -1); // exclude ajñātā for matching
+		function matchSubtype(s) {
+			s = s.replace(/^\?\?\s*/, '').trim();
+			if (s === 'bha-vipulā (ma-gaṇa-pūrvikā!)') return 'bha-vipulā';
+			for (var i = 0; i < known.length; i++) {
+				if (s === known[i]) return known[i];
+			}
+			return 'ajñātā';
+		}
+		var ardham = content.match(/^ardham eva:\s*(.+)$/);
+		if (ardham) return [matchSubtype(ardham[1])];
+		var full = content.match(/^1,2:\s*(.+?);\s*3,4:\s*(.+)$/);
+		if (full) return [matchSubtype(full[1]), matchSubtype(full[2])];
+		return ['ajñātā'];
+	}
+
 	function meterCategoryOf(label) {
 		if (!label || label.indexOf('adhyavasitam') >= 0) return 'na kiṃcid adhyavasitam';
 		if (label.indexOf('anuṣṭubh') >= 0 || label.indexOf('anustubh') >= 0) return 'anuṣṭubh';
@@ -583,6 +610,27 @@
 		return cat;
 	}
 
+	// For anuṣṭubh returns unique subtype keys; for others returns [meterFilterKey(v)].
+	function meterFilterKeys(v) {
+		var base = meterBase(v);
+		if (meterCategoryOf(base) === 'anuṣṭubh') {
+			var types = anustubhHalfTypes(v.meter_label || '');
+			var seen = {};
+			return types.filter(function(t) { return seen[t] ? false : (seen[t] = true); });
+		}
+		return [meterFilterKey(v)];
+	}
+
+	// Returns true if verse passes the current meter filter.
+	function versePassesFilter(v) {
+		var keys = meterFilterKeys(v);
+		for (var i = 0; i < keys.length; i++) {
+			if (meterFilter[keys[i]] !== false) return true;
+		}
+		return false;
+	}
+
+	// Mutable state per verse
 	// Mutable state per verse
 	var verseState = verses.map(function(v) { return Object.assign({}, v); });
 
@@ -625,11 +673,14 @@
 	// For samavṛtta, members lists individual meter names (each its own filter key).
 	// For other categories, members is empty (category IS the filter key).
 	// Categories that show sub-members in the filter dropdown.
-	var CATS_WITH_MEMBERS = ['samavṛtta', 'jāti', 'upajāti', 'ardhasamavṛtta'];
+	var CATS_WITH_MEMBERS = ['anuṣṭubh', 'samavṛtta', 'jāti', 'upajāti', 'ardhasamavṛtta'];
 
 	function buildMeterList(stateArr) {
 		var catN = {}, catNeeds = {}, memberN = {}, memberNeeds = {};
-		var anustubhHalfPadaWeight = 0;
+		var anustubhHalfVerseWeight = 0;
+		// Per-subtype half-verse counts for anuṣṭubh
+		var anustubhSubN = {};
+		ANUSTUBH_SUBTYPES.forEach(function(s) { anustubhSubN[s] = 0; });
 		stateArr.forEach(function(v) {
 			var base = meterBase(v);
 			var cat = meterCategoryOf(base);
@@ -643,22 +694,33 @@
 				memberN[cat][memberKey] = (memberN[cat][memberKey] || 0) + 1;
 				if (!isPerfect(v)) memberNeeds[cat][memberKey] = (memberNeeds[cat][memberKey] || 0) + 1;
 			}
-			// Weighted pāda count for anuṣṭubh: ardham eva = 1 half, full = 2 halves
+			// Anuṣṭubh: top-level full/half count + per-subtype half-verse counts
 			if (cat === 'anuṣṭubh') {
-				anustubhHalfPadaWeight += (v.meter_label && v.meter_label.indexOf('ardham eva') >= 0) ? 1 : 2;
+				var isArdham = v.meter_label && v.meter_label.indexOf('ardham eva') >= 0;
+				anustubhHalfVerseWeight += isArdham ? 1 : 2;
+				anustubhHalfTypes(v.meter_label || '').forEach(function(t) { anustubhSubN[t]++; });
 			}
 		});
 		return METER_CATEGORIES.filter(function(cat) { return catN[cat] > 0; }).map(function(cat) {
 			var members = [];
-			if (CATS_WITH_MEMBERS.indexOf(cat) >= 0 && memberN[cat]) {
+			if (cat === 'anuṣṭubh') {
+				members = ANUSTUBH_SUBTYPES.map(function(s) {
+					return { label: s, n: anustubhSubN[s], needs: 0, halfVerses: anustubhSubN[s] };
+				}).sort(function(a, b) {
+					if (a.label === 'ajñātā') return 1;
+					if (b.label === 'ajñātā') return -1;
+					return b.halfVerses - a.halfVerses;
+				});
+			} else if (CATS_WITH_MEMBERS.indexOf(cat) >= 0 && memberN[cat]) {
 				members = Object.keys(memberN[cat]).map(function(k) {
 					return { label: k, n: memberN[cat][k], needs: memberNeeds[cat][k] || 0 };
 				}).sort(function(a, b) { return b.n - a.n; });
 			}
-			var extra = (cat === 'anuṣṭubh') ? { halfPadaWeight: anustubhHalfPadaWeight } : {};
+			var extra = (cat === 'anuṣṭubh') ? { halfVerseWeight: anustubhHalfVerseWeight } : {};
 			return Object.assign({ cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members }, extra);
 		});
 	}
+	var meterList = buildMeterList(verseState);
 	var meterList = buildMeterList(verseState);
 
 	function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
@@ -890,11 +952,14 @@
 			catLbl.dataset.filterRow = '1';
 			catLbl.htmlFor = catCb.id;
 			catLbl.textContent = meterLabelToDisplay(cat.cat);
-			if (cat.cat === 'anuṣṭubh' && cat.halfPadaWeight != null) {
+			if (cat.cat === 'anuṣṭubh' && cat.halfVerseWeight != null) {
+				var halfVerses = cat.n * 2 - cat.halfVerseWeight;
+				var fullVerses = cat.n - halfVerses;
 				var wSpan = document.createElement('span');
 				wSpan.className = 'bcm-anustubh-weight';
-				wSpan.title = 'weighted half-pāda count: ardham eva = 1, full verse = 2';
-				wSpan.textContent = ' (' + fmt(cat.halfPadaWeight) + ' half-pādas)';
+				wSpan.style.marginLeft = '0.5em';
+				wSpan.title = 'full = 2 half-verses; ardham eva = 1 half-verse';
+				wSpan.textContent = '(' + fmt(fullVerses) + ' full + ' + fmt(halfVerses) + ' half)';
 				catLbl.appendChild(wSpan);
 			}
 
@@ -934,8 +999,17 @@
 					subLbl.dataset.filterRow = '1';
 					subLbl.htmlFor = 'mcb-' + m.label;
 					subLbl.textContent = meterLabelToDisplay(m.label);
+					if (cat.cat === 'anuṣṭubh') {
+						var hvSpan = document.createElement('span');
+						hvSpan.style.marginLeft = '0.5em';
+						hvSpan.style.opacity = m.halfVerses > 0 ? '0.7' : '0.35';
+						hvSpan.textContent = '(' + fmt(m.halfVerses) + ' half-verses)';
+						subLbl.appendChild(hvSpan);
+					}
 
-					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl, m.n, m.needs);
+					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl,
+						cat.cat === 'anuṣṭubh' ? 0 : m.n,
+						cat.cat === 'anuṣṭubh' ? 0 : m.needs);
 					var ch2 = countsEl.children;
 					for (var j = ch2.length - 4; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
 				});
@@ -951,8 +1025,7 @@
 		// Compute filtered counts from verseState directly
 		var shownTotal = 0, shownCorrect = 0, shownNeeds = 0;
 		verseState.forEach(function(v) {
-			var key = meterFilterKey(v);
-			if (meterFilter[key] !== false) {
+			if (versePassesFilter(v)) {
 				shownTotal++;
 				if (isPerfect(v)) shownCorrect++; else shownNeeds++;
 			}
@@ -1654,7 +1727,7 @@
 			var perf = isPerfect(v);
 			if (perf  && !showCorrect) return;
 			if (!perf && !showNeeds)   return;
-			if (meterFilter[meterFilterKey(v)] === false) return;
+			if (!versePassesFilter(v)) return;
 			var isCompact = perf && !expandedPerfect[idx];
 			var card = buildCard(idx, isCompact);
 			if (focusedIndex === idx) card.classList.add('focused');
