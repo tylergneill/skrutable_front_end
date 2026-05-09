@@ -90,7 +90,7 @@ requests==2.33.1
     #   google-api-core
     #   google-cloud-storage
     #   skrutable
-skrutable==2.1.3
+skrutable==2.6.0
     # via -r requirements.in
 typing-extensions==4.15.0
     # via grpcio
