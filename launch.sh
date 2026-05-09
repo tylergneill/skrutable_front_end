@@ -5,6 +5,7 @@ export PORT=5012
 for arg in "$@"; do
 	case "$arg" in
 		--scan-profiling) export SKRUTABLE_DEBUG_TIMING=1 ;;
+		--no-parallel) export SKRUTABLE_NO_PARALLEL=1 ;;
 	esac
 done
 
