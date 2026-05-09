@@ -397,18 +397,26 @@ def upload_file():
 			verses = input_data.splitlines() # during post \n >> \r\n
 
 			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-				from skrutable.meter_identification import flush_profiling_report, _category_totals
+				from skrutable.meter_identification import flush_profiling_report, _category_totals, BATCH_MAX_WORKERS
 				from skrutable.utils import _section_totals
 				_section_totals.clear()
 				_category_totals.clear()
 
 			r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
-			verse_objects = MI.identify_meter_batch(
-				verses,
-				resplit_option=r_o,
-				resplit_keep_midpoint=r_k_m,
-				from_scheme=resolved_from_scheme,
-			)
+			if os.environ.get('SKRUTABLE_NO_PARALLEL'):
+				try:
+					from tqdm import tqdm as _tqdm
+					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
+				except ImportError:
+					_verse_iter = verses
+				verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=resolved_from_scheme) for s in _verse_iter]
+			else:
+				verse_objects = MI.identify_meter_batch(
+					verses,
+					resplit_option=r_o,
+					resplit_keep_midpoint=r_k_m,
+					from_scheme=resolved_from_scheme,
+				)
 
 			if session.get("batch_correction_mode"):
 
@@ -439,7 +447,10 @@ def upload_file():
 				duration_secs = delta.seconds + delta.microseconds / 1000000
 
 				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(wall_clock_secs=duration_secs)
+					flush_profiling_report(
+						wall_clock_secs=duration_secs,
+						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+					)
 
 				import json as _json
 				return render_template(
@@ -479,7 +490,10 @@ def upload_file():
 			duration_secs = delta.seconds + delta.microseconds / 1000000
 
 			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(wall_clock_secs=duration_secs)
+					flush_profiling_report(
+						wall_clock_secs=duration_secs,
+						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+					)
 
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
