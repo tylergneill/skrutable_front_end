@@ -88,12 +88,13 @@
 	<div class="bcm-unified" id="bcm-unified">
 		<!-- Summary row cells: toggle | stat | correct-pill | needs-pill | refresh -->
 		<div class="bcm-summary-cb">
-			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()">filter &#9654;</button>
+			<button class="bcm-meter-counts-toggle" id="meter-counts-toggle" onclick="toggleMeterCounts()"><span class="btn-label">filter</span><span class="btn-icon" id="meter-counts-arrow">&#9654;</span><span class="bcm-spinner btn-icon" id="spin-filter">&#8987;</span></button>
 		</div>
 		<div class="bcm-summary-stat bcm-stat" id="bcm-stats-summary"><!-- verse count --></div>
 		<div class="bcm-summary-correct" id="bcm-summary-correct"><!-- green pill --></div>
 		<div class="bcm-summary-needs" id="bcm-summary-needs"><!-- red pill --></div>
 		<div class="bcm-summary-refresh" id="bcm-summary-refresh"><!-- refresh --></div>
+		<div class="bcm-summary-expand" id="bcm-summary-expand"><!-- expand/collapse all --></div>
 		<!-- Chips row — full width, below summary -->
 		<div class="bcm-chips-row" id="bcm-chips-row">
 			<span class="bcm-filter-chips" id="bcm-filter-chips"></span>
@@ -510,6 +511,7 @@
 	function isMoraeRelevant(v) {
 		var lbl = v.meter_label || '';
 		if (!lbl || lbl.indexOf('adhyavasitam') >= 0) return true; // unknown: show mora
+		if (lbl.indexOf('upaj\u0101ti') >= 0) return false;
 		return lbl.indexOf('j\u0101ti') >= 0 || lbl.indexOf('\u0101ry\u0101') >= 0 ||
 			lbl.indexOf('g\u012bti') >= 0 || lbl.indexOf('vait\u0101l\u012bya') >= 0 || lbl.indexOf('m\u0101tr\u0101') >= 0;
 	}
@@ -528,6 +530,33 @@
 
 	// Jāti sub-categories shown as members in the filter.
 	var JATI_SUBCATS = ['āryā', 'gīti', 'upagīti', 'udgīti', 'āryāgīti'];
+
+	// Anuṣṭubh half-verse subtypes (always shown, even if zero).
+	var ANUSTUBH_SUBTYPES = ['pathyā', 'na-vipulā', 'ra-vipulā', 'ma-vipulā', 'bha-vipulā', 'ajñātā'];
+
+	// Parse an anuṣṭubh meter label and return the subtype for each half-verse present.
+	// e.g. "anuṣṭubh (1,2: pathyā; 3,4: na-vipulā)" → ['pathyā', 'na-vipulā']
+	// e.g. "anuṣṭubh (ardham eva: pathyā)" → ['pathyā']
+	function anustubhHalfTypes(label) {
+		if (!label) return ['ajñātā'];
+		var inner = label.match(/^anuṣṭubh \((.+)\)$/);
+		if (!inner) return ['ajñātā'];
+		var content = inner[1];
+		var known = ANUSTUBH_SUBTYPES.slice(0, -1); // exclude ajñātā for matching
+		function matchSubtype(s) {
+			s = s.replace(/^\?\?\s*/, '').trim();
+			if (s === 'bha-vipulā (ma-gaṇa-pūrvikā!)') return 'bha-vipulā';
+			for (var i = 0; i < known.length; i++) {
+				if (s === known[i]) return known[i];
+			}
+			return 'ajñātā';
+		}
+		var ardham = content.match(/^ardham eva:\s*(.+)$/);
+		if (ardham) return [matchSubtype(ardham[1])];
+		var full = content.match(/^1,2:\s*(.+?);\s*3,4:\s*(.+)$/);
+		if (full) return [matchSubtype(full[1]), matchSubtype(full[2])];
+		return ['ajñātā'];
+	}
 
 	function meterCategoryOf(label) {
 		if (!label || label.indexOf('adhyavasitam') >= 0) return 'na kiṃcid adhyavasitam';
@@ -583,6 +612,26 @@
 		return cat;
 	}
 
+	// For anuṣṭubh returns unique subtype keys; for others returns [meterFilterKey(v)].
+	function meterFilterKeys(v) {
+		var base = meterBase(v);
+		if (meterCategoryOf(base) === 'anuṣṭubh') {
+			var types = anustubhHalfTypes(v.meter_label || '');
+			var seen = {};
+			return types.filter(function(t) { return seen[t] ? false : (seen[t] = true); });
+		}
+		return [meterFilterKey(v)];
+	}
+
+	// Returns true if verse passes the current meter filter.
+	function versePassesFilter(v) {
+		var keys = meterFilterKeys(v);
+		for (var i = 0; i < keys.length; i++) {
+			if (meterFilter[keys[i]] !== false) return true;
+		}
+		return false;
+	}
+
 	// Mutable state per verse
 	var verseState = verses.map(function(v) { return Object.assign({}, v); });
 
@@ -625,10 +674,14 @@
 	// For samavṛtta, members lists individual meter names (each its own filter key).
 	// For other categories, members is empty (category IS the filter key).
 	// Categories that show sub-members in the filter dropdown.
-	var CATS_WITH_MEMBERS = ['samavṛtta', 'jāti', 'upajāti', 'ardhasamavṛtta'];
+	var CATS_WITH_MEMBERS = ['anuṣṭubh', 'samavṛtta', 'jāti', 'upajāti', 'ardhasamavṛtta'];
 
 	function buildMeterList(stateArr) {
 		var catN = {}, catNeeds = {}, memberN = {}, memberNeeds = {};
+		var anustubhHalfVerseWeight = 0;
+		// Per-subtype half-verse counts for anuṣṭubh
+		var anustubhSubN = {}, anustubhSubFull = {};
+		ANUSTUBH_SUBTYPES.forEach(function(s) { anustubhSubN[s] = 0; anustubhSubFull[s] = 0; });
 		stateArr.forEach(function(v) {
 			var base = meterBase(v);
 			var cat = meterCategoryOf(base);
@@ -642,15 +695,32 @@
 				memberN[cat][memberKey] = (memberN[cat][memberKey] || 0) + 1;
 				if (!isPerfect(v)) memberNeeds[cat][memberKey] = (memberNeeds[cat][memberKey] || 0) + 1;
 			}
+			// Anuṣṭubh: top-level full/half count + per-subtype half-verse counts
+			if (cat === 'anuṣṭubh') {
+				var isArdham = v.meter_label && v.meter_label.indexOf('ardham eva') >= 0;
+				anustubhHalfVerseWeight += isArdham ? 1 : 2;
+				var halfTypes = anustubhHalfTypes(v.meter_label || '');
+				halfTypes.forEach(function(t) { anustubhSubN[t]++; });
+				if (halfTypes.length === 2 && halfTypes[0] === halfTypes[1]) anustubhSubFull[halfTypes[0]]++;
+			}
 		});
 		return METER_CATEGORIES.filter(function(cat) { return catN[cat] > 0; }).map(function(cat) {
 			var members = [];
-			if (CATS_WITH_MEMBERS.indexOf(cat) >= 0 && memberN[cat]) {
+			if (cat === 'anuṣṭubh') {
+				members = ANUSTUBH_SUBTYPES.map(function(s) {
+					return { label: s, n: anustubhSubN[s], needs: 0, halfVerses: anustubhSubN[s], fullVerses: anustubhSubFull[s] };
+				}).sort(function(a, b) {
+					if (a.label === 'ajñātā') return 1;
+					if (b.label === 'ajñātā') return -1;
+					return b.halfVerses - a.halfVerses;
+				});
+			} else if (CATS_WITH_MEMBERS.indexOf(cat) >= 0 && memberN[cat]) {
 				members = Object.keys(memberN[cat]).map(function(k) {
 					return { label: k, n: memberN[cat][k], needs: memberNeeds[cat][k] || 0 };
 				}).sort(function(a, b) { return b.n - a.n; });
 			}
-			return { cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members };
+			var extra = (cat === 'anuṣṭubh') ? { halfVerseWeight: anustubhHalfVerseWeight } : {};
+			return Object.assign({ cat: cat, n: catN[cat], needs: catNeeds[cat] || 0, members: members }, extra);
 		});
 	}
 	var meterList = buildMeterList(verseState);
@@ -667,6 +737,7 @@
 		var panelTop = (statsBlock ? statsBlock.getBoundingClientRect().bottom : 0) + 8;
 		window.scrollTo({ top: card.getBoundingClientRect().top + window.scrollY - panelTop, behavior: 'smooth' });
 		panel.style.top = panelTop + 'px';
+		if (isMobileLayout()) setTimeout(function() { positionMobileTrigger(focusedIndex); }, 320);
 	}
 
 	function applyMeterFilter() {
@@ -680,7 +751,7 @@
 
 	// Summary row \u2014 each element goes into its own grid cell
 	var statsEl = document.getElementById('bcm-stats-summary');
-	statsEl.innerHTML = '<span style="white-space:nowrap"><span id="timing-label" style="font-size:1.6em;opacity:0.6;cursor:default" title=""></span>&nbsp;&nbsp;' + fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
+	statsEl.innerHTML = '<span class="bcm-stat-verse-count"><span id="timing-label" style="opacity:0.6;cursor:default" title=""></span>&nbsp;&nbsp;' + fmt(verses.length) + ' verse' + (verses.length !== 1 ? 's' : '') + '</span>' +
 		'<span class="bcm-stat-showing" id="showing-total" style="display:none"></span>';
 	// Correct pill
 	var btnCorrect = document.createElement('button');
@@ -701,9 +772,17 @@
 	btnRefresh.id = 'btn-refresh';
 	btnRefresh.className = 'btn-refresh';
 	btnRefresh.title = 'Refresh counts and hide resolved verses';
-	btnRefresh.innerHTML = '\u21bb refresh <span class="bcm-spinner" id="spin-refresh">&#8987;</span>';
+	btnRefresh.innerHTML = '<span class="btn-label">refresh</span><span class="btn-icon" id="icon-refresh">\u21bb</span><span class="bcm-spinner btn-icon" id="spin-refresh">&#8987;</span>';
 	btnRefresh.addEventListener('click', refreshView);
 	document.getElementById('bcm-summary-refresh').appendChild(btnRefresh);
+
+	var btnExpandAll = document.createElement('button');
+	btnExpandAll.id = 'btn-expand-all';
+	btnExpandAll.className = 'btn-refresh';
+	document.getElementById('bcm-summary-expand').appendChild(btnExpandAll);
+	btnExpandAll.addEventListener('click', toggleExpandAll);
+
+	document.getElementById('bcm-unified').style.visibility = 'visible';
 
 	// Meter filter state: keys are filter keys (category name or specific samavṛtta meter name).
 	var meterFilter = {};
@@ -728,7 +807,7 @@
 		var allKeys = getAllFilterKeys();
 		var allChecked = allKeys.every(function(k) {
 			var cb = document.getElementById('mcb-' + k);
-			return cb && cb.checked;
+			return cb ? cb.checked : meterFilterPending[k] !== false;
 		});
 		var target = !allChecked;
 		allKeys.forEach(function(k) {
@@ -754,9 +833,10 @@
 
 	function updateSelectAllCb() {
 		var keys = getAllFilterKeys();
+		var activeFilter = meterFilterPending || meterFilter;
 		var checkedCount = keys.filter(function(k) {
 			var cb = document.getElementById('mcb-' + k);
-			return cb && cb.checked;
+			return cb ? cb.checked : activeFilter[k] !== false;
 		}).length;
 		if (checkedCount === 0) {
 			cbSelectAll.checked = false; cbSelectAll.indeterminate = false;
@@ -772,9 +852,10 @@
 		var catCb = document.getElementById('mcb-cat-' + cat.cat);
 		if (!catCb) return;
 		if (cat.members.length === 0) return;
+		var activeFilter = meterFilterPending || meterFilter;
 		var checkedCount = cat.members.filter(function(m) {
 			var cb = document.getElementById('mcb-' + m.label);
-			return cb && cb.checked;
+			return cb ? cb.checked : activeFilter[m.label] !== false;
 		}).length;
 		if (checkedCount === 0) {
 			catCb.checked = false; catCb.indeterminate = false;
@@ -785,8 +866,9 @@
 		}
 	}
 
-	// Track which categories are collapsed (all start expanded).
+	// Track which categories are collapsed (all start collapsed).
 	var catCollapsed = {};
+	CATS_WITH_MEMBERS.forEach(function(cat) { catCollapsed[cat] = true; });
 
 	var totalVerses = verses.length;
 
@@ -882,6 +964,19 @@
 			catLbl.dataset.filterRow = '1';
 			catLbl.htmlFor = catCb.id;
 			catLbl.textContent = meterLabelToDisplay(cat.cat);
+			if (cat.cat === 'anuṣṭubh' && cat.halfVerseWeight != null) {
+				var halfVerses = cat.n * 2 - cat.halfVerseWeight;
+				var fullVerses = cat.n - halfVerses;
+				var wSpan = document.createElement('span');
+				wSpan.className = 'bcm-anustubh-weight';
+				wSpan.style.marginLeft = '0.5em';
+				var totalHalves = fullVerses * 2 + halfVerses;
+				wSpan.title = fmt(fullVerses) + ' verse' + (fullVerses !== 1 ? 's' : '') + ' with both halves; '
+					+ fmt(halfVerses) + ' verse' + (halfVerses !== 1 ? 's' : '') + ' with one half'
+					+ ' = ' + fmt(totalHalves) + ' half-verses';
+				wSpan.textContent = '(' + fmt(fullVerses) + ' full + ' + fmt(halfVerses) + ' half)';
+				catLbl.appendChild(wSpan);
+			}
 
 			appendGridRow(countsEl, bandClass, collapseCell, cbCell, catLbl, cat.n, cat.needs);
 			var ch = countsEl.children;
@@ -919,8 +1014,25 @@
 					subLbl.dataset.filterRow = '1';
 					subLbl.htmlFor = 'mcb-' + m.label;
 					subLbl.textContent = meterLabelToDisplay(m.label);
+					if (cat.cat === 'anuṣṭubh') {
+						var hvSpan = document.createElement('span');
+						hvSpan.style.marginLeft = '0.5em';
+						hvSpan.style.opacity = m.halfVerses > 0 ? '0.7' : '0.35';
+						var singleHalves = m.halfVerses - m.fullVerses * 2;
+						var parts = [];
+						if (m.fullVerses > 0) parts.push(fmt(m.fullVerses) + ' full');
+						if (singleHalves > 0) parts.push(fmt(singleHalves) + ' half');
+						hvSpan.textContent = '(' + (parts.length ? parts.join(' + ') : '0') + ')';
+						var tooltipParts = [];
+						if (m.fullVerses > 0) tooltipParts.push(fmt(m.fullVerses) + ' verse' + (m.fullVerses !== 1 ? 's' : '') + ' with both halves ' + m.label);
+						if (singleHalves > 0) tooltipParts.push(fmt(singleHalves) + ' verse' + (singleHalves !== 1 ? 's' : '') + ' with one half ' + m.label);
+						if (tooltipParts.length) hvSpan.title = tooltipParts.join('; ') + ' = ' + fmt(m.halfVerses) + ' half-verses';
+						subLbl.appendChild(hvSpan);
+					}
 
-					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl, m.n, m.needs);
+					appendGridRow(countsEl, subBandClass, subCollapseCell, subCbCell, subLbl,
+						cat.cat === 'anuṣṭubh' ? 0 : m.n,
+						cat.cat === 'anuṣṭubh' ? 0 : m.needs);
 					var ch2 = countsEl.children;
 					for (var j = ch2.length - 4; j < ch2.length; j++) { ch2[j].dataset.filterRow = '1'; }
 				});
@@ -936,8 +1048,7 @@
 		// Compute filtered counts from verseState directly
 		var shownTotal = 0, shownCorrect = 0, shownNeeds = 0;
 		verseState.forEach(function(v) {
-			var key = meterFilterKey(v);
-			if (meterFilter[key] !== false) {
+			if (versePassesFilter(v)) {
 				shownTotal++;
 				if (isPerfect(v)) shownCorrect++; else shownNeeds++;
 			}
@@ -951,7 +1062,8 @@
 		if (elCorrect) { elCorrect.textContent = allOn ? '' : fmt(shownCorrect) + ' selected'; elCorrect.style.display = allOn ? 'none' : 'block'; }
 		if (elNeeds)   { elNeeds.textContent   = allOn ? '' : fmt(shownNeeds) + ' selected';   elNeeds.style.display   = allOn ? 'none' : 'block'; }
 
-		// Chips: one per active category (or samavṛtta sub-meter), up to 5
+		// Chips: one per active category (collapsed if whole category on), individual members otherwise.
+		// For anuṣṭubh sub-members, prefix display with "anuṣṭubh ".
 		var chipsEl = document.getElementById('bcm-filter-chips');
 		var chipsRowEl = document.getElementById('bcm-chips-row');
 		if (!chipsEl) return;
@@ -960,15 +1072,27 @@
 		if (!allOn) {
 			if (chipsRowEl) chipsRowEl.classList.add('has-chips');
 			var chipCount = 0;
-			// Collect active keys with display labels
+			// Collect chip descriptors: { display, offKeys }
 			var activeItems = [];
 			meterList.forEach(function(cat) {
 				if (cat.members.length > 0) {
-					cat.members.forEach(function(m) {
-						if (meterFilter[m.label] !== false) activeItems.push({ key: m.label, display: meterLabelToDisplay(m.label) });
-					});
+					var onMembers = cat.members.filter(function(m) { return meterFilter[m.label] !== false; });
+					if (onMembers.length === 0) return;
+					if (onMembers.length === cat.members.length) {
+						activeItems.push({
+							display: meterLabelToDisplay(cat.cat),
+							offKeys: cat.members.map(function(m) { return m.label; })
+						});
+					} else {
+						onMembers.forEach(function(m) {
+							var display = cat.cat === 'anuṣṭubh'
+								? meterLabelToDisplay(cat.cat) + ' ' + meterLabelToDisplay(m.label)
+								: meterLabelToDisplay(m.label);
+							activeItems.push({ display: display, offKeys: [m.label] });
+						});
+					}
 				} else {
-					if (meterFilter[cat.cat] !== false) activeItems.push({ key: cat.cat, display: meterLabelToDisplay(cat.cat) });
+					if (meterFilter[cat.cat] !== false) activeItems.push({ display: meterLabelToDisplay(cat.cat), offKeys: [cat.cat] });
 				}
 			});
 			activeItems.forEach(function(item) {
@@ -982,20 +1106,25 @@
 				chip.appendChild(chipLbl);
 				var x = document.createElement('button');
 				x.className = 'bcm-filter-chip-x';
-				x.textContent = '\u00d7';
+				x.textContent = '×';
 				x.title = 'remove filter';
-				(function(key) {
+				(function(offKeys) {
 					x.addEventListener('click', function() {
-						meterFilter[key] = false;
-						if (meterFilterPending) meterFilterPending[key] = false;
-						var cb = document.getElementById('mcb-' + key);
-						if (cb) { cb.checked = false; }
-						// Update parent cat cb if this is a samavṛtta member
+						offKeys.forEach(function(key) {
+							meterFilter[key] = false;
+							if (meterFilterPending) meterFilterPending[key] = false;
+							var cb = document.getElementById('mcb-' + key);
+							if (cb) cb.checked = false;
+						});
 						meterList.forEach(function(cat) { updateCatCb(cat); });
 						updateSelectAllCb();
-						applyMeterFilter();
+						setFilterBtnSpinner();
+						setTimeout(function() {
+							applyMeterFilter();
+							setFilterBtnArrow(false);
+						}, 0);
 					});
-				})(item.key);
+				})(item.offKeys);
 				chip.appendChild(x);
 				chipsEl.appendChild(chip);
 			});
@@ -1009,11 +1138,24 @@
 		}
 	}
 
+	function setFilterBtnArrow(open) {
+		var arrow = document.getElementById('meter-counts-arrow');
+		var spin  = document.getElementById('spin-filter');
+		if (arrow) { arrow.innerHTML = open ? '&#9660;' : '&#9654;'; arrow.style.display = 'inline'; }
+		if (spin)  spin.style.display = 'none';
+	}
+
+	function setFilterBtnSpinner() {
+		var arrow = document.getElementById('meter-counts-arrow');
+		var spin  = document.getElementById('spin-filter');
+		if (arrow) arrow.style.display = 'none';
+		if (spin)  spin.style.display = 'inline';
+	}
+
 	window.toggleMeterCounts = function() {
 		var unifiedEl = document.getElementById('bcm-unified');
-		var btn = document.getElementById('meter-counts-toggle');
 		var open = unifiedEl.classList.toggle('filter-open');
-		btn.innerHTML = 'filter ' + (open ? '&#9660;' : '&#9654;');
+		setFilterBtnArrow(open);
 		if (open) {
 
 			var allKeys = getAllFilterKeys();
@@ -1042,8 +1184,12 @@
 			} else {
 				meterFilter = Object.assign({}, meterFilterPending);
 			}
-			applyMeterFilter();
 			meterFilterPending = null;
+			setFilterBtnSpinner();
+			setTimeout(function() {
+				applyMeterFilter();
+				setFilterBtnArrow(false);
+			}, 0);
 		}
 	};
 
@@ -1068,7 +1214,7 @@
 	// isLenError: row-level highlight (hypermetric/hypometric)
 	// imperfectLabel: string to show to the right of this pāda row, or null
 	function getPadaDiagInfo(diag, padaIdx, numPadas) {
-		var empty = { probSet: {}, isLenError: false, imperfectLabel: null };
+		var empty = { probSet: {}, ps: null, isLenError: false, imperfectLabel: null };
 		if (!diag) return empty;
 
 		if (diag.type === 'pada') {
@@ -1080,7 +1226,7 @@
 			var ps       = diag.problem_syllables         && diag.problem_syllables[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
-			if (!lenError && ps) ps.forEach(function(i) { probSet[i] = true; });
+			if (ps) ps.forEach(function(i) { probSet[i] = true; });
 			// Show label on this pada if it has bad syllables; if this pada has no bad
 			// syllables but is the first labeled pada, show it there as fallback.
 			var showLabel = false;
@@ -1102,7 +1248,7 @@
 					showLabel = (firstLabeledNoBad === padaIdx + 1);
 				}
 			}
-			return { probSet: probSet, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
+			return { probSet: probSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
 		}
 
 		if (diag.type === 'half') {
@@ -1126,7 +1272,7 @@
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			return { probSet: probSet2, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
+			return { probSet: probSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
 		}
 
 		return empty;
@@ -1251,20 +1397,20 @@
 		var gaRaPadas = (v.gaRa_abbreviations || '').split('\n').map(function(p) { return p.trim(); });
 		var morae     = v.morae_per_line || [];
 		var diag      = v.diagnostic || null;
-		var isUpajati    = v.meter_label && v.meter_label.indexOf('upaj\u0101ti') >= 0;
-		var isJati       = !isUpajati && v.meter_label && (
-			v.meter_label.indexOf('j\u0101ti') >= 0 ||
-			v.meter_label.indexOf('\u0101ry\u0101') >= 0 ||
-			v.meter_label.indexOf('g\u012bti') >= 0 ||
-			v.meter_label.indexOf('vait\u0101l\u012bya') >= 0 ||
-			v.meter_label.indexOf('m\u0101tr\u0101') >= 0
+		// Use only the first alternative (before " atha v\u0101 ") for rendering decisions
+		var primaryLabel = v.meter_label ? v.meter_label.split(' atha v\u0101 ')[0] : '';
+		var isUpajati    = primaryLabel.indexOf('upaj\u0101ti') >= 0;
+		var isJati       = !isUpajati && (
+			primaryLabel.indexOf('j\u0101ti') >= 0 ||
+			primaryLabel.indexOf('\u0101ry\u0101') >= 0 ||
+			primaryLabel.indexOf('g\u012bti') >= 0 ||
+			primaryLabel.indexOf('vait\u0101l\u012bya') >= 0 ||
+			primaryLabel.indexOf('m\u0101tr\u0101') >= 0
 		);
-		var isUnknownM   = !v.meter_label || v.meter_label.indexOf('adhyavasitam') >= 0;
-		var isAnustubh   = v.meter_label && (
-			v.meter_label.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
-			v.meter_label.indexOf('anustubh') >= 0 ||
-			v.meter_label.indexOf('ardham eva') >= 0
-		);
+		var isUnknownM   = !v.meter_label || primaryLabel.indexOf('adhyavasitam') >= 0;
+		var isAnustubh   = primaryLabel.indexOf('anu\u1e63\u1e6dubh') >= 0 ||
+		                   primaryLabel.indexOf('anustubh') >= 0 ||
+		                   primaryLabel.indexOf('ardham eva') >= 0;
 		// Half-anuṣṭubh (ardham eva): library gives 4 pādas of 4 syls → show as 2 pādas of 8
 		if (isAnustubh && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
 			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
@@ -1334,13 +1480,32 @@
 			var moraeVal = morae[p];
 			if (!sylStr && !wtStr) continue;
 
-			var info     = padaDiagInfos[p] || { probSet: {}, isLenError: false, imperfectLabel: null };
+			var info     = padaDiagInfos[p] || { probSet: {}, ps: null, isLenError: false, imperfectLabel: null };
 			var probSet  = info.probSet;
+			var ps       = info.ps;
 			var lenError = info.isLenError;
 
 			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
 			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });
 			var ganaChars = gaRaStr ? gaRaStr.split('') : [];
+
+			// Precise length-error handling: inject a blank cell at the gap position for
+			// hypometric pādas, or mark the specific extra syllable for hypermetric.
+			// problem_syllables encodes gap positions as -(canonical_pos + 1) (always negative).
+			var hyperIdx = null;  // index of extra syllable (hypermetric)
+			var gapIdx   = null;  // canonical column to insert blank (hypometric)
+			// Only use precise index when problem_syllables is a single Levenshtein-derived
+			// entry (not the old full-range encoding from upajāti/anuṣṭubh).
+			if (lenError && ps && ps.length === 1) {
+				var v = ps[0];
+				if (v >= 0) hyperIdx = v;
+				else        gapIdx   = (-v) - 1;  // recover canonical_pos
+			}
+			if (gapIdx !== null) {
+				sylList.splice(gapIdx, 0, '​');  // zero-width space = blank cell marker
+				wtList.splice(gapIdx,  0, '');
+			}
+
 			var numSyls   = Math.max(sylList.length, wtList.length);
 
 			function makeSylBox(j) {
@@ -1348,9 +1513,15 @@
 				var wt     = wtList[j]  || '';
 				var isL    = wt.toUpperCase() === 'L';
 				var isG    = wt.toUpperCase() === 'G';
-				var isProb = !lenError && probSet[j];
+				var isMissing = (sylList[j] === '​');
+				var isProb = isMissing ? false
+				           : lenError  ? (hyperIdx !== null && j === hyperIdx)
+				           : !!(probSet && probSet[j]);
 				var box    = document.createElement('div');
-				box.className = 'syl-box ' + (optWeights && isL ? 'L' : optWeights && isG ? 'G' : '') + (isProb ? ' problem' : '');
+				box.className = 'syl-box'
+				              + (isMissing ? ' missing-syl' : '')
+				              + (optWeights && !isMissing && isL ? ' L' : optWeights && !isMissing && isG ? ' G' : '')
+				              + (isProb ? ' problem' : '');
 				if (optWeights) {
 					var sc = document.createElement('div'); sc.className = 'scan';
 					sc.textContent = isL ? slpGanaToDisplay('l') : isG ? slpGanaToDisplay('g') : wt;
@@ -1453,19 +1624,28 @@
 				}
 				var singleChars = effectiveGanas.slice(numTriGanas);
 				singleChars.forEach(function(gChar) {
+					if (sylIdx >= numSyls) return;  // no syllable left to render
 					var wrap = document.createElement('div');
 					wrap.className = 'gana-single';
 					var boxWrap = document.createElement('div');
 					boxWrap.className = 'gana-single-box';
-					if (sylIdx < numSyls) boxWrap.appendChild(makeSylBox(sylIdx++));
+					boxWrap.appendChild(makeSylBox(sylIdx++));
 					wrap.appendChild(boxWrap);
 					var lbl = document.createElement('div');
 					lbl.className = 'gana-label';
-					lbl.textContent = slpGanaToDisplay(gChar);
+					lbl.innerHTML = slpGanaToDisplay(gChar) || '&nbsp;';
 					wrap.appendChild(lbl);
 					row.appendChild(wrap);
 				});
-				while (sylIdx < numSyls) { row.appendChild(makeSylBox(sylIdx++)); }
+				while (sylIdx < numSyls) {
+						var tw = document.createElement('div'); tw.className = 'gana-single';
+						var tb = document.createElement('div'); tb.className = 'gana-single-box';
+						tb.appendChild(makeSylBox(sylIdx++));
+						tw.appendChild(tb);
+						var tl = document.createElement('div'); tl.className = 'gana-label'; tl.innerHTML = '&nbsp;';
+						tw.appendChild(tl);
+						row.appendChild(tw);
+					}
 			}
 
 			var wrap = document.createElement('div');
@@ -1512,6 +1692,8 @@
 	var showCorrect = false;
 	var showNeeds   = true;
 	var expandedPerfect = {};
+	var allExpanded = false;
+	var EXPAND_WARN_THRESHOLD = 100;
 
 	function updateFilterButtons() {
 		var bc = document.getElementById('btn-filter-correct');
@@ -1526,6 +1708,7 @@
 		updateFilterButtons();
 		setTimeout(function() {
 			expandedPerfect = {};
+			allExpanded = false;
 			renderCards();
 			if (spin) spin.style.display = 'none';
 		}, 0);
@@ -1536,8 +1719,48 @@
 		else                     { showNeeds   = !showNeeds;   triggerRender('spin-needs'); }
 	}
 
+	function displayedCardCount() {
+		var n = 0;
+		verseState.forEach(function(_, idx) { if (document.getElementById('verse-card-' + idx)) n++; });
+		return n;
+	}
+
+	function updateExpandAllBtn() {
+		var btn = document.getElementById('btn-expand-all');
+		if (!btn) return;
+		var n = displayedCardCount();
+		var warn = n > EXPAND_WARN_THRESHOLD
+			? ' <span style="color:#c00;font-style:normal" title="' + n + ' cards — may be slow">⚠</span>'
+			: '';
+		btn.innerHTML = '<span class="btn-label">' + (allExpanded ? 'collapse all' : 'expand all') + '</span>'
+			+ '<span class="btn-icon">↕' + warn + '</span>';
+		btn.title = (allExpanded ? 'Collapse' : 'Expand') + ' all displayed cards'
+			+ (n > EXPAND_WARN_THRESHOLD ? ' (' + n + ' cards — may be slow)' : '');
+	}
+
+	function toggleExpandAll() {
+		allExpanded = !allExpanded;
+		verseState.forEach(function(_, idx) {
+			var card = document.getElementById('verse-card-' + idx);
+			if (!card) return;
+			if (allExpanded) {
+				if (card.classList.contains('compact')) {
+					expandedPerfect[idx] = true;
+					card.classList.remove('compact');
+					if (!document.getElementById('verse-scan-' + idx)) buildCardBody(card, idx);
+				}
+			} else {
+				card.classList.add('compact');
+				expandedPerfect[idx] = false;
+			}
+		});
+		updateExpandAllBtn();
+	}
+
 	function refreshView() {
+		var icon = document.getElementById('icon-refresh');
 		var spin = document.getElementById('spin-refresh');
+		if (icon) icon.style.display = 'none';
 		if (spin) spin.style.display = 'inline';
 		setTimeout(function() {
 			// Rebuild meter list and recount from current verseState
@@ -1558,8 +1781,11 @@
 			updateFilterUI();
 			// Re-render: cards no longer matching current filter disappear
 			expandedPerfect = {};
+			allExpanded = false;
 			renderCards();
+			var icon2 = document.getElementById('icon-refresh');
 			var spin2 = document.getElementById('spin-refresh');
+			if (icon2) icon2.style.display = 'inline';
 			if (spin2) spin2.style.display = 'none';
 		}, 0);
 	}
@@ -1605,7 +1831,7 @@
 			var perf = isPerfect(v);
 			if (perf  && !showCorrect) return;
 			if (!perf && !showNeeds)   return;
-			if (meterFilter[meterFilterKey(v)] === false) return;
+			if (!versePassesFilter(v)) return;
 			var isCompact = perf && !expandedPerfect[idx];
 			var card = buildCard(idx, isCompact);
 			if (focusedIndex === idx) card.classList.add('focused');
@@ -1623,6 +1849,7 @@
 			var focusedCard = document.getElementById('verse-card-' + focusedIndex);
 			if (focusedCard) scrollToCard(focusedCard);
 		}
+		updateExpandAllBtn();
 	}
 
 	updateFilterButtons();
@@ -1686,6 +1913,28 @@
 		panel.style.top = cardTop + 'px';
 	}
 
+	// Floating wrench trigger for mobile (replaces in-header gear button)
+	var mobileTrigger = document.createElement('button');
+	mobileTrigger.id = 'bcm-mobile-trigger';
+	mobileTrigger.className = 'bcm-mobile-trigger';
+	mobileTrigger.title = 'Verse options';
+	mobileTrigger.textContent = '🛠';
+	document.body.appendChild(mobileTrigger);
+	mobileTrigger.addEventListener('click', function() {
+		openBottomSheet(focusedIndex !== null ? focusedIndex : 0);
+	});
+	function positionMobileTrigger(idx) {
+		if (!isMobileLayout()) return;
+		if (idx === null || idx === undefined) {
+			mobileTrigger.style.top = (document.querySelector('.bcm-stats-block').getBoundingClientRect().bottom + 8) + 'px';
+			return;
+		}
+		var card = document.getElementById('verse-card-' + idx);
+		if (!card) return;
+		mobileTrigger.style.top = Math.max(card.getBoundingClientRect().top, stickyHeaderH + 8) + 'px';
+	}
+	requestAnimationFrame(function() { positionMobileTrigger(null); });
+
 	function closeMeterFilter() {
 		var unifiedEl = document.getElementById('bcm-unified');
 		if (unifiedEl && unifiedEl.classList.contains('filter-open')) window.toggleMeterCounts();
@@ -1706,7 +1955,7 @@
 		if (card) card.classList.add('focused');
 		panel.classList.add('visible');
 		positionPanel(idx);
-
+		if (isMobileLayout()) positionMobileTrigger(idx);
 	}
 
 	// --- Auto-run on option changes ---
@@ -1902,7 +2151,7 @@
 	// === Mobile bottom sheet + nav bar ===
 
 	function isMobileLayout() {
-		return window.matchMedia('(max-width: 768px)').matches;
+		return window.matchMedia('(max-width: 900px)').matches;
 	}
 
 	var SHEET_FIELD_MAP = [
@@ -2009,17 +2258,14 @@
 	document.getElementById('sheet-btn-scan').addEventListener('click', function() {
 		syncSheetToPanel();
 		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
-		closeBottomSheet();
 		panelScan();
 	});
 	document.getElementById('sheet-btn-identify').addEventListener('click', function() {
 		syncSheetToPanel();
 		if (focusedIndex !== null) verseOpts[focusedIndex] = getPanelOpts();
-		closeBottomSheet();
 		panelReidentify();
 	});
 	document.getElementById('sheet-btn-clear').addEventListener('click', function() {
-		closeBottomSheet();
 		panelClear();
 	});
 
@@ -2057,30 +2303,6 @@
 		mobileNavBar.appendChild(btnMUp);
 		mobileNavBar.appendChild(btnMDown);
 	}
-
-	function injectGearButtons() {
-		if (!isMobileLayout()) return;
-		document.querySelectorAll('.verse-card').forEach(function(card) {
-			var hdr = card.querySelector('.verse-card-header');
-			if (!hdr || hdr.querySelector('.bcm-panel-trigger')) return;
-			var idx = parseInt(card.dataset.idx, 10);
-			var btn = document.createElement('button');
-			btn.className = 'bcm-panel-trigger';
-			btn.title = 'Verse options';
-			btn.setAttribute('aria-label', 'Open verse options');
-			btn.textContent = '⚙';
-			btn.addEventListener('click', function(e) {
-				e.stopPropagation();
-				openBottomSheet(idx);
-			});
-			var numSpan = hdr.querySelector('.verse-num');
-			numSpan ? hdr.insertBefore(btn, numSpan) : hdr.appendChild(btn);
-		});
-	}
-	injectGearButtons();
-	new MutationObserver(function() {
-		injectGearButtons();
-	}).observe(document.getElementById('bcm-verses'), { childList: true });
 
 })();
 </script>
