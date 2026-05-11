@@ -4,6 +4,9 @@ launch:
 launch-profiling:
 	./launch.sh --scan-profiling
 
+launch-profiling-no-parallel:
+	./launch.sh --scan-profiling --no-parallel
+
 # for temporary local builds
 # to use: make run
 run:
