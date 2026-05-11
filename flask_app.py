@@ -397,28 +397,37 @@ def upload_file():
 			verses = input_data.splitlines() # during post \n >> \r\n
 
 			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-				from skrutable.meter_identification import flush_profiling_report, _category_totals
+				from skrutable.meter_identification import flush_profiling_report, _category_totals, BATCH_MAX_WORKERS
 				from skrutable.utils import _section_totals
 				_section_totals.clear()
 				_category_totals.clear()
 
-			if session.get("batch_correction_mode"):
-
-				verse_data = []
+			r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
+			if os.environ.get('SKRUTABLE_NO_PARALLEL'):
 				try:
 					from tqdm import tqdm as _tqdm
 					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
 				except ImportError:
 					_verse_iter = verses
-				for verse in _verse_iter:
-					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
-						verse,
-						from_scheme=resolved_from_scheme,
-						resplit_option=session["resplit_option"],
+				verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=resolved_from_scheme) for s in _verse_iter]
+			else:
+				verse_objects = MI.identify_meter_batch(
+					verses,
+					resplit_option=r_o,
+					resplit_keep_midpoint=r_k_m,
+					from_scheme=resolved_from_scheme,
+				)
+
+			if session.get("batch_correction_mode"):
+
+				verse_data = []
+				for V in verse_objects:
+					summary = V.summarize(
 						show_weights=session["weights"],
 						show_morae=session["morae"],
 						show_gaRas=session["gaRas"],
 						show_alignment=session["alignment"],
+						show_label=True,
 					)
 					verse_data.append({
 						"text_raw": V.text_raw,
@@ -433,12 +442,15 @@ def upload_file():
 						"summary": summary,
 					})
 
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report()
-
 				ending_time = datetime.now().time()
 				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
 				duration_secs = delta.seconds + delta.microseconds / 1000000
+
+				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report(
+						wall_clock_secs=duration_secs,
+						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+					)
 
 				import json as _json
 				return render_template(
@@ -462,35 +474,30 @@ def upload_file():
 			else:
 
 				output_data = ''
-				try:
-					from tqdm import tqdm as _tqdm
-					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
-				except ImportError:
-					_verse_iter = verses
-				for verse in _verse_iter:
-
-					summary, meter_label_hk, melody_options_list, V = do_identify_meter(
-						verse,
-						from_scheme=resolved_from_scheme,
-						resplit_option=session["resplit_option"],
+				for V in verse_objects:
+					summary = V.summarize(
 						show_weights=session["weights"],
 						show_morae=session["morae"],
 						show_gaRas=session["gaRas"],
 						show_alignment=session["alignment"],
+						show_label=True,
 					)
-
 					output_data += V.text_raw + '\n\n' + summary + '\n'
 
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report()
+			ending_time = datetime.now().time()
 
-				ending_time = datetime.now().time()
+			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+			duration_secs = delta.seconds + delta.microseconds / 1000000
 
-				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-				duration_secs = delta.seconds + delta.microseconds / 1000000
-				output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
+			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+					flush_profiling_report(
+						wall_clock_secs=duration_secs,
+						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+					)
 
-				output_fn_suffix = '_meter_identified'
+			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
+
+			output_fn_suffix = '_meter_identified'
 
 		elif session["skrutable_action"] == "split":
 
