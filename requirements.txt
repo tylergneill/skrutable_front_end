@@ -10,7 +10,7 @@ charset-normalizer==3.4.7
     # via requests
 click==8.3.3
     # via flask
-cryptography==47.0.0
+cryptography==48.0.0
     # via google-auth
 flask==3.1.3
     # via -r requirements.in
@@ -19,25 +19,25 @@ google-api-core==2.30.3
     #   google-cloud-core
     #   google-cloud-storage
     #   google-cloud-vision
-google-auth==2.49.2
+google-auth==2.52.0
     # via
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
     #   google-cloud-vision
-google-cloud-core==2.5.1
+google-cloud-core==2.6.0
     # via google-cloud-storage
 google-cloud-storage==3.10.1
     # via -r requirements.in
-google-cloud-vision==3.13.0
+google-cloud-vision==3.14.0
     # via -r requirements.in
 google-crc32c==1.8.0
     # via
     #   google-cloud-storage
     #   google-resumable-media
-google-resumable-media==2.8.2
+google-resumable-media==2.9.0
     # via google-cloud-storage
-googleapis-common-protos==1.74.0
+googleapis-common-protos==1.75.0
     # via
     #   google-api-core
     #   grpcio-status
@@ -48,9 +48,9 @@ grpcio==1.80.0
     #   grpcio-status
 grpcio-status==1.80.0
     # via google-api-core
-gunicorn==25.3.0
+gunicorn==26.0.0
     # via -r requirements.in
-idna==3.13
+idna==3.14
     # via requests
 itsdangerous==2.2.0
     # via flask
@@ -67,7 +67,7 @@ numpy==2.4.4
     # via skrutable
 packaging==26.2
     # via gunicorn
-proto-plus==1.27.2
+proto-plus==1.28.0
     # via
     #   google-api-core
     #   google-cloud-vision
@@ -90,11 +90,11 @@ requests==2.33.1
     #   google-api-core
     #   google-cloud-storage
     #   skrutable
-skrutable==2.6.0
+skrutable==2.6.2
     # via -r requirements.in
 typing-extensions==4.15.0
     # via grpcio
-urllib3==2.6.3
+urllib3==2.7.0
     # via requests
 werkzeug==3.1.8
     # via
