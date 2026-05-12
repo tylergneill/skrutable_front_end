@@ -192,6 +192,7 @@ extra_option_names = [
 	"splitter_model",
 	"batch_correction_mode",
 	"explanation_language",
+	"input_mode",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -267,6 +268,7 @@ def _init_session_defaults():
 		"splitter_model": "dharmamitra_2024_sept",
 		"batch_correction_mode": 0,
 		"explanation_language": "sanskrit",
+		"input_mode": "text",
 	}
 	for k, v in defaults.items():
 		session.setdefault(k, v)

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% set active_page = 'workbench' %}
-{% set page_mode = 'workbench' %}
+{% set page_mode = 'file' if input_mode == 'file' else 'workbench' %}
 
 {% block head_extra %}
 	<meta property='og:title' content='skrutable'/>
@@ -17,7 +17,7 @@
 
 {% block content %}
 	<!-- Text workbench view -->
-	<div id="workbench-view">
+	<div id="workbench-view"{% if input_mode == 'file' %} style="display:none;"{% endif %}>
 		<form id="overall_form" action="/" method="POST">
 			<!-- hidden inputs synced by JS for POST submissions -->
 			<input type="hidden" name="skrutable_action" id="hidden_action" value="transliterate"/>
@@ -34,7 +34,7 @@
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
 				<div class="textarea-action-row">
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="clearTextAreas();" title="Clear text boxes">&#x2715;</button>
-					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action %}disabled{% endif %}>&#x21BA;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action or input_mode == 'file' %}disabled{% endif %}>&#x21BA;</button>
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
 				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
@@ -54,7 +54,7 @@
 	</div>
 
 	<!-- File upload view (hidden by default) -->
-	<div id="upload-view" style="display:none;" class="page-content upload-file-info">
+	<div id="upload-view"{% if input_mode != 'file' %} style="display:none;"{% endif %} class="page-content upload-file-info">
 		<form action="/upload_file" method="POST" enctype="multipart/form-data" id="upload_form">
 			<h1 id="action_heading">file upload</h1>
 			<div class="settings-group" id="options_display"></div>
@@ -86,6 +86,7 @@
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentInputMode = "{{ input_mode|default('text') }}";
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {
@@ -148,6 +149,8 @@
 			uploadView.style.display = "none";
 			actionBtns.forEach(function(b) { b.disabled = false; });
 		}
+		currentInputMode = mode;
+		saveSettingsToSession();
 	}
 
 	// --- Text persistence ---
@@ -671,6 +674,10 @@
 		});
 
 		highlightActionButton(currentAction);
+		if (currentInputMode === "file") {
+			highlightUploadButton(currentAction);
+			updateOptionsDisplay();
+		}
 		restoreTexts();
 
 		// Initialize melody dropdown from server data (for examples)
