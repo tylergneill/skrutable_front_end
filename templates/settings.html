@@ -22,7 +22,11 @@
 				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">ã / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
 			</p>
 
-			<h2>meter identification</h2>
+			<h2>scansion and meter identification</h2>
+			<p>
+				<input type="checkbox" id="workbench_meter_html_output" name="workbench_meter_html_output" value="workbench_meter_html_output" {% if workbench_meter_html_output|default(0)|int %}checked{% endif %}>
+				<label for="workbench_meter_html_output">workbench: show visual scansion output (text | html toggle)</label>
+			</p>
 			<p>
 				<input type="checkbox" id="batch_correction_mode" name="batch_correction_mode" value="batch_correction_mode" {% if batch_correction_mode|default(0)|int %}checked{% endif %}>
 				<label for="batch_correction_mode">batch correction mode (file upload: show interactive HTML results instead of plain-text download)</label>
@@ -83,7 +87,8 @@
 	}
 
 	function toggle_explanation_language() {
-		var enabled = document.getElementById("batch_correction_mode").checked;
+		var enabled = document.getElementById("batch_correction_mode").checked ||
+		              document.getElementById("workbench_meter_html_output").checked;
 		var sel = document.getElementById("explanation_language");
 		var lbl = document.getElementById("explanation_language_label");
 		sel.disabled = !enabled;
@@ -114,6 +119,8 @@
 			document.getElementById("preserve_compound_hyphens").checked ? "true" : "false");
 		fd.append("splitter_model",
 			document.getElementById("splitter_model").value);
+		fd.append("workbench_meter_html_output",
+			document.getElementById("workbench_meter_html_output").checked ? "true" : "false");
 		fd.append("batch_correction_mode",
 			document.getElementById("batch_correction_mode").checked ? "true" : "false");
 		fd.append("explanation_language",
@@ -133,6 +140,7 @@
 	document.getElementById("preserve_anunasika").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
+	document.getElementById("workbench_meter_html_output").addEventListener("change", function() { toggle_explanation_language(); saveAll(); });
 	document.getElementById("batch_correction_mode").addEventListener("change", function() { toggle_explanation_language(); saveAll(); });
 	document.getElementById("explanation_language").addEventListener("change", saveAll);
 
@@ -143,6 +151,7 @@
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
+		document.getElementById("workbench_meter_html_output").checked = false;
 		document.getElementById("batch_correction_mode").checked = false;
 		document.getElementById("explanation_language").value = "sanskrit";
 		toggle_explanation_language();
