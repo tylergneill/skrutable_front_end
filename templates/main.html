@@ -7,6 +7,8 @@
 	<meta property='og:image' content='/assets/ui_screenshot.png'/>
 	<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
 	<meta property='og:url' content='https://www.skrutable.info'/>
+	<script src="https://cdn.jsdelivr.net/npm/skrutable-js@2.1.4/dist/skrutable.bundle.js"></script>
+	<script src="/assets/js/scan_rendering.js"></script>
 {% endblock %}
 
 {% block sidebar_controls %}
@@ -33,11 +35,16 @@
 			<div class="textarea-swap-group">
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
 				<div class="textarea-action-row">
+					<div class="output-mode-toggle">
+						<button type="button" id="toggle_output_text" class="toggle-btn active" onclick="setOutputMode('text');">text</button>
+						<button type="button" id="toggle_output_html" class="toggle-btn" onclick="setOutputMode('html');">html</button>
+					</div>
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="clearTextAreas();" title="Clear text boxes">&#x2715;</button>
 					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action or input_mode == 'file' %}disabled{% endif %}>&#x21BA;</button>
-					<button type="button" class="btn btn-primary btn-textarea-action" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action" id="swap_texts_button" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
 				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
+				<div id="html_output" class="verse-scansion workbench-scansion" style="display:none;"></div>
 			</div>
 
 			<!-- melody player -->
@@ -86,6 +93,8 @@
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentWbMeterHtmlOutput = {{ workbench_meter_html_output|default(0)|int }} === 1;
+	var currentExplanationLang = "{{ explanation_language|default('sanskrit') }}";
 	var currentInputMode = "{{ input_mode|default('text') }}";
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
@@ -181,6 +190,7 @@
 	function clearTextAreas() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
+		document.getElementById("html_output").innerHTML = "";
 		saveTexts();
 		hideMelodyPlayer();
 		var opt = document.getElementById("auto_scheme_option");
@@ -203,6 +213,53 @@
 	function repeatLastAction() {
 		if (!currentAction) return;
 		onActionButton(currentAction);
+	}
+
+	// --- Output mode toggle (text / html) ---
+	var currentOutputMode = currentWbMeterHtmlOutput ? 'html' : 'text';
+
+	function setOutputMode(mode) {
+		currentOutputMode = mode;
+		currentWbMeterHtmlOutput = (mode === 'html');
+		saveSettingsToSession();
+		var txtOut = document.getElementById('text_output');
+		var htmlOut = document.getElementById('html_output');
+		var swapBtn = document.getElementById('swap_texts_button');
+		var textBtn = document.getElementById('toggle_output_text');
+		var htmlBtn = document.getElementById('toggle_output_html');
+		if (mode === 'html') {
+			txtOut.style.display = 'none';
+			htmlOut.style.display = '';
+			swapBtn.disabled = true;
+			swapBtn.style.opacity = '0.4';
+			textBtn.classList.remove('active');
+			htmlBtn.classList.add('active');
+		} else {
+			txtOut.style.display = '';
+			htmlOut.style.display = 'none';
+			swapBtn.disabled = false;
+			swapBtn.style.opacity = '';
+			textBtn.classList.add('active');
+			htmlBtn.classList.remove('active');
+		}
+	}
+
+	function renderHtmlOutput(data) {
+		var s = getSidebarSettings();
+		var T = new Skrutable.Transliterator();
+		ScansionRenderer.init(
+			s.to_scheme || 'IAST',
+			function(text, from, to) { return T.transliterate(text, from, to); },
+			currentExplanationLang
+		);
+		var el = document.getElementById('html_output');
+		el.innerHTML = '';
+		ScansionRenderer.render(el, data, {
+			weights:   s.weights,
+			morae:     s.morae,
+			gaRas:     s.gaRas,
+			alignment: s.alignment,
+		});
 	}
 
 	// --- Swap helpers ---
@@ -284,8 +341,12 @@
 				body: fd,
 			});
 			var data = await resp.json();
-			document.getElementById("text_output").value = data.result;
-			saveTexts();
+			if (currentOutputMode === 'html') {
+				renderHtmlOutput(data);
+			} else {
+				document.getElementById("text_output").value = data.result;
+				saveTexts();
+			}
 			set_action("scan");
 			hideMelodyPlayer();
 			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
@@ -316,8 +377,12 @@
 				body: fd,
 			});
 			var data = await resp.json();
-			document.getElementById("text_output").value = data.result;
-			saveTexts();
+			if (currentOutputMode === 'html') {
+				renderHtmlOutput(data);
+			} else {
+				document.getElementById("text_output").value = data.result;
+				saveTexts();
+			}
 			set_action("identify meter");
 
 			// Update melody player from response
@@ -548,9 +613,26 @@
 		]);
 	}
 
+	function makeSelectCell(id, options, selected, disabled) {
+		var attrs = ' id="inline_' + id + '"' + (disabled ? ' disabled style="opacity:0.4"' : '');
+		var html = '<select' + attrs + '>';
+		options.forEach(function(o) {
+			html += '<option value="' + o.value + '"' + (o.value === selected ? ' selected' : '') + '>' + o.label + '</option>';
+		});
+		html += '</select>';
+		return html;
+	}
+
 	function makeExtraIdentifyMeter() {
+		var langDisabled = !currentBatchCorrectionMode;
+		var langCell = makeSelectCell("explanation_language", [
+			{value: "sanskrit", label: "Sanskrit"},
+			{value: "english",  label: "English"},
+		], currentExplanationLang, langDisabled);
+		var langLabel = '<span' + (langDisabled ? ' style="opacity:0.4"' : '') + '>explanations default</span>';
 		return makeTableWithControls("meter identification", [
 			["batch correction mode", makeCheckboxCell("batch_correction_mode", currentBatchCorrectionMode, false)],
+			[langLabel, langCell],
 		]);
 	}
 
@@ -594,7 +676,17 @@
 		bindCheckbox("preserve_anunasika", function() { return currentPreserveAnunasika; }, function(v) { currentPreserveAnunasika = v; });
 		bindCheckbox("preserve_punctuation", function() { return currentPreservePunctuation; }, function(v) { currentPreservePunctuation = v; });
 		bindCheckbox("preserve_compound_hyphens", function() { return currentPreserveCompoundHyphens; }, function(v) { currentPreserveCompoundHyphens = v; });
-		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) { currentBatchCorrectionMode = v; updateOptionsDisplay(); });
+		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) {
+			currentBatchCorrectionMode = v;
+			updateOptionsDisplay();
+		});
+		var langEl = document.getElementById("inline_explanation_language");
+		if (langEl) {
+			langEl.addEventListener("change", function() {
+				currentExplanationLang = this.value;
+				saveSettingsToSession();
+			});
+		}
 	}
 
 	function makeTable(caption, rows) {
@@ -655,6 +747,7 @@
 		addHidden("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 		addHidden("preserve_anunasika", currentPreserveAnunasika);
 		addHidden("batch_correction_mode", currentBatchCorrectionMode);
+		addHidden("workbench_meter_html_output", currentWbMeterHtmlOutput);
 		["weights", "morae", "gaRas", "alignment"].forEach(function(id) {
 			if (s[id]) addHidden("scan_detail", id);
 		});
@@ -679,6 +772,7 @@
 			updateOptionsDisplay();
 		}
 		restoreTexts();
+		setOutputMode(currentOutputMode);
 
 		// Initialize melody dropdown from server data (for examples)
 		if (currentMelodyOptions.length > 0) {
