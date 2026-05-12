@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% set active_page = 'workbench' %}
-{% set page_mode = 'workbench' %}
+{% set page_mode = 'file' if input_mode == 'file' else 'workbench' %}
 
 {% block head_extra %}
 	<meta property='og:title' content='skrutable'/>
@@ -17,7 +17,7 @@
 
 {% block content %}
 	<!-- Text workbench view -->
-	<div id="workbench-view">
+	<div id="workbench-view"{% if input_mode == 'file' %} style="display:none;"{% endif %}>
 		<form id="overall_form" action="/" method="POST">
 			<!-- hidden inputs synced by JS for POST submissions -->
 			<input type="hidden" name="skrutable_action" id="hidden_action" value="transliterate"/>
@@ -34,7 +34,7 @@
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
 				<div class="textarea-action-row">
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="clearTextAreas();" title="Clear text boxes">&#x2715;</button>
-					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action %}disabled{% endif %}>&#x21BA;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action or input_mode == 'file' %}disabled{% endif %}>&#x21BA;</button>
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
 				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
@@ -54,7 +54,7 @@
 	</div>
 
 	<!-- File upload view (hidden by default) -->
-	<div id="upload-view" style="display:none;" class="page-content upload-file-info">
+	<div id="upload-view"{% if input_mode != 'file' %} style="display:none;"{% endif %} class="page-content upload-file-info">
 		<form action="/upload_file" method="POST" enctype="multipart/form-data" id="upload_form">
 			<h1 id="action_heading">file upload</h1>
 			<div class="settings-group" id="options_display"></div>
@@ -86,6 +86,7 @@
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentInputMode = "{{ input_mode|default('text') }}";
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {
@@ -148,6 +149,8 @@
 			uploadView.style.display = "none";
 			actionBtns.forEach(function(b) { b.disabled = false; });
 		}
+		currentInputMode = mode;
+		saveSettingsToSession();
 	}
 
 	// --- Text persistence ---
@@ -418,8 +421,6 @@
 	}
 
 	// --- Upload view functions ---
-	function yesno(val) { return val ? "yes" : "no"; }
-
 	function updateOptionsDisplay() {
 		var container = document.getElementById("options_display");
 		var heading = document.getElementById("action_heading");
@@ -445,11 +446,7 @@
 					["input scheme", s.from_scheme],
 					["output scheme", s.to_scheme],
 				]),
-				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
-					["preserve anun\u0101sika", yesno(currentPreserveAnunasika)],
-				]),
+				extraControls: makeExtraTransliterate(),
 			});
 		} else if (currentAction === "scan") {
 			sections.push({
@@ -459,24 +456,24 @@
 			});
 			sections.push({
 				sidebar: makeTable("scansion", [
-					["weights", yesno(s.weights)],
-					["morae", yesno(s.morae)],
-					["ga\u1E47as", yesno(s.gaRas)],
-					["alignment", yesno(s.alignment)],
+					["weights", s.weights ? "✓" : "✗"],
+					["morae", s.morae ? "✓" : "✗"],
+					["ga\u1E47as", s.gaRas ? "✓" : "✗"],
+					["alignment", s.alignment ? "✓" : "✗"],
 				]),
 			});
 		} else if (currentAction === "identify meter") {
+			var translitRows = [["input scheme", s.from_scheme]];
+			if (currentBatchCorrectionMode) translitRows.push(["output scheme", s.to_scheme]);
 			sections.push({
-				sidebar: makeTable("transliteration", [
-					["input scheme", s.from_scheme],
-				]),
+				sidebar: makeTable("transliteration", translitRows),
 			});
 			sections.push({
 				sidebar: makeTable("scansion", [
-					["weights", yesno(s.weights)],
-					["morae", yesno(s.morae)],
-					["ga\u1E47as", yesno(s.gaRas)],
-					["alignment", yesno(s.alignment)],
+					["weights", s.weights ? "✓" : "✗"],
+					["morae", s.morae ? "✓" : "✗"],
+					["ga\u1E47as", s.gaRas ? "✓" : "✗"],
+					["alignment", s.alignment ? "✓" : "✗"],
 				]),
 			});
 			var resplitLabels = {
@@ -491,9 +488,7 @@
 				sidebar: makeTable("meter identification", [
 					["resplit option", resplitLabel],
 				]),
-				extra: makeTable("meter identification", [
-					["batch correction mode", yesno(currentBatchCorrectionMode)],
-				]),
+				extraControls: makeExtraIdentifyMeter(),
 			});
 		} else if (currentAction === "split") {
 			sections.push({
@@ -501,26 +496,18 @@
 					["input scheme", s.from_scheme],
 					["output scheme", s.to_scheme],
 				]),
-				extra: makeTable("transliteration", [
-					["avoid vir\u0101ma (Indic)", yesno(currentAvoidVirama)],
-					["unspace (non-Indic)", yesno(currentAvoidViramanonIndic)],
-				]),
+				extraControls: makeExtraSplitTransliterate(),
 			});
 			var splitterLabels = {
 				"dharmamitra_2024_sept": "2024 ByT5-Sanskrit",
 				"splitter_2018": "2018 Sandhi & Compound",
 			};
 			var splitterLabel = splitterLabels[s.splitter_model] || s.splitter_model;
-			var compoundRow = s.splitter_model === "dharmamitra_2024_sept"
-				? yesno(currentPreserveCompoundHyphens) : "n/a";
 			sections.push({
 				sidebar: makeTable("word splitting", [
 					["splitter model", splitterLabel],
 				]),
-				extra: makeTable("word splitting", [
-					["preserve punctuation", yesno(currentPreservePunctuation)],
-					["preserve compound hyphens", compoundRow],
-				]),
+				extraControls: makeExtraSplitOptions(s.splitter_model),
 			});
 		}
 
@@ -529,7 +516,7 @@
 		if (hasExtra) {
 			html += '<div class="settings-row settings-header-row">';
 			html += '<div class="settings-cell">change in sidebar</div>';
-			html += '<div class="settings-cell">change on <a href="/settings">extra settings</a> page</div>';
+			html += '<div class="settings-cell">extra settings (<a href="/settings">view all</a>)</div>';
 			html += '</div>';
 		}
 
@@ -538,13 +525,76 @@
 			html += '<div class="settings-row">';
 			html += '<div class="settings-cell">' + sections[i].sidebar + '</div>';
 			if (hasExtra) {
-				html += '<div class="settings-cell">' + (sections[i].extra || '') + '</div>';
+				html += '<div class="settings-cell">' + (sections[i].extraControls || '') + '</div>';
 			}
 			html += '</div>';
 		}
 
 		if (hasExtra) html += '</div>';
 		container.innerHTML = html;
+		attachExtraListeners();
+	}
+
+	function makeCheckboxCell(id, checked, disabled) {
+		var attrs = ' id="inline_' + id + '"' + (checked ? ' checked' : '') + (disabled ? ' disabled style="opacity:0.4"' : '');
+		return '<input type="checkbox"' + attrs + '>';
+	}
+
+	function makeExtraTransliterate() {
+		return makeTableWithControls("transliteration", [
+			["avoid vir\u0101ma (Indic)", makeCheckboxCell("avoid_virama", currentAvoidVirama, false)],
+			["unspace (non-Indic)", makeCheckboxCell("avoid_virama_non_indic", currentAvoidViramanonIndic, false)],
+			["preserve anun\u0101sika", makeCheckboxCell("preserve_anunasika", currentPreserveAnunasika, false)],
+		]);
+	}
+
+	function makeExtraIdentifyMeter() {
+		return makeTableWithControls("meter identification", [
+			["batch correction mode", makeCheckboxCell("batch_correction_mode", currentBatchCorrectionMode, false)],
+		]);
+	}
+
+	function makeExtraSplitTransliterate() {
+		return makeTableWithControls("transliteration", [
+			["avoid vir\u0101ma (Indic)", makeCheckboxCell("avoid_virama", currentAvoidVirama, false)],
+			["unspace (non-Indic)", makeCheckboxCell("avoid_virama_non_indic", currentAvoidViramanonIndic, false)],
+		]);
+	}
+
+	function makeExtraSplitOptions(splitterModel) {
+		var isByT5 = splitterModel === "dharmamitra_2024_sept";
+		var dimStyle = isByT5 ? '' : ' style="opacity:0.4"';
+		return makeTableWithControls("word splitting", [
+			["preserve punctuation", makeCheckboxCell("preserve_punctuation", currentPreservePunctuation, false)],
+			['<span' + dimStyle + '>preserve compound hyphens</span>', makeCheckboxCell("preserve_compound_hyphens", currentPreserveCompoundHyphens, !isByT5)],
+		]);
+	}
+
+	function makeTableWithControls(caption, rows) {
+		var html = '<table class="settings-summary"><caption>' + caption + '</caption>';
+		for (var i = 0; i < rows.length; i++) {
+			html += '<tr><td>' + rows[i][0] + '</td><td>' + rows[i][1] + '</td></tr>';
+		}
+		html += '</table>';
+		return html;
+	}
+
+	function attachExtraListeners() {
+		function bindCheckbox(id, getter, setter) {
+			var el = document.getElementById("inline_" + id);
+			if (!el) return;
+			el.checked = getter();
+			el.addEventListener("change", function() {
+				setter(this.checked);
+				saveSettingsToSession();
+			});
+		}
+		bindCheckbox("avoid_virama", function() { return currentAvoidVirama; }, function(v) { currentAvoidVirama = v; });
+		bindCheckbox("avoid_virama_non_indic", function() { return currentAvoidViramanonIndic; }, function(v) { currentAvoidViramanonIndic = v; });
+		bindCheckbox("preserve_anunasika", function() { return currentPreserveAnunasika; }, function(v) { currentPreserveAnunasika = v; });
+		bindCheckbox("preserve_punctuation", function() { return currentPreservePunctuation; }, function(v) { currentPreservePunctuation = v; });
+		bindCheckbox("preserve_compound_hyphens", function() { return currentPreserveCompoundHyphens; }, function(v) { currentPreserveCompoundHyphens = v; });
+		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) { currentBatchCorrectionMode = v; updateOptionsDisplay(); });
 	}
 
 	function makeTable(caption, rows) {
@@ -624,6 +674,10 @@
 		});
 
 		highlightActionButton(currentAction);
+		if (currentInputMode === "file") {
+			highlightUploadButton(currentAction);
+			updateOptionsDisplay();
+		}
 		restoreTexts();
 
 		// Initialize melody dropdown from server data (for examples)
