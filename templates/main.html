@@ -112,6 +112,7 @@
 		currentAction = action;
 		highlightUploadButton(action);
 		updateOptionsDisplay();
+		updatePillForAction(action);
 		saveSettingsToSession();
 		closeSidebarOnMobile();
 	}
@@ -256,11 +257,17 @@
 
 	// --- Output mode toggle (text / html) ---
 	var currentOutputMode = currentWbMeterHtmlOutput ? 'html' : 'text';
+	var lastScanOutputMode = currentOutputMode;  // remembered across transliterate/split detours
 
 	function setOutputMode(mode) {
 		currentOutputMode = mode;
+		lastScanOutputMode = mode;
 		currentWbMeterHtmlOutput = (mode === 'html');
 		saveSettingsToSession();
+		_applyOutputModeUI(mode);
+	}
+
+	function _applyOutputModeUI(mode) {
 		var txtOut = document.getElementById('text_output');
 		var htmlOut = document.getElementById('html_output');
 		var swapBtn = document.getElementById('swap_texts_button');
@@ -280,6 +287,24 @@
 			swapBtn.style.opacity = '';
 			textBtn.classList.add('active');
 			htmlBtn.classList.remove('active');
+		}
+	}
+
+	function updatePillForAction(action) {
+		var toggle = document.querySelector('.output-mode-toggle');
+		var textBtn = document.getElementById('toggle_output_text');
+		var htmlBtn = document.getElementById('toggle_output_html');
+		var isScanAction = (action === 'scan' || action === 'identify meter');
+		if (toggle) {
+			toggle.style.opacity = isScanAction ? '' : '0.4';
+			toggle.style.pointerEvents = isScanAction ? '' : 'none';
+		}
+		if (isScanAction) {
+			currentOutputMode = lastScanOutputMode;
+			_applyOutputModeUI(currentOutputMode);
+		} else {
+			currentOutputMode = 'text';
+			_applyOutputModeUI('text');
 		}
 	}
 
@@ -331,6 +356,7 @@
 	}
 
 	async function doTransliterate() {
+		updatePillForAction('transliterate');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("transliterate_button");
 		setButtonLoading(btn, true);
@@ -361,6 +387,7 @@
 	}
 
 	async function doScan() {
+		updatePillForAction('scan');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("scan_button");
 		setButtonLoading(btn, true);
@@ -380,13 +407,10 @@
 				body: fd,
 			});
 			var data = await resp.json();
-			if (currentOutputMode === 'html') {
-				renderHtmlOutput(data);
-				saveLastScanData(data);
-			} else {
-				document.getElementById("text_output").value = data.result;
-				saveTexts();
-			}
+			document.getElementById("text_output").value = data.result;
+			saveTexts();
+			renderHtmlOutput(data);
+			saveLastScanData(data);
 			set_action("scan");
 			hideMelodyPlayer();
 			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
@@ -397,6 +421,7 @@
 	}
 
 	async function doIdentifyMeter() {
+		updatePillForAction('identify meter');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("identify_meter_button");
 		setButtonLoading(btn, true);
@@ -417,13 +442,10 @@
 				body: fd,
 			});
 			var data = await resp.json();
-			if (currentOutputMode === 'html') {
-				renderHtmlOutput(data);
-				saveLastScanData(data);
-			} else {
-				document.getElementById("text_output").value = data.result;
-				saveTexts();
-			}
+			document.getElementById("text_output").value = data.result;
+			saveTexts();
+			renderHtmlOutput(data);
+			saveLastScanData(data);
 			set_action("identify meter");
 
 			// Update melody player from response
@@ -446,6 +468,7 @@
 	}
 
 	async function doSplit() {
+		updatePillForAction('split');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("split_button");
 		setButtonLoading(btn, true);
@@ -816,6 +839,7 @@
 		}
 		restoreTexts();
 		setOutputMode(currentOutputMode);
+		updatePillForAction(currentAction);
 
 		// Initialize melody dropdown from server data (for examples — only when not restored from localStorage)
 		if (currentMelodyOptions.length > 0 && !localStorage.getItem("melody_meter_label")) {
