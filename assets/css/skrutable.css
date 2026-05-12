@@ -414,7 +414,7 @@ pre {
 	width: max-content;
 }
 .scansion-label-col {
-	flex: 0 0 18em;
+	flex: 0 0 11em;
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
