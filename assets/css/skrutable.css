@@ -383,9 +383,13 @@ pre {
 }
 
 /* Workbench scansion output div */
-.workbench-scansion {
+.workbench-html-output {
 	width: 100%;
 	min-height: 10em;
+	box-sizing: border-box;
+}
+.workbench-scansion {
+	width: 100%;
 	padding: 0.5em 0.25em;
 	box-sizing: border-box;
 	overflow-x: auto;
@@ -467,6 +471,37 @@ pre {
 .pada-mora { font-size: 0.8em; color: #777; white-space: nowrap; align-self: flex-end; padding-bottom: 2px; }
 [data-theme="dark"] .pada-mora { color: #999; }
 
+/* Workbench single-verse meter card */
+.workbench-meter-card {
+	border-radius: 4px;
+	overflow: hidden;
+	border-left: 5px solid #aaa;
+	margin-bottom: 0.5em;
+}
+.workbench-meter-card.perfect  { border-left-color: #4caf50; }
+.workbench-meter-card.imperfect { border-left-color: #e05050; }
+.workbench-meter-card.unknown  { border-left-color: #aaa; }
+.workbench-meter-card-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.35em 0.75em;
+	background: #395a77;
+	color: #fff;
+	font-family: var(--font-heading);
+	font-size: 0.95em;
+}
+[data-theme="dark"] .workbench-meter-card-header { background: #2e4a64; color: #dde; }
+.workbench-meter-status-dot {
+	width: 10px; height: 10px;
+	border-radius: 50%;
+	background: #aaa;
+	flex-shrink: 0;
+}
+.workbench-meter-card-header.perfect   .workbench-meter-status-dot { background: #4caf50; }
+.workbench-meter-card-header.imperfect .workbench-meter-status-dot { background: #e05050; }
+.workbench-meter-card-header.unknown   .workbench-meter-status-dot { background: #aaa; }
+.workbench-meter-card-body { padding: 0.5em 0.25em 0.25em 0.25em; }
 
 .sidebar-help-link {
 	color: var(--sidebar-accent);

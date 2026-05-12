@@ -44,7 +44,7 @@
 					<button type="button" class="btn btn-primary btn-textarea-action" id="swap_texts_button" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
 				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
-				<div id="html_output" class="verse-scansion workbench-scansion" style="display:none;"></div>
+				<div id="html_output" class="workbench-html-output" style="display:none;"></div>
 			</div>
 
 			<!-- melody player -->
@@ -205,7 +205,7 @@
 			if (currentOutputMode === 'html') {
 				var saved = localStorage.getItem("last_scan_data");
 				if (saved) {
-					try { renderHtmlOutput(JSON.parse(saved)); } catch(e) {}
+					try { renderHtmlOutput(JSON.parse(saved), currentAction === 'identify meter'); } catch(e) {}
 				}
 			}
 			var savedLabel = localStorage.getItem("melody_meter_label");
@@ -308,7 +308,7 @@
 		}
 	}
 
-	function renderHtmlOutput(data) {
+	function renderHtmlOutput(data, showMeterCard) {
 		var s = getSidebarSettings();
 		var T = new Skrutable.Transliterator();
 		ScansionRenderer.init(
@@ -318,7 +318,53 @@
 		);
 		var el = document.getElementById('html_output');
 		el.innerHTML = '';
-		ScansionRenderer.render(el, data, {
+
+		var scanTarget;
+		if (showMeterCard) {
+			var meterLabel = data.meter_label || '';
+			var isUnknown  = !meterLabel || meterLabel.indexOf('adhyavasitam') >= 0;
+			var diag = data.diagnostic;
+			var isPerfect = false;
+			if (!isUnknown && diag) {
+				if (diag.type === 'pada') {
+					var ils = diag.imperfect_label_sanskrit;
+					isPerfect = !ils || Object.keys(ils).length === 0;
+				} else if (diag.type === 'half') {
+					var abIls = diag.ab && diag.ab.imperfect_label_sanskrit;
+					var cdIls = diag.cd && diag.cd.imperfect_label_sanskrit;
+					isPerfect = (!abIls || Object.keys(abIls).length === 0) &&
+					            (!cdIls || Object.keys(cdIls).length === 0);
+				}
+			}
+			var statusClass = isUnknown ? 'unknown' : (isPerfect ? 'perfect' : 'imperfect');
+			var displayLabel = isUnknown ? 'na kiṃcid adhyavasitam'
+			                 : isPerfect  ? (meterLabel.split(' (')[0].trim() || meterLabel)
+			                 :              meterLabel;
+
+			var card = document.createElement('div');
+			card.className = 'workbench-meter-card ' + statusClass;
+
+			var hdr = document.createElement('div');
+			hdr.className = 'workbench-meter-card-header ' + statusClass;
+			var dot = document.createElement('span');
+			dot.className = 'workbench-meter-status-dot';
+			var lblEl = document.createElement('span');
+			lblEl.textContent = displayLabel;
+			hdr.appendChild(dot);
+			hdr.appendChild(lblEl);
+			card.appendChild(hdr);
+
+			scanTarget = document.createElement('div');
+			scanTarget.className = 'workbench-meter-card-body verse-scansion workbench-scansion';
+			card.appendChild(scanTarget);
+			el.appendChild(card);
+		} else {
+			scanTarget = document.createElement('div');
+			scanTarget.className = 'verse-scansion workbench-scansion';
+			el.appendChild(scanTarget);
+		}
+
+		ScansionRenderer.render(scanTarget, data, {
 			weights:   s.weights,
 			morae:     s.morae,
 			gaRas:     s.gaRas,
@@ -444,7 +490,7 @@
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
 			saveTexts();
-			renderHtmlOutput(data);
+			renderHtmlOutput(data, true);
 			saveLastScanData(data);
 			set_action("identify meter");
 
