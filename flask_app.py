@@ -192,6 +192,7 @@ extra_option_names = [
 	"splitter_model",
 	"batch_correction_mode",
 	"explanation_language",
+	"input_mode",
 ]
 SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
@@ -267,6 +268,7 @@ def _init_session_defaults():
 		"splitter_model": "dharmamitra_2024_sept",
 		"batch_correction_mode": 0,
 		"explanation_language": "sanskrit",
+		"input_mode": "text",
 	}
 	for k, v in defaults.items():
 		session.setdefault(k, v)
@@ -342,11 +344,13 @@ def index():
 	example_num = request.args.get("example")
 	if example_num and example_num in EXAMPLES:
 		ex = EXAMPLES[example_num]
+		session["input_mode"] = "text"
+		session.modified = True
 		return render_template(
 			'main.html',
 			text_input=ex["text_input"],
 			text_output=ex["text_output"],
-			**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}},
+			**{**session_kwargs, **{k: ex[k] for k in ex if k in MAIN_DEFAULTS}, "input_mode": "text"},
 		)
 	return render_template(
 		'main.html',
