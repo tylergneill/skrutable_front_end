@@ -463,10 +463,10 @@
 				]),
 			});
 		} else if (currentAction === "identify meter") {
+			var translitRows = [["input scheme", s.from_scheme]];
+			if (currentBatchCorrectionMode) translitRows.push(["output scheme", s.to_scheme]);
 			sections.push({
-				sidebar: makeTable("transliteration", [
-					["input scheme", s.from_scheme],
-				]),
+				sidebar: makeTable("transliteration", translitRows),
 			});
 			sections.push({
 				sidebar: makeTable("scansion", [
@@ -594,7 +594,7 @@
 		bindCheckbox("preserve_anunasika", function() { return currentPreserveAnunasika; }, function(v) { currentPreserveAnunasika = v; });
 		bindCheckbox("preserve_punctuation", function() { return currentPreservePunctuation; }, function(v) { currentPreservePunctuation = v; });
 		bindCheckbox("preserve_compound_hyphens", function() { return currentPreserveCompoundHyphens; }, function(v) { currentPreserveCompoundHyphens = v; });
-		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) { currentBatchCorrectionMode = v; });
+		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) { currentBatchCorrectionMode = v; updateOptionsDisplay(); });
 	}
 
 	function makeTable(caption, rows) {
