@@ -167,6 +167,22 @@
 		localStorage.setItem("text_input", document.getElementById("text_input").value);
 		localStorage.setItem("text_output", document.getElementById("text_output").value);
 	}
+	function saveMelodyState() {
+		localStorage.setItem("melody_meter_label", currentMeterLabel);
+		localStorage.setItem("melody_options", JSON.stringify(currentMelodyOptions));
+		localStorage.setItem("melody_selected", melodySelectElement.value);
+	}
+	function clearMelodyState() {
+		localStorage.removeItem("melody_meter_label");
+		localStorage.removeItem("melody_options");
+		localStorage.removeItem("melody_selected");
+	}
+	function saveLastScanData(data) {
+		localStorage.setItem("last_scan_data", JSON.stringify(data));
+	}
+	function clearLastScanData() {
+		localStorage.removeItem("last_scan_data");
+	}
 	function restoreTexts() {
 		var inp = document.getElementById("text_input");
 		var out = document.getElementById("text_output");
@@ -185,12 +201,32 @@
 			// Restore from localStorage
 			if (localStorage.getItem("text_input")) inp.value = localStorage.getItem("text_input");
 			if (localStorage.getItem("text_output")) out.value = localStorage.getItem("text_output");
+			if (currentOutputMode === 'html') {
+				var saved = localStorage.getItem("last_scan_data");
+				if (saved) {
+					try { renderHtmlOutput(JSON.parse(saved)); } catch(e) {}
+				}
+			}
+			var savedLabel = localStorage.getItem("melody_meter_label");
+			var savedOpts = localStorage.getItem("melody_options");
+			var savedSelected = localStorage.getItem("melody_selected");
+			if (savedLabel && savedOpts) {
+				try {
+					currentMeterLabel = savedLabel;
+					currentMelodyOptions = JSON.parse(savedOpts);
+					rebuildMelodyDropdown(currentMelodyOptions);
+					if (savedSelected) melodySelectElement.value = savedSelected;
+					if (currentMelodyOptions.length > 0) { showMelodyPlayer(); update_melody(); }
+				} catch(e) {}
+			}
 		}
 	}
 	function clearTextAreas() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
 		document.getElementById("html_output").innerHTML = "";
+		clearLastScanData();
+		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
 		var opt = document.getElementById("auto_scheme_option");
@@ -200,6 +236,9 @@
 	function clearTexts() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
+		document.getElementById("html_output").innerHTML = "";
+		clearLastScanData();
+		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
 		currentAction = "";
@@ -343,6 +382,7 @@
 			var data = await resp.json();
 			if (currentOutputMode === 'html') {
 				renderHtmlOutput(data);
+				saveLastScanData(data);
 			} else {
 				document.getElementById("text_output").value = data.result;
 				saveTexts();
@@ -379,6 +419,7 @@
 			var data = await resp.json();
 			if (currentOutputMode === 'html') {
 				renderHtmlOutput(data);
+				saveLastScanData(data);
 			} else {
 				document.getElementById("text_output").value = data.result;
 				saveTexts();
@@ -392,8 +433,10 @@
 			if (currentMelodyOptions.length > 0) {
 				showMelodyPlayer();
 				update_melody();
+				saveMelodyState();
 			} else {
 				hideMelodyPlayer();
+				clearMelodyState();
 			}
 			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
@@ -445,7 +488,7 @@
 
 	var melodySelectElement = document.getElementById("melody_option");
 	const audio_prefix = "/assets/melodies/";
-	melodySelectElement.addEventListener("change", update_melody);
+	melodySelectElement.addEventListener("change", function() { update_melody(); saveMelodyState(); });
 
 	function rebuildMelodyDropdown(options) {
 		melodySelectElement.innerHTML = "";
@@ -774,10 +817,9 @@
 		restoreTexts();
 		setOutputMode(currentOutputMode);
 
-		// Initialize melody dropdown from server data (for examples)
-		if (currentMelodyOptions.length > 0) {
+		// Initialize melody dropdown from server data (for examples — only when not restored from localStorage)
+		if (currentMelodyOptions.length > 0 && !localStorage.getItem("melody_meter_label")) {
 			rebuildMelodyDropdown(currentMelodyOptions);
-			// Only show melody player if there's actually output to go with it
 			if (document.getElementById("text_output").value) {
 				showMelodyPlayer();
 			}
