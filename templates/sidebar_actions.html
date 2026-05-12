@@ -1,7 +1,7 @@
 <!-- Transliterate + schemes -->
 <div class="action-row">
 	<button type="button" id="transliterate_button" class="btn btn-primary action-btn"
-		onclick="onActionButton('transliterate');">Transliterate</button>
+		onclick="onActionButton('transliterate');"{% if page_mode == 'file' %} disabled{% endif %}>Transliterate</button>
 	<div class="action-options scheme-options-row">
 		<div class="scheme-labels">
 			<label class="scheme-label">in: <select id="from_scheme" onchange="onSidebarChange();">
@@ -45,7 +45,7 @@
 <!-- Scan + detail checkboxes -->
 <div class="action-row">
 	<button type="button" id="scan_button" class="btn btn-primary action-btn"
-		onclick="onActionButton('scan');">Scan</button>
+		onclick="onActionButton('scan');"{% if page_mode == 'file' %} disabled{% endif %}>Scan</button>
 	<div class="action-options">
 		<div class="checkbox-group">
 			<label><input type="checkbox" id="weights" checked onchange="onSidebarChange();"/> lglgl</label>
@@ -59,7 +59,7 @@
 <!-- Identify Meter + resplit -->
 <div class="action-row">
 	<button type="button" id="identify_meter_button" class="btn btn-primary action-btn"
-		onclick="onActionButton('identify meter');">Identify Meter</button>
+		onclick="onActionButton('identify meter');"{% if page_mode == 'file' %} disabled{% endif %}>Identify Meter</button>
 	<div class="action-options">
 		<select id="resplit_option" onchange="onSidebarChange();">
 			<option value="none">don't resplit</option>
@@ -74,7 +74,7 @@
 <!-- Split Words -->
 <div class="action-row">
 	<button type="button" id="split_button" class="btn btn-primary action-btn"
-		onclick="onActionButton('split');">Split Words</button>
+		onclick="onActionButton('split');"{% if page_mode == 'file' %} disabled{% endif %}>Split Words</button>
 	<div class="action-options">
 		<label class="scheme-label scheme-label-wide">model: <select id="splitter_model_sidebar" onchange="onSidebarChange();">
 			<option value="dharmamitra_2024_sept">2024 ByT5-Sanskrit (Dharmamitra)</option>
