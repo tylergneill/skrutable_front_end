@@ -10,7 +10,7 @@ launch-profiling-no-parallel:
 # for temporary local builds
 # to use: make run
 run:
-	docker build . -f Dockerfile.stg -t skrutable-app:debug
+	docker build . -f Dockerfile.dev -t skrutable-app:debug
 	docker run \
 	  --rm \
 	  -it \
