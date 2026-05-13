@@ -1,6 +1,7 @@
-// Shared scansion rendering module.
+// Shared scansion card rendering module.
 // Call ScansionRenderer.init(displayScheme, translateFn, explanationLang) before rendering.
 // Call ScansionRenderer.render(el, v, opts) to build the gana-grid DOM into el.
+// Call ScansionRenderer.buildCard(container, v, opts, showMeterCard) to build a full verse card.
 
 var ScansionRenderer = (function() {
 
@@ -10,6 +11,33 @@ var ScansionRenderer = (function() {
 
 	var WEIGHT_PAIR_SLP = { 'gg': 'gaga', 'll': 'lala', 'gl': 'gala', 'lg': 'laga' };
 	var INDIC_SCHEMES = ['DEV', 'BENGALI', 'GUJARATI'];
+
+	// Returns the meter_label_full field if present, falling back to meter_label.
+	function fullLabel(v) {
+		return v.meter_label_full || v.meter_label || '';
+	}
+
+	// Transliterates an IAST meter label into the display scheme, handling bracketed
+	// gaṇa sequences like [11: tjg] where only the letter parts need SLP transliteration.
+	function meterLabelToDisplay(s) {
+		if (!s || _displayScheme === 'IAST') return s;
+		var isIndic = INDIC_SCHEMES.indexOf(_displayScheme) >= 0;
+		var parts = s.split(/(\[[^\]]*\])/);
+		return parts.map(function(part) {
+			if (part.charAt(0) === '[' && part.charAt(part.length - 1) === ']') {
+				var inner = part.slice(1, -1);
+				if (isIndic) {
+					var translated = inner.replace(/([a-zA-Z])|([^a-zA-Z]+)/g, function(m, letter, nonletter) {
+						if (letter) return _translate(letter + 'a', 'SLP', _displayScheme);
+						return _translate(nonletter, 'IAST', _displayScheme);
+					});
+					return '[' + translated + ']';
+				}
+				return part;
+			}
+			return _translate(part, 'IAST', _displayScheme);
+		}).join('');
+	}
 
 	function slpToDisplay(s) {
 		if (!s || _displayScheme === 'SLP') return s;
@@ -137,7 +165,8 @@ var ScansionRenderer = (function() {
 		var morae     = v.morae_per_line || [];
 		var diag      = v.diagnostic || null;
 
-		var primaryLabel = v.meter_label ? v.meter_label.split(' atha vā ')[0] : '';
+		var lbl = fullLabel(v);
+		var primaryLabel = lbl ? lbl.split(' atha vā ')[0] : '';
 		var isUpajati  = primaryLabel.indexOf('upajāti') >= 0;
 		var isJati     = !isUpajati && (
 			primaryLabel.indexOf('jāti') >= 0 ||
@@ -146,12 +175,12 @@ var ScansionRenderer = (function() {
 			primaryLabel.indexOf('vaitālīya') >= 0 ||
 			primaryLabel.indexOf('mātrā') >= 0
 		);
-		var isUnknownM = !v.meter_label || primaryLabel.indexOf('adhyavasitam') >= 0;
+		var isUnknownM = !lbl || primaryLabel.indexOf('adhyavasitam') >= 0;
 		var isAnustubh = primaryLabel.indexOf('anuṣṭubh') >= 0 ||
 		                 primaryLabel.indexOf('anustubh') >= 0 ||
 		                 primaryLabel.indexOf('ardham eva') >= 0;
 
-		if (isAnustubh && v.meter_label && v.meter_label.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
+		if (isAnustubh && lbl.indexOf('ardham eva') >= 0 && sylPadas.length === 4) {
 			sylPadas  = [sylPadas[0]  + ' ' + sylPadas[1],  sylPadas[2]  + ' ' + sylPadas[3]];
 			wtPadas   = [wtPadas[0]   + wtPadas[1],          wtPadas[2]   + wtPadas[3]];
 			gaRaPadas = [gaRaPadas[0] + gaRaPadas[1],        gaRaPadas[2] + gaRaPadas[3]];
@@ -407,6 +436,69 @@ var ScansionRenderer = (function() {
 		});
 	}
 
+	function isPerfect(v) {
+		if (isUnknown(v)) return false;
+		var d = v.diagnostic;
+		if (!d) return false;
+		if (d.type === 'pada') {
+			var ils = d.imperfect_label_sanskrit;
+			return !ils || Object.keys(ils).length === 0;
+		}
+		if (d.type === 'half') {
+			var abIls = d.ab && d.ab.imperfect_label_sanskrit;
+			var cdIls = d.cd && d.cd.imperfect_label_sanskrit;
+			return (!abIls || Object.keys(abIls).length === 0) &&
+			       (!cdIls || Object.keys(cdIls).length === 0);
+		}
+		return false;
+	}
+
+	function isUnknown(v) {
+		var lbl = fullLabel(v);
+		return !lbl || lbl.indexOf('adhyavasitam') >= 0;
+	}
+
+	// Builds a verse card into container. If showMeterCard is true, wraps the scansion in a
+	// card with a colored header showing the meter label. Returns the scan target element.
+	function buildCard(container, v, opts, showMeterCard) {
+		var scanTarget;
+		if (showMeterCard) {
+			var lbl = fullLabel(v);
+			var unk = isUnknown(v);
+			var perf = !unk && isPerfect(v);
+			var statusClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
+			var displayLabel = unk  ? 'na kiṃcid adhyavasitam'
+			                 : perf ? (lbl.split(' (')[0].trim() || lbl)
+			                 :        lbl;
+
+			var card = document.createElement('div');
+			card.className = 'verse-card ' + statusClass;
+
+			var hdr = document.createElement('div');
+			hdr.className = 'verse-card-header ' + statusClass;
+			var dot = document.createElement('span');
+			dot.className = 'verse-status-dot';
+			var lblEl = document.createElement('span');
+			lblEl.className = 'verse-header-label';
+			lblEl.textContent = meterLabelToDisplay(displayLabel);
+			hdr.appendChild(dot);
+			hdr.appendChild(lblEl);
+			card.appendChild(hdr);
+
+			scanTarget = document.createElement('div');
+			scanTarget.className = 'verse-card-body verse-scansion';
+			card.appendChild(scanTarget);
+			container.appendChild(card);
+		} else {
+			scanTarget = document.createElement('div');
+			scanTarget.className = 'verse-scansion';
+			container.appendChild(scanTarget);
+		}
+
+		render(scanTarget, v, opts);
+		return scanTarget;
+	}
+
 	return {
 		init: function(displayScheme, translateFn, explanationLang) {
 			_displayScheme   = displayScheme  || 'IAST';
@@ -414,6 +506,9 @@ var ScansionRenderer = (function() {
 			_explanationLang = explanationLang || 'sanskrit';
 		},
 		render: render,
+		buildCard: buildCard,
+		isPerfect: isPerfect,
+		isUnknown: isUnknown,
 		alignGanaColumnsInScansion: alignGanaColumnsInScansion,
 	};
 
