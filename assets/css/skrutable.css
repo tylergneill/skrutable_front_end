@@ -388,13 +388,6 @@ pre {
 	min-height: 10em;
 	box-sizing: border-box;
 }
-.workbench-scansion {
-	width: 100%;
-	padding: 0.5em 0.25em;
-	box-sizing: border-box;
-	overflow-x: auto;
-}
-
 /* Shared scansion rendering classes (used by workbench html output and batch meter results) */
 .verse-scansion {
 	display: flex;
@@ -470,16 +463,19 @@ pre {
 .pada-mora { font-size: 0.8em; color: #777; white-space: nowrap; align-self: flex-end; padding-bottom: 2px; }
 [data-theme="dark"] .pada-mora { color: #999; }
 
-/* Workbench single-verse meter card */
-.workbench-meter-card {
+/* Verse card — shared by workbench single-verse output and batch meter results */
+.verse-card {
 	border-radius: 4px;
+	border: 1px solid var(--input-border);
 	border-left: 5px solid #aaa;
+	overflow: hidden;
+	background: var(--input-bg);
 	margin-bottom: 0.5em;
 }
-.workbench-meter-card.perfect  { border-left-color: #4caf50; }
-.workbench-meter-card.imperfect { border-left-color: #e05050; }
-.workbench-meter-card.unknown  { border-left-color: #aaa; }
-.workbench-meter-card-header {
+.verse-card.perfect  { border-left-color: #4caf50; }
+.verse-card.imperfect { border-left-color: #e05050; }
+.verse-card.unknown  { border-left-color: #aaa; }
+.verse-card-header {
 	display: flex;
 	align-items: center;
 	gap: 0.5em;
@@ -488,19 +484,19 @@ pre {
 	color: #fff;
 	font-family: var(--font-heading);
 	font-size: 0.95em;
-	border-radius: 4px 4px 0 0;
 }
-[data-theme="dark"] .workbench-meter-card-header { background: #2e4a64; color: #dde; }
-.workbench-meter-status-dot {
-	width: 10px; height: 10px;
+[data-theme="dark"] .verse-card-header { background: #2e4a64; color: #dde; }
+.verse-status-dot {
+	display: inline-block;
+	width: 0.65em; height: 0.65em;
 	border-radius: 50%;
 	background: #aaa;
 	flex-shrink: 0;
 }
-.workbench-meter-card-header.perfect   .workbench-meter-status-dot { background: #4caf50; }
-.workbench-meter-card-header.imperfect .workbench-meter-status-dot { background: #e05050; }
-.workbench-meter-card-header.unknown   .workbench-meter-status-dot { background: #aaa; }
-.workbench-meter-card-body { padding: 0.5em 0.25em 0.25em 0.25em; }
+.verse-card-header.perfect   .verse-status-dot { background: #4caf50; }
+.verse-card-header.imperfect .verse-status-dot { background: #e05050; }
+.verse-card-header.unknown   .verse-status-dot { background: #aaa; }
+.verse-card-body { padding: 0.5em 0.25em 0.25em 0.25em; }
 
 .sidebar-help-link {
 	color: var(--sidebar-accent);

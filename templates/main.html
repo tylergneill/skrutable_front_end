@@ -8,7 +8,7 @@
 	<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
 	<meta property='og:url' content='https://www.skrutable.info'/>
 	<script src="https://cdn.jsdelivr.net/npm/skrutable-js@2.1.4/dist/skrutable.bundle.js"></script>
-	<script src="/assets/js/scan_rendering.js"></script>
+	<script src="/assets/js/scan_card_rendering.js"></script>
 {% endblock %}
 
 {% block sidebar_controls %}
@@ -169,7 +169,7 @@
 		localStorage.setItem("text_output", document.getElementById("text_output").value);
 	}
 	function saveMelodyState() {
-		localStorage.setItem("melody_meter_label", currentMeterLabel);
+		localStorage.setItem("melody_meter_label", currentMelodyKey);
 		localStorage.setItem("melody_options", JSON.stringify(currentMelodyOptions));
 		localStorage.setItem("melody_selected", melodySelectElement.value);
 	}
@@ -213,7 +213,7 @@
 			var savedSelected = localStorage.getItem("melody_selected");
 			if (savedLabel && savedOpts) {
 				try {
-					currentMeterLabel = savedLabel;
+					currentMelodyKey = savedLabel;
 					currentMelodyOptions = JSON.parse(savedOpts);
 					rebuildMelodyDropdown(currentMelodyOptions);
 					if (savedSelected) melodySelectElement.value = savedSelected;
@@ -318,58 +318,12 @@
 		);
 		var el = document.getElementById('html_output');
 		el.innerHTML = '';
-
-		var scanTarget;
-		if (showMeterCard) {
-			var meterLabel = data.meter_label || '';
-			var isUnknown  = !meterLabel || meterLabel.indexOf('adhyavasitam') >= 0;
-			var diag = data.diagnostic;
-			var isPerfect = false;
-			if (!isUnknown && diag) {
-				if (diag.type === 'pada') {
-					var ils = diag.imperfect_label_sanskrit;
-					isPerfect = !ils || Object.keys(ils).length === 0;
-				} else if (diag.type === 'half') {
-					var abIls = diag.ab && diag.ab.imperfect_label_sanskrit;
-					var cdIls = diag.cd && diag.cd.imperfect_label_sanskrit;
-					isPerfect = (!abIls || Object.keys(abIls).length === 0) &&
-					            (!cdIls || Object.keys(cdIls).length === 0);
-				}
-			}
-			var statusClass = isUnknown ? 'unknown' : (isPerfect ? 'perfect' : 'imperfect');
-			var displayLabel = isUnknown ? 'na kiṃcid adhyavasitam'
-			                 : isPerfect  ? (meterLabel.split(' (')[0].trim() || meterLabel)
-			                 :              meterLabel;
-
-			var card = document.createElement('div');
-			card.className = 'workbench-meter-card ' + statusClass;
-
-			var hdr = document.createElement('div');
-			hdr.className = 'workbench-meter-card-header ' + statusClass;
-			var dot = document.createElement('span');
-			dot.className = 'workbench-meter-status-dot';
-			var lblEl = document.createElement('span');
-			lblEl.textContent = displayLabel;
-			hdr.appendChild(dot);
-			hdr.appendChild(lblEl);
-			card.appendChild(hdr);
-
-			scanTarget = document.createElement('div');
-			scanTarget.className = 'workbench-meter-card-body verse-scansion workbench-scansion';
-			card.appendChild(scanTarget);
-			el.appendChild(card);
-		} else {
-			scanTarget = document.createElement('div');
-			scanTarget.className = 'verse-scansion workbench-scansion';
-			el.appendChild(scanTarget);
-		}
-
-		ScansionRenderer.render(scanTarget, data, {
+		ScansionRenderer.buildCard(el, data, {
 			weights:   s.weights,
 			morae:     s.morae,
 			gaRas:     s.gaRas,
 			alignment: s.alignment,
-		});
+		}, showMeterCard);
 	}
 
 	// --- Swap helpers ---
@@ -495,7 +449,7 @@
 			set_action("identify meter");
 
 			// Update melody player from response
-			currentMeterLabel = data.meter_label || "";
+			currentMelodyKey = data.meter_label || "";
 			currentMelodyOptions = data.melody_options || [];
 			rebuildMelodyDropdown(currentMelodyOptions);
 			if (currentMelodyOptions.length > 0) {
@@ -552,7 +506,7 @@
 	}
 
 	// --- Melody player (JS-driven) ---
-	var currentMeterLabel = "{{ meter_label }}";
+	var currentMelodyKey = "{{ meter_label }}";
 	var currentMelodyOptions = {{ melody_options | tojson }};
 
 	var melodySelectElement = document.getElementById("melody_option");
@@ -573,14 +527,14 @@
 		var audioElement = document.getElementById("audio");
 		var audio_src_selection = melodySelectElement.value;
 
-		if (!audio_src_selection || !currentMeterLabel) {
+		if (!audio_src_selection || !currentMelodyKey) {
 			return;
 		}
 
 		audio_src_selection = audio_src_selection.replace(/ /g, "-");
 		audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
 		var audio_src_str = audio_prefix +
-							currentMeterLabel +
+							currentMelodyKey +
 							"-" +
 							audio_src_selection +
 							".mp3";
@@ -592,7 +546,7 @@
 	}
 
 	function hideMelodyPlayer() {
-		currentMeterLabel = "";
+		currentMelodyKey = "";
 		currentMelodyOptions = [];
 		document.getElementById("melodyPlayer").classList.remove("visible");
 	}
