@@ -235,13 +235,6 @@ var ScansionRenderer = (function() {
 		scrollEl.appendChild(innerEl);
 		el.appendChild(scrollEl);
 
-		var labelColEl = null;
-		if (anyLabel) {
-			labelColEl = document.createElement('div');
-			labelColEl.className = 'scansion-label-col';
-			el.appendChild(labelColEl);
-		}
-
 		var rowWraps   = [];
 		var labelSlots = [];
 
@@ -417,16 +410,16 @@ var ScansionRenderer = (function() {
 
 			var wrap = document.createElement('div');
 			wrap.className = 'pada-row-wrap';
-			wrap.appendChild(row);
+			var rowAndMora = document.createElement('div');
+			rowAndMora.className = 'pada-row-and-mora';
+			rowAndMora.appendChild(row);
 			if (optMorae && moraeVal !== undefined) {
 				var mora = document.createElement('span');
 				mora.className = 'pada-mora';
 				mora.textContent = 'm: ' + moraeVal;
-				wrap.appendChild(mora);
+				rowAndMora.appendChild(mora);
 			}
-			innerEl.appendChild(wrap);
-			rowWraps.push(wrap);
-
+			wrap.appendChild(rowAndMora);
 			if (anyLabel) {
 				var slot = document.createElement('div');
 				slot.className = 'pada-label-slot';
@@ -444,18 +437,15 @@ var ScansionRenderer = (function() {
 					ilbl.textContent = (_explanationLang === 'sanskrit') ? iastToDisplay(labelText) : labelText;
 					slot.appendChild(ilbl);
 				}
-				labelColEl.appendChild(slot);
+				wrap.appendChild(slot);
 				labelSlots.push(slot);
 			}
+			innerEl.appendChild(wrap);
+			rowWraps.push(wrap);
 		}
 
 		requestAnimationFrame(function() {
 			if (!isJati) alignGanaColumnsInScansion(el);
-			if (anyLabel && rowWraps.length === labelSlots.length) {
-				for (var i = 0; i < rowWraps.length; i++) {
-					labelSlots[i].style.minHeight = rowWraps[i].offsetHeight + 'px';
-				}
-			}
 		});
 	}
 
