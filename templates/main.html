@@ -7,6 +7,8 @@
 	<meta property='og:image' content='/assets/ui_screenshot.png'/>
 	<meta property='og:description' content='toolkit and online workbench providing useful functions for working with Sanskrit text'/>
 	<meta property='og:url' content='https://www.skrutable.info'/>
+	<script src="https://cdn.jsdelivr.net/npm/skrutable-js@2.1.4/dist/skrutable.bundle.js"></script>
+	<script src="/assets/js/scan_card_rendering.js"></script>
 {% endblock %}
 
 {% block sidebar_controls %}
@@ -33,11 +35,16 @@
 			<div class="textarea-swap-group">
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
 				<div class="textarea-action-row">
+					<div class="output-mode-toggle">
+						<button type="button" id="toggle_output_text" class="toggle-btn active" onclick="setOutputMode('text');">text</button>
+						<button type="button" id="toggle_output_html" class="toggle-btn" onclick="setOutputMode('html');">html</button>
+					</div>
 					<button type="button" class="btn btn-primary btn-textarea-action" onclick="clearTextAreas();" title="Clear text boxes">&#x2715;</button>
 					<button type="button" class="btn btn-primary btn-textarea-action btn-repeat-action" id="repeat_action_button" onclick="repeatLastAction();" title="Repeat last action" {% if not skrutable_action or input_mode == 'file' %}disabled{% endif %}>&#x21BA;</button>
-					<button type="button" class="btn btn-primary btn-textarea-action" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
+					<button type="button" class="btn btn-primary btn-textarea-action" id="swap_texts_button" onclick="swapTexts();" title="Swap in/out text">&#8645;</button>
 				</div>
 				<textarea id="text_output" name="text_output" class="textarea-output" rows="15" spellcheck="false">{{ text_output }}</textarea>
+				<div id="html_output" class="workbench-html-output" style="display:none;"></div>
 			</div>
 
 			<!-- melody player -->
@@ -86,6 +93,8 @@
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
 	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentWbMeterHtmlOutput = {{ workbench_meter_html_output|default(0)|int }} === 1;
+	var currentExplanationLang = "{{ explanation_language|default('sanskrit') }}";
 	var currentInputMode = "{{ input_mode|default('text') }}";
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
@@ -103,6 +112,7 @@
 		currentAction = action;
 		highlightUploadButton(action);
 		updateOptionsDisplay();
+		updatePillForAction(action);
 		saveSettingsToSession();
 		closeSidebarOnMobile();
 	}
@@ -158,6 +168,22 @@
 		localStorage.setItem("text_input", document.getElementById("text_input").value);
 		localStorage.setItem("text_output", document.getElementById("text_output").value);
 	}
+	function saveMelodyState() {
+		localStorage.setItem("melody_meter_label", currentMelodyKey);
+		localStorage.setItem("melody_options", JSON.stringify(currentMelodyOptions));
+		localStorage.setItem("melody_selected", melodySelectElement.value);
+	}
+	function clearMelodyState() {
+		localStorage.removeItem("melody_meter_label");
+		localStorage.removeItem("melody_options");
+		localStorage.removeItem("melody_selected");
+	}
+	function saveLastScanData(data) {
+		localStorage.setItem("last_scan_data", JSON.stringify(data));
+	}
+	function clearLastScanData() {
+		localStorage.removeItem("last_scan_data");
+	}
 	function restoreTexts() {
 		var inp = document.getElementById("text_input");
 		var out = document.getElementById("text_output");
@@ -176,11 +202,32 @@
 			// Restore from localStorage
 			if (localStorage.getItem("text_input")) inp.value = localStorage.getItem("text_input");
 			if (localStorage.getItem("text_output")) out.value = localStorage.getItem("text_output");
+			if (currentOutputMode === 'html') {
+				var saved = localStorage.getItem("last_scan_data");
+				if (saved) {
+					try { renderHtmlOutput(JSON.parse(saved), currentAction === 'identify meter'); } catch(e) {}
+				}
+			}
+			var savedLabel = localStorage.getItem("melody_meter_label");
+			var savedOpts = localStorage.getItem("melody_options");
+			var savedSelected = localStorage.getItem("melody_selected");
+			if (savedLabel && savedOpts) {
+				try {
+					currentMelodyKey = savedLabel;
+					currentMelodyOptions = JSON.parse(savedOpts);
+					rebuildMelodyDropdown(currentMelodyOptions);
+					if (savedSelected) melodySelectElement.value = savedSelected;
+					if (currentMelodyOptions.length > 0) { showMelodyPlayer(); update_melody(); }
+				} catch(e) {}
+			}
 		}
 	}
 	function clearTextAreas() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
+		document.getElementById("html_output").innerHTML = "";
+		clearLastScanData();
+		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
 		var opt = document.getElementById("auto_scheme_option");
@@ -190,6 +237,9 @@
 	function clearTexts() {
 		document.getElementById("text_input").value = "";
 		document.getElementById("text_output").value = "";
+		document.getElementById("html_output").innerHTML = "";
+		clearLastScanData();
+		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
 		currentAction = "";
@@ -203,6 +253,77 @@
 	function repeatLastAction() {
 		if (!currentAction) return;
 		onActionButton(currentAction);
+	}
+
+	// --- Output mode toggle (text / html) ---
+	var currentOutputMode = currentWbMeterHtmlOutput ? 'html' : 'text';
+	var lastScanOutputMode = currentOutputMode;  // remembered across transliterate/split detours
+
+	function setOutputMode(mode) {
+		currentOutputMode = mode;
+		lastScanOutputMode = mode;
+		currentWbMeterHtmlOutput = (mode === 'html');
+		saveSettingsToSession();
+		_applyOutputModeUI(mode);
+	}
+
+	function _applyOutputModeUI(mode) {
+		var txtOut = document.getElementById('text_output');
+		var htmlOut = document.getElementById('html_output');
+		var swapBtn = document.getElementById('swap_texts_button');
+		var textBtn = document.getElementById('toggle_output_text');
+		var htmlBtn = document.getElementById('toggle_output_html');
+		if (mode === 'html') {
+			txtOut.style.display = 'none';
+			htmlOut.style.display = '';
+			swapBtn.disabled = true;
+			swapBtn.style.opacity = '0.4';
+			textBtn.classList.remove('active');
+			htmlBtn.classList.add('active');
+		} else {
+			txtOut.style.display = '';
+			htmlOut.style.display = 'none';
+			swapBtn.disabled = false;
+			swapBtn.style.opacity = '';
+			textBtn.classList.add('active');
+			htmlBtn.classList.remove('active');
+		}
+	}
+
+	function updatePillForAction(action) {
+		var toggle = document.querySelector('.output-mode-toggle');
+		var textBtn = document.getElementById('toggle_output_text');
+		var htmlBtn = document.getElementById('toggle_output_html');
+		var isScanAction = (action === 'scan' || action === 'identify meter');
+		if (toggle) {
+			toggle.style.opacity = isScanAction ? '' : '0.4';
+			toggle.style.pointerEvents = isScanAction ? '' : 'none';
+		}
+		if (isScanAction) {
+			currentOutputMode = lastScanOutputMode;
+			_applyOutputModeUI(currentOutputMode);
+		} else {
+			currentOutputMode = 'text';
+			_applyOutputModeUI('text');
+		}
+	}
+
+	function renderHtmlOutput(data, showMeterCard) {
+		var s = getSidebarSettings();
+		var T = new Skrutable.Transliterator();
+		ScansionRenderer.init(
+			s.to_scheme || 'IAST',
+			function(text, from, to) { return T.transliterate(text, from, to); },
+			currentExplanationLang
+		);
+		var el = document.getElementById('html_output');
+		el.innerHTML = '';
+		ScansionRenderer.buildCard(el, data, {
+			weights:   s.weights,
+			morae:     s.morae,
+			gaRas:     s.gaRas,
+			alignment: s.alignment,
+		}, showMeterCard);
 	}
 
 	// --- Swap helpers ---
@@ -235,6 +356,7 @@
 	}
 
 	async function doTransliterate() {
+		updatePillForAction('transliterate');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("transliterate_button");
 		setButtonLoading(btn, true);
@@ -265,6 +387,7 @@
 	}
 
 	async function doScan() {
+		updatePillForAction('scan');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("scan_button");
 		setButtonLoading(btn, true);
@@ -286,6 +409,8 @@
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
 			saveTexts();
+			renderHtmlOutput(data);
+			saveLastScanData(data);
 			set_action("scan");
 			hideMelodyPlayer();
 			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
@@ -296,6 +421,7 @@
 	}
 
 	async function doIdentifyMeter() {
+		updatePillForAction('identify meter');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("identify_meter_button");
 		setButtonLoading(btn, true);
@@ -318,17 +444,21 @@
 			var data = await resp.json();
 			document.getElementById("text_output").value = data.result;
 			saveTexts();
+			renderHtmlOutput(data, true);
+			saveLastScanData(data);
 			set_action("identify meter");
 
 			// Update melody player from response
-			currentMeterLabel = data.meter_label || "";
+			currentMelodyKey = data.meter_label || "";
 			currentMelodyOptions = data.melody_options || [];
 			rebuildMelodyDropdown(currentMelodyOptions);
 			if (currentMelodyOptions.length > 0) {
 				showMelodyPlayer();
 				update_melody();
+				saveMelodyState();
 			} else {
 				hideMelodyPlayer();
+				clearMelodyState();
 			}
 			if (data.detected_scheme) updateAutoLabel(data.detected_scheme, data.detection_confidence);
 			closeSidebarOnMobile();
@@ -338,6 +468,7 @@
 	}
 
 	async function doSplit() {
+		updatePillForAction('split');
 		if (!document.getElementById("text_input").value.trim()) return;
 		var btn = document.getElementById("split_button");
 		setButtonLoading(btn, true);
@@ -375,12 +506,12 @@
 	}
 
 	// --- Melody player (JS-driven) ---
-	var currentMeterLabel = "{{ meter_label }}";
+	var currentMelodyKey = "{{ meter_label }}";
 	var currentMelodyOptions = {{ melody_options | tojson }};
 
 	var melodySelectElement = document.getElementById("melody_option");
 	const audio_prefix = "/assets/melodies/";
-	melodySelectElement.addEventListener("change", update_melody);
+	melodySelectElement.addEventListener("change", function() { update_melody(); saveMelodyState(); });
 
 	function rebuildMelodyDropdown(options) {
 		melodySelectElement.innerHTML = "";
@@ -396,14 +527,14 @@
 		var audioElement = document.getElementById("audio");
 		var audio_src_selection = melodySelectElement.value;
 
-		if (!audio_src_selection || !currentMeterLabel) {
+		if (!audio_src_selection || !currentMelodyKey) {
 			return;
 		}
 
 		audio_src_selection = audio_src_selection.replace(/ /g, "-");
 		audio_src_selection = audio_src_selection.replace(/\./g, ""); // e.g. for H.V. Nagaraja Rao
 		var audio_src_str = audio_prefix +
-							currentMeterLabel +
+							currentMelodyKey +
 							"-" +
 							audio_src_selection +
 							".mp3";
@@ -415,7 +546,7 @@
 	}
 
 	function hideMelodyPlayer() {
-		currentMeterLabel = "";
+		currentMelodyKey = "";
 		currentMelodyOptions = [];
 		document.getElementById("melodyPlayer").classList.remove("visible");
 	}
@@ -548,9 +679,26 @@
 		]);
 	}
 
+	function makeSelectCell(id, options, selected, disabled) {
+		var attrs = ' id="inline_' + id + '"' + (disabled ? ' disabled style="opacity:0.4"' : '');
+		var html = '<select' + attrs + '>';
+		options.forEach(function(o) {
+			html += '<option value="' + o.value + '"' + (o.value === selected ? ' selected' : '') + '>' + o.label + '</option>';
+		});
+		html += '</select>';
+		return html;
+	}
+
 	function makeExtraIdentifyMeter() {
+		var langDisabled = !currentBatchCorrectionMode;
+		var langCell = makeSelectCell("explanation_language", [
+			{value: "sanskrit", label: "Sanskrit"},
+			{value: "english",  label: "English"},
+		], currentExplanationLang, langDisabled);
+		var langLabel = '<span' + (langDisabled ? ' style="opacity:0.4"' : '') + '>explanations default</span>';
 		return makeTableWithControls("meter identification", [
 			["batch correction mode", makeCheckboxCell("batch_correction_mode", currentBatchCorrectionMode, false)],
+			[langLabel, langCell],
 		]);
 	}
 
@@ -594,7 +742,17 @@
 		bindCheckbox("preserve_anunasika", function() { return currentPreserveAnunasika; }, function(v) { currentPreserveAnunasika = v; });
 		bindCheckbox("preserve_punctuation", function() { return currentPreservePunctuation; }, function(v) { currentPreservePunctuation = v; });
 		bindCheckbox("preserve_compound_hyphens", function() { return currentPreserveCompoundHyphens; }, function(v) { currentPreserveCompoundHyphens = v; });
-		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) { currentBatchCorrectionMode = v; updateOptionsDisplay(); });
+		bindCheckbox("batch_correction_mode", function() { return currentBatchCorrectionMode; }, function(v) {
+			currentBatchCorrectionMode = v;
+			updateOptionsDisplay();
+		});
+		var langEl = document.getElementById("inline_explanation_language");
+		if (langEl) {
+			langEl.addEventListener("change", function() {
+				currentExplanationLang = this.value;
+				saveSettingsToSession();
+			});
+		}
 	}
 
 	function makeTable(caption, rows) {
@@ -655,6 +813,7 @@
 		addHidden("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 		addHidden("preserve_anunasika", currentPreserveAnunasika);
 		addHidden("batch_correction_mode", currentBatchCorrectionMode);
+		addHidden("workbench_meter_html_output", currentWbMeterHtmlOutput);
 		["weights", "morae", "gaRas", "alignment"].forEach(function(id) {
 			if (s[id]) addHidden("scan_detail", id);
 		});
@@ -679,11 +838,12 @@
 			updateOptionsDisplay();
 		}
 		restoreTexts();
+		setOutputMode(currentOutputMode);
+		updatePillForAction(currentAction);
 
-		// Initialize melody dropdown from server data (for examples)
-		if (currentMelodyOptions.length > 0) {
+		// Initialize melody dropdown from server data (for examples — only when not restored from localStorage)
+		if (currentMelodyOptions.length > 0 && !localStorage.getItem("melody_meter_label")) {
 			rebuildMelodyDropdown(currentMelodyOptions);
-			// Only show melody player if there's actually output to go with it
 			if (document.getElementById("text_output").value) {
 				showMelodyPlayer();
 			}
