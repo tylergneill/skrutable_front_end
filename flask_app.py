@@ -546,6 +546,74 @@ def upload_file():
 		)
 		return response
 
+	# POST with text: batch identify-meter from textarea
+	elif request.form.get("input_text") and request.form.get("batch_text_mode"):
+
+		process_form(request.form)
+
+		import json as _json
+
+		input_text = request.form["input_text"]
+		suffixes = _json.loads(request.form.get("suffixes", "[]"))
+		verses = input_text.splitlines()
+
+		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
+
+		starting_time = datetime.now().time()
+
+		r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
+		verse_objects = MI.identify_meter_batch(
+			verses,
+			resplit_option=r_o,
+			resplit_keep_midpoint=r_k_m,
+			from_scheme=resolved_from_scheme,
+		)
+
+		verse_data = []
+		for i, V in enumerate(verse_objects):
+			summary = V.summarize(
+				show_weights=session["weights"],
+				show_morae=session["morae"],
+				show_gaRas=session["gaRas"],
+				show_alignment=session["alignment"],
+				show_label=True,
+			)
+			verse_data.append({
+				"text_raw": V.text_raw,
+				"text_syllabified": V.text_syllabified,
+				"syllable_weights": V.syllable_weights,
+				"morae_per_line": V.morae_per_line,
+				"gaRa_abbreviations": V.gaRa_abbreviations,
+				"mAtragaNa_abbreviations": V.mAtragaNa_abbreviations,
+				"meter_label": V.meter_label,
+				"identification_score": V.identification_score,
+				"diagnostic": serialize_diagnostic(V.diagnostic),
+				"summary": summary,
+				"suffix": suffixes[i] if i < len(suffixes) else "",
+			})
+
+		ending_time = datetime.now().time()
+		delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+		duration_secs = delta.seconds + delta.microseconds / 1000000
+
+		return render_template(
+			"batch_meter_results.html",
+			batch_data_json=_json.dumps({
+				"verses": verse_data,
+				"settings": {
+					"resplit_option": session["resplit_option"],
+					"from_scheme": resolved_from_scheme,
+					"to_scheme": session.get("to_scheme", "IAST"),
+					"weights": session["weights"],
+					"morae": session["morae"],
+					"gaRas": session["gaRas"],
+					"alignment": session["alignment"],
+					"explanation_language": session.get("explanation_language", "sanskrit"),
+				},
+				"duration_secs": duration_secs,
+			}),
+		)
+
 @app.route("/batch-meter-correction", methods=["GET"])
 def batch_meter_correction():
 	return redirect("/?expired=batch")
