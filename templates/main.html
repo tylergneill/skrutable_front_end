@@ -34,6 +34,7 @@
 
 			<div class="textarea-swap-group">
 				<textarea id="text_input" name="text_input" class="textarea-input" rows="4" spellcheck="false" placeholder="Enter text here">{{ text_input }}</textarea>
+				<div id="batch_hint" style="display:none; font-size:0.8em; color: var(--text-muted, #888); margin: 2px 0 0 2px;"></div>
 				<div class="textarea-action-row">
 					<div class="output-mode-toggle">
 						<button type="button" id="toggle_output_text" class="toggle-btn active" onclick="setOutputMode('text');">text</button>
@@ -99,6 +100,8 @@
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {
+		currentAction = action;
+		updateBatchHint();
 		var handlers = {
 			'transliterate': doTransliterate,
 			'scan': doScan,
@@ -230,6 +233,7 @@
 		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
+		updateBatchHint();
 		var opt = document.getElementById("auto_scheme_option");
 		if (opt) opt.textContent = "Auto";
 	}
@@ -242,6 +246,7 @@
 		clearMelodyState();
 		saveTexts();
 		hideMelodyPlayer();
+		updateBatchHint();
 		currentAction = "";
 		highlightActionButton("");
 		document.getElementById("repeat_action_button").disabled = true;
@@ -353,6 +358,7 @@
 		highlightActionButton(action);
 		document.getElementById("repeat_action_button").disabled = !action;
 		saveSettingsToSession();
+		updateBatchHint();
 	}
 
 	async function doTransliterate() {
@@ -458,6 +464,19 @@
 			}
 		}
 		return chunks;
+	}
+
+	function updateBatchHint() {
+		var hint = document.getElementById("batch_hint");
+		if (!hint) return;
+		var text = document.getElementById("text_input").value;
+		if (isMultiVerseInput(text)) {
+			var count = parseMultiVerseInput(text).length;
+			hint.textContent = count + " verses detected — clicking Identify Meter will open batch view";
+			hint.style.display = "";
+		} else {
+			hint.style.display = "none";
+		}
 	}
 
 	async function doIdentifyMeter() {
@@ -923,10 +942,11 @@
 			}
 		}
 		update_melody();
+		updateBatchHint();
 		window.scrollTo(0, 0);
 
 		// Save text on any edit
-		document.getElementById("text_input").addEventListener("input", saveTexts);
+		document.getElementById("text_input").addEventListener("input", function() { saveTexts(); updateBatchHint(); });
 		document.getElementById("text_output").addEventListener("input", saveTexts);
 	}
 
