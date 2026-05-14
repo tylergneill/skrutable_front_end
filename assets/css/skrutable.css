@@ -474,8 +474,8 @@ pre {
 	background: var(--input-bg);
 	margin-bottom: 0.5em;
 }
-.verse-card.perfect  { border-left-color: #4caf50; }
-.verse-card.imperfect { border-left-color: #e05050; }
+.verse-card.perfect  { border-left-color: #4a9e50; }
+.verse-card.imperfect { border-left-color: #b85050; }
 .verse-card.unknown  { border-left-color: #aaa; }
 .verse-card-header {
 	display: flex;
@@ -495,9 +495,13 @@ pre {
 	background: #aaa;
 	flex-shrink: 0;
 }
-.verse-card-header.perfect   .verse-status-dot { background: #4caf50; }
-.verse-card-header.imperfect .verse-status-dot { background: #e05050; }
+.verse-card-header.perfect   .verse-status-dot { background: #4a9e50; }
+.verse-card-header.imperfect .verse-status-dot { background: #b85050; }
 .verse-card-header.unknown   .verse-status-dot { background: #aaa; }
+[data-theme="dark"] .verse-card.perfect   { border-left-color: #3d8c42; }
+[data-theme="dark"] .verse-card.imperfect { border-left-color: #a84444; }
+[data-theme="dark"] .verse-card-header.perfect   .verse-status-dot { background: #3d8c42; }
+[data-theme="dark"] .verse-card-header.imperfect .verse-status-dot { background: #a84444; }
 .verse-card-body { padding: 0.5em 0.25em 0.25em 0.25em; }
 
 .sidebar-help-link {
