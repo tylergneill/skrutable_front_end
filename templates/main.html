@@ -420,15 +420,89 @@
 		}
 	}
 
+	// Returns true if the input contains ≥2 lines each containing a verse-end marker.
+	function isMultiVerseInput(text) {
+		var MARKER = /(\|\||।।|॥|\/\/)/;
+		var lines = text.split('\n');
+		var count = 0;
+		for (var i = 0; i < lines.length; i++) {
+			if (MARKER.test(lines[i])) { count++; if (count >= 2) return true; }
+		}
+		return false;
+	}
+
+	// Splits multi-verse input into {text, suffix} objects.
+	// Each chunk = all content up to and including the marker line.
+	// suffix = anything after the marker on that line (e.g. " 8").
+	// The chunk text is normalized: newlines collapsed to single spaces.
+	function parseMultiVerseInput(text) {
+		var MARKER = /(\|\||।।|॥|\/\/)/;
+		var lines = text.split('\n');
+		var chunks = [];
+		var currentLines = [];
+		for (var i = 0; i < lines.length; i++) {
+			var line = lines[i];
+			var m = MARKER.exec(line);
+			if (m) {
+				// Split line at first marker: everything up to and including the marker is part of the chunk
+				var markerEnd = m.index + m[0].length;
+				var beforeAndMarker = line.slice(0, markerEnd);
+				var suffix = line.slice(markerEnd);
+				currentLines.push(beforeAndMarker);
+				var chunkText = currentLines.join(' ').replace(/\s+/g, ' ').trim();
+				chunks.push({ text: chunkText, suffix: suffix });
+				currentLines = [];
+			} else {
+				// Skip blank lines between verses, but include non-blank content lines
+				if (line.trim()) currentLines.push(line.trim());
+			}
+		}
+		return chunks;
+	}
+
 	async function doIdentifyMeter() {
 		updatePillForAction('identify meter');
-		if (!document.getElementById("text_input").value.trim()) return;
+		var rawInput = document.getElementById("text_input").value;
+		if (!rawInput.trim()) return;
+
+		// Batch text mode: ≥2 verse-end marker lines → navigate to batch result page
+		if (isMultiVerseInput(rawInput)) {
+			var chunks = parseMultiVerseInput(rawInput);
+			var onePerLine = chunks.map(function(c) { return c.text; }).join('\n');
+			var suffixes = chunks.map(function(c) { return c.suffix; });
+			var s = getSidebarSettings();
+			var form = document.createElement('form');
+			form.method = 'POST';
+			form.action = '/upload_file';
+			function addField(name, val) {
+				var inp = document.createElement('input');
+				inp.type = 'hidden';
+				inp.name = name;
+				inp.value = val;
+				form.appendChild(inp);
+			}
+			addField('input_text', onePerLine);
+			addField('batch_text_mode', '1');
+			addField('suffixes', JSON.stringify(suffixes));
+			addField('skrutable_action', 'identify meter');
+			addField('from_scheme', s.from_scheme);
+			addField('to_scheme', s.to_scheme);
+			addField('resplit_option', s.resplit_option);
+			if (s.weights) addField('scan_detail', 'weights');
+			if (s.morae) addField('scan_detail', 'morae');
+			if (s.gaRas) addField('scan_detail', 'gaRas');
+			if (s.alignment) addField('scan_detail', 'alignment');
+			document.body.appendChild(form);
+			form.submit();
+			return;
+		}
+
 		var btn = document.getElementById("identify_meter_button");
 		setButtonLoading(btn, true);
 		try {
 			var s = getSidebarSettings();
 			var fd = new FormData();
-			fd.append("input_text", document.getElementById("text_input").value);
+			fd.append("input_text", rawInput);
 			fd.append("from_scheme", s.from_scheme);
 			fd.append("show_weights", s.weights);
 			fd.append("show_morae", s.morae);
