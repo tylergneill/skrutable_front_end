@@ -1160,7 +1160,7 @@
 		var ta = document.createElement('textarea');
 		ta.className = 'verse-raw-textarea';
 		ta.id = 'verse-raw-text-' + idx;
-		ta.value = v.text_raw || '';
+		ta.value = (v.text_raw || '') + (v.suffix || '');
 		ta.spellcheck = false;
 		ta.rows = Math.max((v.text_raw || '').split('\n').length, 3);
 		ta.addEventListener('input', function() {
