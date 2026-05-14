@@ -458,6 +458,8 @@ pre {
 [data-theme="dark"] .syl-box.G .scan { color: #dd6666; }
 .syl-box.problem { background: #e8a0a0; }
 [data-theme="dark"] .syl-box.problem { background: #7a3030; }
+.syl-box.notable { background: #a0d8a0; }
+[data-theme="dark"] .syl-box.notable { background: #2a5c2a; }
 .syl-box.missing-syl { background: transparent; border-style: dashed; border-color: #b04040; }
 [data-theme="dark"] .syl-box.missing-syl { border-color: #dd6666; }
 .pada-mora { font-size: 0.8em; color: #777; white-space: nowrap; align-self: flex-end; padding-bottom: 2px; }

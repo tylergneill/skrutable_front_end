@@ -94,7 +94,7 @@ var ScansionRenderer = (function() {
 	}
 
 	function getPadaDiagInfo(diag, padaIdx, numPadas) {
-		var empty = { probSet: {}, ps: null, isLenError: false, imperfectLabel: null };
+		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null };
 		if (!diag) return empty;
 
 		if (diag.type === 'pada') {
@@ -103,9 +103,12 @@ var ScansionRenderer = (function() {
 			var sktLabel = diag.imperfect_label_sanskrit && diag.imperfect_label_sanskrit[padaKey];
 			var chosenLabel = _explanationLang === 'english' ? engLabel : sktLabel;
 			var ps = diag.problem_syllables && diag.problem_syllables[padaKey];
+			var ns = diag.notable_syllables && diag.notable_syllables[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
+			var notableSet = {};
+			if (ns) ns.forEach(function(i) { notableSet[i] = true; });
 			var showLabel = false;
 			if (chosenLabel) {
 				var myPs = diag.problem_syllables && diag.problem_syllables[padaKey];
@@ -124,7 +127,7 @@ var ScansionRenderer = (function() {
 					showLabel = (firstLabeledNoBad === padaIdx + 1);
 				}
 			}
-			return { probSet: probSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
+			return { probSet: probSet, notableSet: notableSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
 		}
 
 		if (diag.type === 'half') {
@@ -136,9 +139,12 @@ var ScansionRenderer = (function() {
 			var sktLabel2 = d.imperfect_label_sanskrit && d.imperfect_label_sanskrit[withinHalf];
 			var chosenLabel2 = _explanationLang === 'english' ? engLabel2 : sktLabel2;
 			var ps2 = d.problem_syllables && d.problem_syllables[withinHalf];
+			var ns2 = d.notable_syllables && d.notable_syllables[withinHalf];
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
+			var notableSet2 = {};
+			if (ns2) ns2.forEach(function(i) { notableSet2[i] = true; });
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
 			var showLabel2 = false;
@@ -147,7 +153,7 @@ var ScansionRenderer = (function() {
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			return { probSet: probSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
+			return { probSet: probSet2, notableSet: notableSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
 		}
 
 		return empty;
@@ -239,10 +245,11 @@ var ScansionRenderer = (function() {
 			var moraeVal = morae[p];
 			if (!sylStr && !wtStr) continue;
 
-			var info    = padaDiagInfos[p] || { probSet: {}, ps: null, isLenError: false, imperfectLabel: null };
-			var probSet = info.probSet;
-			var ps      = info.ps;
-			var lenError = info.isLenError;
+			var info       = padaDiagInfos[p] || { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null };
+			var probSet    = info.probSet;
+			var notableSet = info.notableSet;
+			var ps         = info.ps;
+			var lenError   = info.isLenError;
 
 			var sylList   = sylStr.split(' ').filter(function(s) { return s.length > 0; });
 			var wtList    = wtStr.split('').filter(function(c)  { return 'lgLG'.indexOf(c) >= 0; });
@@ -271,11 +278,13 @@ var ScansionRenderer = (function() {
 				var isProb = isMissing ? false
 				           : lenError  ? (hyperIdx !== null && j === hyperIdx)
 				           : !!(probSet && probSet[j]);
+				var isNotable = !isMissing && !!(notableSet && notableSet[j]);
 				var box = document.createElement('div');
 				box.className = 'syl-box'
 				              + (isMissing ? ' missing-syl' : '')
 				              + (optWeights && !isMissing && isL ? ' L' : optWeights && !isMissing && isG ? ' G' : '')
-				              + (isProb ? ' problem' : '');
+				              + (isProb ? ' problem' : '')
+				              + (isNotable ? ' notable' : '');
 				if (optWeights) {
 					var sc = document.createElement('div'); sc.className = 'scan';
 					sc.textContent = isL ? slpGanaToDisplay('l') : isG ? slpGanaToDisplay('g') : wt;
@@ -467,9 +476,7 @@ var ScansionRenderer = (function() {
 			var unk = isUnknown(v);
 			var perf = !unk && isPerfect(v);
 			var statusClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
-			var displayLabel = unk  ? 'na kiṃcid adhyavasitam'
-			                 : perf ? (lbl.split(' (')[0].trim() || lbl)
-			                 :        lbl;
+			var displayLabel = unk ? 'na kiṃcid adhyavasitam' : lbl;
 
 			var card = document.createElement('div');
 			card.className = 'verse-card ' + statusClass;

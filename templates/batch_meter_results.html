@@ -1140,7 +1140,6 @@
 
 	function buildHeaderLabel(v) {
 		var lbl = v.meter_label || 'unidentified';
-		if (isPerfect(v)) lbl = lbl.split(' (')[0].trim() || lbl;
 		return meterLabelToDisplay(lbl);
 	}
 
