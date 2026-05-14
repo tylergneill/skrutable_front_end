@@ -94,7 +94,7 @@ var ScansionRenderer = (function() {
 	}
 
 	function getPadaDiagInfo(diag, padaIdx, numPadas) {
-		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null };
+		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null, notableLabel: null };
 		if (!diag) return empty;
 
 		if (diag.type === 'pada') {
@@ -104,6 +104,7 @@ var ScansionRenderer = (function() {
 			var chosenLabel = _explanationLang === 'english' ? engLabel : sktLabel;
 			var ps = diag.problem_syllables && diag.problem_syllables[padaKey];
 			var ns = diag.notable_syllables && diag.notable_syllables[padaKey];
+			var nl = diag.notable_label && diag.notable_label[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
@@ -127,7 +128,7 @@ var ScansionRenderer = (function() {
 					showLabel = (firstLabeledNoBad === padaIdx + 1);
 				}
 			}
-			return { probSet: probSet, notableSet: notableSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null };
+			return { probSet: probSet, notableSet: notableSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null, notableLabel: nl || null };
 		}
 
 		if (diag.type === 'half') {
@@ -140,6 +141,7 @@ var ScansionRenderer = (function() {
 			var chosenLabel2 = _explanationLang === 'english' ? engLabel2 : sktLabel2;
 			var ps2 = d.problem_syllables && d.problem_syllables[withinHalf];
 			var ns2 = d.notable_syllables && d.notable_syllables[withinHalf];
+			var nl2 = d.notable_label && d.notable_label[withinHalf];
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
@@ -147,13 +149,16 @@ var ScansionRenderer = (function() {
 			if (ns2) ns2.forEach(function(i) { notableSet2[i] = true; });
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
+			var hasOddNotable  = d.notable_syllables && d.notable_syllables['odd']  && d.notable_syllables['odd'].length  > 0;
 			var showLabel2 = false;
 			if (chosenLabel2) {
 				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			return { probSet: probSet2, notableSet: notableSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null };
+			// show notable label on the odd pāda that has the notable syllables
+			var showNotable2 = !!(nl2 && withinHalf === 'odd' && hasOddNotable);
+			return { probSet: probSet2, notableSet: notableSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null, notableLabel: showNotable2 ? nl2 : null };
 		}
 
 		return empty;
@@ -209,16 +214,18 @@ var ScansionRenderer = (function() {
 		function matraGanaSylCount(name) { return MATRA_GANA_SYLS[name] || name.length; }
 
 		var imperfectLabels = [];
+		var notableLabels = [];
 		var anyLabel = false;
 		var padaDiagInfos = [];
 		for (var p = 0; p < numPadas; p++) {
 			var sylStr0 = sylPadas[p] || '';
 			var wtStr0  = wtPadas[p]  || '';
-			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); padaDiagInfos.push(null); continue; }
+			if (!sylStr0 && !wtStr0) { imperfectLabels.push(null); notableLabels.push(null); padaDiagInfos.push(null); continue; }
 			var info0 = getPadaDiagInfo(diag, p, numPadas);
 			padaDiagInfos.push(info0);
 			imperfectLabels.push(info0.imperfectLabel);
-			if (info0.imperfectLabel) anyLabel = true;
+			notableLabels.push(info0.notableLabel);
+			if (info0.imperfectLabel || info0.notableLabel) anyLabel = true;
 		}
 
 		var scrollEl = document.createElement('div');
@@ -423,6 +430,13 @@ var ScansionRenderer = (function() {
 			if (anyLabel) {
 				var slot = document.createElement('div');
 				slot.className = 'pada-label-slot';
+				var notableLabelText = notableLabels[p];
+				if (notableLabelText) {
+					var nlbl = document.createElement('span');
+					nlbl.className = 'pada-notable-label';
+					nlbl.textContent = meterLabelToDisplay(notableLabelText);
+					slot.appendChild(nlbl);
+				}
 				var labelText = imperfectLabels[p];
 				if (labelText) {
 					var ilbl = document.createElement('span');
