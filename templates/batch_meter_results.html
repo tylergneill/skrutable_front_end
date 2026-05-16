@@ -592,7 +592,7 @@
 		document.getElementById('bcm-verses').innerHTML =
 			'<div style="max-width:40em;margin:4em auto;padding:1.5em 2em;' +
 			'background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;' +
-			'border-left:5px solid #e05050;font-family:var(--font-body);color:var(--main-text);">' +
+			'border-left:5px solid #b85050;font-family:var(--font-body);color:var(--main-text);">' +
 			'<p style="font-size:1.2em;font-weight:bold;margin:0 0 0.5em">' +
 			fmt(needsCount) + ' of ' + fmt(verses.length) + ' verses need correction — too many to display.</p>' +
 			'<p style="margin:0 0 1em;opacity:0.8">This usually means the wrong resplit option was used. ' +
@@ -1140,7 +1140,6 @@
 
 	function buildHeaderLabel(v) {
 		var lbl = v.meter_label || 'unidentified';
-		if (isPerfect(v)) lbl = lbl.split(' (')[0].trim() || lbl;
 		return meterLabelToDisplay(lbl);
 	}
 
