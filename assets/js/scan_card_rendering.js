@@ -104,7 +104,9 @@ var ScansionRenderer = (function() {
 			var chosenLabel = _explanationLang === 'english' ? engLabel : sktLabel;
 			var ps = diag.problem_syllables && diag.problem_syllables[padaKey];
 			var ns = diag.notable_syllables && diag.notable_syllables[padaKey];
-			var nl = diag.notable_label && diag.notable_label[padaKey];
+			var nlSkt = diag.notable_label_sanskrit && diag.notable_label_sanskrit[padaKey];
+			var nlEng = diag.notable_label_english  && diag.notable_label_english[padaKey];
+			var nl = _explanationLang === 'english' ? nlEng : nlSkt;
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
@@ -141,7 +143,9 @@ var ScansionRenderer = (function() {
 			var chosenLabel2 = _explanationLang === 'english' ? engLabel2 : sktLabel2;
 			var ps2 = d.problem_syllables && d.problem_syllables[withinHalf];
 			var ns2 = d.notable_syllables && d.notable_syllables[withinHalf];
-			var nl2 = d.notable_label && d.notable_label[withinHalf];
+			var nl2Skt = d.notable_label_sanskrit && d.notable_label_sanskrit[withinHalf];
+			var nl2Eng = d.notable_label_english  && d.notable_label_english[withinHalf];
+			var nl2 = _explanationLang === 'english' ? nl2Eng : nl2Skt;
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });

@@ -146,7 +146,8 @@ def serialize_diagnostic(diag):
 			"imperfect_label_english": d.imperfect_label_english,    # dict w/ int or str keys, or None
 			"problem_syllables": d.problem_syllables,                # dict w/ int or str keys, or None
 			"notable_syllables": d.notable_syllables,                # dict w/ int or str keys, or None
-			"notable_label": d.notable_label,                        # dict w/ int or str keys, or None
+			"notable_label_sanskrit": d.notable_label_sanskrit,      # dict w/ int or str keys, or None
+			"notable_label_english": d.notable_label_english,        # dict w/ int or str keys, or None
 		}
 	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
 	if isinstance(diag, Diagnostic):
