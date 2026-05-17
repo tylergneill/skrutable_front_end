@@ -549,7 +549,41 @@ def upload_file():
 		)
 		return response
 
-	# POST with text: batch identify-meter from textarea
+	# POST with text (no file, no batch_text_mode): plain-text identify-meter download from textarea
+	elif request.form.get("input_text") and not request.form.get("batch_text_mode"):
+
+		process_form(request.form)
+
+		input_text = request.form["input_text"]
+		verses = input_text.splitlines()
+
+		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
+
+		r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
+		verse_objects = MI.identify_meter_batch(
+			verses,
+			resplit_option=r_o,
+			resplit_keep_midpoint=r_k_m,
+			from_scheme=resolved_from_scheme,
+		)
+
+		output_data = ''
+		for V in verse_objects:
+			summary = V.summarize(
+				show_weights=session["weights"],
+				show_morae=session["morae"],
+				show_gaRas=session["gaRas"],
+				show_alignment=session["alignment"],
+				show_label=True,
+			)
+			output_data += V.text_raw + '\n\n' + summary + '\n'
+		output_data += "samāptam: %d padyāni" % len(verses)
+
+		response = make_response(output_data)
+		response.headers["Content-Disposition"] = 'attachment; filename="skrutable_meter_identified.txt"'
+		return response
+
+	# POST with text: batch identify-meter from textarea (BCM on)
 	elif request.form.get("input_text") and request.form.get("batch_text_mode"):
 
 		process_form(request.form)

@@ -472,7 +472,7 @@
 		var text = document.getElementById("text_input").value;
 		if (isMultiVerseInput(text)) {
 			var count = parseMultiVerseInput(text).length;
-			hint.textContent = count + " verses detected — clicking Identify Meter will open batch view";
+			hint.textContent = count + " verses detected — clicking Identify Meter will " + (currentBatchCorrectionMode ? "open batch view" : "download plain-text batch results");
 			hint.style.display = "";
 		} else {
 			hint.style.display = "none";
@@ -484,11 +484,10 @@
 		var rawInput = document.getElementById("text_input").value;
 		if (!rawInput.trim()) return;
 
-		// Batch text mode: ≥2 verse-end marker lines → navigate to batch result page
+		// Multi-verse input: submit to /upload_file for batch processing
 		if (isMultiVerseInput(rawInput)) {
 			var chunks = parseMultiVerseInput(rawInput);
 			var onePerLine = chunks.map(function(c) { return c.text; }).join('\n');
-			var suffixes = chunks.map(function(c) { return c.suffix; });
 			var s = getSidebarSettings();
 			var form = document.createElement('form');
 			form.method = 'POST';
@@ -501,8 +500,11 @@
 				form.appendChild(inp);
 			}
 			addField('input_text', onePerLine);
-			addField('batch_text_mode', '1');
-			addField('suffixes', JSON.stringify(suffixes));
+			if (currentBatchCorrectionMode) {
+				var suffixes = chunks.map(function(c) { return c.suffix; });
+				addField('batch_text_mode', '1');
+				addField('suffixes', JSON.stringify(suffixes));
+			}
 			addField('skrutable_action', 'identify meter');
 			addField('from_scheme', s.from_scheme);
 			addField('to_scheme', s.to_scheme);
