@@ -431,7 +431,7 @@ var ScansionRenderer = (function() {
 				if (notableLabelText) {
 					var nlbl = document.createElement('span');
 					nlbl.className = 'pada-notable-label';
-					nlbl.textContent = meterLabelToDisplay(notableLabelText);
+					nlbl.textContent = iastToDisplay(notableLabelText);
 					slot.appendChild(nlbl);
 				}
 				var labelText = imperfectLabels[p];
