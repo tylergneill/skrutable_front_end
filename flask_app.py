@@ -52,6 +52,46 @@ app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * MB_SIZE
 
+def run_identify_meter_batch(verses, r_o, r_k_m, from_scheme):
+	"""Run identify_meter on a list of verse strings, respecting NO_PARALLEL and DEBUG_TIMING flags.
+	Returns (verse_objects, duration_secs)."""
+	if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+		from skrutable.meter_identification import _category_totals
+		from skrutable.utils import _section_totals
+		_section_totals.clear()
+		_category_totals.clear()
+
+	starting_time = datetime.now().time()
+
+	if os.environ.get('SKRUTABLE_NO_PARALLEL'):
+		try:
+			from tqdm import tqdm as _tqdm
+			verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
+		except ImportError:
+			verse_iter = verses
+		verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=from_scheme) for s in verse_iter]
+	else:
+		verse_objects = MI.identify_meter_batch(
+			verses,
+			resplit_option=r_o,
+			resplit_keep_midpoint=r_k_m,
+			from_scheme=from_scheme,
+		)
+
+	ending_time = datetime.now().time()
+	delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+	duration_secs = delta.seconds + delta.microseconds / 1000000
+
+	if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+		from skrutable.meter_identification import flush_profiling_report, BATCH_MAX_WORKERS
+		flush_profiling_report(
+			wall_clock_secs=duration_secs,
+			parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+		)
+
+	return verse_objects, duration_secs
+
+
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
 def serve_files(name):
@@ -400,31 +440,9 @@ def upload_file():
 
 		elif session["skrutable_action"] == "identify meter":
 
-			starting_time = datetime.now().time()
-
 			verses = input_data.splitlines() # during post \n >> \r\n
-
-			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-				from skrutable.meter_identification import flush_profiling_report, _category_totals, BATCH_MAX_WORKERS
-				from skrutable.utils import _section_totals
-				_section_totals.clear()
-				_category_totals.clear()
-
 			r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
-			if os.environ.get('SKRUTABLE_NO_PARALLEL'):
-				try:
-					from tqdm import tqdm as _tqdm
-					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
-				except ImportError:
-					_verse_iter = verses
-				verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=resolved_from_scheme) for s in _verse_iter]
-			else:
-				verse_objects = MI.identify_meter_batch(
-					verses,
-					resplit_option=r_o,
-					resplit_keep_midpoint=r_k_m,
-					from_scheme=resolved_from_scheme,
-				)
+			verse_objects, duration_secs = run_identify_meter_batch(verses, r_o, r_k_m, resolved_from_scheme)
 
 			if session.get("batch_correction_mode"):
 
@@ -449,16 +467,6 @@ def upload_file():
 						"diagnostic": serialize_diagnostic(V.diagnostic),
 						"summary": summary,
 					})
-
-				ending_time = datetime.now().time()
-				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-				duration_secs = delta.seconds + delta.microseconds / 1000000
-
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(
-						wall_clock_secs=duration_secs,
-						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
-					)
 
 				import json as _json
 				return render_template(
@@ -491,17 +499,6 @@ def upload_file():
 						show_label=True,
 					)
 					output_data += V.text_raw + '\n\n' + summary + '\n'
-
-			ending_time = datetime.now().time()
-
-			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-			duration_secs = delta.seconds + delta.microseconds / 1000000
-
-			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(
-						wall_clock_secs=duration_secs,
-						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
-					)
 
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
@@ -561,15 +558,8 @@ def upload_file():
 
 		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
 
-		starting_time = datetime.now().time()
-
 		r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
-		verse_objects = MI.identify_meter_batch(
-			verses,
-			resplit_option=r_o,
-			resplit_keep_midpoint=r_k_m,
-			from_scheme=resolved_from_scheme,
-		)
+		verse_objects, duration_secs = run_identify_meter_batch(verses, r_o, r_k_m, resolved_from_scheme)
 
 		verse_data = []
 		for i, V in enumerate(verse_objects):
@@ -593,10 +583,6 @@ def upload_file():
 				"summary": summary,
 				"suffix": suffixes[i] if i < len(suffixes) else "",
 			})
-
-		ending_time = datetime.now().time()
-		delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-		duration_secs = delta.seconds + delta.microseconds / 1000000
 
 		return render_template(
 			"batch_meter_results.html",
