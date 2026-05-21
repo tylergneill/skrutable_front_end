@@ -9,9 +9,9 @@
 
     <ul>
       <li><a href="#idea">Why another OCR option? Why like this?</a></li>
-      <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
+      <li><a href="#api-key">Why do I need an API key? How do I get one?</a></li>
       <li><a href="#cost">How much will it cost?</a></li>
-      <li><a href="#safety">Is this safe? Can I trust you/Google?</a></li>
+      <li><a href="#safety">Is this safe? Can I trust you/the provider?</a></li>
       <li><a href="#input-limits">How big can the input be?</a></li>
       <li><a href="#complex-page">Will it work with complex page formats?</a></li>
       <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
@@ -20,31 +20,46 @@
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
-      This interface provides access to Google Cloud Vision OCR without requiring coding or cloud-storage setup.
-      Cloud Vision accepts large multi-page PDFs, delivers high accuracy,
-      and&#8212;unlike Google Drive OCR&#8212;automatically ignores any low-quality text layer already embedded in the file.
+      This interface provides access to cloud OCR services without requiring coding or cloud-storage setup.
+      Both supported providers accept large multi-page PDFs and deliver high accuracy on Indic scripts&#8212;unlike
+      Google Drive OCR, which can be confused by a low-quality text layer already embedded in the file.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
-
-    <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
     <p>
-      Google Cloud Vision is a paid service.
-      Each user supplies their own API key,
-      linked to a Google Cloud project with billing enabled.
-      An API key is a password-like string that you can create or delete at any time.
-      Follow the video below to:
-      1. Set up a Google Cloud billing account.
-      2. Enable the Cloud Vision API.
-      3. Generate an API key.
+      Two providers are currently supported:
     </p>
-    <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
-      <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <br>
-    <br>
+    <ul>
+      <li>
+        <strong>Google Cloud Vision</strong> &#8212; mature, widely used, strong general OCR.
+        Requires a Google Cloud account with billing enabled. Setup is involved but only needs to be done once.
+      </li>
+      <li>
+        <strong>Sarvam Vision</strong> &#8212; Indian AI focused on Indic languages, including Sanskrit.
+        Simpler to set up: just create an account at <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and generate a key.
+      </li>
+    </ul>
+
+    <h3 id="api-key">Why do I need an API key? How do I get one?</h3>
+    <p>
+      Both providers are paid services that bill based on usage.
+      Each user supplies their own API key&#8212;a password-like string linked to your own account&#8212;so you
+      pay directly and no one else's usage is charged to you.
+      You can create or delete a key at any time.
+    </p>
+
     <details>
-      <summary>Written walkthrough</summary>
+      <summary><strong>1a. Google Cloud Vision</strong> &#8212; video walkthrough</summary>
+      <br>
+      <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
+        <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>1b. Google Cloud Vision</strong> &#8212; written walkthrough</summary>
       <ol class="mt-2">
         <li>
           <strong>Go to the Google Cloud Console</strong>:<br>
@@ -56,7 +71,7 @@
           <strong>Enable billing</strong>:<br>
           Walk through the steps at
           <a href="https://console.cloud.google.com/billing" target="_blank">console.cloud.google.com/billing{{ ext_link_icon() }}</a> to enable billing.
-          You'll need a credit card. (<a href="#cost">See above</a> for more on cost.)
+          You'll need a credit card.
         </li>
         <li>
           <strong>Select a project</strong>:<br>
@@ -88,55 +103,94 @@
         </li>
         <li>
           <strong>Use the key</strong>:<br>
-          You're now ready to return to the <a href="/ocr">OCR page</a>
-          and paste your key into the field labeled "Google Cloud API key."
+          Return to the <a href="/ocr">OCR page</a>, select <em>Google Cloud Vision</em>,
+          and paste your key into the Google Cloud API key field.
+        </li>
+      </ol>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>2. Sarvam Vision</strong> &#8212; written walkthrough</summary>
+      <ol class="mt-2">
+        <li>
+          <strong>Create an account</strong>:<br>
+          Go to <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and sign up.
+        </li>
+        <li>
+          <strong>Add a payment method</strong>:<br>
+          Navigate to your account billing settings and add a credit card.
+        </li>
+        <li>
+          <strong>Generate an API key</strong>:<br>
+          In your dashboard, find the API keys section and create a new key.
+          Copy it and store it securely&#8212;treat it like a financial password.
+        </li>
+        <li>
+          <strong>Use the key</strong>:<br>
+          Return to the <a href="/ocr">OCR page</a>, select <em>Sarvam Vision</em>,
+          and paste your key into the Sarvam API key field.
         </li>
       </ol>
     </details>
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
-      The first 1,000 pages per month are free.
-      After that, every additional 1,000 pages costs $1.50.
-      You pay only for what you use.
-      New accounts come with a generous $300 credit, valid for 90 days.
-      It's possible to track your usage
-      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>),
-      but if you're working on personal projects, you likely won't exceed 1,000 pages a month.
+      <strong>Google Cloud Vision</strong>: The first 1,000 pages per month are free.
+      After that, every additional 1,000 pages costs $1.50 ($0.0015/page).
+      New accounts come with a $300 credit valid for 90 days.
+      For light personal use you likely won't exceed the free tier.
+      You can track your usage
+      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>).
+    </p>
+    <p>
+      <em>Note: Google Cloud Vision uses standard Google Cloud billing (postpay &#8212; you're charged at the end of the month).
+      This is separate from the Gemini API, which as of March 2026 requires prepay credits for lower-tier developer accounts.
+      Don't confuse the two: Cloud Vision billing is set up through
+      <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>,
+      not AI Studio.</em>
+    </p>
+    <p>
+      <strong>Sarvam Vision</strong>: ₹1.50 per page (~$0.016 as of May 2026), no free allowance.
+    </p>
+    <p>
+      After each OCR job, the page count and estimated cost are shown below the result.
     </p>
 
-    <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
+    <h3 id="safety">Is this safe? Can I trust you/the provider?</h3>
     <p>
       Your API key is never stored by this application.
       The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code{{ ext_link_icon() }}</a>
-      reads the key from the form, sends it with the OCR request to Google, and discards it.
+      reads the key from the form, sends it with the OCR request to the provider, and discards it.
       Store your key with a password manager (e.g., 1Password) to keep it secure.
-      If you have concerns about PDF contents, avoid uploading sensitive material.
+      If you have concerns about PDF contents, avoid uploading sensitive material&#8212;it is sent to a third-party cloud service.
     </p>
 
     <h3 id="input-limits">How big can the input be?</h3>
     <p>
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       Split larger files into parts.
-      There's also a 2,000-page limit, though you'll usually hit the size cap first.
+      Google Cloud Vision also has a 2,000-page limit, though you'll usually hit the size cap first.
+      Sarvam Vision supports up to 500 pages per job.
     </p>
 
     <h3 id="complex-page">Will it work with complex page formats?</h3>
     <p>
       Maybe, maybe not.
       Cropping your PDF pages often improves both accuracy and performance.
+      Sarvam Vision is designed with Indic script layouts in mind and appears to do better with multi-column Sanskrit pages.
     </p>
 
     <h3 id="mistakes">Why are some characters wrong, words misplaced, etc.?</h3>
     <p>
-      Most OCR results contain some errors.
-      Google Cloud Vision tends to produce fewer errors than other options.
+      All OCR results contain some errors.
       Please review and clean up as needed, e.g., using regular expressions.
     </p>
 
     <h3 id="hard-returns">Why are lines returned as-is, e.g., with hyphenation?</h3>
     <p>
-      This OCR option is more literal, and it won't stitch hyphenated words back together.
+      These OCR options are literal. They returns what they see on the page, including line breaks and hyphens.
       This is another thing to review and clean up as needed.
     </p>
     <br><br>
