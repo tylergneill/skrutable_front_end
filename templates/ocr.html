@@ -36,7 +36,7 @@
 
   <div id="ocrForm">
 
-    <h1>PDF &#8594; Google Cloud Vision OCR</h1>
+    <h1>PDF &#8594; OCR</h1>
 
     <input type="file" id="fileInputPdf" accept=".pdf" style="display:none">
     <div class="dropzone" id="dropzone">
@@ -45,11 +45,25 @@
 
     <br>
 
-    <div>
+    <h3>provider</h3>
+    <p>
+      <label><input type="radio" name="ocr_provider" value="google" id="providerGoogle" checked> Google Cloud Vision</label>
+      &nbsp;&nbsp;
+      <label><input type="radio" name="ocr_provider" value="sarvam" id="providerSarvam"> Sarvam Vision</label>
+    </p>
+
+    <div id="googleKeySection">
       <label for="googleApiKey">Google Cloud API key (required)</label>
       <input type="password" id="googleApiKey" class="form-control"
              placeholder="Enter your Google Cloud API key"
-             name="google_api_key" autocomplete="current-password">
+             autocomplete="current-password">
+    </div>
+
+    <div id="sarvamKeySection" style="display:none">
+      <label for="sarvamApiKey">Sarvam API key (required)</label>
+      <input type="password" id="sarvamApiKey" class="form-control"
+             placeholder="Enter your Sarvam API key"
+             autocomplete="current-password">
     </div>
 
     <br>
@@ -170,6 +184,14 @@ dz.addEventListener('drop', e => {
   }
 });
 
+document.querySelectorAll('input[name="ocr_provider"]').forEach(r => {
+  r.addEventListener("change", () => {
+    const isGoogle = document.getElementById("providerGoogle").checked;
+    document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
+    document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
+  });
+});
+
 const progressBar = document.getElementById("progressBar");
 const progressContainer = document.getElementById("progressContainer");
 
@@ -240,14 +262,18 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     return;
   }
 
-  const apiKey = document.getElementById("googleApiKey").value;
+  const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+  const apiKey = provider === "google"
+    ? document.getElementById("googleApiKey").value
+    : document.getElementById("sarvamApiKey").value;
   if (!apiKey) return alert("API key is required.");
 
   const includePageNumbers = document.getElementById("includePageNumbers").checked;
 
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
-  formData.append("google_api_key", apiKey);
+  formData.append("ocr_provider", provider);
+  formData.append("api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
 
   progressBar.style.width = "0%";

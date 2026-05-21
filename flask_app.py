@@ -15,7 +15,7 @@ from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
-from ocr_service import run_google_ocr
+from ocr_service import run_google_ocr, run_sarvam_ocr
 
 if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
 	import skrutable.utils as _skrutable_utils
@@ -662,7 +662,8 @@ def ocr():
 		logger.error("No file in request.files")
 
 	# ---------- POST ----------
-	api_key   = request.form.get("google_api_key", "").strip()
+	provider  = request.form.get("ocr_provider", "google")
+	api_key   = request.form.get("api_key", "").strip()
 	pdf_file  = request.files.get("pdf_file")
 
 	include_page_numbers = request.form.get("include_page_numbers") == "yes"
@@ -675,7 +676,10 @@ def ocr():
 		pdf_file.save(pdf_path)
 
 		try:
-			ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
+			if provider == "sarvam":
+				ocr_text = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
+			else:
+				ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except Exception as exc:
 			import traceback
 			trace = traceback.format_exc()
