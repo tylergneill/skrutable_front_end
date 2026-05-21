@@ -150,10 +150,12 @@ function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
   const originalFile = fileInput.files[0] || window.selectedPdfFile;
   const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+  const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+  const providerTag = provider === "sarvam" ? "sarvam-ai" : "cloud-vision";
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${baseName}_ocr_result.txt`;
+  link.download = `${baseName}-skrutable-${providerTag}-ocr.txt`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
