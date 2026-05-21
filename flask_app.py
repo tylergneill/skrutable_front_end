@@ -704,7 +704,10 @@ def ocr():
 		response.headers["X-INR-To-USD"] = str(inr_to_usd)
 
 	if request.form.get("display_inline") != "yes":
-		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
+		pdf_stem = Path(secure_filename(pdf_file.filename)).stem
+		provider_tag = "sarvam-ai" if provider == "sarvam" else "cloud-vision"
+		dl_filename = f"{pdf_stem}-skrutable-{provider_tag}-ocr.txt"
+		response.headers["Content-Disposition"] = f"attachment; filename={dl_filename}"
 
 	end_time = time.time()
 	logger.info("Completed OCR request at %s", end_time)
