@@ -7,8 +7,8 @@ from sarvamai import SarvamAI
 BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
 PROJECT = os.getenv("GCP_PROJECT", "sanskrit-ocr-219110") # set via env
 
-def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> str:
-    """Upload PDF, run async Vision OCR, return concatenated text."""
+def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
+    """Upload PDF, run async Vision OCR, return (text, page_count)."""
     client_vis   = vision.ImageAnnotatorClient(client_options={"api_key": api_key})
     client_store = storage.Client(project=PROJECT)
 
@@ -50,13 +50,14 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
         texts.append(page_text)
 
     final_output = "\n".join(texts)
+    page_count = len(texts)
 
     bucket.delete_blobs(list(bucket.list_blobs(prefix=job_id)))
 
-    return final_output
+    return final_output, page_count
 
-def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> str:
-    """Submit PDF to Sarvam Vision, return concatenated text."""
+def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
+    """Submit PDF to Sarvam Vision, return (text, page_count)."""
     client = SarvamAI(api_subscription_key=api_key)
     job = client.document_intelligence.create_job(language="sa-IN", output_format="md")
     job.upload_file(str(pdf_path))
@@ -80,4 +81,4 @@ def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
                     page_text = f"\n=== {i} ===\n{page_text}"
                 texts.append(page_text)
 
-    return "\n".join(texts)
+    return "\n".join(texts), len(json_names)

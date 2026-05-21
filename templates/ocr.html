@@ -135,6 +135,8 @@
       <button id="clearButton" class="btn btn-primary" onclick="clearOcrResult()">Clear result</button>
     </div>
 
+    <p id="pagesProcessed" style="margin-top: 0.5em; font-size: 0.9em; color: gray;"></p>
+
   </div>
 
   <br><br>
@@ -235,6 +237,7 @@ function clearOcrResult() {
     if (!confirmClear) return;
     resultContainer.style.display = "none";
     progressContainer.style.display = "none";
+    document.getElementById("pagesProcessed").textContent = "";
   }
 }
 
@@ -328,6 +331,26 @@ document.getElementById("startOcr").addEventListener("click", async function () 
         progressBar.setAttribute("aria-valuenow", Math.floor(display));
       }
     }, 30);
+
+    const pageCount = parseInt(res.headers.get("X-Pages-Processed") || "0", 10);
+    if (pageCount) {
+      const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+      let costNote = "";
+      if (provider === "sarvam") {
+        const inrCost = pageCount * 1.50;
+        const inrToUsd = parseFloat(res.headers.get("X-INR-To-USD") || "0");
+        if (inrToUsd) {
+          const usdCost = (inrCost * inrToUsd).toFixed(4);
+          costNote = ` — estimated cost: ₹${inrCost.toFixed(2)} ($${usdCost})`;
+        } else {
+          costNote = ` — estimated cost: ₹${inrCost.toFixed(2)}`;
+        }
+      } else {
+        const cost = (pageCount * 1.50 / 1000).toFixed(4);
+        costNote = ` — estimated cost: $${cost} (after first free 1,000 pages/month)`;
+      }
+      document.getElementById("pagesProcessed").textContent = `Pages processed: ${pageCount}${costNote}`;
+    }
 
     const raw = await res.text();
     const text = raw.replace(/<[^>]*>/g, '');

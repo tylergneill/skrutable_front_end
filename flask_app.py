@@ -677,9 +677,9 @@ def ocr():
 
 		try:
 			if provider == "sarvam":
-				ocr_text = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
+				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
 			else:
-				ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
+				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except Exception as exc:
 			import traceback
 			trace = traceback.format_exc()
@@ -687,8 +687,21 @@ def ocr():
 			logger.error("trace: %s", trace)
 			return f"OCR failed: {exc}\n\n{trace}", 500
 
+	logger.info("Pages processed: %d", page_count)
+
+	inr_to_usd = None
+	if provider == "sarvam":
+		try:
+			fx = requests.get("https://api.frankfurter.app/latest?from=INR&to=USD", timeout=5).json()
+			inr_to_usd = fx["rates"]["USD"]
+		except Exception as e:
+			logger.warning("FX lookup failed: %s", e)
+
 	response = make_response(ocr_text)
 	response.headers["Content-Type"] = "text/plain; charset=utf-8"
+	response.headers["X-Pages-Processed"] = str(page_count)
+	if inr_to_usd is not None:
+		response.headers["X-INR-To-USD"] = str(inr_to_usd)
 
 	if request.form.get("display_inline") != "yes":
 		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
