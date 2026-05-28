@@ -521,12 +521,21 @@
 			return 'jāti (other)';
 		}
 		if (cat === 'upajāti') {
-			// Detect family by syllable count in brackets: [11: = triṣṭubh, [12: = jagatī, mixed = other
-			var has11 = label.indexOf('[11:') >= 0;
-			var has12 = label.indexOf('[12:') >= 0;
-			if (has11 && !has12) return 'upajāti (triṣṭubh, 11)';
-			if (has12 && !has11) return 'upajāti (jagatī, 12)';
-			return 'upajāti (mixed)';
+			// Detect family from the word(s) after "upajāti " in the label.
+			var hasTristubh = label.indexOf('triṣṭubh') >= 0;
+			var hasJagati   = label.indexOf('jagatī')   >= 0;
+			if (hasTristubh && hasJagati)    return 'upajāti (triṣṭubh + jagatī)';
+			if (hasTristubh) {
+				// Pure indra/upendra (canonical triṣṭubh) vs. other triṣṭubh subtypes.
+				var subtypesPart = label.replace(/^upajāti triṣṭubh: /, '');
+				var subtypeNames = subtypesPart.split('; ').map(function(s) { return s.replace(/\s[\d,]+$/, ''); });
+				var indraUpendraOnly = subtypeNames.every(function(n) {
+					return n === 'indravajrā' || n === 'upendravajrā' || n === 'indravajrā / upendravajrā';
+				});
+				return indraUpendraOnly ? 'upajāti (standard triṣṭubh, indravajrā + upendravajrā)' : 'upajāti (other triṣṭubh)';
+			}
+			if (hasJagati)                   return 'upajāti (jagatī)';
+			return 'upajāti (other)';
 		}
 		if (cat === 'ardhasamavṛtta') {
 			// Use the meter name (the part before ' ='), or the full label for ajñāta
