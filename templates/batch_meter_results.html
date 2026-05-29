@@ -1147,11 +1147,6 @@
 		}
 	});
 
-	function buildHeaderLabel(v) {
-		var lbl = v.meter_label || 'unidentified';
-		return meterLabelToDisplay(lbl);
-	}
-
 	// --- Card building ---
 	var container = document.getElementById('bcm-verses');
 	var currentView = 'errors';
@@ -1205,10 +1200,26 @@
 		// Header
 		var hdr = document.createElement('div');
 		hdr.className = 'verse-card-header ' + hdrClass;
-		hdr.innerHTML =
-			'<span class="verse-status-dot"></span>' +
-			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
-			'<span class="verse-num">#' + (idx + 1) + '</span>';
+		ScansionRenderer.buildCardHeader(hdr, v, function(altV) {
+			var altUnk = isUnknown(altV);
+			var altPerf = !altUnk && isPerfect(altV);
+			var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
+			card.className = card.className.replace(/\b(perfect|imperfect|unknown)\b/g, altStatus);
+			hdr.className = 'verse-card-header ' + altStatus;
+			// Re-render scansion body with the alternative's data
+			verseState[idx] = Object.assign({}, verseState[idx], {
+				meter_label: altV.meter_label,
+				diagnostic: altV.diagnostic,
+				alternatives: [],
+			});
+			updateCardScansion(idx);
+			// Restore verseState to original so re-identification still works
+			verseState[idx] = v;
+		});
+		var numEl = document.createElement('span');
+		numEl.className = 'verse-num';
+		numEl.textContent = '#' + (idx + 1);
+		hdr.appendChild(numEl);
 		hdr.addEventListener('click', function(e) {
 			e.stopPropagation();
 			var c = document.getElementById('verse-card-' + idx);
@@ -1240,10 +1251,24 @@
 		var statusClass = unk ? 'unknown' : perf ? 'perfect' : 'imperfect';
 		card.className = 'verse-card ' + statusClass + (card.classList.contains('focused') ? ' focused' : '') + (card.classList.contains('compact') ? ' compact' : '');
 		hdr.className = 'verse-card-header ' + statusClass;
-		hdr.innerHTML =
-			'<span class="verse-status-dot"></span>' +
-			'<span class="verse-header-label">' + escHtml(buildHeaderLabel(v)) + '</span>' +
-			'<span class="verse-num">#' + (idx + 1) + '</span>';
+		ScansionRenderer.buildCardHeader(hdr, v, function(altV) {
+			var altUnk = isUnknown(altV);
+			var altPerf = !altUnk && isPerfect(altV);
+			var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
+			card.className = card.className.replace(/\b(perfect|imperfect|unknown)\b/g, altStatus);
+			hdr.className = 'verse-card-header ' + altStatus;
+			verseState[idx] = Object.assign({}, verseState[idx], {
+				meter_label: altV.meter_label,
+				diagnostic: altV.diagnostic,
+				alternatives: [],
+			});
+			updateCardScansion(idx);
+			verseState[idx] = v;
+		});
+		var numEl = document.createElement('span');
+		numEl.className = 'verse-num';
+		numEl.textContent = '#' + (idx + 1);
+		hdr.appendChild(numEl);
 	}
 
 	function updateCardScansion(idx) {
