@@ -187,6 +187,7 @@ def serialize_diagnostic(diag):
 			"problem_syllables": d.problem_syllables,                # dict w/ int or str keys, or None
 			"notable_syllables": d.notable_syllables,                # dict w/ int or str keys, or None
 			"notable_label": d.notable_label,                        # dict w/ int or str keys, or None
+			"canonical_gana": getattr(d, 'canonical_gana', None),   # dict w/ int keys, or None
 		}
 	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
 	if isinstance(diag, Diagnostic):
@@ -198,6 +199,16 @@ def serialize_diagnostic(diag):
 			result[half_key] = _serialize_one(d)
 		return result
 	return None
+
+def serialize_alternatives(V):
+	"""Serialize V.alternatives to a JSON-safe list, or [] if none."""
+	alts = getattr(V, 'alternatives', [])
+	if not alts:
+		return []
+	return [
+		{"meter_label": a["meter_label"], "diagnostic": serialize_diagnostic(a["diagnostic"])}
+		for a in alts
+	]
 
 def resolve_from_scheme(input_text, from_scheme):
 	"""If from_scheme is 'Auto', detect it. Returns (resolved, detected, confidence)."""
@@ -465,6 +476,7 @@ def upload_file():
 						"meter_label": V.meter_label,
 						"identification_score": V.identification_score,
 						"diagnostic": serialize_diagnostic(V.diagnostic),
+						"alternatives": serialize_alternatives(V),
 						"summary": summary,
 					})
 
@@ -553,7 +565,6 @@ def upload_file():
 		import json as _json
 
 		input_text = request.form["input_text"]
-		suffixes = _json.loads(request.form.get("suffixes", "[]"))
 		verses = input_text.splitlines()
 
 		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
@@ -580,8 +591,8 @@ def upload_file():
 				"meter_label": V.meter_label,
 				"identification_score": V.identification_score,
 				"diagnostic": serialize_diagnostic(V.diagnostic),
+				"alternatives": serialize_alternatives(V),
 				"summary": summary,
-				"suffix": suffixes[i] if i < len(suffixes) else "",
 			})
 
 		return render_template(
@@ -889,6 +900,7 @@ def api_identify_meter():
 		gaRa_abbreviations=V.gaRa_abbreviations,
 		mAtragaNa_abbreviations=V.mAtragaNa_abbreviations,
 		diagnostic=serialize_diagnostic(V.diagnostic),
+		alternatives=serialize_alternatives(V),
 	)
 
 
