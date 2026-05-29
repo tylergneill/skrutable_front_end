@@ -94,7 +94,7 @@ var ScansionRenderer = (function() {
 	}
 
 	function getPadaDiagInfo(diag, padaIdx, numPadas) {
-		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null, notableLabel: null };
+		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null, notableLabel: null, canonicalGana: null };
 		if (!diag) return empty;
 
 		if (diag.type === 'pada') {
@@ -105,6 +105,7 @@ var ScansionRenderer = (function() {
 			var ps = diag.problem_syllables && diag.problem_syllables[padaKey];
 			var ns = diag.notable_syllables && diag.notable_syllables[padaKey];
 			var nl = diag.notable_label && diag.notable_label[padaKey];
+			var cg = diag.canonical_gana && diag.canonical_gana[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
@@ -128,7 +129,7 @@ var ScansionRenderer = (function() {
 					showLabel = (firstLabeledNoBad === padaIdx + 1);
 				}
 			}
-			return { probSet: probSet, notableSet: notableSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null, notableLabel: nl || null };
+			return { probSet: probSet, notableSet: notableSet, ps: ps || null, isLenError: lenError, imperfectLabel: showLabel ? chosenLabel : null, notableLabel: nl || null, canonicalGana: cg || null };
 		}
 
 		if (diag.type === 'half') {
@@ -245,7 +246,7 @@ var ScansionRenderer = (function() {
 			var moraeVal = morae[p];
 			if (!sylStr && !wtStr) continue;
 
-			var info       = padaDiagInfos[p] || { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null };
+			var info       = padaDiagInfos[p] || { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null, canonicalGana: null };
 			var probSet    = info.probSet;
 			var notableSet = info.notableSet;
 			var ps         = info.ps;
@@ -262,9 +263,10 @@ var ScansionRenderer = (function() {
 				if (pv >= 0) hyperIdx = pv;
 				else         gapIdx   = (-pv) - 1;
 			}
-			if (gapIdx !== null) {
-				sylList.splice(gapIdx, 0, '​');
-				wtList.splice(gapIdx,  0, '');
+			var displayGapIdx = gapIdx;
+			if (displayGapIdx !== null) {
+				sylList.splice(displayGapIdx, 0, '​');
+				wtList.splice(displayGapIdx,  0, '');
 			}
 
 			var numSyls = Math.max(sylList.length, wtList.length);
@@ -316,13 +318,15 @@ var ScansionRenderer = (function() {
 				group.className = 'gana-group';
 				var boxes = document.createElement('div');
 				boxes.className = 'gana-group-boxes';
+				var hasGap = false;
 				for (var k = 0; k < 3 && startIdx + k < numSyls; k++) {
 					boxes.appendChild(makeSylBox(startIdx + k));
+					if (sylList[startIdx + k] === '​') hasGap = true;
 				}
 				group.appendChild(boxes);
 				var lbl = document.createElement('div');
 				lbl.className = 'gana-label';
-				lbl.textContent = slpGanaToDisplay(gChar);
+				lbl.textContent = slpGanaToDisplay(gChar) + (hasGap ? '?' : '');
 				group.appendChild(lbl);
 				return group;
 			}
@@ -368,7 +372,12 @@ var ScansionRenderer = (function() {
 				row.appendChild(makeGanaGroup(g2, 4));
 				row.appendChild(makeBareBox(7));
 			} else {
-				var effectiveGanas = ganaChars;
+				// For Levenshtein-attributed length-deviant pādas, use the canonical gaṇa
+				// string from the backend so labels reflect the intended meter, not the raw
+				// observed grouping (which is one syllable short/long).
+				var effectiveGanas = (displayGapIdx !== null || hyperIdx !== null) && info.canonicalGana
+					? info.canonicalGana.split('')
+					: ganaChars;
 				if (effectiveGanas.length === 0 && numSyls >= 3) {
 					effectiveGanas = [];
 					for (var gi0 = 0; gi0 + 2 < numSyls; gi0 += 3) {
@@ -471,35 +480,114 @@ var ScansionRenderer = (function() {
 		return !lbl || lbl.indexOf('adhyavasitam') >= 0;
 	}
 
+	function _shortLabel(lbl) {
+		var s = (lbl || '').replace(/\s*[\(\[].*/,'').trim();
+		return meterLabelToDisplay(s || lbl);
+	}
+
+	function _statusOf(altV) {
+		var u = isUnknown(altV);
+		var p = !u && isPerfect(altV);
+		return u ? 'unknown' : (p ? 'perfect' : 'imperfect');
+	}
+
+	// Populates hdr element with dot, label, and optional atha-vā toggle.
+	// onAltChange(altV) is called whenever the user cycles to a different alternative view.
+	function buildCardHeader(hdr, v, onAltChange) {
+		hdr.innerHTML = '';
+		var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
+		var altViews = null;
+		var altIdx = 0;
+		if (alts) {
+			altViews = alts.map(function(a) {
+				return Object.assign({}, v, {
+					meter_label_full: a.meter_label,
+					meter_label: a.meter_label,
+					diagnostic: a.diagnostic,
+					alternatives: [],
+				});
+			});
+		}
+
+		var dot = document.createElement('span');
+		dot.className = 'verse-status-dot';
+		var lblEl = document.createElement('span');
+		lblEl.className = 'verse-header-label';
+		hdr.appendChild(dot);
+		hdr.appendChild(lblEl);
+
+		if (altViews) {
+			var altBtn = document.createElement('button');
+			altBtn.type = 'button';
+			altBtn.className = 'atha-va-toggle';
+			hdr.appendChild(altBtn);
+
+			function applyAlt(idx) {
+				var cur = altViews[idx];
+				var curLbl = fullLabel(cur);
+				var curUnk = isUnknown(cur);
+				var curStatus = _statusOf(cur);
+				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
+				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
+				// button shows the *other* alternative's name + its status color
+				var nextIdx = (idx + 1) % altViews.length;
+				var nextV = altViews[nextIdx];
+				var nextStatus = _statusOf(nextV);
+				altBtn.textContent = 'atha vā ' + _shortLabel(fullLabel(nextV)) + '…';
+				altBtn.className = 'atha-va-toggle ' + nextStatus;
+				altBtn.title = fullLabel(nextV);
+				if (onAltChange) onAltChange(cur);
+			}
+
+			altBtn.addEventListener('click', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				altIdx = (altIdx + 1) % altViews.length;
+				applyAlt(altIdx);
+			});
+
+			// Start on alt 0 immediately
+			altIdx = 0;
+			applyAlt(0);
+		} else {
+			var lbl = fullLabel(v);
+			var unk = isUnknown(v);
+			lblEl.textContent = meterLabelToDisplay(unk ? 'na kiṃcid adhyavasitam' : lbl);
+		}
+	}
+
 	// Builds a verse card into container. If showMeterCard is true, wraps the scansion in a
 	// card with a colored header showing the meter label. Returns the scan target element.
 	function buildCard(container, v, opts, showMeterCard) {
 		var scanTarget;
 		if (showMeterCard) {
-			var lbl = fullLabel(v);
-			var unk = isUnknown(v);
-			var perf = !unk && isPerfect(v);
-			var statusClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
-			var displayLabel = unk ? 'na kiṃcid adhyavasitam' : lbl;
+			var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
+			var initialV = alts ? Object.assign({}, v, { meter_label_full: alts[0].meter_label, meter_label: alts[0].meter_label, diagnostic: alts[0].diagnostic, alternatives: [] }) : v;
+			var statusClass = _statusOf(initialV);
 
 			var card = document.createElement('div');
 			card.className = 'verse-card ' + statusClass;
 
 			var hdr = document.createElement('div');
 			hdr.className = 'verse-card-header ' + statusClass;
-			var dot = document.createElement('span');
-			dot.className = 'verse-status-dot';
-			var lblEl = document.createElement('span');
-			lblEl.className = 'verse-header-label';
-			lblEl.textContent = meterLabelToDisplay(displayLabel);
-			hdr.appendChild(dot);
-			hdr.appendChild(lblEl);
-			card.appendChild(hdr);
 
-			scanTarget = document.createElement('div');
-			scanTarget.className = 'verse-card-body verse-scansion';
-			card.appendChild(scanTarget);
+			var bodyEl = document.createElement('div');
+			bodyEl.className = 'verse-card-body verse-scansion';
+
+			buildCardHeader(hdr, v, function(altV) {
+				var altStatus = _statusOf(altV);
+				card.className = 'verse-card ' + altStatus;
+				hdr.className = 'verse-card-header ' + altStatus;
+				bodyEl.innerHTML = '';
+				render(bodyEl, altV, opts);
+			});
+
+			card.appendChild(hdr);
+			card.appendChild(bodyEl);
 			container.appendChild(card);
+			scanTarget = bodyEl;
+			if (!alts) render(scanTarget, v, opts);
+			return scanTarget;
 		} else {
 			scanTarget = document.createElement('div');
 			scanTarget.className = 'verse-scansion';
@@ -517,6 +605,8 @@ var ScansionRenderer = (function() {
 			_explanationLang = explanationLang || 'sanskrit';
 		},
 		render: render,
+		statusOf: _statusOf,
+		buildCardHeader: buildCardHeader,
 		buildCard: buildCard,
 		isPerfect: isPerfect,
 		isUnknown: isUnknown,
