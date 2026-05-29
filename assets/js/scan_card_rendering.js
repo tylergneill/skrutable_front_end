@@ -480,9 +480,19 @@ var ScansionRenderer = (function() {
 		return !lbl || lbl.indexOf('adhyavasitam') >= 0;
 	}
 
+	function _shortLabel(lbl) {
+		var s = (lbl || '').replace(/\s*[\(\[].*/,'').trim();
+		return meterLabelToDisplay(s || lbl);
+	}
+
+	function _statusOf(altV) {
+		var u = isUnknown(altV);
+		var p = !u && isPerfect(altV);
+		return u ? 'unknown' : (p ? 'perfect' : 'imperfect');
+	}
+
 	// Populates hdr element with dot, label, and optional atha-vā toggle.
 	// onAltChange(altV) is called whenever the user cycles to a different alternative view.
-	// Returns a function resetToV() that resets the header back to the primary v (for updateCardHeader).
 	function buildCardHeader(hdr, v, onAltChange) {
 		hdr.innerHTML = '';
 		var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
@@ -499,15 +509,10 @@ var ScansionRenderer = (function() {
 			});
 		}
 
-		var lbl = fullLabel(v);
-		var unk = isUnknown(v);
-		var displayLabel = unk ? 'na kiṃcid adhyavasitam' : lbl;
-
 		var dot = document.createElement('span');
 		dot.className = 'verse-status-dot';
 		var lblEl = document.createElement('span');
 		lblEl.className = 'verse-header-label';
-		lblEl.textContent = meterLabelToDisplay(displayLabel);
 		hdr.appendChild(dot);
 		hdr.appendChild(lblEl);
 
@@ -515,28 +520,40 @@ var ScansionRenderer = (function() {
 			var altBtn = document.createElement('button');
 			altBtn.type = 'button';
 			altBtn.className = 'atha-va-toggle';
-			altBtn.title = 'atha vā — show next alternative';
-			altBtn.textContent = 'atha vā ›';
 			hdr.appendChild(altBtn);
+
+			function applyAlt(idx) {
+				var cur = altViews[idx];
+				var curLbl = fullLabel(cur);
+				var curUnk = isUnknown(cur);
+				var curStatus = _statusOf(cur);
+				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
+				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
+				// button shows the *other* alternative's name + its status color
+				var nextIdx = (idx + 1) % altViews.length;
+				var nextV = altViews[nextIdx];
+				var nextStatus = _statusOf(nextV);
+				altBtn.textContent = 'atha vā ' + _shortLabel(fullLabel(nextV)) + '…';
+				altBtn.className = 'atha-va-toggle ' + nextStatus;
+				altBtn.title = fullLabel(nextV);
+				if (onAltChange) onAltChange(cur);
+			}
+
 			altBtn.addEventListener('click', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
 				altIdx = (altIdx + 1) % altViews.length;
-				var cur = altViews[altIdx];
-				var curLbl = fullLabel(cur);
-				var curUnk = isUnknown(cur);
-				var curPerf = !curUnk && isPerfect(cur);
-				var curStatus = curUnk ? 'unknown' : (curPerf ? 'perfect' : 'imperfect');
-				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
-				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
-				if (onAltChange) onAltChange(cur);
+				applyAlt(altIdx);
 			});
-		}
 
-		return function resetToV() {
+			// Start on alt 0 immediately
 			altIdx = 0;
-			lblEl.textContent = meterLabelToDisplay(displayLabel);
-		};
+			applyAlt(0);
+		} else {
+			var lbl = fullLabel(v);
+			var unk = isUnknown(v);
+			lblEl.textContent = meterLabelToDisplay(unk ? 'na kiṃcid adhyavasitam' : lbl);
+		}
 	}
 
 	// Builds a verse card into container. If showMeterCard is true, wraps the scansion in a
@@ -544,9 +561,9 @@ var ScansionRenderer = (function() {
 	function buildCard(container, v, opts, showMeterCard) {
 		var scanTarget;
 		if (showMeterCard) {
-			var unk = isUnknown(v);
-			var perf = !unk && isPerfect(v);
-			var statusClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
+			var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
+			var initialV = alts ? Object.assign({}, v, { meter_label_full: alts[0].meter_label, meter_label: alts[0].meter_label, diagnostic: alts[0].diagnostic, alternatives: [] }) : v;
+			var statusClass = _statusOf(initialV);
 
 			var card = document.createElement('div');
 			card.className = 'verse-card ' + statusClass;
@@ -558,9 +575,7 @@ var ScansionRenderer = (function() {
 			bodyEl.className = 'verse-card-body verse-scansion';
 
 			buildCardHeader(hdr, v, function(altV) {
-				var altUnk = isUnknown(altV);
-				var altPerf = !altUnk && isPerfect(altV);
-				var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
+				var altStatus = _statusOf(altV);
 				card.className = 'verse-card ' + altStatus;
 				hdr.className = 'verse-card-header ' + altStatus;
 				bodyEl.innerHTML = '';
@@ -571,6 +586,8 @@ var ScansionRenderer = (function() {
 			card.appendChild(bodyEl);
 			container.appendChild(card);
 			scanTarget = bodyEl;
+			if (!alts) render(scanTarget, v, opts);
+			return scanTarget;
 		} else {
 			scanTarget = document.createElement('div');
 			scanTarget.className = 'verse-scansion';
@@ -588,6 +605,7 @@ var ScansionRenderer = (function() {
 			_explanationLang = explanationLang || 'sanskrit';
 		},
 		render: render,
+		statusOf: _statusOf,
 		buildCardHeader: buildCardHeader,
 		buildCard: buildCard,
 		isPerfect: isPerfect,
