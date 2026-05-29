@@ -565,7 +565,6 @@ def upload_file():
 		import json as _json
 
 		input_text = request.form["input_text"]
-		suffixes = _json.loads(request.form.get("suffixes", "[]"))
 		verses = input_text.splitlines()
 
 		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
@@ -594,7 +593,6 @@ def upload_file():
 				"diagnostic": serialize_diagnostic(V.diagnostic),
 				"alternatives": serialize_alternatives(V),
 				"summary": summary,
-				"suffix": suffixes[i] if i < len(suffixes) else "",
 			})
 
 		return render_template(
