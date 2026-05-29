@@ -1186,11 +1186,31 @@
 		card.appendChild(body);
 	}
 
+	function _altInitialV(v) {
+		var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
+		if (!alts) return v;
+		return Object.assign({}, v, { meter_label: alts[0].meter_label, diagnostic: alts[0].diagnostic, alternatives: [] });
+	}
+
+	function _makeAltOnChange(idx, card, hdr, v) {
+		return function(altV) {
+			var altStatus = ScansionRenderer.statusOf(altV);
+			card.className = card.className.replace(/\b(perfect|imperfect|unknown)\b/g, altStatus);
+			hdr.className = 'verse-card-header ' + altStatus;
+			verseState[idx] = Object.assign({}, verseState[idx], {
+				meter_label: altV.meter_label,
+				diagnostic: altV.diagnostic,
+				alternatives: [],
+			});
+			updateCardScansion(idx);
+			verseState[idx] = v;
+		};
+	}
+
 	function buildCard(idx, compact) {
 		var v = verseState[idx];
-		var perf = isPerfect(v);
-		var unk  = isUnknown(v);
-		var hdrClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
+		var initialV = _altInitialV(v);
+		var hdrClass = ScansionRenderer.statusOf(initialV);
 
 		var card = document.createElement('div');
 		card.className = 'verse-card ' + hdrClass + (compact ? ' compact' : '');
@@ -1200,22 +1220,7 @@
 		// Header
 		var hdr = document.createElement('div');
 		hdr.className = 'verse-card-header ' + hdrClass;
-		ScansionRenderer.buildCardHeader(hdr, v, function(altV) {
-			var altUnk = isUnknown(altV);
-			var altPerf = !altUnk && isPerfect(altV);
-			var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
-			card.className = card.className.replace(/\b(perfect|imperfect|unknown)\b/g, altStatus);
-			hdr.className = 'verse-card-header ' + altStatus;
-			// Re-render scansion body with the alternative's data
-			verseState[idx] = Object.assign({}, verseState[idx], {
-				meter_label: altV.meter_label,
-				diagnostic: altV.diagnostic,
-				alternatives: [],
-			});
-			updateCardScansion(idx);
-			// Restore verseState to original so re-identification still works
-			verseState[idx] = v;
-		});
+		ScansionRenderer.buildCardHeader(hdr, v, _makeAltOnChange(idx, card, hdr, v));
 		var numEl = document.createElement('span');
 		numEl.className = 'verse-num';
 		numEl.textContent = '#' + (idx + 1);
@@ -1233,8 +1238,12 @@
 		});
 		card.appendChild(hdr);
 
-		// Body: only built immediately for non-compact cards
-		if (!compact) buildCardBody(card, idx);
+		// Body: only built immediately for non-compact cards; use initialV for scansion
+		if (!compact) {
+			verseState[idx] = initialV;
+			buildCardBody(card, idx);
+			verseState[idx] = v;
+		}
 
 		// Click on card (not header/text) also focuses
 		card.addEventListener('click', function(e) { e.stopPropagation(); focusCard(idx); });
@@ -1247,24 +1256,11 @@
 		var card = document.getElementById('verse-card-' + idx);
 		if (!card) return;
 		var hdr = card.querySelector('.verse-card-header');
-		var perf = isPerfect(v), unk = isUnknown(v);
-		var statusClass = unk ? 'unknown' : perf ? 'perfect' : 'imperfect';
+		var initialV = _altInitialV(v);
+		var statusClass = ScansionRenderer.statusOf(initialV);
 		card.className = 'verse-card ' + statusClass + (card.classList.contains('focused') ? ' focused' : '') + (card.classList.contains('compact') ? ' compact' : '');
 		hdr.className = 'verse-card-header ' + statusClass;
-		ScansionRenderer.buildCardHeader(hdr, v, function(altV) {
-			var altUnk = isUnknown(altV);
-			var altPerf = !altUnk && isPerfect(altV);
-			var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
-			card.className = card.className.replace(/\b(perfect|imperfect|unknown)\b/g, altStatus);
-			hdr.className = 'verse-card-header ' + altStatus;
-			verseState[idx] = Object.assign({}, verseState[idx], {
-				meter_label: altV.meter_label,
-				diagnostic: altV.diagnostic,
-				alternatives: [],
-			});
-			updateCardScansion(idx);
-			verseState[idx] = v;
-		});
+		ScansionRenderer.buildCardHeader(hdr, v, _makeAltOnChange(idx, card, hdr, v));
 		var numEl = document.createElement('span');
 		numEl.className = 'verse-num';
 		numEl.textContent = '#' + (idx + 1);
