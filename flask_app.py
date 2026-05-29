@@ -187,6 +187,7 @@ def serialize_diagnostic(diag):
 			"problem_syllables": d.problem_syllables,                # dict w/ int or str keys, or None
 			"notable_syllables": d.notable_syllables,                # dict w/ int or str keys, or None
 			"notable_label": d.notable_label,                        # dict w/ int or str keys, or None
+			"canonical_gana": getattr(d, 'canonical_gana', None),   # dict w/ int keys, or None
 		}
 	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
 	if isinstance(diag, Diagnostic):
