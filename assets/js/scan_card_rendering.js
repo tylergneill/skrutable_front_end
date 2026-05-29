@@ -480,35 +480,97 @@ var ScansionRenderer = (function() {
 		return !lbl || lbl.indexOf('adhyavasitam') >= 0;
 	}
 
+	// Populates hdr element with dot, label, and optional atha-vā toggle.
+	// onAltChange(altV) is called whenever the user cycles to a different alternative view.
+	// Returns a function resetToV() that resets the header back to the primary v (for updateCardHeader).
+	function buildCardHeader(hdr, v, onAltChange) {
+		hdr.innerHTML = '';
+		var alts = v.alternatives && v.alternatives.length > 0 ? v.alternatives : null;
+		var altViews = null;
+		var altIdx = 0;
+		if (alts) {
+			altViews = alts.map(function(a) {
+				return Object.assign({}, v, {
+					meter_label_full: a.meter_label,
+					meter_label: a.meter_label,
+					diagnostic: a.diagnostic,
+					alternatives: [],
+				});
+			});
+		}
+
+		var lbl = fullLabel(v);
+		var unk = isUnknown(v);
+		var displayLabel = unk ? 'na kiṃcid adhyavasitam' : lbl;
+
+		var dot = document.createElement('span');
+		dot.className = 'verse-status-dot';
+		var lblEl = document.createElement('span');
+		lblEl.className = 'verse-header-label';
+		lblEl.textContent = meterLabelToDisplay(displayLabel);
+		hdr.appendChild(dot);
+		hdr.appendChild(lblEl);
+
+		if (altViews) {
+			var altBtn = document.createElement('button');
+			altBtn.type = 'button';
+			altBtn.className = 'atha-va-toggle';
+			altBtn.title = 'atha vā — show next alternative';
+			altBtn.textContent = 'atha vā ›';
+			hdr.appendChild(altBtn);
+			altBtn.addEventListener('click', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				altIdx = (altIdx + 1) % altViews.length;
+				var cur = altViews[altIdx];
+				var curLbl = fullLabel(cur);
+				var curUnk = isUnknown(cur);
+				var curPerf = !curUnk && isPerfect(cur);
+				var curStatus = curUnk ? 'unknown' : (curPerf ? 'perfect' : 'imperfect');
+				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
+				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
+				if (onAltChange) onAltChange(cur);
+			});
+		}
+
+		return function resetToV() {
+			altIdx = 0;
+			lblEl.textContent = meterLabelToDisplay(displayLabel);
+		};
+	}
+
 	// Builds a verse card into container. If showMeterCard is true, wraps the scansion in a
 	// card with a colored header showing the meter label. Returns the scan target element.
 	function buildCard(container, v, opts, showMeterCard) {
 		var scanTarget;
 		if (showMeterCard) {
-			var lbl = fullLabel(v);
 			var unk = isUnknown(v);
 			var perf = !unk && isPerfect(v);
 			var statusClass = unk ? 'unknown' : (perf ? 'perfect' : 'imperfect');
-			var displayLabel = unk ? 'na kiṃcid adhyavasitam' : lbl;
 
 			var card = document.createElement('div');
 			card.className = 'verse-card ' + statusClass;
 
 			var hdr = document.createElement('div');
 			hdr.className = 'verse-card-header ' + statusClass;
-			var dot = document.createElement('span');
-			dot.className = 'verse-status-dot';
-			var lblEl = document.createElement('span');
-			lblEl.className = 'verse-header-label';
-			lblEl.textContent = meterLabelToDisplay(displayLabel);
-			hdr.appendChild(dot);
-			hdr.appendChild(lblEl);
-			card.appendChild(hdr);
 
-			scanTarget = document.createElement('div');
-			scanTarget.className = 'verse-card-body verse-scansion';
-			card.appendChild(scanTarget);
+			var bodyEl = document.createElement('div');
+			bodyEl.className = 'verse-card-body verse-scansion';
+
+			buildCardHeader(hdr, v, function(altV) {
+				var altUnk = isUnknown(altV);
+				var altPerf = !altUnk && isPerfect(altV);
+				var altStatus = altUnk ? 'unknown' : (altPerf ? 'perfect' : 'imperfect');
+				card.className = 'verse-card ' + altStatus;
+				hdr.className = 'verse-card-header ' + altStatus;
+				bodyEl.innerHTML = '';
+				render(bodyEl, altV, opts);
+			});
+
+			card.appendChild(hdr);
+			card.appendChild(bodyEl);
 			container.appendChild(card);
+			scanTarget = bodyEl;
 		} else {
 			scanTarget = document.createElement('div');
 			scanTarget.className = 'verse-scansion';
@@ -526,6 +588,7 @@ var ScansionRenderer = (function() {
 			_explanationLang = explanationLang || 'sanskrit';
 		},
 		render: render,
+		buildCardHeader: buildCardHeader,
 		buildCard: buildCard,
 		isPerfect: isPerfect,
 		isUnknown: isUnknown,

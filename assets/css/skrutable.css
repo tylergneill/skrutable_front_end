@@ -505,6 +505,20 @@ pre {
 [data-theme="dark"] .verse-card-header.perfect   .verse-status-dot { background: #3d8c42; }
 [data-theme="dark"] .verse-card-header.imperfect .verse-status-dot { background: #a84444; }
 .verse-card-body { padding: 0.5em 0.25em 0.25em 0.25em; }
+.atha-va-toggle {
+	margin-left: auto;
+	background: rgba(255,255,255,0.15);
+	border: 1px solid rgba(255,255,255,0.35);
+	color: inherit;
+	font-family: var(--font-heading);
+	font-size: 0.82em;
+	padding: 0.1em 0.55em;
+	border-radius: 3px;
+	cursor: pointer;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+.atha-va-toggle:hover { background: rgba(255,255,255,0.28); }
 
 .sidebar-help-link {
 	color: var(--sidebar-accent);

@@ -200,6 +200,16 @@ def serialize_diagnostic(diag):
 		return result
 	return None
 
+def serialize_alternatives(V):
+	"""Serialize V.alternatives to a JSON-safe list, or [] if none."""
+	alts = getattr(V, 'alternatives', [])
+	if not alts:
+		return []
+	return [
+		{"meter_label": a["meter_label"], "diagnostic": serialize_diagnostic(a["diagnostic"])}
+		for a in alts
+	]
+
 def resolve_from_scheme(input_text, from_scheme):
 	"""If from_scheme is 'Auto', detect it. Returns (resolved, detected, confidence)."""
 	if from_scheme != "Auto":
@@ -466,6 +476,7 @@ def upload_file():
 						"meter_label": V.meter_label,
 						"identification_score": V.identification_score,
 						"diagnostic": serialize_diagnostic(V.diagnostic),
+						"alternatives": serialize_alternatives(V),
 						"summary": summary,
 					})
 
@@ -581,6 +592,7 @@ def upload_file():
 				"meter_label": V.meter_label,
 				"identification_score": V.identification_score,
 				"diagnostic": serialize_diagnostic(V.diagnostic),
+				"alternatives": serialize_alternatives(V),
 				"summary": summary,
 				"suffix": suffixes[i] if i < len(suffixes) else "",
 			})
@@ -890,6 +902,7 @@ def api_identify_meter():
 		gaRa_abbreviations=V.gaRa_abbreviations,
 		mAtragaNa_abbreviations=V.mAtragaNa_abbreviations,
 		diagnostic=serialize_diagnostic(V.diagnostic),
+		alternatives=serialize_alternatives(V),
 	)
 
 
