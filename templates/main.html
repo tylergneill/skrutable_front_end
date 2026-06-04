@@ -437,9 +437,8 @@
 		return false;
 	}
 
-	// Splits multi-verse input into {text, suffix} objects.
-	// Each chunk = all content up to and including the marker line.
-	// suffix = anything after the marker on that line (e.g. " 8").
+	// Splits multi-verse input into verse chunks (for preview counting and submission).
+	// Each chunk = all content up to and including the full marker line.
 	// The chunk text is normalized: newlines collapsed to single spaces.
 	function parseMultiVerseInput(text) {
 		var MARKER = /(\|\||।।|॥|\/\/)/;
@@ -450,13 +449,9 @@
 			var line = lines[i];
 			var m = MARKER.exec(line);
 			if (m) {
-				// Split line at first marker: everything up to and including the marker is part of the chunk
-				var markerEnd = m.index + m[0].length;
-				var beforeAndMarker = line.slice(0, markerEnd);
-				var suffix = line.slice(markerEnd);
-				currentLines.push(beforeAndMarker);
+				currentLines.push(line);
 				var chunkText = currentLines.join(' ').replace(/\s+/g, ' ').trim();
-				chunks.push({ text: chunkText, suffix: suffix });
+				chunks.push(chunkText);
 				currentLines = [];
 			} else {
 				// Skip blank lines between verses, but include non-blank content lines
@@ -487,7 +482,7 @@
 		// Multi-verse input: submit to /upload_file for batch processing
 		if (isMultiVerseInput(rawInput)) {
 			var chunks = parseMultiVerseInput(rawInput);
-			var onePerLine = chunks.map(function(c) { return c.text; }).join('\n');
+			var onePerLine = chunks.join('\n');
 			var s = getSidebarSettings();
 			var form = document.createElement('form');
 			form.method = 'POST';
@@ -500,11 +495,7 @@
 				form.appendChild(inp);
 			}
 			addField('input_text', onePerLine);
-			if (currentBatchCorrectionMode) {
-				var suffixes = chunks.map(function(c) { return c.suffix; });
-				addField('batch_text_mode', '1');
-				addField('suffixes', JSON.stringify(suffixes));
-			}
+			addField('input_is_from_textarea', '1');
 			addField('skrutable_action', 'identify meter');
 			addField('from_scheme', s.from_scheme);
 			addField('to_scheme', s.to_scheme);
