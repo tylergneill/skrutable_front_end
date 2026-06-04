@@ -52,6 +52,46 @@ app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH_MB * MB_SIZE
 
+def run_identify_meter_batch(verses, r_o, r_k_m, from_scheme):
+	"""Run identify_meter on a list of verse strings, respecting NO_PARALLEL and DEBUG_TIMING flags.
+	Returns (verse_objects, duration_secs)."""
+	if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+		from skrutable.meter_identification import _category_totals
+		from skrutable.utils import _section_totals
+		_section_totals.clear()
+		_category_totals.clear()
+
+	starting_time = datetime.now().time()
+
+	if os.environ.get('SKRUTABLE_NO_PARALLEL'):
+		try:
+			from tqdm import tqdm as _tqdm
+			verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
+		except ImportError:
+			verse_iter = verses
+		verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=from_scheme) for s in verse_iter]
+	else:
+		verse_objects = MI.identify_meter_batch(
+			verses,
+			resplit_option=r_o,
+			resplit_keep_midpoint=r_k_m,
+			from_scheme=from_scheme,
+		)
+
+	ending_time = datetime.now().time()
+	delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
+	duration_secs = delta.seconds + delta.microseconds / 1000000
+
+	if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
+		from skrutable.meter_identification import flush_profiling_report, BATCH_MAX_WORKERS
+		flush_profiling_report(
+			wall_clock_secs=duration_secs,
+			parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
+		)
+
+	return verse_objects, duration_secs
+
+
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
 def serve_files(name):
@@ -159,6 +199,16 @@ def serialize_diagnostic(diag):
 			result[half_key] = _serialize_one(d)
 		return result
 	return None
+
+def serialize_alternatives(V):
+	"""Serialize V.alternatives to a JSON-safe list, or [] if none."""
+	alts = getattr(V, 'alternatives', [])
+	if not alts:
+		return []
+	return [
+		{"meter_label": a["meter_label"], "diagnostic": serialize_diagnostic(a["diagnostic"])}
+		for a in alts
+	]
 
 def resolve_from_scheme(input_text, from_scheme):
 	"""If from_scheme is 'Auto', detect it. Returns (resolved, detected, confidence)."""
@@ -448,6 +498,7 @@ def upload_file():
 						"meter_label": V.meter_label,
 						"identification_score": V.identification_score,
 						"diagnostic": serialize_diagnostic(V.diagnostic),
+						"alternatives": serialize_alternatives(V),
 						"summary": summary,
 					})
 
@@ -562,12 +613,7 @@ def upload_file():
 		resolved_from_scheme, _, _ = resolve_from_scheme(input_text, session["from_scheme"])
 
 		r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
-		verse_objects = MI.identify_meter_batch(
-			verses,
-			resplit_option=r_o,
-			resplit_keep_midpoint=r_k_m,
-			from_scheme=resolved_from_scheme,
-		)
+		verse_objects, duration_secs = run_identify_meter_batch(verses, r_o, r_k_m, resolved_from_scheme)
 
 		if not session.get("batch_correction_mode"):
 			output_data = ''
@@ -584,8 +630,6 @@ def upload_file():
 			response = make_response(output_data)
 			response.headers["Content-Disposition"] = 'attachment; filename="skrutable_meter_identified.txt"'
 			return response
-
-		starting_time = datetime.now().time()
 
 		verse_data = []
 		for V in verse_objects:
@@ -606,13 +650,10 @@ def upload_file():
 				"meter_label": V.meter_label,
 				"identification_score": V.identification_score,
 				"diagnostic": serialize_diagnostic(V.diagnostic),
+				"alternatives": serialize_alternatives(V),
 				"summary": summary,
 				"suffix": "",
 			})
-
-		ending_time = datetime.now().time()
-		delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-		duration_secs = delta.seconds + delta.microseconds / 1000000
 
 		return render_template(
 			"batch_meter_results.html",
