@@ -188,6 +188,7 @@ def serialize_diagnostic(diag):
 			"notable_syllables": d.notable_syllables,                # dict w/ int or str keys, or None
 			"notable_label_sanskrit": d.notable_label_sanskrit,      # dict w/ int or str keys, or None
 			"notable_label_english": d.notable_label_english,        # dict w/ int or str keys, or None
+			"canonical_gana": getattr(d, 'canonical_gana', None),   # dict w/ int keys, or None
 		}
 	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
 	if isinstance(diag, Diagnostic):
@@ -451,31 +452,9 @@ def upload_file():
 
 		elif session["skrutable_action"] == "identify meter":
 
-			starting_time = datetime.now().time()
-
 			verses = input_data.splitlines() # during post \n >> \r\n
-
-			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-				from skrutable.meter_identification import flush_profiling_report, _category_totals, BATCH_MAX_WORKERS
-				from skrutable.utils import _section_totals
-				_section_totals.clear()
-				_category_totals.clear()
-
 			r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
-			if os.environ.get('SKRUTABLE_NO_PARALLEL'):
-				try:
-					from tqdm import tqdm as _tqdm
-					_verse_iter = _tqdm(verses, desc='identifying', unit='verse', file=sys.stderr)
-				except ImportError:
-					_verse_iter = verses
-				verse_objects = [MI.identify_meter(s, resplit_option=r_o, resplit_keep_midpoint=r_k_m, from_scheme=resolved_from_scheme) for s in _verse_iter]
-			else:
-				verse_objects = MI.identify_meter_batch(
-					verses,
-					resplit_option=r_o,
-					resplit_keep_midpoint=r_k_m,
-					from_scheme=resolved_from_scheme,
-				)
+			verse_objects, duration_secs = run_identify_meter_batch(verses, r_o, r_k_m, resolved_from_scheme)
 
 			if session.get("batch_correction_mode"):
 
@@ -501,16 +480,6 @@ def upload_file():
 						"alternatives": serialize_alternatives(V),
 						"summary": summary,
 					})
-
-				ending_time = datetime.now().time()
-				delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-				duration_secs = delta.seconds + delta.microseconds / 1000000
-
-				if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(
-						wall_clock_secs=duration_secs,
-						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
-					)
 
 				import json as _json
 				return render_template(
@@ -543,17 +512,6 @@ def upload_file():
 						show_label=True,
 					)
 					output_data += V.text_raw + '\n\n' + summary + '\n'
-
-			ending_time = datetime.now().time()
-
-			delta = datetime.combine(date.today(), ending_time) - datetime.combine(date.today(), starting_time)
-			duration_secs = delta.seconds + delta.microseconds / 1000000
-
-			if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
-					flush_profiling_report(
-						wall_clock_secs=duration_secs,
-						parallel_workers=None if os.environ.get('SKRUTABLE_NO_PARALLEL') else BATCH_MAX_WORKERS,
-					)
 
 			output_data += "samāptam: %d padyāni, %f kṣaṇāḥ" % ( len(verses), duration_secs )
 
@@ -652,7 +610,6 @@ def upload_file():
 				"diagnostic": serialize_diagnostic(V.diagnostic),
 				"alternatives": serialize_alternatives(V),
 				"summary": summary,
-				"suffix": "",
 			})
 
 		return render_template(
@@ -960,6 +917,7 @@ def api_identify_meter():
 		gaRa_abbreviations=V.gaRa_abbreviations,
 		mAtragaNa_abbreviations=V.mAtragaNa_abbreviations,
 		diagnostic=serialize_diagnostic(V.diagnostic),
+		alternatives=serialize_alternatives(V),
 	)
 
 
