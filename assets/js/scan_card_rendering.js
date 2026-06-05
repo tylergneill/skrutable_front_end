@@ -534,6 +534,7 @@ var ScansionRenderer = (function() {
 				var curStatus = _statusOf(cur);
 				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
 				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
+			// button shows the *other* alternative's name + its status color
 				var nextIdx = (idx + 1) % altViews.length;
 				var nextV = altViews[nextIdx];
 				var nextStatus = _statusOf(nextV);
@@ -550,6 +551,7 @@ var ScansionRenderer = (function() {
 				applyAlt(altIdx);
 			});
 
+			// Start on alt 0 immediately
 			altIdx = 0;
 			applyAlt(0);
 		} else {
