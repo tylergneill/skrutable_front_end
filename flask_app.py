@@ -186,7 +186,8 @@ def serialize_diagnostic(diag):
 			"imperfect_label_english": d.imperfect_label_english,    # dict w/ int or str keys, or None
 			"problem_syllables": d.problem_syllables,                # dict w/ int or str keys, or None
 			"notable_syllables": d.notable_syllables,                # dict w/ int or str keys, or None
-			"notable_label": d.notable_label,                        # dict w/ int or str keys, or None
+			"notable_label_sanskrit": d.notable_label_sanskrit,      # dict w/ int or str keys, or None
+			"notable_label_english": d.notable_label_english,        # dict w/ int or str keys, or None
 			"canonical_gana": getattr(d, 'canonical_gana', None),   # dict w/ int keys, or None
 		}
 	# Bare Diagnostic (samavṛtta, upajāti, jāti): fields are dicts keyed by pada int (1–4)
@@ -557,8 +558,8 @@ def upload_file():
 		)
 		return response
 
-	# POST with text: batch identify-meter from textarea
-	elif request.form.get("input_text") and request.form.get("batch_text_mode"):
+	# POST with text from textarea: batch identify-meter; output modality depends on batch_correction_mode
+	elif request.form.get("input_text"):
 
 		process_form(request.form)
 
@@ -572,8 +573,24 @@ def upload_file():
 		r_o, r_k_m = parse_complex_resplit_option(session["resplit_option"])
 		verse_objects, duration_secs = run_identify_meter_batch(verses, r_o, r_k_m, resolved_from_scheme)
 
+		if not session.get("batch_correction_mode"):
+			output_data = ''
+			for V in verse_objects:
+				summary = V.summarize(
+					show_weights=session["weights"],
+					show_morae=session["morae"],
+					show_gaRas=session["gaRas"],
+					show_alignment=session["alignment"],
+					show_label=True,
+				)
+				output_data += V.text_raw + '\n\n' + summary + '\n'
+			output_data += "samāptam: %d padyāni" % len(verses)
+			response = make_response(output_data)
+			response.headers["Content-Disposition"] = 'attachment; filename="skrutable_meter_identified.txt"'
+			return response
+
 		verse_data = []
-		for i, V in enumerate(verse_objects):
+		for V in verse_objects:
 			summary = V.summarize(
 				show_weights=session["weights"],
 				show_morae=session["morae"],

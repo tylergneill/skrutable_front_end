@@ -104,13 +104,15 @@ var ScansionRenderer = (function() {
 			var chosenLabel = _explanationLang === 'english' ? engLabel : sktLabel;
 			var ps = diag.problem_syllables && diag.problem_syllables[padaKey];
 			var ns = diag.notable_syllables && diag.notable_syllables[padaKey];
-			var nl = diag.notable_label && diag.notable_label[padaKey];
+			var nlSkt = diag.notable_label_sanskrit && diag.notable_label_sanskrit[padaKey];
+			var nlEng = diag.notable_label_english  && diag.notable_label_english[padaKey];
+			var nl = _explanationLang === 'english' ? nlEng : nlSkt;
 			var cg = diag.canonical_gana && diag.canonical_gana[padaKey];
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
 			var notableSet = {};
-			if (ns) ns.forEach(function(i) { notableSet[i] = true; });
+			if (ns) Object.keys(ns).forEach(function(i) { notableSet[parseInt(i)] = true; });
 			var showLabel = false;
 			if (chosenLabel) {
 				var myPs = diag.problem_syllables && diag.problem_syllables[padaKey];
@@ -142,23 +144,26 @@ var ScansionRenderer = (function() {
 			var chosenLabel2 = _explanationLang === 'english' ? engLabel2 : sktLabel2;
 			var ps2 = d.problem_syllables && d.problem_syllables[withinHalf];
 			var ns2 = d.notable_syllables && d.notable_syllables[withinHalf];
-			var nl2 = d.notable_label && d.notable_label[withinHalf];
+			var nl2Skt = d.notable_label_sanskrit && d.notable_label_sanskrit[withinHalf];
+			var nl2Eng = d.notable_label_english  && d.notable_label_english[withinHalf];
+			var nl2 = _explanationLang === 'english' ? nl2Eng : nl2Skt;
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
 			var notableSet2 = {};
-			if (ns2) ns2.forEach(function(i) { notableSet2[i] = true; });
+			if (ns2) Object.keys(ns2).forEach(function(i) { notableSet2[parseInt(i)] = true; });
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
-			var hasOddNotable  = d.notable_syllables && d.notable_syllables['odd']  && d.notable_syllables['odd'].length  > 0;
+			var hasOddNotable  = d.notable_syllables && d.notable_syllables['odd']  && Object.keys(d.notable_syllables['odd']).length  > 0;
+			var hasEvenNotable = d.notable_syllables && d.notable_syllables['even'] && Object.keys(d.notable_syllables['even']).length > 0;
 			var showLabel2 = false;
 			if (chosenLabel2) {
 				if      (hasOddProbs  && withinHalf === 'odd')  showLabel2 = true;
 				else if (hasEvenProbs && withinHalf === 'even') showLabel2 = true;
 				else if (!hasOddProbs && !hasEvenProbs)         showLabel2 = (withinHalf === 'even' || numPadas <= 2);
 			}
-			// show notable label on the odd pāda that has the notable syllables
-			var showNotable2 = !!(nl2 && withinHalf === 'odd' && hasOddNotable);
+			// show notable label on the pāda that has the notable syllables
+			var showNotable2 = !!(nl2 && ((withinHalf === 'odd' && hasOddNotable) || (withinHalf === 'even' && hasEvenNotable)));
 			return { probSet: probSet2, notableSet: notableSet2, ps: ps2 || null, isLenError: lenError2, imperfectLabel: showLabel2 ? chosenLabel2 : null, notableLabel: showNotable2 ? nl2 : null };
 		}
 
@@ -436,7 +441,7 @@ var ScansionRenderer = (function() {
 				if (notableLabelText) {
 					var nlbl = document.createElement('span');
 					nlbl.className = 'pada-notable-label';
-					nlbl.textContent = meterLabelToDisplay(notableLabelText);
+					nlbl.textContent = iastToDisplay(notableLabelText);
 					slot.appendChild(nlbl);
 				}
 				var labelText = imperfectLabels[p];
@@ -529,7 +534,7 @@ var ScansionRenderer = (function() {
 				var curStatus = _statusOf(cur);
 				hdr.className = hdr.className.replace(/\b(perfect|imperfect|unknown)\b/g, curStatus);
 				lblEl.textContent = meterLabelToDisplay(curUnk ? 'na kiṃcid adhyavasitam' : curLbl);
-				// button shows the *other* alternative's name + its status color
+			// button shows the *other* alternative's name + its status color
 				var nextIdx = (idx + 1) % altViews.length;
 				var nextV = altViews[nextIdx];
 				var nextStatus = _statusOf(nextV);
