@@ -2,24 +2,24 @@
 #    uv pip compile requirements.in -o requirements.txt
 blinker==1.9.0
     # via flask
-certifi==2026.4.22
+certifi==2026.5.20
     # via requests
 cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.7
     # via requests
-click==8.3.3
+click==8.4.1
     # via flask
 cryptography==48.0.0
     # via google-auth
 flask==3.1.3
     # via -r requirements.in
-google-api-core==2.30.3
+google-api-core==2.31.0
     # via
     #   google-cloud-core
     #   google-cloud-storage
     #   google-cloud-vision
-google-auth==2.52.0
+google-auth==2.53.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -27,7 +27,7 @@ google-auth==2.52.0
     #   google-cloud-vision
 google-cloud-core==2.6.0
     # via google-cloud-storage
-google-cloud-storage==3.10.1
+google-cloud-storage==3.11.0
     # via -r requirements.in
 google-cloud-vision==3.14.0
     # via -r requirements.in
@@ -35,22 +35,22 @@ google-crc32c==1.8.0
     # via
     #   google-cloud-storage
     #   google-resumable-media
-google-resumable-media==2.9.0
+google-resumable-media==2.10.0
     # via google-cloud-storage
 googleapis-common-protos==1.75.0
     # via
     #   google-api-core
     #   grpcio-status
-grpcio==1.80.0
+grpcio==1.81.0
     # via
     #   google-api-core
     #   google-cloud-vision
     #   grpcio-status
-grpcio-status==1.80.0
+grpcio-status==1.81.0
     # via google-api-core
 gunicorn==26.0.0
     # via -r requirements.in
-idna==3.14
+idna==3.18
     # via requests
 itsdangerous==2.2.0
     # via flask
@@ -63,7 +63,7 @@ markupsafe==3.0.3
     #   werkzeug
 natsort==8.4.0
     # via -r requirements.in
-numpy==2.4.4
+numpy==2.4.6
     # via skrutable
 packaging==26.2
     # via gunicorn
@@ -71,7 +71,7 @@ proto-plus==1.28.0
     # via
     #   google-api-core
     #   google-cloud-vision
-protobuf==6.33.6
+protobuf==7.35.0
     # via
     #   google-api-core
     #   google-cloud-vision
@@ -84,13 +84,13 @@ pyasn1-modules==0.4.2
     # via google-auth
 pycparser==3.0
     # via cffi
-requests==2.33.1
+requests==2.34.2
     # via
     #   -r requirements.in
     #   google-api-core
     #   google-cloud-storage
     #   skrutable
-skrutable==2.6.3
+skrutable==2.9.0
     # via -r requirements.in
 typing-extensions==4.15.0
     # via grpcio
