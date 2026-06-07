@@ -22,6 +22,16 @@ pip install -r requirements.txt
 FLASK_APP=flask_app.py flask --debug run --port=4999
 ```
 
+## Pull Request conventions
+
+When writing up a front-end PR, always include the following as the final items in the test plan:
+
+- [ ] Update `templates/updates.html` with a changelog entry for this release.
+- [ ] Once the corresponding backend PR is merged and the new `skrutable` version is on production PyPI, pin `skrutable==<new_version>` in `requirements.in` and regenerate `requirements.txt`.
+- [ ] After merging, tag the merge commit with the version: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+
+Omit the `updates.html` item only if the PR has no user-visible changes. Omit the pinning item only if the PR has no dependency on a backend library change.
+
 ## Deployment
 
 Docker-based (Digital Ocean). Two Dockerfiles:
