@@ -467,7 +467,7 @@
 		var text = document.getElementById("text_input").value;
 		if (isMultiVerseInput(text)) {
 			var count = parseMultiVerseInput(text).length;
-			hint.textContent = count + " verses detected — clicking Identify Meter will " + (currentBatchCorrectionMode ? "open batch view" : "download plain-text batch results");
+			hint.textContent = count + " verses detected — clicking Identify Meter will " + (currentBatchCorrectionMode ? "open interactive batch correction mode" : "download plain-text batch results");
 			hint.style.display = "";
 		} else {
 			hint.style.display = "none";
