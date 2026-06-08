@@ -3,6 +3,7 @@ from pathlib import Path
 import uuid, json, os, zipfile, tempfile
 from google.cloud import storage, vision
 from sarvamai import SarvamAI
+from pypdf import PdfReader, PdfWriter
 
 BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
 PROJECT = os.getenv("GCP_PROJECT", "sanskrit-ocr-219110") # set via env
@@ -56,11 +57,12 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
 
     return final_output, page_count
 
-def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
-    """Submit PDF to Sarvam Vision, return (text, page_count)."""
-    client = SarvamAI(api_subscription_key=api_key)
+SARVAM_PAGE_LIMIT = 10
+
+def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_page_numbers: bool) -> list:
+    """Run Sarvam OCR on a single chunk PDF, return list of page text strings."""
     job = client.document_intelligence.create_job(language="sa-IN", output_format="md")
-    job.upload_file(str(pdf_path))
+    job.upload_file(str(chunk_path))
     job.start()
     job.wait_until_complete()
 
@@ -78,7 +80,28 @@ def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
                     if b.get("layout_tag") not in ("header", "footnote")
                 )
                 if include_page_numbers:
-                    page_text = f"\n=== {i} ===\n{page_text}"
+                    page_text = f"\n=== {page_offset + i} ===\n{page_text}"
                 texts.append(page_text)
+    return texts
 
-    return "\n".join(texts), len(json_names)
+def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
+    """Submit PDF to Sarvam Vision, return (text, page_count). Splits into chunks if > 10 pages."""
+    reader = PdfReader(str(pdf_path))
+    total_pages = len(reader.pages)
+    client = SarvamAI(api_subscription_key=api_key)
+
+    all_texts = []
+    with tempfile.TemporaryDirectory() as chunk_dir:
+        for chunk_start in range(0, total_pages, SARVAM_PAGE_LIMIT):
+            chunk_end = min(chunk_start + SARVAM_PAGE_LIMIT, total_pages)
+            writer = PdfWriter()
+            for p in range(chunk_start, chunk_end):
+                writer.add_page(reader.pages[p])
+            chunk_path = Path(chunk_dir) / f"chunk_{chunk_start}.pdf"
+            with open(chunk_path, "wb") as f:
+                writer.write(f)
+            all_texts.extend(
+                _run_sarvam_ocr_chunk(client, chunk_path, chunk_start, include_page_numbers)
+            )
+
+    return "\n".join(all_texts), len(all_texts)

@@ -21,7 +21,7 @@
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
       This interface provides access to cloud OCR services without requiring coding or cloud-storage setup.
-      Both supported providers accept large multi-page PDFs and deliver high accuracy on Indic scripts&#8212;unlike
+      Both supported providers accept large multi-page PDFs and deliver high accuracy on Indic scripts — unlike
       Google Drive OCR, which can be confused by a low-quality text layer already embedded in the file.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
@@ -30,11 +30,11 @@
     </p>
     <ul>
       <li>
-        <strong>Google Cloud Vision</strong> &#8212; mature, widely used, strong general OCR.
+        <strong>Google Cloud Vision</strong> — mature, widely used, strong general OCR.
         Requires a Google Cloud account with billing enabled. Setup is involved but only needs to be done once.
       </li>
       <li>
-        <strong>Sarvam Vision</strong> &#8212; Indian AI focused on Indic languages, including Sanskrit.
+        <strong>Sarvam Vision</strong> — Indian AI focused on Indic languages, including Sanskrit.
         Simpler to set up: just create an account at <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and generate a key.
       </li>
     </ul>
@@ -42,13 +42,13 @@
     <h3 id="api-key">Why do I need an API key? How do I get one?</h3>
     <p>
       Both providers are paid services that bill based on usage.
-      Each user supplies their own API key&#8212;a password-like string linked to your own account&#8212;so you
+      Each user supplies their own API key — a password-like string linked to your own account — so you
       pay directly and no one else's usage is charged to you.
       You can create or delete a key at any time.
     </p>
 
     <details>
-      <summary><strong>1a. Google Cloud Vision</strong> &#8212; video walkthrough</summary>
+      <summary><strong>1a. Google Cloud Vision</strong> — video walkthrough</summary>
       <br>
       <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
         <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
@@ -59,7 +59,7 @@
     <br>
 
     <details>
-      <summary><strong>1b. Google Cloud Vision</strong> &#8212; written walkthrough</summary>
+      <summary><strong>1b. Google Cloud Vision</strong> — written walkthrough</summary>
       <ol class="mt-2">
         <li>
           <strong>Go to the Google Cloud Console</strong>:<br>
@@ -112,7 +112,7 @@
     <br>
 
     <details>
-      <summary><strong>2. Sarvam Vision</strong> &#8212; written walkthrough</summary>
+      <summary><strong>2. Sarvam Vision</strong> — written walkthrough</summary>
       <ol class="mt-2">
         <li>
           <strong>Create an account</strong>:<br>
@@ -125,7 +125,7 @@
         <li>
           <strong>Generate an API key</strong>:<br>
           In your dashboard, find the API keys section and create a new key.
-          Copy it and store it securely&#8212;treat it like a financial password.
+          Copy it and store it securely — treat it like a financial password.
         </li>
         <li>
           <strong>Use the key</strong>:<br>
@@ -145,14 +145,17 @@
       (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>).
     </p>
     <p>
-      <em>Note: Google Cloud Vision uses standard Google Cloud billing (postpay &#8212; you're charged at the end of the month).
+      <em>Note: Google Cloud Vision uses standard Google Cloud billing (postpay — you're charged at the end of the month).
       This is separate from the Gemini API, which as of March 2026 requires prepay credits for lower-tier developer accounts.
       Don't confuse the two: Cloud Vision billing is set up through
       <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>,
       not AI Studio.</em>
     </p>
     <p>
-      <strong>Sarvam Vision</strong>: ₹1.50 per page (~$0.016 as of May 2026), no free allowance.
+      <strong>Sarvam Vision</strong>: ₹0.50 per page (~$0.006 as of May 2026). New accounts receive some free credits.
+      In addition to the API (e.g. via Skrutable), you can also use the
+      <a href="https://dashboard.sarvam.ai/vision" target="_blank">Sarvam Playground{{ ext_link_icon() }}</a>
+      directly — this does not require an API key but does limit each job to 5 pages.
     </p>
     <p>
       After each OCR job, the page count and estimated cost are shown below the result.
@@ -162,17 +165,17 @@
     <p>
       Your API key is never stored by this application.
       The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code{{ ext_link_icon() }}</a>
-      reads the key from the form, sends it with the OCR request to the provider, and discards it.
+      reads the key from the HTML form, sends it with the OCR request to the provider, and discards it.
       Store your key with a password manager (e.g., 1Password) to keep it secure.
-      If you have concerns about PDF contents, avoid uploading sensitive material&#8212;it is sent to a third-party cloud service.
+      If you have concerns about PDF contents, avoid uploading sensitive material — it is sent to a third-party cloud service.
     </p>
 
     <h3 id="input-limits">How big can the input be?</h3>
     <p>
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       Split larger files into parts.
-      Google Cloud Vision also has a 2,000-page limit, though you'll usually hit the size cap first.
-      Sarvam Vision supports up to 500 pages per job.
+      Google Cloud Vision handles up to 2,000 pages natively, so you'll almost always hit the file size cap before the page cap.
+      Sarvam Vision's API accepts only 10 pages at a time, but this interface handles the splitting and reassembly automatically.
     </p>
 
     <h3 id="complex-page">Will it work with complex page formats?</h3>
