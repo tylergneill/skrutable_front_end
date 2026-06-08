@@ -46,21 +46,21 @@
     <br>
 
     <h3>provider</h3>
-    <p>
-      <label><input type="radio" name="ocr_provider" value="google" id="providerGoogle" checked> Google Cloud Vision</label>
-      &nbsp;&nbsp;
-      <label><input type="radio" name="ocr_provider" value="sarvam" id="providerSarvam"> Sarvam Vision</label>
-    </p>
+    <div class="input-toggle" id="providerToggle" style="max-width: 360px; margin-bottom: 1rem;">
+      <button type="button" id="providerGoogle" class="toggle-btn active" onclick="setProvider('google')">Google Cloud Vision</button>
+      <button type="button" id="providerSarvam" class="toggle-btn" onclick="setProvider('sarvam')">Sarvam Vision</button>
+    </div>
+    <input type="hidden" name="ocr_provider" id="ocr_provider_input" value="google">
 
     <div id="googleKeySection">
-      <label for="googleApiKey">Google Cloud API key (required)</label>
+      <label for="googleApiKey">API key (required)</label>
       <input type="password" id="googleApiKey" class="form-control"
              placeholder="Enter your Google Cloud API key"
              autocomplete="current-password">
     </div>
 
     <div id="sarvamKeySection" style="display:none">
-      <label for="sarvamApiKey">Sarvam API key (required)</label>
+      <label for="sarvamApiKey">API key (required)</label>
       <input type="password" id="sarvamApiKey" class="form-control"
              placeholder="Enter your Sarvam API key"
              autocomplete="current-password">
@@ -150,7 +150,7 @@ function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
   const originalFile = fileInput.files[0] || window.selectedPdfFile;
   const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
-  const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+  const provider = document.getElementById("ocr_provider_input").value;
   const providerTag = provider === "sarvam" ? "sarvam-ai" : "cloud-vision";
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
@@ -188,13 +188,14 @@ dz.addEventListener('drop', e => {
   }
 });
 
-document.querySelectorAll('input[name="ocr_provider"]').forEach(r => {
-  r.addEventListener("change", () => {
-    const isGoogle = document.getElementById("providerGoogle").checked;
-    document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
-    document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
-  });
-});
+function setProvider(provider) {
+  const isGoogle = provider === "google";
+  document.getElementById("providerGoogle").classList.toggle("active", isGoogle);
+  document.getElementById("providerSarvam").classList.toggle("active", !isGoogle);
+  document.getElementById("ocr_provider_input").value = provider;
+  document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
+  document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
+}
 
 const progressBar = document.getElementById("progressBar");
 const progressContainer = document.getElementById("progressContainer");
@@ -267,7 +268,7 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     return;
   }
 
-  const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+  const provider = document.getElementById("ocr_provider_input").value;
   const apiKey = provider === "google"
     ? document.getElementById("googleApiKey").value
     : document.getElementById("sarvamApiKey").value;
@@ -336,10 +337,10 @@ document.getElementById("startOcr").addEventListener("click", async function () 
 
     const pageCount = parseInt(res.headers.get("X-Pages-Processed") || "0", 10);
     if (pageCount) {
-      const provider = document.querySelector('input[name="ocr_provider"]:checked').value;
+      const provider = document.getElementById("ocr_provider_input").value;
       let costNote = "";
       if (provider === "sarvam") {
-        const inrCost = pageCount * 1.50;
+        const inrCost = pageCount * 0.50;
         const inrToUsd = parseFloat(res.headers.get("X-INR-To-USD") || "0");
         if (inrToUsd) {
           const usdCost = (inrCost * inrToUsd).toFixed(4);
