@@ -13,16 +13,15 @@
       <li><a href="#cost">How much will it cost?</a></li>
       <li><a href="#safety">Is this safe? Can I trust you/the provider?</a></li>
       <li><a href="#input-limits">How big can the input be?</a></li>
-      <li><a href="#complex-page">Will it work with complex page formats?</a></li>
-      <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
-      <li><a href="#hard-returns">Why are lines returned as-is, e.g., with hyphenation?</a></li>
+      <li><a href="#errors">Will it work with complex page formats? Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation?</a></li>
+      <li><a href="#side-by-side">Side-by-side comparison</a></li>
     </ul>
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
       This interface provides access to cloud OCR services without requiring coding or cloud-storage setup.
-      Both supported providers accept large multi-page PDFs and deliver high accuracy on Indic scripts — unlike
-      Google Drive OCR, which can be confused by a low-quality text layer already embedded in the file.
+      Both supported providers accept multi-page PDFs and deliver high accuracy on Indic scripts. Unlike
+      Google Drive OCR, neither is confused by a likely low-quality text layer potentially already embedded in the file.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
     <p>
@@ -34,7 +33,7 @@
         Requires a Google Cloud account with billing enabled. Setup is involved but only needs to be done once.
       </li>
       <li>
-        <strong>Sarvam Vision</strong> — Indian AI focused on Indic languages, including Sanskrit.
+        <strong>Sarvam Vision</strong> — new Indian AI focused on Indic languages, with impressive performance on Sanskrit.
         Simpler to set up: just create an account at <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and generate a key.
       </li>
     </ul>
@@ -175,27 +174,105 @@
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       Split larger files into parts.
       Google Cloud Vision handles up to 2,000 pages natively, so you'll almost always hit the file size cap before the page cap.
-      Sarvam Vision's API accepts only 10 pages at a time, but this interface handles the splitting and reassembly automatically.
+      Sarvam Vision's API accepts only 10 pages at a time, but this interface handles splitting and reassembly automatically, so larger files are fine.
     </p>
 
-    <h3 id="complex-page">Will it work with complex page formats?</h3>
+    <h3 id="errors">Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation? Will it work with complex page formats?</h3>
     <p>
-      Maybe, maybe not.
-      Cropping your PDF pages often improves both accuracy and performance.
+      All OCR results contain some errors — please review and clean up as needed, e.g., using regular expressions.
+      Results with these services are also quite literal: line breaks and hyphens come through as-is.
+      Cropping pages often helps both accuracy and layout.
       Sarvam Vision is designed with Indic script layouts in mind and appears to do better with multi-column Sanskrit pages.
     </p>
-
-    <h3 id="mistakes">Why are some characters wrong, words misplaced, etc.?</h3>
+    <h3 id="side-by-side">Side-by-side comparison</h3>
     <p>
-      All OCR results contain some errors.
-      Please review and clean up as needed, e.g., using regular expressions.
+      The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1885).
+      Each image shows Google Cloud Vision output (left), the original PDF page (center), and Sarvam Vision output (right).
+      Differences are highlighted in yellow.
     </p>
 
-    <h3 id="hard-returns">Why are lines returned as-is, e.g., with hyphenation?</h3>
-    <p>
-      These OCR options are literal. They returns what they see on the page, including line breaks and hyphens.
-      This is another thing to review and clean up as needed.
-    </p>
+    <details>
+      <summary><strong>Page 5</strong></summary>
+      <br>
+      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-1.jpg" target="_blank">
+        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-1.jpg" style="width:100%; max-width:100%;">
+      </a>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>Page 6</strong></summary>
+      <br>
+      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-2.jpg" target="_blank">
+        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-2.jpg" style="width:100%; max-width:100%;">
+      </a>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>Page 7</strong></summary>
+      <br>
+      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-3.jpg" target="_blank">
+        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-3.jpg" style="width:100%; max-width:100%;">
+      </a>
+    </details>
+
+    <br>
+
+    <table class="table table-bordered table-sm" style="max-width: 700px;">
+      <thead>
+        <tr>
+          <th>Observation</th>
+          <th>Google Cloud Vision</th>
+          <th>Sarvam Vision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Character error rate (3 pages)</td>
+          <td><em>TBD</em></td>
+          <td><em>TBD</em></td>
+        </tr>
+        <tr>
+          <td>Word error rate (3 pages)</td>
+          <td><em>TBD</em></td>
+          <td><em>TBD</em></td>
+        </tr>
+        <tr>
+          <td>Sandhi: compounds written as separate words</td>
+          <td>Yes — frequent (e.g. <samp>नर पतिशिरः</samp>, <samp>समस्त सामन्त</samp>)</td>
+          <td>No — sandhi preserved throughout</td>
+        </tr>
+        <tr>
+          <td>Page header repeated as body text</td>
+          <td>Yes — <samp>कादम्बरी ।</samp> included on every page</td>
+          <td>No — headers filtered out</td>
+        </tr>
+        <tr>
+          <td>Line numbers included in output</td>
+          <td>Yes — margin numbers appear inline (e.g. <samp>- 10</samp>, <samp>- 20</samp>)</td>
+          <td>No — line numbers filtered out</td>
+        </tr>
+        <tr>
+          <td>Line-end hyphens</td>
+          <td>Preserved as-is</td>
+          <td>Preserved as-is</td>
+        </tr>
+        <tr>
+          <td>Occasional character confusions</td>
+          <td>e.g. <samp>महाश्चर्य°</samp> → <samp>महाश्चर्य°</samp> (rare)</td>
+          <td>e.g. <samp>महाश्वर्य°</samp> (श्च → श्व); <samp>पतीन्दिधक्षु°</samp> → <samp>पतीन्दिग्धक्षु°</samp></td>
+        </tr>
+        <tr>
+          <td>Cost (3 pages)</td>
+          <td>$0.0045 (if charged); likely $0 within free tier of 1,000 pages/month</td>
+          <td>₹1.50 (~$0.018)</td>
+        </tr>
+      </tbody>
+    </table>
+
     <br><br>
 
   </div>
