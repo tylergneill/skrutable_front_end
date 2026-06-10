@@ -74,7 +74,9 @@ Key patterns:
 - `templates/` — Jinja2 templates; `base.html` layout with `sidebar.html`/`sidebar_actions.html` includes; `main.html` is the workbench UI
 - `assets/` — custom CSS (`css/skrutable.css`), shared JS (`js/settings.js`, `js/sidebar.js`), melody MP3s, meter analysis data
 
-**GitHub Actions:** `.github/workflows/clean_bucket.yml` — daily cleanup of stale GCS objects (>10 min old).
+**GitHub Actions:**
+- `.github/workflows/clean_bucket.yml` — daily cleanup of stale GCS objects (>10 min old).
+- `.github/workflows/check_ocr_prices.yml` — daily price check for GCV and Sarvam Vision. Script: `.github/scripts/check_ocr_prices.py`. Scrapes both provider pricing pages, compares against hardcoded known-good values in the `KNOWN` dict at the top of that script, and exits nonzero on any mismatch or parse failure — triggering a GitHub failure email. To test locally: temporarily change a price in `KNOWN` and run `python3 .github/scripts/check_ocr_prices.py`. When a real price change is confirmed, update `KNOWN` and also update the displayed rates in `templates/ocr_instructions.html`.
 
 ## Conventions
 
