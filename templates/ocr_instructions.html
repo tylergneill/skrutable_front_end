@@ -2,6 +2,12 @@
 {% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'ocr' %}
 
+{% block sidebar_controls %}
+<div class="sidebar-controls sidebar-back">
+	<a href="/ocr">&larr; back to OCR upload</a>
+</div>
+{% endblock %}
+
 {% block content %}
   <div class="page-content">
 
