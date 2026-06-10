@@ -692,7 +692,7 @@ def ocr():
 	inr_to_usd = None
 	if provider == "sarvam":
 		try:
-			fx = requests.get("https://api.frankfurter.app/latest?from=INR&to=USD", timeout=5).json()
+			fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
 			inr_to_usd = fx["rates"]["USD"]
 		except Exception as e:
 			logger.warning("FX lookup failed: %s", e)

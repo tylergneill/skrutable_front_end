@@ -136,10 +136,10 @@
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
-      <strong>Google Cloud Vision</strong>: The first 1,000 pages per month are free.
-      After that, every additional 1,000 pages costs $1.50 ($0.0015/page).
+      <strong>Google Cloud Vision</strong>: <strong>$0.0015 / page</strong> (= <a href="https://cloud.google.com/vision/pricing" target="_blank">$1.50 / 1,000 pages{{ ext_link_icon() }}</a>),
+      but the first 1,000 pages per month are free.
       New accounts come with a $300 credit valid for 90 days.
-      For light personal use you likely won't exceed the free tier.
+      For light personal use you likely won't exceed the free allowance.
       You can track your usage
       (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>).
     </p>
@@ -151,13 +151,106 @@
       not AI Studio.</em>
     </p>
     <p>
-      <strong>Sarvam Vision</strong>: ₹0.50 per page (~$0.006 as of May 2026). New accounts receive some free credits.
+      <strong>Sarvam Vision</strong>: <span id="inlineFxRate">loading exchange rate…</span> (= <a href="https://www.sarvam.ai/api-pricing" target="_blank">₹0.50 / page{{ ext_link_icon() }}</a>). New accounts receive some free credits.
       In addition to the API (e.g. via Skrutable), you can also use the
       <a href="https://dashboard.sarvam.ai/vision" target="_blank">Sarvam Playground{{ ext_link_icon() }}</a>
       directly — this does not require an API key but does limit each job to 5 pages.
     </p>
+    <span id="extLinkIconTemplate" style="display:none;">{{ ext_link_icon() }}</span>
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+      <h4 style="margin: 0;">Cost calculator</h4>
+      <div class="input-toggle" id="costProviderToggle" style="max-width: 360px;">
+        <button type="button" id="costGoogle" class="toggle-btn active" onclick="setCostProvider('google')">Google Cloud Vision</button>
+        <button type="button" id="costSarvam" class="toggle-btn" onclick="setCostProvider('sarvam')">Sarvam Vision</button>
+      </div>
+    </div>
+    <div style="margin: 0 0 0.5rem;">
+
+      <div id="costEstimatorGoogle">
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+          <label for="googlePageCount" style="white-space: nowrap;">Pages:</label>
+          <input type="number" id="googlePageCount" min="1" value="100"
+            style="width: 90px; padding: 0.2rem 0.4rem; border-radius: 6px; border: 1px solid #aaa;">
+          <span id="googleCostResult" style="font-size: 0.95rem;"></span>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">
+            <input type="checkbox" id="googleFreeAllowance" checked>
+            factor in free 1,000 pages/month
+          </label>
+        </div>
+      </div>
+
+      <div id="costEstimatorSarvam" style="display:none;">
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+          <label for="sarvamPageCount" style="white-space: nowrap;">Pages:</label>
+          <input type="number" id="sarvamPageCount" min="1" value="100"
+            style="width: 90px; padding: 0.2rem 0.4rem; border-radius: 6px; border: 1px solid #aaa;">
+          <span id="sarvamCostResult" style="font-size: 0.95rem;"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var inrToUsd = null;
+      var extLinkIcon = document.getElementById("extLinkIconTemplate").innerHTML;
+
+      fetch("https://api.frankfurter.dev/v1/latest?from=INR&to=USD")
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          inrToUsd = data.rates.USD;
+          var usdPer050 = (0.50 * inrToUsd).toFixed(4);
+          document.getElementById("inlineFxRate").innerHTML =
+            '<a href="https://www.frankfurter.dev" target="_blank">~$' + usdPer050 + ' / page' + extLinkIcon + '</a>';
+          updateSarvamCost();
+        })
+        .catch(function() {
+          document.getElementById("inlineFxRate").textContent = "exchange rate unavailable";
+          updateSarvamCost();
+        });
+
+      function setCostProvider(p) {
+        document.getElementById("costGoogle").classList.toggle("active", p === "google");
+        document.getElementById("costSarvam").classList.toggle("active", p === "sarvam");
+        document.getElementById("costEstimatorGoogle").style.display = p === "google" ? "" : "none";
+        document.getElementById("costEstimatorSarvam").style.display = p === "sarvam" ? "" : "none";
+      }
+
+      function highlighted(val) {
+        return '<span style="background: var(--pre-bg); padding: 0.15rem 0.5rem; border-radius: 5px;">' + val + '</span>';
+      }
+
+      function updateGoogleCost() {
+        var pages = parseInt(document.getElementById("googlePageCount").value) || 0;
+        var useFree = document.getElementById("googleFreeAllowance").checked;
+        var el = document.getElementById("googleCostResult");
+        if (pages <= 0) { el.innerHTML = ""; return; }
+        var billable = useFree ? Math.max(0, pages - 1000) : pages;
+        var cost = billable * 0.0015;
+        el.innerHTML = "Estimated cost: " + highlighted("$" + cost.toFixed(2));
+      }
+
+      function updateSarvamCost() {
+        var pages = parseInt(document.getElementById("sarvamPageCount").value) || 0;
+        var el = document.getElementById("sarvamCostResult");
+        if (pages <= 0) { el.innerHTML = ""; return; }
+        var inr = pages * 0.50;
+        if (inrToUsd) {
+          el.innerHTML = "Estimated cost: " + highlighted("$" + (inr * inrToUsd).toFixed(2));
+        } else {
+          el.textContent = "Estimated cost: loading exchange rate…";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("googlePageCount").addEventListener("input", updateGoogleCost);
+        document.getElementById("googleFreeAllowance").addEventListener("change", updateGoogleCost);
+        document.getElementById("sarvamPageCount").addEventListener("input", updateSarvamCost);
+        updateGoogleCost();
+        updateSarvamCost();
+      });
+    </script>
+
     <p>
-      After each OCR job, the page count and estimated cost are shown below the result.
+      After each OCR job, the page count and estimated cost are also shown below the result.
     </p>
 
     <h3 id="safety">Is this safe? Can I trust you/the provider?</h3>
