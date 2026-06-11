@@ -16,10 +16,10 @@ source venv3.11/bin/activate
 pip-compile requirements.in   # regenerate requirements.txt from requirements.in
 pip install -r requirements.txt
 
-# run dev server on port 4999
+# run dev server on port 5012
 ./launch.sh
 # or equivalently:
-FLASK_APP=flask_app.py flask --debug run --port=4999
+FLASK_APP=flask_app.py flask --debug run --port=5012
 ```
 
 ## Pull Request conventions
@@ -76,7 +76,7 @@ Key patterns:
 
 **GitHub Actions:**
 - `.github/workflows/clean_bucket.yml` — daily cleanup of stale GCS objects (>10 min old).
-- `.github/workflows/check_ocr_prices.yml` — daily price check for GCV and Sarvam Vision. Script: `.github/scripts/check_ocr_prices.py`. Scrapes both provider pricing pages, compares against hardcoded known-good values in the `KNOWN` dict at the top of that script, and exits nonzero on any mismatch or parse failure — triggering a GitHub failure email. To test locally: temporarily change a price in `KNOWN` and run `python3 .github/scripts/check_ocr_prices.py`. When a real price change is confirmed, update `KNOWN` and also update the displayed rates in `templates/ocr_instructions.html`.
+- `.github/workflows/check_ocr_prices.yml` — daily price check for GCV and Sarvam Vision. Script: `.github/scripts/check_ocr_prices.py`. Scrapes both provider pricing pages, compares against hardcoded known-good values in the `KNOWN` dict at the top of that script, and exits nonzero on any mismatch or parse failure — triggering a GitHub failure email. To test locally: temporarily change a price in `KNOWN` and run `python3 .github/scripts/check_ocr_prices.py`. When a real price change is confirmed, update `KNOWN` and also update the displayed rates in `assets/js/ocr_pricing.js` (single source for both `ocr.html` and `ocr_instructions.html`).
 
 ## Conventions
 
