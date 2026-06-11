@@ -2,6 +2,10 @@
 {% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'ocr' %}
 
+{% block head_extra %}
+<script src="/assets/js/ocr_pricing.js"></script>
+{% endblock %}
+
 {% block sidebar_controls %}
 <div class="sidebar-controls sidebar-back">
 	<a href="/ocr">&larr; back to OCR upload</a>
@@ -142,25 +146,31 @@
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
-      <strong>Google Cloud Vision</strong>: <strong>$0.0015 / page</strong> (= <a href="https://cloud.google.com/vision/pricing" target="_blank">$1.50 / 1,000 pages{{ ext_link_icon() }}</a>),
-      but the first 1,000 pages per month are free.
+      <strong>Google Cloud Vision</strong>: <strong id="googleUsdPerPageLabel"></strong> (= <span id="googleRateLink"></span>),
+      and <strong>the first 1,000 pages per month are free</strong>.
       New accounts come with a $300 credit valid for 90 days.
       For light personal use you likely won't exceed the free allowance.
-      You can track your usage
-      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>).
+      Tracking your usage in real time is possible, if a bit tricky
+      (<a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a> has tips).
     </p>
     <p>
-      <em>Note: Google Cloud Vision uses standard Google Cloud billing (postpay — you're charged at the end of the month).
+      <em>Note: Google Cloud Vision uses standard Google Cloud billing postpay, where you're charged at the end of the month.
       This is separate from the Gemini API, which as of March 2026 requires prepay credits for lower-tier developer accounts.
       Don't confuse the two: Cloud Vision billing is set up through
       <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>,
       not AI Studio.</em>
     </p>
     <p>
-      <strong>Sarvam Vision</strong>: <span id="inlineFxRate">loading exchange rate…</span> (= <a href="https://www.sarvam.ai/api-pricing" target="_blank">₹0.50 / page{{ ext_link_icon() }}</a>). New accounts receive some free credits.
+      <strong>Sarvam Vision</strong>: <strong id="sarvamUsdPerPageLabel">loading exchange rate…</strong> (= <span id="sarvamRateLink"></span><span id="sarvamFxFactor"></span>). New accounts receive some free credits.
       In addition to the API (e.g. via Skrutable), you can also use the
       <a href="https://dashboard.sarvam.ai/vision" target="_blank">Sarvam Playground{{ ext_link_icon() }}</a>
       directly — this does not require an API key but does limit each job to 5 pages.
+    </p>
+    <p>
+      <em>Note: Sarvam billing works the other way around, through prepay. That is, you must add credits ahead of time via the
+      <a href="https://dashboard.sarvam.ai/billing" target="_blank">Sarvam billing page{{ ext_link_icon() }}</a>,
+      either as one-off top-ups or threshold-based auto-recharge.
+      Be prepared to pay in INR (₹), i.e., pre-authorize with your card company if needed.</em>
     </p>
     <span id="extLinkIconTemplate" style="display:none;">{{ ext_link_icon() }}</span>
     <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
@@ -199,19 +209,21 @@
       var inrToUsd = null;
       var extLinkIcon = document.getElementById("extLinkIconTemplate").innerHTML;
 
-      fetch("https://api.frankfurter.dev/v1/latest?from=INR&to=USD")
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          inrToUsd = data.rates.USD;
-          var usdPer050 = (0.50 * inrToUsd).toFixed(4);
-          document.getElementById("inlineFxRate").innerHTML =
-            '<a href="https://www.frankfurter.dev" target="_blank">~$' + usdPer050 + ' / page' + extLinkIcon + '</a>';
-          updateSarvamCost();
-        })
-        .catch(function() {
-          document.getElementById("inlineFxRate").textContent = "exchange rate unavailable";
-          updateSarvamCost();
-        });
+      document.getElementById("googleUsdPerPageLabel").textContent = "$" + OCR_PRICING.google.usdPerPage + " / page";
+      document.getElementById("googleRateLink").innerHTML = ocrRateLink("google", extLinkIcon);
+      document.getElementById("sarvamRateLink").innerHTML = ocrRateLink("sarvam", extLinkIcon);
+
+      fetchInrToUsd().then(function(rate) {
+        inrToUsd = rate;
+        if (rate) {
+          var usdPerPage = (OCR_PRICING.sarvam.inrPerPage * rate).toFixed(4);
+          document.getElementById("sarvamUsdPerPageLabel").textContent = "~$" + usdPerPage + " per page";
+          document.getElementById("sarvamFxFactor").innerHTML = " × " + fxRateLink(rate, extLinkIcon);
+        } else {
+          document.getElementById("sarvamUsdPerPageLabel").textContent = "exchange rate unavailable";
+        }
+        updateSarvamCost();
+      });
 
       function setCostProvider(p) {
         document.getElementById("costGoogle").classList.toggle("active", p === "google");
@@ -229,8 +241,8 @@
         var useFree = document.getElementById("googleFreeAllowance").checked;
         var el = document.getElementById("googleCostResult");
         if (pages <= 0) { el.innerHTML = ""; return; }
-        var billable = useFree ? Math.max(0, pages - 1000) : pages;
-        var cost = billable * 0.0015;
+        var billable = useFree ? Math.max(0, pages - OCR_PRICING.google.freePagesPerMonth) : pages;
+        var cost = googleCostUsd(billable);
         el.innerHTML = "Estimated cost: " + highlighted("$" + cost.toFixed(2));
       }
 
@@ -238,7 +250,7 @@
         var pages = parseInt(document.getElementById("sarvamPageCount").value) || 0;
         var el = document.getElementById("sarvamCostResult");
         if (pages <= 0) { el.innerHTML = ""; return; }
-        var inr = pages * 0.50;
+        var inr = sarvamCostInr(pages);
         if (inrToUsd) {
           el.innerHTML = "Estimated cost: " + highlighted("$" + (inr * inrToUsd).toFixed(2));
         } else {
