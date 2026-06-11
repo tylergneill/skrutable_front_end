@@ -750,6 +750,7 @@ def ocr_stream():
 					"type":         "chunk",
 					"index":        chunk_idx,
 					"total":        total_chunks,
+					"pages":        all_page_count,
 					"text":         "\n".join(chunk_texts),
 				}
 				yield 'data: ' + _json.dumps(payload, ensure_ascii=False) + '\n\n'
