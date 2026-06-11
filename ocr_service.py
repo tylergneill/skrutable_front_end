@@ -3,6 +3,7 @@ from pathlib import Path
 import uuid, json, os, zipfile, tempfile
 from google.cloud import storage, vision
 from sarvamai import SarvamAI
+from sarvamai.errors import TooManyRequestsError
 from pypdf import PdfReader, PdfWriter
 
 BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
@@ -61,7 +62,15 @@ SARVAM_PAGE_LIMIT = 10
 
 def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_page_numbers: bool) -> list:
     """Run Sarvam OCR on a single chunk PDF, return list of page text strings."""
-    job = client.document_intelligence.create_job(language="sa-IN", output_format="md")
+    try:
+        job = client.document_intelligence.create_job(language="sa-IN", output_format="md")
+    except TooManyRequestsError as e:
+        body = getattr(e, "body", {}) or {}
+        err = (body.get("error") or {}) if isinstance(body, dict) else {}
+        code = err.get("code", "")
+        if code == "insufficient_quota_error" or "credits" in err.get("message", "").lower():
+            raise RuntimeError("QUOTA_EXHAUSTED") from None
+        raise RuntimeError(f"Sarvam API rate limit: {err.get('message') or str(e)}") from None
     job.upload_file(str(chunk_path))
     job.start()
     job.wait_until_complete()
@@ -86,13 +95,20 @@ def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_pa
 
 def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
     """Submit PDF to Sarvam Vision, return (text, page_count). Splits into chunks if > 10 pages."""
+    all_texts = []
+    for _, _, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers):
+        all_texts.extend(chunk_texts)
+    return "\n".join(all_texts), len(all_texts)
+
+def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True):
+    """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes."""
     reader = PdfReader(str(pdf_path))
     total_pages = len(reader.pages)
+    total_chunks = (total_pages + SARVAM_PAGE_LIMIT - 1) // SARVAM_PAGE_LIMIT
     client = SarvamAI(api_subscription_key=api_key)
 
-    all_texts = []
     with tempfile.TemporaryDirectory() as chunk_dir:
-        for chunk_start in range(0, total_pages, SARVAM_PAGE_LIMIT):
+        for i, chunk_start in enumerate(range(0, total_pages, SARVAM_PAGE_LIMIT), start=1):
             chunk_end = min(chunk_start + SARVAM_PAGE_LIMIT, total_pages)
             writer = PdfWriter()
             for p in range(chunk_start, chunk_end):
@@ -100,8 +116,5 @@ def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
             chunk_path = Path(chunk_dir) / f"chunk_{chunk_start}.pdf"
             with open(chunk_path, "wb") as f:
                 writer.write(f)
-            all_texts.extend(
-                _run_sarvam_ocr_chunk(client, chunk_path, chunk_start, include_page_numbers)
-            )
-
-    return "\n".join(all_texts), len(all_texts)
+            chunk_texts = _run_sarvam_ocr_chunk(client, chunk_path, chunk_start, include_page_numbers)
+            yield i, total_chunks, chunk_texts

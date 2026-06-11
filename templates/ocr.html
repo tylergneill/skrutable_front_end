@@ -147,14 +147,20 @@
 <script>
 function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
-  const originalFile = fileInput.files[0] || window.selectedPdfFile;
-  const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
   const provider = document.getElementById("ocr_provider_input").value;
-  const providerTag = provider === "sarvam" ? "sarvam-ai" : "cloud-vision";
+  let dlName;
+  if (provider === "sarvam" && window._sarvamDlFilename) {
+    dlName = window._sarvamDlFilename;
+  } else {
+    const originalFile = fileInput.files[0] || window.selectedPdfFile;
+    const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+    const providerTag = provider === "sarvam" ? "sarvam-ai" : "cloud-vision";
+    dlName = `${baseName}-skrutable-${providerTag}-ocr.txt`;
+  }
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${baseName}-skrutable-${providerTag}-ocr.txt`;
+  link.download = dlName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -287,13 +293,126 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   progressBar.classList.add("progress-bar-striped", "active");
   progressBar.classList.remove("zoom-bounce", "error-state");
 
-  const interval = estimateProgress(pdfFile);
+  if (provider === "sarvam") {
+    // Discrete chunk-based progress: bar advances only as chunks return.
+    progressContainer.style.display = "block";
+    progressBar.style.backgroundColor = "steelblue";
+    progressBar.textContent = "uploading…";
+    await runSarvamStream(formData);
+  } else {
+    const interval = estimateProgress(pdfFile);
+    await runGoogleOcr(formData, interval, pdfFile);
+  }
+});
+
+async function runSarvamStream(formData) {
+  const ocrText    = document.getElementById("ocrText");
+  const resultBox  = document.getElementById("ocrResultContainer");
+  let accumulatedText = "";
+  let receivedDone = false;
+  let dlFilename   = null;
 
   try {
-    const res = await fetch("/ocr", {
-      method: "POST",
-      body: formData
-    });
+    const res = await fetch("/ocr/stream", { method: "POST", body: formData });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`OCR request failed: ${errText}`);
+    }
+
+    progressBar.textContent = "processing…";
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+
+      const lines = buf.split("\n");
+      buf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (evt.type === "chunk") {
+          const pct = Math.round((evt.index / evt.total) * 100);
+          progressBar.style.width   = `${pct}%`;
+          progressBar.textContent   = `${pct}% (chunk ${evt.index}/${evt.total})`;
+          progressBar.setAttribute("aria-valuenow", pct);
+
+          if (accumulatedText) accumulatedText += "\n";
+          accumulatedText += evt.text;
+          ocrText.value = accumulatedText;
+
+          if (resultBox.style.display === "none" || resultBox.style.display === "") {
+            resultBox.style.display = "block";
+          }
+        } else if (evt.type === "done") {
+          receivedDone = true;
+          dlFilename = evt.filename || null;
+          const pageCount = evt.pages || 0;
+          if (pageCount) {
+            const inrCost  = pageCount * 0.50;
+            const inrToUsd = evt.inr_to_usd || 0;
+            let costNote = inrToUsd
+              ? ` — estimated cost: ₹${inrCost.toFixed(2)} ($${(inrCost * inrToUsd).toFixed(4)})`
+              : ` — estimated cost: ₹${inrCost.toFixed(2)}`;
+            document.getElementById("pagesProcessed").textContent = `Pages processed: ${pageCount}${costNote}`;
+          }
+        } else if (evt.type === "error") {
+          progressBar.classList.add("error-state");
+          progressBar.classList.remove("progress-bar-striped", "active");
+          const label = evt.status === 402 ? "No Sarvam credits" : "Error";
+          progressBar.textContent = label;
+          progressBar.style.width = "100%";
+          progressBar.setAttribute("aria-valuenow", 100);
+          alert(evt.message);
+          return;
+        }
+      }
+    }
+
+    if (!receivedDone) {
+      progressBar.classList.add("error-state");
+      progressBar.classList.remove("progress-bar-striped", "active");
+      progressBar.textContent = "Connection lost — partial result below";
+      progressBar.style.width = "100%";
+      progressBar.setAttribute("aria-valuenow", 100);
+      return;
+    }
+
+    progressBar.style.width = "100%";
+    progressBar.textContent = "100%";
+    progressBar.setAttribute("aria-valuenow", 100);
+    progressBar.classList.remove("progress-bar-striped", "active");
+    progressBar.classList.remove("zoom-bounce");
+    void progressBar.offsetWidth;
+    progressBar.classList.add("zoom-bounce");
+
+    if (dlFilename) window._sarvamDlFilename = dlFilename;
+
+    resultBox.classList.remove("animate-zoom");
+    void resultBox.offsetWidth;
+    resultBox.classList.add("animate-zoom");
+
+  } catch (err) {
+    console.error("runSarvamStream: error", err);
+    progressBar.classList.add("error-state");
+    progressBar.textContent = "Error";
+    progressBar.style.width = "100%";
+    progressBar.setAttribute("aria-valuenow", 100);
+    progressBar.classList.remove("progress-bar-striped", "active");
+  }
+}
+
+async function runGoogleOcr(formData, interval, pdfFile) {
+  try {
+    const res = await fetch("/ocr", { method: "POST", body: formData });
 
     if (!res.ok) {
       clearInterval(interval);
@@ -336,21 +455,8 @@ document.getElementById("startOcr").addEventListener("click", async function () 
 
     const pageCount = parseInt(res.headers.get("X-Pages-Processed") || "0", 10);
     if (pageCount) {
-      const provider = document.getElementById("ocr_provider_input").value;
-      let costNote = "";
-      if (provider === "sarvam") {
-        const inrCost = pageCount * 0.50;
-        const inrToUsd = parseFloat(res.headers.get("X-INR-To-USD") || "0");
-        if (inrToUsd) {
-          const usdCost = (inrCost * inrToUsd).toFixed(4);
-          costNote = ` — estimated cost: ₹${inrCost.toFixed(2)} ($${usdCost})`;
-        } else {
-          costNote = ` — estimated cost: ₹${inrCost.toFixed(2)}`;
-        }
-      } else {
-        const cost = (pageCount * 1.50 / 1000).toFixed(4);
-        costNote = ` — estimated cost: $${cost} (after first free 1,000 pages/month)`;
-      }
+      const cost = (pageCount * 1.50 / 1000).toFixed(4);
+      const costNote = ` — estimated cost: $${cost} (after first free 1,000 pages/month)`;
       document.getElementById("pagesProcessed").textContent = `Pages processed: ${pageCount}${costNote}`;
     }
 
@@ -368,14 +474,14 @@ document.getElementById("startOcr").addEventListener("click", async function () 
 
   } catch (err) {
     clearInterval(interval);
-    console.error("startOcr: error occurred", err);
+    console.error("runGoogleOcr: error", err);
     progressBar.classList.add("error-state");
     progressBar.textContent = "Error";
     progressBar.setAttribute("aria-valuenow", 100);
     progressBar.style.width = "100%";
     progressBar.classList.remove("progress-bar-striped", "active");
   }
-});
+}
 
 function copyOcrText() {
   const btn = document.getElementById("copyButton");
