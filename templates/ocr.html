@@ -336,6 +336,11 @@ async function runSarvamStream(formData) {
   let receivedDone = false;
   let dlFilename   = null;
 
+  // FX rate for the running cost estimate; chunks take minutes, so this
+  // resolves well before the first one (₹ fallback covers the rare miss)
+  let fxRate = null;
+  fetchInrToUsd().then(function (rate) { fxRate = rate; });
+
   try {
     const res = await fetch("/ocr/stream", { method: "POST", body: formData });
 
@@ -376,10 +381,12 @@ async function runSarvamStream(formData) {
           if (resultBox.style.display === "none" || resultBox.style.display === "") {
             resultBox.style.display = "block";
           }
+
+          showCostEstimate("sarvam", evt.pages || 0, fxRate);
         } else if (evt.type === "done") {
           receivedDone = true;
           dlFilename = evt.filename || null;
-          showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || 0);
+          showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || fxRate);
         } else if (evt.type === "error") {
           progressBar.classList.add("error-state");
           progressBar.classList.remove("progress-bar-striped", "active");
