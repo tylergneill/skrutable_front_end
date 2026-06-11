@@ -10,12 +10,12 @@ from datetime import datetime, date
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
-	make_response, g, url_for
+	make_response, g, url_for, stream_with_context, Response
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
-from ocr_service import run_google_ocr, run_sarvam_ocr
+from ocr_service import run_google_ocr, run_sarvam_ocr, stream_sarvam_ocr
 
 if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
 	import skrutable.utils as _skrutable_utils
@@ -680,6 +680,11 @@ def ocr():
 				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
 			else:
 				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers)
+		except RuntimeError as exc:
+			logger.error("OCR failed: %s", exc)
+			if str(exc) == "QUOTA_EXHAUSTED":
+				return "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai.", 402
+			return f"OCR failed: {exc}", 500
 		except Exception as exc:
 			import traceback
 			trace = traceback.format_exc()
@@ -715,6 +720,78 @@ def ocr():
 	logger.info("Total OCR roundtrip time: %.3f seconds", elapsed)
 
 	return response
+
+@app.route("/ocr/stream", methods=["POST"])
+def ocr_stream():
+	"""Streaming SSE endpoint for Sarvam OCR — yields one event per 10-page chunk."""
+	import json as _json
+
+	api_key  = request.form.get("api_key", "").strip()
+	pdf_file = request.files.get("pdf_file")
+	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+
+	if not api_key or not pdf_file:
+		def _err():
+			yield 'data: ' + _json.dumps({"type": "error", "status": 400, "message": "PDF and API key are required."}) + '\n\n'
+		return Response(stream_with_context(_err()), mimetype="text/event-stream")
+
+	td_obj = tempfile.TemporaryDirectory()
+	pdf_path = Path(td_obj.name) / secure_filename(pdf_file.filename)
+	pdf_file.save(pdf_path)
+
+	pdf_stem = pdf_path.stem
+
+	def generate():
+		try:
+			all_page_count = 0
+			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers):
+				all_page_count += len(chunk_texts)
+				payload = {
+					"type":         "chunk",
+					"index":        chunk_idx,
+					"total":        total_chunks,
+					"text":         "\n".join(chunk_texts),
+				}
+				yield 'data: ' + _json.dumps(payload, ensure_ascii=False) + '\n\n'
+
+			inr_to_usd = None
+			try:
+				fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
+				inr_to_usd = fx["rates"]["USD"]
+			except Exception as e:
+				logger.warning("FX lookup failed: %s", e)
+
+			done_payload = {
+				"type":        "done",
+				"pages":       all_page_count,
+				"inr_to_usd":  inr_to_usd,
+				"filename":    f"{pdf_stem}-skrutable-sarvam-ai-ocr.txt",
+			}
+			yield 'data: ' + _json.dumps(done_payload) + '\n\n'
+
+		except RuntimeError as exc:
+			logger.error("OCR stream failed: %s", exc)
+			if str(exc) == "QUOTA_EXHAUSTED":
+				msg = "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai."
+				status = 402
+			else:
+				msg = f"OCR failed: {exc}"
+				status = 500
+			yield 'data: ' + _json.dumps({"type": "error", "status": status, "message": msg}) + '\n\n'
+
+		except Exception as exc:
+			import traceback
+			logger.error("OCR stream failed: %s\n%s", exc, traceback.format_exc())
+			yield 'data: ' + _json.dumps({"type": "error", "status": 500, "message": f"OCR failed: {exc}"}) + '\n\n'
+
+		finally:
+			td_obj.cleanup()
+
+	response = Response(stream_with_context(generate()), mimetype="text/event-stream")
+	response.headers["Cache-Control"] = "no-cache"
+	response.headers["X-Accel-Buffering"] = "no"  # disable nginx proxy buffering
+	return response
+
 
 @app.route("/ocr_instructions")
 def ocr_instructions():
