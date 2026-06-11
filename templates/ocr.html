@@ -321,7 +321,7 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     // Discrete chunk-based progress: bar advances only as chunks return.
     progressContainer.style.display = "block";
     progressBar.style.backgroundColor = "steelblue";
-    progressBar.textContent = "  please wait, uploading…";
+    progressBar.textContent = "uploading…";
     await runSarvamStream(formData);
   } else {
     const interval = estimateProgress(pdfFile);
