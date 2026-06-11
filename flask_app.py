@@ -47,6 +47,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# quiet the sarvamai SDK's HTTP client, which logs every request at INFO
+# (including ~2s job-status polls)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 app = CustomFlask(__name__)
 app.config["DEBUG"] = True
 app.config["SECRET_KEY"] = "asdlkvumnxlapoiqyernxnfjtuzimzjdhryien" # for session, no actual need for secrecy
@@ -634,12 +639,8 @@ def upload_file():
 def batch_meter_correction():
 	return redirect("/?expired=batch")
 
-@app.route("/ocr", methods=["GET", "POST"])
-def ocr():
-	if request.method == "GET":
-		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
-
-	# Log detailed job stats to learn about usage
+def _log_ocr_request_stats():
+	"""Log detailed job stats (client IP, geo, file info) to learn about usage; returns start time."""
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
 	logger.info("Client IP: %s", ip)
 	try:
@@ -660,6 +661,14 @@ def ocr():
 		f.seek(0)
 	else:
 		logger.error("No file in request.files")
+	return start_time
+
+@app.route("/ocr", methods=["GET", "POST"])
+def ocr():
+	if request.method == "GET":
+		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
+
+	start_time = _log_ocr_request_stats()
 
 	# ---------- POST ----------
 	provider  = request.form.get("ocr_provider", "google")
@@ -726,6 +735,8 @@ def ocr_stream():
 	"""Streaming SSE endpoint for Sarvam OCR — yields one event per 10-page chunk."""
 	import json as _json
 
+	start_time = _log_ocr_request_stats()
+
 	api_key  = request.form.get("api_key", "").strip()
 	pdf_file = request.files.get("pdf_file")
 	include_page_numbers = request.form.get("include_page_numbers") == "yes"
@@ -769,6 +780,9 @@ def ocr_stream():
 				"filename":    f"{pdf_stem}-skrutable-sarvam-ai-ocr.txt",
 			}
 			yield 'data: ' + _json.dumps(done_payload) + '\n\n'
+
+			logger.info("Pages processed: %d", all_page_count)
+			logger.info("Total OCR stream time: %.3f seconds", time.time() - start_time)
 
 		except RuntimeError as exc:
 			logger.error("OCR stream failed: %s", exc)
