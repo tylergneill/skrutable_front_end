@@ -226,7 +226,8 @@ function showCostEstimate(provider, pageCount, inrToUsd) {
     }
   } else {
     const cost = googleCostUsd(pageCount);
-    html = `Pages processed: ${pageCount} — estimated cost: $${cost.toFixed(2)} (= ${pageCount} pages × ${rateLink}), but the first 1,000 pages per month are free`;
+    const costStr = cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2);
+    html = `Pages processed: ${pageCount} — estimated cost: $${costStr} (= ${pageCount} pages × ${rateLink}; the first 1,000 pages per month are free)`;
   }
   document.getElementById("pagesProcessed").innerHTML = html;
 }
