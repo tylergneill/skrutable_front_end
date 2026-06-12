@@ -306,7 +306,10 @@
 
     {% macro trip_controls() %}
     <div style="display:flex; gap:0.5%; align-items:center; margin-bottom:0.3rem;">
-      <div style="width:33%;"></div>
+      <div style="width:33%; display:flex; justify-content:flex-start; align-items:center; gap:0.4rem;">
+        <input type="checkbox" id="tripNormCheck" style="cursor:pointer;" onchange="tripToggleNorm(this.checked)">
+        <label for="tripNormCheck" style="font-size:0.85rem; cursor:pointer; margin:0; user-select:none;">normalized</label>
+      </div>
       <div style="width:33%; display:flex; justify-content:center;">
         <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
           <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvancePage(-1)">&#8592;</button>
@@ -351,8 +354,10 @@
     <script>
       var tripPage = 0;
       var tripMiddle = 0;
+      var tripNorm = 0;
       var tripPages = [5, 6, 7];
-      var tripMiddleLabels = ["Scan", "GSV diff vs. ground truth", "Sarvam diff vs. ground truth"];
+      var tripMiddleLabels = ["Scan", "GCV diff vs. ground truth", "Sarvam diff vs. ground truth"];
+      var tripNormDirs = ["original", "body_text_only"];
 
       function tripSrc(file) {
         return "/assets/ocr_comparison/imgs/" + file;
@@ -360,21 +365,23 @@
 
       function tripUpdate() {
         var p = tripPages[tripPage];
-        var left = tripSrc("meld/gcv_" + p + "_right.png");
-        var right = tripSrc("meld/sarvam_" + p + "_right.png");
+        var dir = tripNormDirs[tripNorm];
+        var left = tripSrc("meld/splits/" + dir + "/gcv_" + p + "_right.png");
+        var right = tripSrc("meld/splits/" + dir + "/sarvam_" + p + "_right.png");
         var middle;
         if (tripMiddle === 0) {
           middle = tripSrc("page-" + p + ".jpg");
         } else if (tripMiddle === 1) {
-          middle = tripSrc("meld/gt_vs_gcv_" + p + "_left.png");
+          middle = tripSrc("meld/splits/" + dir + "/gt_vs_gcv_" + p + "_left.png");
         } else {
-          middle = tripSrc("meld/gt_vs_sarvam_" + p + "_left.png");
+          middle = tripSrc("meld/splits/" + dir + "/gt_vs_sarvam_" + p + "_left.png");
         }
         document.querySelectorAll(".trip-left").forEach(function(el) { el.src = left; });
         document.querySelectorAll(".trip-middle").forEach(function(el) { el.src = middle; });
         document.querySelectorAll(".trip-right").forEach(function(el) { el.src = right; });
         document.querySelectorAll(".trip-page-label").forEach(function(el) { el.textContent = "Page " + p; });
         document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = tripMiddleLabels[tripMiddle]; });
+        document.querySelectorAll("#tripNormCheck").forEach(function(el) { el.checked = tripNorm === 1; });
       }
 
       function tripAdvancePage(dir) {
@@ -384,6 +391,11 @@
 
       function tripAdvanceMiddle(dir) {
         tripMiddle = (tripMiddle + dir + tripMiddleLabels.length) % tripMiddleLabels.length;
+        tripUpdate();
+      }
+
+      function tripToggleNorm(checked) {
+        tripNorm = checked ? 1 : 0;
         tripUpdate();
       }
 
@@ -426,34 +438,39 @@
       </thead>
       <tbody>
         <tr>
-          <td>Preserved as-is (1 misplaced)</td>
+          <td>3/3 preserved</td>
+          <td>Page header<br>(कादम्बरी ।)</td>
+          <td>1/3 preserved</td>
+        </tr>
+        <tr>
+          <td>0/3 captured</td>
+          <td>Page numbers<br>(५ ६ ७)</td>
+          <td>0/3 captured</td>
+        </tr>
+        <tr>
+          <td>10/12 preserved in-place</td>
+          <td>Margin line numbers<br>(<samp>5</samp>,  <samp>10</samp>, <samp>15</samp>, <samp>20</samp>)</td>
+          <td>6.5/12 preserved in-place, some duplicated at page end</td>
+        </tr>
+        <tr>
+          <td>Preserved as-is</td>
           <td>Line-end hyphens</td>
           <td>Preserved as-is</td>
         </tr>
         <tr>
-          <td>10/12 preserved in-place</td>
-          <td>Margin line numbers (e.g. <samp>- 10</samp>, <samp>- 20</samp>)</td>
-          <td>6.5/12 preserved in-place, some duplicated at page end</td>
+          <td>10/14 read as pipe (<samp>|</samp>)</td>
+          <td>Daṇḍas (। ॥)</td>
+          <td>14/14 retained as Indic</td>
         </tr>
         <tr>
-          <td>3/3 preserved</td>
-          <td>Page header (कादम्बरी ।)</td>
-          <td>1/3 preserved</td>
-        </tr>
-        <tr>
-          <td>36 spaces, 1 newline</td>
+          <td>45 spaces, 1 newline</td>
           <td>Spurious whitespace</td>
           <td>none</td>
         </tr>
         <tr>
-          <td>0/3 captured</td>
-          <td>Page numbers (५ ६ ७)</td>
-          <td>0/3 captured</td>
-        </tr>
-        <tr>
-          <td>3.09%</td>
-          <td>Character error rate (3 pages, body text)</td>
-          <td>0.90%</td>
+          <td>4.30%</td>
+          <td>Character error rate<br>(body text only, daṇḍas normalized)</td>
+          <td>2.59%</td>
         </tr>
         <tr>
           <td>$0.0045</td>

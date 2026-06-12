@@ -19,6 +19,11 @@ FILES = {
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
 
 
+def normalize(text):
+	text = text.replace("||", "॥").replace("|", "।")
+	return unicodedata.normalize("NFC", text)
+
+
 def parse_pages(path):
 	pages = {}
 	current = None
@@ -29,7 +34,7 @@ def parse_pages(path):
 			pages[current] = []
 		elif current is not None:
 			pages[current].append(line)
-	return {k: unicodedata.normalize("NFC", "\n".join(v)) for k, v in pages.items()}
+	return {k: normalize("\n".join(v)) for k, v in pages.items()}
 
 
 def levenshtein(a, b):

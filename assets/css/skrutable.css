@@ -785,6 +785,10 @@ table tbody tr:nth-child(even) {
 	text-align: center;
 }
 
+.ocr-comparison-table td:nth-child(2) {
+	font-weight: 600;
+}
+
 .trip-toggle .input-toggle {
 	background: var(--btn-bg);
 }
