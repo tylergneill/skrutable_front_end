@@ -24,7 +24,7 @@
       <li><a href="#safety">Is this safe? Can I trust you/the provider?</a></li>
       <li><a href="#input-limits">How big can the input be?</a></li>
       <li><a href="#errors">Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation? Will it work with complex page formats?</a></li>
-      <li><a href="#side-by-side">Side-by-side comparison</a></li>
+      <li><a href="#side-by-side">Side-by-side provider comparison</a></li>
     </ul>
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
@@ -295,44 +295,123 @@
       For complex layouts (e.g. columns) and unwanted material (e.g. footnotes), manually cropping pages is often best.
       Sarvam Vision is designed with Indic script layouts in mind and appears to do better with multi-column Sanskrit pages.
     </p>
-    <h3 id="side-by-side">Side-by-side comparison</h3>
+    <h3 id="side-by-side">Side-by-side provider comparison</h3>
     <p>
       The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1885).
-      Each image shows <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/bana_3-skrutable-cloud-vision-ocr.txt">Google Cloud Vision output</a> (left), the <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/bana_3.pdf">original PDF page</a> (center), and <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/bana_3-skrutable-sarvam-ai-ocr.txt">Sarvam Vision output</a> (right).
-      Differences calculated with <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a> appear in yellow.
+      Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
+      The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
+      errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
+      CER is computed on body text only (headers, margin numbers, and page numbers excluded).
     </p>
 
-    <details>
-      <summary><strong>Page 5</strong></summary>
-      <br>
-      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-1.jpg" target="_blank">
-        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-1.jpg" style="width:100%; max-width:100%;">
-      </a>
-    </details>
+    {% macro trip_controls() %}
+    <div style="display:flex; gap:0.5%; align-items:center; margin-bottom:0.3rem;">
+      <div style="width:33%;"></div>
+      <div style="width:33%; display:flex; justify-content:center;">
+        <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
+          <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvancePage(-1)">&#8592;</button>
+          <span class="trip-page-label" style="font-weight:600; white-space:nowrap; color:var(--btn-text); font-size:0.85rem;">Page 5</span>
+          <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvancePage(1)">&#8594;</button>
+        </div></div>
+      </div>
+      <div style="width:33%; display:flex; justify-content:flex-end;">
+        <button class="toggle-btn trip-fullscreen-btn" style="flex:none; padding:0.2rem 0.6rem; background:var(--btn-bg); color:var(--btn-text); border-radius:6px;" onclick="tripOpenFullscreen()">full-screen &#x26F6;</button>
+        <button class="toggle-btn trip-close-btn" style="flex:none; padding:0.2rem 0.6rem; background:var(--btn-bg); color:var(--btn-text); border-radius:6px;" onclick="tripCloseFullscreen()">close &#x2715;</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:0.5%;">
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Google Cloud Vision</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Ground Truth</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Sarvam Vision</div>
+    </div>
+
+    <div class="trip-img-row" style="display:flex; gap:0.5%; align-items:center;">
+      <img class="trip-left" src="" style="width:33%;">
+      <img class="trip-middle" src="" style="width:33%;">
+      <img class="trip-right" src="" style="width:33%;">
+    </div>
+
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:0.3rem;">
+      <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
+        <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvanceMiddle(-1)">&#8592;</button>
+        <span class="trip-middle-label" style="white-space:nowrap; color:var(--btn-text); font-size:0.85rem; min-width:12rem; text-align:center;">Scan</span>
+        <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvanceMiddle(1)">&#8594;</button>
+      </div></div>
+    </div>
+    {% endmacro %}
+
+    {{ trip_controls() }}
+
+    <!-- fullscreen overlay -->
+    <div id="tripOverlay" style="display:none; position:fixed; inset:0; z-index:9999; flex-direction:column; padding:0.8rem 0.8rem 1rem; height:100vh; box-sizing:border-box;">
+      {{ trip_controls() }}
+    </div>
+
+    <script>
+      var tripPage = 0;
+      var tripMiddle = 0;
+      var tripPages = [5, 6, 7];
+      var tripMiddleLabels = ["Scan", "GSV diff vs. ground truth", "Sarvam diff vs. ground truth"];
+
+      function tripSrc(file) {
+        return "/assets/ocr_comparison/imgs/" + file;
+      }
+
+      function tripUpdate() {
+        var p = tripPages[tripPage];
+        var left = tripSrc("meld/gcv_" + p + "_right.png");
+        var right = tripSrc("meld/sarvam_" + p + "_right.png");
+        var middle;
+        if (tripMiddle === 0) {
+          middle = tripSrc("page-" + p + ".jpg");
+        } else if (tripMiddle === 1) {
+          middle = tripSrc("meld/gt_vs_gcv_" + p + "_left.png");
+        } else {
+          middle = tripSrc("meld/gt_vs_sarvam_" + p + "_left.png");
+        }
+        document.querySelectorAll(".trip-left").forEach(function(el) { el.src = left; });
+        document.querySelectorAll(".trip-middle").forEach(function(el) { el.src = middle; });
+        document.querySelectorAll(".trip-right").forEach(function(el) { el.src = right; });
+        document.querySelectorAll(".trip-page-label").forEach(function(el) { el.textContent = "Page " + p; });
+        document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = tripMiddleLabels[tripMiddle]; });
+      }
+
+      function tripAdvancePage(dir) {
+        tripPage = (tripPage + dir + tripPages.length) % tripPages.length;
+        tripUpdate();
+      }
+
+      function tripAdvanceMiddle(dir) {
+        tripMiddle = (tripMiddle + dir + tripMiddleLabels.length) % tripMiddleLabels.length;
+        tripUpdate();
+      }
+
+      function tripOpenFullscreen() {
+        var el = document.getElementById("tripOverlay");
+        el.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      function tripCloseFullscreen() {
+        document.getElementById("tripOverlay").style.display = "none";
+        document.body.style.overflow = "";
+      }
+
+      document.addEventListener("keydown", function(e) {
+        if (document.getElementById("tripOverlay").style.display === "flex") {
+          if (e.key === "Escape") tripCloseFullscreen();
+          if (e.key === "ArrowLeft") tripAdvancePage(-1);
+          if (e.key === "ArrowRight") tripAdvancePage(1);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", tripUpdate);
+    </script>
 
     <br>
 
-    <details>
-      <summary><strong>Page 6</strong></summary>
-      <br>
-      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-2.jpg" target="_blank">
-        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-2.jpg" style="width:100%; max-width:100%;">
-      </a>
-    </details>
-
-    <br>
-
-    <details>
-      <summary><strong>Page 7</strong></summary>
-      <br>
-      <a href="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-3.jpg" target="_blank">
-        <img src="/assets/cloud_vision_sarvam_ocr_side_by_side/triptych-3.jpg" style="width:100%; max-width:100%;">
-      </a>
-    </details>
-
-    <br>
-
-    <table class="table table-bordered table-sm" style="max-width: 100%; table-layout: fixed;">
+    <table class="table table-bordered table-sm ocr-comparison-table" style="max-width: 100%; table-layout: fixed;">
       <colgroup>
         <col style="width: 35%;">
         <col style="width: 30%;">
@@ -341,7 +420,7 @@
       <thead>
         <tr>
           <th>Google Cloud Vision</th>
-          <th>PDF Input</th>
+          <th>Ground Truth</th>
           <th>Sarvam Vision</th>
         </tr>
       </thead>
@@ -367,19 +446,14 @@
           <td>none</td>
         </tr>
         <tr>
-          <td>TBD (some...)</td>
-          <td>Mistaken akṣaras (usually complex)</td>
-          <td>TBD (fewer...)</td>
+          <td>0/3 captured</td>
+          <td>Page numbers (५ ६ ७)</td>
+          <td>0/3 captured</td>
         </tr>
         <tr>
-          <td><em>TBD</em></td>
-          <td>Character error rate (3 pages)</td>
-          <td><em>TBD</em></td>
-        </tr>
-        <tr>
-          <td><em>TBD</em></td>
-          <td>Word error rate (3 pages)</td>
-          <td><em>TBD</em></td>
+          <td>3.09%</td>
+          <td>Character error rate (3 pages, body text)</td>
+          <td>0.90%</td>
         </tr>
         <tr>
           <td>$0.0045</td>

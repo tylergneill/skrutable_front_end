@@ -746,7 +746,7 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 
 /* === Page content (about, help, etc.) === */
 .page-content {
-	max-width: 800px;
+	max-width: 950px;
 }
 
 .page-content h1 {
@@ -779,6 +779,45 @@ table thead th {
 
 table tbody tr:nth-child(even) {
 	background: var(--table-stripe);
+}
+
+.ocr-comparison-table th, .ocr-comparison-table td {
+	text-align: center;
+}
+
+.trip-toggle .input-toggle {
+	background: var(--btn-bg);
+}
+
+.trip-toggle .toggle-btn {
+	color: var(--btn-text);
+}
+
+.trip-close-btn {
+	display: none;
+}
+
+#tripOverlay {
+	background: var(--main-bg);
+	overflow: hidden;
+}
+
+#tripOverlay .trip-fullscreen-btn {
+	display: none;
+}
+
+#tripOverlay .trip-close-btn {
+	display: inline-block;
+}
+
+#tripOverlay .trip-img-row {
+	flex: 1;
+	min-height: 0;
+}
+
+#tripOverlay .trip-img-row img {
+	max-height: 100%;
+	object-fit: contain;
 }
 
 /* === Dropzone (OCR) === */
