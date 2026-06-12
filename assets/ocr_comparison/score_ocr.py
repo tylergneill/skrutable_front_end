@@ -1,27 +1,25 @@
 """Score the two OCR body-text-only outputs against ground_truth.txt.
 
 Computes per-page and total CER (Levenshtein distance at the character level,
-whitespace preserved as-is). Run from anywhere: python3 score_ocr.py
+whitespace preserved as-is). Run from anywhere: python3 score_ocr.py [--verbose]
 """
 
 import unicodedata
+import sys
 from pathlib import Path
 import re
 
 BASE = Path(__file__).resolve().parent
 
 FILES = {
-	"truth": "ground_truth.txt",
+	"truth": "ground_truth_body_text_only.txt",
 	"gcv": "skrutable_cloud_vision_ocr_body_text_only.txt",
 	"sarvam": "skrutable_sarvam_ai_ocr_body_text_only.txt",
 }
 
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
 
-
-def normalize(text):
-	text = text.replace("||", "॥").replace("|", "।")
-	return unicodedata.normalize("NFC", text)
+VERBOSE = "--verbose" in sys.argv
 
 
 def parse_pages(path):
@@ -34,7 +32,18 @@ def parse_pages(path):
 			pages[current] = []
 		elif current is not None:
 			pages[current].append(line)
-	return {k: normalize("\n".join(v)) for k, v in pages.items()}
+	return {k: unicodedata.normalize("NFC", "\n".join(v)) for k, v in pages.items()}
+
+
+def levenshtein_matrix(a, b):
+	m, n = len(a), len(b)
+	dp = [list(range(n + 1))]
+	for i in range(1, m + 1):
+		row = [i]
+		for j in range(1, n + 1):
+			row.append(min(dp[i-1][j] + 1, row[j-1] + 1, dp[i-1][j-1] + (a[i-1] != b[j-1])))
+		dp.append(row)
+	return dp
 
 
 def levenshtein(a, b):
@@ -47,6 +56,44 @@ def levenshtein(a, b):
 			cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))
 		prev = cur
 	return prev[-1]
+
+
+def backtrace(a, b, dp):
+	i, j = len(a), len(b)
+	ops = []
+	while i > 0 or j > 0:
+		if i > 0 and j > 0 and dp[i][j] == dp[i-1][j-1] + (a[i-1] != b[j-1]):
+			ops.append(("match" if a[i-1] == b[j-1] else "sub", a[i-1], b[j-1]))
+			i -= 1; j -= 1
+		elif i > 0 and dp[i][j] == dp[i-1][j] + 1:
+			ops.append(("del", a[i-1], ""))
+			i -= 1
+		else:
+			ops.append(("ins", "", b[j-1]))
+			j -= 1
+	ops.reverse()
+	return ops
+
+
+def show_char(c):
+	if c == "\n": return "\\n"
+	if c == " ":  return "\\s"
+	if c == "\t": return "\\t"
+	return c
+
+
+def print_diff(a, b, page, provider):
+	dp = levenshtein_matrix(a, b)
+	ops = backtrace(a, b, dp)
+	errors = [(op, ca, cb) for op, ca, cb in ops if op != "match"]
+	print(f"  --- diffs page {page} ({provider}) ---")
+	for op, ca, cb in errors:
+		if op == "sub":
+			print(f"    SUB  truth={show_char(ca)!r:8}  ocr={show_char(cb)!r}")
+		elif op == "del":
+			print(f"    DEL  truth={show_char(ca)!r:8}  (missing in ocr)")
+		elif op == "ins":
+			print(f"    INS  ocr={show_char(cb)!r:8}  (extra in ocr)")
 
 
 def main():
@@ -62,6 +109,8 @@ def main():
 			tot_dist += dist
 			tot_len += len(t)
 			print(f"  page {p}: {len(t)} chars, dist {dist}, CER {dist/len(t):.4f}")
+			if VERBOSE:
+				print_diff(t, o, p, provider)
 		print(f"  TOTAL: CER {tot_dist/tot_len:.4f} ({tot_dist}/{tot_len})")
 
 
