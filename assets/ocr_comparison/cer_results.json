@@ -1,0 +1,84 @@
+{
+  "kAdambarI_005_007": {
+    "description": "Bāṇa's <em>Kādambarī</em> (Peterson 1889)",
+    "ground_truth_pages": [
+      5,
+      6,
+      7
+    ],
+    "providers": {
+      "cloud_vision_2026.06.11": {
+        "cer_raw": {
+          "5": 0.031418,
+          "6": 0.020483,
+          "7": 0.039273,
+          "total": 0.030342
+        },
+        "cer_normalized": {
+          "5": 0.027473,
+          "6": 0.018587,
+          "7": 0.039172,
+          "total": 0.028496
+        }
+      },
+      "sarvam_vision_2026.06.11": {
+        "cer_raw": {
+          "5": 0.027828,
+          "6": 0.01902,
+          "7": 0.028364,
+          "total": 0.024896
+        },
+        "cer_normalized": {
+          "5": 0.008242,
+          "6": 0.011152,
+          "7": 0.007391,
+          "total": 0.008971
+        }
+      }
+    },
+    "table_rows": [
+      {
+        "label": "Page header<br>(कादम्बरी ।)",
+        "providers": {
+          "cloud_vision_2026.06.11": "preserved (3/3)",
+          "sarvam_vision_2026.06.11": "not preserved (0/3)"
+        }
+      },
+      {
+        "label": "Page numbers<br>(५ ६ ७)",
+        "providers": {
+          "cloud_vision_2026.06.11": "not preserved (0/3)",
+          "sarvam_vision_2026.06.11": "not preserved (0/3)"
+        }
+      },
+      {
+        "label": "Margin line numbers<br>(<samp>5</samp>, <samp>10</samp>, <samp>15</samp>, <samp>20</samp>)",
+        "providers": {
+          "cloud_vision_2026.06.11": "preserved in-place (12/12)",
+          "sarvam_vision_2026.06.11": "some preserved in-place (5.5/12),<br>some duplicated at page end (4)"
+        }
+      },
+      {
+        "label": "Daṇḍas<br>(। ॥)",
+        "providers": {
+          "cloud_vision_2026.06.11": "most read as pipe <samp>|</samp> (10/14),<br>some preserved (4/14)",
+          "sarvam_vision_2026.06.11": "all preserved (14/14)"
+        }
+      },
+      {
+        "label": "Line-end hyphens",
+        "providers": {
+          "cloud_vision_2026.06.11": "all preserved",
+          "sarvam_vision_2026.06.11": "all preserved"
+        }
+      },
+      {
+        "label": "Spurious whitespace",
+        "providers": {
+          "cloud_vision_2026.06.11": "45 spaces, 1 newline",
+          "sarvam_vision_2026.06.11": "none"
+        }
+      }
+    ]
+  }
+}
