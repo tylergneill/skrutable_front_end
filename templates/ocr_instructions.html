@@ -296,12 +296,14 @@
       Sarvam Vision is designed with Indic script layouts in mind and appears to do better with multi-column Sanskrit pages.
     </p>
     <h3 id="side-by-side">Side-by-side provider comparison</h3>
-    <p>
-      The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1885).
-      Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
-      The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
+    <p id="tripDesc">
+      Below is a brief performance comparison on <select id="tripBaseSel" style="font-size:inherit; padding:0.1rem 0.2rem;"></select>.
+      Left and right panels show the selected provider runs; use the dropdowns in the column headers to switch.
+      The middle panel toggles between the original scan and the diffs against each provider —
       errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
-      CER is computed on body text only (headers, margin numbers, and page numbers excluded).
+      The "normalized" checkbox toggles the images between raw and normalized text.
+      Normalization excludes consideration of headers, margin numbers, page numbers, and daṇḍas from the CER calculation.
+      By contrast, differences in hyphens and whitespace do influence CER.
     </p>
 
     {% macro trip_controls() %}
@@ -324,9 +326,13 @@
     </div>
 
     <div style="display:flex; gap:0.5%;">
-      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Google Cloud Vision</div>
-      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Ground Truth</div>
-      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Sarvam Vision</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.3rem 0.6rem; text-align:center;">
+        <select id="tripLeftSel" class="trip-left-sel" style="background:transparent; border:none; color:inherit; font-weight:600; font-size:0.9rem; cursor:pointer; width:100%; text-align:center;" onchange="tripSelectComparand('left', this.value)"></select>
+      </div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.3rem 0.6rem; display:flex; align-items:center; justify-content:center;">Ground Truth</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.3rem 0.6rem; text-align:center;">
+        <select id="tripRightSel" class="trip-right-sel" style="background:transparent; border:none; color:inherit; font-weight:600; font-size:0.9rem; cursor:pointer; width:100%; text-align:center;" onchange="tripSelectComparand('right', this.value)"></select>
+      </div>
     </div>
 
     <div class="trip-img-row" style="display:flex; gap:0.5%; align-items:center;">
@@ -355,33 +361,179 @@
       var tripPage = 0;
       var tripMiddle = 0;
       var tripNorm = 0;
-      var tripPages = [5, 6, 7];
-      var tripMiddleLabels = ["Scan", "GCV diff vs. ground truth", "Sarvam diff vs. ground truth"];
-      var tripNormDirs = ["original", "body_text_only"];
+      var tripPages = [];
+      var tripNormDirs = ["raw", "normalized"];
 
-      function tripSrc(file) {
-        return "/assets/ocr_comparison/imgs/" + file;
+      // tripComparand: { baseText, providerDate } for left and right
+      var tripLeft  = null;
+      var tripRight = null;
+
+      // cerData: the full cer_results.json object
+      var cerData = null;
+
+      function tripProviderLabel(providerDate) {
+        // "cloud_vision_2026.06.11" → "Cloud Vision 2026.06.11"
+        return providerDate.replace(/_/g, " ").replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+      }
+
+      function tripMiddleLabels() {
+        var l = tripLeft  ? "vs. " + tripProviderLabel(tripLeft.providerDate)  : "Left diff";
+        var r = tripRight ? "vs. " + tripProviderLabel(tripRight.providerDate) : "Right diff";
+        return ["Scan", l, r];
+      }
+
+      function tripSrc(baseText, providerDate, file) {
+        return "/assets/ocr_comparison/" + baseText + "/" + providerDate + "/" + file;
+      }
+
+      function tripPageStr(p) {
+        return String(p).padStart(3, "0");
       }
 
       function tripUpdate() {
+        if (!tripLeft || !tripRight || tripPages.length === 0) return;
         var p = tripPages[tripPage];
+        var pStr = tripPageStr(p);
         var dir = tripNormDirs[tripNorm];
-        var left = tripSrc("meld/splits/" + dir + "/gcv_" + p + "_right.png");
-        var right = tripSrc("meld/splits/" + dir + "/sarvam_" + p + "_right.png");
+        var labels = tripMiddleLabels();
+
+        var left  = tripSrc(tripLeft.baseText,  tripLeft.providerDate,  "meld_splits/as_left/" + dir + "/ocr_" + pStr + ".png");
+        var right = tripSrc(tripRight.baseText, tripRight.providerDate, "meld_splits/as_right/" + dir + "/ocr_" + pStr + ".png");
         var middle;
         if (tripMiddle === 0) {
-          middle = tripSrc("page-" + p + ".jpg");
+          middle = "/assets/ocr_comparison/" + tripLeft.baseText + "/scan/jpgs/" + pStr + ".jpg";
         } else if (tripMiddle === 1) {
-          middle = tripSrc("meld/splits/" + dir + "/gt_vs_gcv_" + p + "_left.png");
+          middle = tripSrc(tripLeft.baseText,  tripLeft.providerDate,  "meld_splits/as_left/" + dir + "/gt_diff_" + pStr + ".png");
         } else {
-          middle = tripSrc("meld/splits/" + dir + "/gt_vs_sarvam_" + p + "_left.png");
+          middle = tripSrc(tripRight.baseText, tripRight.providerDate, "meld_splits/as_right/" + dir + "/gt_diff_" + pStr + ".png");
         }
+
         document.querySelectorAll(".trip-left").forEach(function(el) { el.src = left; });
         document.querySelectorAll(".trip-middle").forEach(function(el) { el.src = middle; });
         document.querySelectorAll(".trip-right").forEach(function(el) { el.src = right; });
         document.querySelectorAll(".trip-page-label").forEach(function(el) { el.textContent = "Page " + p; });
-        document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = tripMiddleLabels[tripMiddle]; });
+        document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = labels[tripMiddle]; });
         document.querySelectorAll("#tripNormCheck").forEach(function(el) { el.checked = tripNorm === 1; });
+
+        var lLabel = tripProviderLabel(tripLeft.providerDate);
+        var rLabel = tripProviderLabel(tripRight.providerDate);
+        document.querySelectorAll(".trip-left-header").forEach(function(el)  { el.textContent = lLabel; });
+        document.querySelectorAll(".trip-right-header").forEach(function(el) { el.textContent = rLabel; });
+
+        tripUpdateCer();
+      }
+
+      function tripUpdateCer() {
+        if (!cerData || !tripLeft || !tripRight) return;
+        var btData = cerData[tripLeft.baseText] || {};
+        var provs  = btData.providers || {};
+
+        function cerPct(providerDate) {
+          var pd = provs[providerDate];
+          if (!pd) return "—";
+          var v = pd.cer_normalized && pd.cer_normalized.total;
+          if (v == null) return "—";
+          return (v * 100).toFixed(2) + "%";
+        }
+
+        document.querySelectorAll(".trip-cer-left").forEach(function(el)  { el.textContent = cerPct(tripLeft.providerDate);  });
+        document.querySelectorAll(".trip-cer-right").forEach(function(el) { el.textContent = cerPct(tripRight.providerDate); });
+
+        // qualitative table_rows: per-provider values looked up by selected comparand
+        var rows = btData.table_rows || [];
+        var tbody = document.getElementById("tripQualTbody");
+        if (tbody) {
+          tbody.innerHTML = "";
+          rows.forEach(function(row) {
+            var provs = row.providers || {};
+            var leftVal  = provs[tripLeft.providerDate]  || "—";
+            var rightVal = provs[tripRight.providerDate] || "—";
+            var tr = document.createElement("tr");
+            [leftVal, row.label || "", rightVal].forEach(function(cell) {
+              var td = document.createElement("td");
+              td.innerHTML = cell;
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+        }
+      }
+
+      function tripPopulateSelects() {
+        if (!cerData) return;
+        var options = [];
+        Object.keys(cerData).forEach(function(bt) {
+          Object.keys(cerData[bt].providers || {}).forEach(function(pd) {
+            options.push({ baseText: bt, providerDate: pd, label: tripProviderLabel(pd) });
+          });
+        });
+
+        function buildOptions(sel, defaultIdx) {
+          sel.innerHTML = "";
+          options.forEach(function(opt, i) {
+            var el = document.createElement("option");
+            el.value = i;
+            el.textContent = opt.label;
+            sel.appendChild(el);
+          });
+          sel.value = defaultIdx;
+        }
+
+        // Populate each canonical select (first instance), then sync innerHTML to overlay duplicate
+        var leftSels  = document.querySelectorAll(".trip-left-sel");
+        var rightSels = document.querySelectorAll(".trip-right-sel");
+        var leftDefault  = 0;
+        var rightDefault = options.length > 1 ? 1 : 0;
+
+        if (leftSels.length > 0)  buildOptions(leftSels[0],  leftDefault);
+        if (rightSels.length > 0) buildOptions(rightSels[0], rightDefault);
+        // sync overlay duplicates
+        for (var i = 1; i < leftSels.length;  i++) { leftSels[i].innerHTML  = leftSels[0].innerHTML;  leftSels[i].value  = leftDefault; }
+        for (var i = 1; i < rightSels.length; i++) { rightSels[i].innerHTML = rightSels[0].innerHTML; rightSels[i].value = rightDefault; }
+
+        if (options.length > 0) tripLeft  = options[leftDefault];
+        if (options.length > 0) tripRight = options[rightDefault];
+
+        tripComparandOptions = options;
+
+        var firstBt = options.length > 0 ? options[0].baseText : null;
+        if (firstBt && cerData[firstBt]) {
+          tripPages = cerData[firstBt].ground_truth_pages || [];
+          var countEl = document.getElementById("tripCostPageCount");
+          if (countEl) countEl.textContent = (cerData[firstBt].ground_truth_pages || []).length;
+
+          var baseSel = document.getElementById("tripBaseSel");
+          if (baseSel) {
+            baseSel.innerHTML = "";
+            Object.keys(cerData).forEach(function(bt) {
+              var opt = document.createElement("option");
+              opt.value = bt;
+              opt.innerHTML = cerData[bt].description || bt;
+              baseSel.appendChild(opt);
+            });
+            baseSel.value = firstBt;
+            baseSel.addEventListener("change", function() {
+              var bt = this.value;
+              if (cerData[bt]) tripPages = cerData[bt].ground_truth_pages || [];
+              tripPage = 0;
+              tripUpdate();
+            });
+          }
+        }
+      }
+
+      var tripComparandOptions = [];
+
+      function tripSelectComparand(side, idx) {
+        var opt = tripComparandOptions[parseInt(idx, 10)];
+        if (!opt) return;
+        if (side === "left")  tripLeft  = opt;
+        if (side === "right") tripRight = opt;
+        // sync both selects (there are two sets: inline + fullscreen overlay)
+        document.querySelectorAll(side === "left" ? ".trip-left-sel" : ".trip-right-sel").forEach(function(el) {
+          el.value = idx;
+        });
+        tripUpdate();
       }
 
       function tripAdvancePage(dir) {
@@ -390,7 +542,8 @@
       }
 
       function tripAdvanceMiddle(dir) {
-        tripMiddle = (tripMiddle + dir + tripMiddleLabels.length) % tripMiddleLabels.length;
+        var labels = tripMiddleLabels();
+        tripMiddle = (tripMiddle + dir + labels.length) % labels.length;
         tripUpdate();
       }
 
@@ -418,7 +571,15 @@
         }
       });
 
-      document.addEventListener("DOMContentLoaded", tripUpdate);
+      document.addEventListener("DOMContentLoaded", function() {
+        fetch("/assets/ocr_comparison/cer_results.json")
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            cerData = data;
+            tripPopulateSelects();
+            tripUpdate();
+          });
+      });
     </script>
 
     <br>
@@ -431,50 +592,22 @@
       </colgroup>
       <thead>
         <tr>
-          <th>Google Cloud Vision</th>
-          <th>Ground Truth</th>
-          <th>Sarvam Vision</th>
+          <th class="trip-left-header">Left</th>
+          <th>Feature</th>
+          <th class="trip-right-header">Right</th>
         </tr>
       </thead>
+      <tbody id="tripQualTbody">
+      </tbody>
       <tbody>
         <tr>
-          <td>preserved (3/3)</td>
-          <td>Page header<br>(कादम्बरी ।)</td>
-          <td>not preserved (0/3)</td>
-        </tr>
-        <tr>
-          <td>not preserved (0/3)</td>
-          <td>Page numbers<br>(५ ६ ७)</td>
-          <td>not preserved (0/3)</td>
-        </tr>
-        <tr>
-          <td>preserved in-place (12/12)</td>
-          <td>Margin line numbers<br>(<samp>5</samp>,  <samp>10</samp>, <samp>15</samp>, <samp>20</samp>)</td>
-          <td>some preserved in-place (5.5/12),<br>some duplicated at page end (4)</td>
-        </tr>
-        <tr>
-          <td>all preserved</td>
-          <td>Line-end hyphens</td>
-          <td>all preserved</td>
-        </tr>
-        <tr>
-          <td>most read as pipe <samp>|</samp> (10/14),<br>some preserved (4/14)</td>
-          <td>Daṇḍas (। ॥)</td>
-          <td>all preserved (14/14)</td>
-        </tr>
-        <tr>
-          <td>45 spaces, 1 newline</td>
-          <td>Spurious whitespace</td>
-          <td>none</td>
-        </tr>
-        <tr>
-          <td>2.85%</td>
-          <td>Character error rate<br>(body text only, daṇḍas normalized)</td>
-          <td>0.90%</td>
+          <td class="trip-cer-left">—</td>
+          <td>Character error rate<br>(normalized body text only)</td>
+          <td class="trip-cer-right">—</td>
         </tr>
         <tr>
           <td>$0.0045</td>
-          <td>Cost (3 pages)</td>
+          <td>Cost<br>(<span id="tripCostPageCount">?</span> pages)</td>
           <td>$0.018 (₹1.50)</td>
         </tr>
       </tbody>
