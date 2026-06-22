@@ -14,7 +14,7 @@ BASE = Path(__file__).resolve().parent
 FILES = {
 	"truth": "ground_truth_body_text_only.txt",
 	"gcv": "skrutable_cloud_vision_ocr_body_text_only.txt",
-	"sarvam": "skrutable_sarvam_ai_ocr_body_text_only.txt",
+	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only.txt",
 }
 
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")

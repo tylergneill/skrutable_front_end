@@ -159,7 +159,7 @@ function downloadOcrText() {
   } else {
     const originalFile = fileInput.files[0] || window.selectedPdfFile;
     const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
-    const providerTag = provider === "sarvam" ? "sarvam-ai" : "cloud-vision";
+    const providerTag = provider === "sarvam" ? "sarvam-vision" : "cloud-vision";
     dlName = `${baseName}-skrutable-${providerTag}-ocr.txt`;
   }
   const blob = new Blob([text], { type: 'text/plain' });

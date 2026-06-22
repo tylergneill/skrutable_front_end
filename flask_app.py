@@ -721,7 +721,7 @@ def ocr():
 
 	if request.form.get("display_inline") != "yes":
 		pdf_stem = Path(secure_filename(pdf_file.filename)).stem
-		provider_tag = "sarvam-ai" if provider == "sarvam" else "cloud-vision"
+		provider_tag = "sarvam-vision" if provider == "sarvam" else "cloud-vision"
 		dl_filename = f"{pdf_stem}-skrutable-{provider_tag}-ocr.txt"
 		response.headers["Content-Disposition"] = f"attachment; filename={dl_filename}"
 
@@ -779,7 +779,7 @@ def ocr_stream():
 				"type":        "done",
 				"pages":       all_page_count,
 				"inr_to_usd":  inr_to_usd,
-				"filename":    f"{pdf_stem}-skrutable-sarvam-ai-ocr.txt",
+				"filename":    f"{pdf_stem}-skrutable-sarvam-vision-ocr.txt",
 			}
 			yield 'data: ' + _json.dumps(done_payload) + '\n\n'
 
