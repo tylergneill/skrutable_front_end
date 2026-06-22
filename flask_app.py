@@ -9,13 +9,13 @@ from urllib.parse import quote
 from datetime import datetime, date
 from pathlib import Path
 
-from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
-	make_response, g, url_for
+from flask import Flask, abort, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
+	make_response, g, url_for, stream_with_context, Response
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
-from ocr_service import run_google_ocr
+from ocr_service import run_google_ocr, run_sarvam_ocr, stream_sarvam_ocr
 
 if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
 	import skrutable.utils as _skrutable_utils
@@ -46,6 +46,11 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+
+# quiet the sarvamai SDK's HTTP client, which logs every request at INFO
+# (including ~2s job-status polls)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 app = CustomFlask(__name__)
 app.config["DEBUG"] = True
@@ -95,6 +100,8 @@ def run_identify_meter_batch(verses, r_o, r_k_m, from_scheme):
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
 def serve_files(name):
+	if name.endswith('.json'):
+		abort(404)
 	return send_from_directory('assets', name)
 
 # Skrutable main objects
@@ -634,12 +641,8 @@ def upload_file():
 def batch_meter_correction():
 	return redirect("/?expired=batch")
 
-@app.route("/ocr", methods=["GET", "POST"])
-def ocr():
-	if request.method == "GET":
-		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
-
-	# Log detailed job stats to learn about usage
+def _log_ocr_request_stats():
+	"""Log detailed job stats (client IP, geo, file info) to learn about usage; returns start time."""
 	ip = request.headers.get('X-Forwarded-For', request.remote_addr)
 	logger.info("Client IP: %s", ip)
 	try:
@@ -660,9 +663,18 @@ def ocr():
 		f.seek(0)
 	else:
 		logger.error("No file in request.files")
+	return start_time
+
+@app.route("/ocr", methods=["GET", "POST"])
+def ocr():
+	if request.method == "GET":
+		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
+
+	start_time = _log_ocr_request_stats()
 
 	# ---------- POST ----------
-	api_key   = request.form.get("google_api_key", "").strip()
+	provider  = request.form.get("ocr_provider", "google")
+	api_key   = request.form.get("api_key", "").strip()
 	pdf_file  = request.files.get("pdf_file")
 
 	include_page_numbers = request.form.get("include_page_numbers") == "yes"
@@ -675,7 +687,15 @@ def ocr():
 		pdf_file.save(pdf_path)
 
 		try:
-			ocr_text = run_google_ocr(pdf_path, api_key, include_page_numbers)
+			if provider == "sarvam":
+				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
+			else:
+				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers)
+		except RuntimeError as exc:
+			logger.error("OCR failed: %s", exc)
+			if str(exc) == "QUOTA_EXHAUSTED":
+				return "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai.", 402
+			return f"OCR failed: {exc}", 500
 		except Exception as exc:
 			import traceback
 			trace = traceback.format_exc()
@@ -683,11 +703,27 @@ def ocr():
 			logger.error("trace: %s", trace)
 			return f"OCR failed: {exc}\n\n{trace}", 500
 
+	logger.info("Pages processed: %d", page_count)
+
+	inr_to_usd = None
+	if provider == "sarvam":
+		try:
+			fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
+			inr_to_usd = fx["rates"]["USD"]
+		except Exception as e:
+			logger.warning("FX lookup failed: %s", e)
+
 	response = make_response(ocr_text)
 	response.headers["Content-Type"] = "text/plain; charset=utf-8"
+	response.headers["X-Pages-Processed"] = str(page_count)
+	if inr_to_usd is not None:
+		response.headers["X-INR-To-USD"] = str(inr_to_usd)
 
 	if request.form.get("display_inline") != "yes":
-		response.headers["Content-Disposition"] = "attachment; filename=ocr_output.txt"
+		pdf_stem = Path(secure_filename(pdf_file.filename)).stem
+		provider_tag = "sarvam-vision" if provider == "sarvam" else "cloud-vision"
+		dl_filename = f"{pdf_stem}-skrutable-{provider_tag}-ocr.txt"
+		response.headers["Content-Disposition"] = f"attachment; filename={dl_filename}"
 
 	end_time = time.time()
 	logger.info("Completed OCR request at %s", end_time)
@@ -695,6 +731,84 @@ def ocr():
 	logger.info("Total OCR roundtrip time: %.3f seconds", elapsed)
 
 	return response
+
+@app.route("/ocr/stream", methods=["POST"])
+def ocr_stream():
+	"""Streaming SSE endpoint for Sarvam OCR — yields one event per 10-page chunk."""
+	import json as _json
+
+	start_time = _log_ocr_request_stats()
+
+	api_key  = request.form.get("api_key", "").strip()
+	pdf_file = request.files.get("pdf_file")
+	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+
+	if not api_key or not pdf_file:
+		def _err():
+			yield 'data: ' + _json.dumps({"type": "error", "status": 400, "message": "PDF and API key are required."}) + '\n\n'
+		return Response(stream_with_context(_err()), mimetype="text/event-stream")
+
+	td_obj = tempfile.TemporaryDirectory()
+	pdf_path = Path(td_obj.name) / secure_filename(pdf_file.filename)
+	pdf_file.save(pdf_path)
+
+	pdf_stem = pdf_path.stem
+
+	def generate():
+		try:
+			all_page_count = 0
+			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers):
+				all_page_count += len(chunk_texts)
+				payload = {
+					"type":         "chunk",
+					"index":        chunk_idx,
+					"total":        total_chunks,
+					"pages":        all_page_count,
+					"text":         "\n".join(chunk_texts),
+				}
+				yield 'data: ' + _json.dumps(payload, ensure_ascii=False) + '\n\n'
+
+			inr_to_usd = None
+			try:
+				fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
+				inr_to_usd = fx["rates"]["USD"]
+			except Exception as e:
+				logger.warning("FX lookup failed: %s", e)
+
+			done_payload = {
+				"type":        "done",
+				"pages":       all_page_count,
+				"inr_to_usd":  inr_to_usd,
+				"filename":    f"{pdf_stem}-skrutable-sarvam-vision-ocr.txt",
+			}
+			yield 'data: ' + _json.dumps(done_payload) + '\n\n'
+
+			logger.info("Pages processed: %d", all_page_count)
+			logger.info("Total OCR stream time: %.3f seconds", time.time() - start_time)
+
+		except RuntimeError as exc:
+			logger.error("OCR stream failed: %s", exc)
+			if str(exc) == "QUOTA_EXHAUSTED":
+				msg = "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai."
+				status = 402
+			else:
+				msg = f"OCR failed: {exc}"
+				status = 500
+			yield 'data: ' + _json.dumps({"type": "error", "status": status, "message": msg}) + '\n\n'
+
+		except Exception as exc:
+			import traceback
+			logger.error("OCR stream failed: %s\n%s", exc, traceback.format_exc())
+			yield 'data: ' + _json.dumps({"type": "error", "status": 500, "message": f"OCR failed: {exc}"}) + '\n\n'
+
+		finally:
+			td_obj.cleanup()
+
+	response = Response(stream_with_context(generate()), mimetype="text/event-stream")
+	response.headers["Cache-Control"] = "no-cache"
+	response.headers["X-Accel-Buffering"] = "no"  # disable nginx proxy buffering
+	return response
+
 
 @app.route("/ocr_instructions")
 def ocr_instructions():

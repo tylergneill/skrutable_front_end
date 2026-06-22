@@ -2,6 +2,16 @@
 {% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'ocr' %}
 
+{% block head_extra %}
+<script src="/assets/js/ocr_pricing.js"></script>
+{% endblock %}
+
+{% block sidebar_controls %}
+<div class="sidebar-controls sidebar-back">
+	<a href="/ocr">&larr; back to OCR upload</a>
+</div>
+{% endblock %}
+
 {% block content %}
   <div class="page-content">
 
@@ -9,42 +19,56 @@
 
     <ul>
       <li><a href="#idea">Why another OCR option? Why like this?</a></li>
-      <li><a href="#api-key">Why do I need an API key? How do I get it?</a></li>
-      <li><a href="#cost">How much will it cost?</a></li>
-      <li><a href="#safety">Is this safe? Can I trust you/Google?</a></li>
+      <li><a href="#api-key">Why do I need an API key? How do I get one?</a></li>
+      <li><a href="#cost">How much will it cost? (cost calculator)</a></li>
+      <li><a href="#safety">Is this safe? Can I trust you/the provider?</a></li>
       <li><a href="#input-limits">How big can the input be?</a></li>
-      <li><a href="#complex-page">Will it work with complex page formats?</a></li>
-      <li><a href="#mistakes">Why are some characters wrong, words misplaced, etc.?</a></li>
-      <li><a href="#hard-returns">Why are lines returned as-is, e.g., with hyphenation?</a></li>
+      <li><a href="#errors">Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation? Will it work with complex page formats?</a></li>
+      <li><a href="#side-by-side">Side-by-side provider comparison</a></li>
     </ul>
 
     <h3 id="idea">Why another OCR option? Why like this?</h3>
     <p>
-      This interface provides access to Google Cloud Vision OCR without requiring coding or cloud-storage setup.
-      Cloud Vision accepts large multi-page PDFs, delivers high accuracy,
-      and&#8212;unlike Google Drive OCR&#8212;automatically ignores any low-quality text layer already embedded in the file.
+      This interface provides access to cloud OCR services without requiring coding or cloud-storage setup.
+      Both supported providers accept multi-page PDFs and deliver high accuracy on Indic scripts. Unlike
+      Google Drive OCR, neither is confused by a likely low-quality text layer potentially already embedded in the file.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
-
-    <h3 id="api-key">Why do I need an API key? How do I get it?</h3>
     <p>
-      Google Cloud Vision is a paid service.
-      Each user supplies their own API key,
-      linked to a Google Cloud project with billing enabled.
-      An API key is a password-like string that you can create or delete at any time.
-      Follow the video below to:
-      1. Set up a Google Cloud billing account.
-      2. Enable the Cloud Vision API.
-      3. Generate an API key.
+      Two providers are currently supported:
     </p>
-    <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
-      <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <br>
-    <br>
+    <ul>
+      <li>
+        <strong>Google Cloud Vision</strong> — mature, widely used, strong general OCR.
+        Requires a Google Cloud account with billing enabled. Setup is involved but only needs to be done once.
+      </li>
+      <li>
+        <strong>Sarvam Vision</strong> — new Indian AI focused on Indic languages, with impressive performance on Sanskrit.
+        Simpler to set up: just create an account at <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and generate a key.
+      </li>
+    </ul>
+
+    <h3 id="api-key">Why do I need an API key? How do I get one?</h3>
+    <p>
+      Both providers are paid services that bill based on usage.
+      Each user supplies their own API key — a password-like string linked to your own account — so you
+      pay directly and no one else's usage is charged to you.
+      You can create or delete a key at any time.
+    </p>
+
     <details>
-      <summary>Written walkthrough</summary>
+      <summary><strong>1a. Google Cloud Vision</strong> — video walkthrough</summary>
+      <br>
+      <video width="640" height="360" controls poster="/assets/videos/ocr-demo-preview-poster.png">
+        <source src="/assets/videos/ocr-demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>1b. Google Cloud Vision</strong> — written walkthrough</summary>
       <ol class="mt-2">
         <li>
           <strong>Go to the Google Cloud Console</strong>:<br>
@@ -56,7 +80,7 @@
           <strong>Enable billing</strong>:<br>
           Walk through the steps at
           <a href="https://console.cloud.google.com/billing" target="_blank">console.cloud.google.com/billing{{ ext_link_icon() }}</a> to enable billing.
-          You'll need a credit card. (<a href="#cost">See above</a> for more on cost.)
+          You'll need a credit card.
         </li>
         <li>
           <strong>Select a project</strong>:<br>
@@ -88,57 +112,374 @@
         </li>
         <li>
           <strong>Use the key</strong>:<br>
-          You're now ready to return to the <a href="/ocr">OCR page</a>
-          and paste your key into the field labeled "Google Cloud API key."
+          Return to the <a href="/ocr">OCR page</a>, select <em>Google Cloud Vision</em>,
+          and paste your key into the Google Cloud API key field.
+        </li>
+      </ol>
+    </details>
+
+    <br>
+
+    <details>
+      <summary><strong>2. Sarvam Vision</strong> — written walkthrough</summary>
+      <ol class="mt-2">
+        <li>
+          <strong>Create an account</strong>:<br>
+          Go to <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and sign up.
+        </li>
+        <li>
+          <strong>Add a payment method</strong>:<br>
+          Navigate to your account billing settings and add a credit card.
+        </li>
+        <li>
+          <strong>Generate an API key</strong>:<br>
+          In your dashboard, find the API keys section and create a new key.
+          Copy it and store it securely — treat it like a financial password.
+        </li>
+        <li>
+          <strong>Use the key</strong>:<br>
+          Return to the <a href="/ocr">OCR page</a>, select <em>Sarvam Vision</em>,
+          and paste your key into the Sarvam API key field.
         </li>
       </ol>
     </details>
 
     <h3 id="cost">How much will it cost?</h3>
     <p>
-      The first 1,000 pages per month are free.
-      After that, every additional 1,000 pages costs $1.50.
-      You pay only for what you use.
-      New accounts come with a generous $300 credit, valid for 90 days.
-      It's possible to track your usage
-      (e.g., see <a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a>),
-      but if you're working on personal projects, you likely won't exceed 1,000 pages a month.
+      <strong>Google Cloud Vision</strong>: <strong id="googleUsdPerPageLabel"></strong> (= <span id="googleRateLink"></span>),
+      and <strong>the first 1,000 pages per month are free</strong>.
+      New accounts come with a $300 credit valid for 90 days.
+      For light personal use you likely won't exceed the free allowance.
+      Tracking your usage in real time is possible, if a bit tricky
+      (<a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a> has tips).
+    </p>
+    <p>
+      <em>Note: Google Cloud Vision uses standard Google Cloud billing postpay, where you're charged at the end of the month.
+      This is separate from the Gemini API, which as of March 2026 requires prepay credits for lower-tier developer accounts.
+      Don't confuse the two: Cloud Vision billing is set up through
+      <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>,
+      not AI Studio.</em>
+    </p>
+    <p>
+      <strong>Sarvam Vision</strong>: <strong id="sarvamUsdPerPageLabel">loading exchange rate…</strong> (= <span id="sarvamRateLink"></span><span id="sarvamFxFactor"></span>). New accounts receive some free credits.
+      In addition to the API (e.g. via Skrutable), you can also use the
+      <a href="https://dashboard.sarvam.ai/vision" target="_blank">Sarvam Playground{{ ext_link_icon() }}</a>
+      directly — this does not require an API key but does limit each job to 5 pages.
+    </p>
+    <p>
+      <em>Note: Sarvam billing works the other way around, through prepay. That is, you must add credits ahead of time via the
+      <a href="https://dashboard.sarvam.ai/billing" target="_blank">Sarvam billing page{{ ext_link_icon() }}</a>,
+      either as one-off top-ups or threshold-based auto-recharge.
+      Be prepared to pay in INR (₹), i.e., pre-authorize with your card company if needed.</em>
+    </p>
+    <span id="extLinkIconTemplate" style="display:none;">{{ ext_link_icon() }}</span>
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+      <h4 style="margin: 0;">Cost calculator</h4>
+      <div class="input-toggle" id="costProviderToggle" style="max-width: 360px;">
+        <button type="button" id="costGoogle" class="toggle-btn active" onclick="setCostProvider('google')">Google Cloud Vision</button>
+        <button type="button" id="costSarvam" class="toggle-btn" onclick="setCostProvider('sarvam')">Sarvam Vision</button>
+      </div>
+    </div>
+    <div style="margin: 0 0 0.5rem;">
+
+      <div id="costEstimatorGoogle">
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+          <label for="googlePageCount" style="white-space: nowrap;">Pages:</label>
+          <input type="number" id="googlePageCount" min="1" value="100"
+            style="width: 90px; padding: 0.2rem 0.4rem; border-radius: 6px; border: 1px solid #aaa;">
+          <span id="googleCostResult" style="font-size: 0.95rem;"></span>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">
+            <input type="checkbox" id="googleFreeAllowance" checked>
+            factor in free 1,000 pages/month
+          </label>
+        </div>
+      </div>
+
+      <div id="costEstimatorSarvam" style="display:none;">
+        <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+          <label for="sarvamPageCount" style="white-space: nowrap;">Pages:</label>
+          <input type="number" id="sarvamPageCount" min="1" value="100"
+            style="width: 90px; padding: 0.2rem 0.4rem; border-radius: 6px; border: 1px solid #aaa;">
+          <span id="sarvamCostResult" style="font-size: 0.95rem;"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var inrToUsd = null;
+      var extLinkIcon = document.getElementById("extLinkIconTemplate").innerHTML;
+
+      document.getElementById("googleUsdPerPageLabel").textContent = "$" + OCR_PRICING.google.usdPerPage + " / page";
+      document.getElementById("googleRateLink").innerHTML = ocrRateLink("google", extLinkIcon);
+      document.getElementById("sarvamRateLink").innerHTML = ocrRateLink("sarvam", extLinkIcon);
+
+      fetchInrToUsd().then(function(rate) {
+        inrToUsd = rate;
+        if (rate) {
+          var usdPerPage = (OCR_PRICING.sarvam.inrPerPage * rate).toFixed(4);
+          document.getElementById("sarvamUsdPerPageLabel").textContent = "~$" + usdPerPage + " per page";
+          document.getElementById("sarvamFxFactor").innerHTML = " × " + fxRateLink(rate, extLinkIcon);
+        } else {
+          document.getElementById("sarvamUsdPerPageLabel").textContent = "exchange rate unavailable";
+        }
+        updateSarvamCost();
+      });
+
+      function setCostProvider(p) {
+        document.getElementById("costGoogle").classList.toggle("active", p === "google");
+        document.getElementById("costSarvam").classList.toggle("active", p === "sarvam");
+        document.getElementById("costEstimatorGoogle").style.display = p === "google" ? "" : "none";
+        document.getElementById("costEstimatorSarvam").style.display = p === "sarvam" ? "" : "none";
+      }
+
+      function highlighted(val) {
+        return '<span style="background: var(--pre-bg); padding: 0.15rem 0.5rem; border-radius: 5px;">' + val + '</span>';
+      }
+
+      function updateGoogleCost() {
+        var pages = parseInt(document.getElementById("googlePageCount").value) || 0;
+        var useFree = document.getElementById("googleFreeAllowance").checked;
+        var el = document.getElementById("googleCostResult");
+        if (pages <= 0) { el.innerHTML = ""; return; }
+        var billable = useFree ? Math.max(0, pages - OCR_PRICING.google.freePagesPerMonth) : pages;
+        var cost = googleCostUsd(billable);
+        el.innerHTML = "Estimated cost: " + highlighted("$" + cost.toFixed(2));
+      }
+
+      function updateSarvamCost() {
+        var pages = parseInt(document.getElementById("sarvamPageCount").value) || 0;
+        var el = document.getElementById("sarvamCostResult");
+        if (pages <= 0) { el.innerHTML = ""; return; }
+        var inr = sarvamCostInr(pages);
+        if (inrToUsd) {
+          el.innerHTML = "Estimated cost: " + highlighted("$" + (inr * inrToUsd).toFixed(2));
+        } else {
+          el.textContent = "Estimated cost: loading exchange rate…";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("googlePageCount").addEventListener("input", updateGoogleCost);
+        document.getElementById("googleFreeAllowance").addEventListener("change", updateGoogleCost);
+        document.getElementById("sarvamPageCount").addEventListener("input", updateSarvamCost);
+        updateGoogleCost();
+        updateSarvamCost();
+      });
+    </script>
+
+    <p>
+      After each OCR job, the page count and estimated cost are also shown below the result.
     </p>
 
-    <h3 id="safety">Is this safe? Can I trust you/Google?</h3>
+    <h3 id="safety">Is this safe? Can I trust you/the provider?</h3>
     <p>
       Your API key is never stored by this application.
       The <a href="https://github.com/tylergneill/skrutable_front_end" target="_blank">open-source code{{ ext_link_icon() }}</a>
-      reads the key from the form, sends it with the OCR request to Google, and discards it.
+      reads the key from the HTML form, sends it with the OCR request to the provider, and discards it.
       Store your key with a password manager (e.g., 1Password) to keep it secure.
-      If you have concerns about PDF contents, avoid uploading sensitive material.
+      If you have concerns about PDF contents, avoid uploading sensitive material — it is sent to a third-party cloud service.
     </p>
 
     <h3 id="input-limits">How big can the input be?</h3>
     <p>
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       Split larger files into parts.
-      There's also a 2,000-page limit, though you'll usually hit the size cap first.
+      Google Cloud Vision handles up to 2,000 pages natively, so you'll almost always hit the file size cap before the page cap.
+      Sarvam Vision's API accepts only 10 pages at a time, but this interface handles splitting and reassembly automatically, so larger files are fine.
     </p>
 
-    <h3 id="complex-page">Will it work with complex page formats?</h3>
+    <h3 id="errors">Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation? Will it work with complex page formats?</h3>
     <p>
-      Maybe, maybe not.
-      Cropping your PDF pages often improves both accuracy and performance.
+      All OCR results contain some errors — please review and clean up as needed, e.g., using regular expressions.
+      Results with these services are also quite literal: line breaks and hyphens come through as-is.
+      For complex layouts (e.g. columns) and unwanted material (e.g. footnotes), manually cropping pages is often best.
+      Sarvam Vision is designed with Indic script layouts in mind and appears to do better with multi-column Sanskrit pages.
+    </p>
+    <h3 id="side-by-side">Side-by-side provider comparison</h3>
+    <p>
+      The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1885).
+      Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
+      The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
+      errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
+      CER is computed on body text only (headers, margin numbers, and page numbers excluded).
     </p>
 
-    <h3 id="mistakes">Why are some characters wrong, words misplaced, etc.?</h3>
-    <p>
-      Most OCR results contain some errors.
-      Google Cloud Vision tends to produce fewer errors than other options.
-      Please review and clean up as needed, e.g., using regular expressions.
-    </p>
+    {% macro trip_controls() %}
+    <div style="display:flex; gap:0.5%; align-items:center; margin-bottom:0.3rem;">
+      <div style="width:33%; display:flex; justify-content:flex-start; align-items:center; gap:0.4rem;">
+        <input type="checkbox" id="tripNormCheck" style="cursor:pointer;" onchange="tripToggleNorm(this.checked)">
+        <label for="tripNormCheck" style="font-size:0.85rem; cursor:pointer; margin:0; user-select:none;">normalized</label>
+      </div>
+      <div style="width:33%; display:flex; justify-content:center;">
+        <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
+          <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvancePage(-1)">&#8592;</button>
+          <span class="trip-page-label" style="font-weight:600; white-space:nowrap; color:var(--btn-text); font-size:0.85rem;">Page 5</span>
+          <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvancePage(1)">&#8594;</button>
+        </div></div>
+      </div>
+      <div style="width:33%; display:flex; justify-content:flex-end;">
+        <button class="toggle-btn trip-fullscreen-btn" style="flex:none; padding:0.2rem 0.6rem; background:var(--btn-bg); color:var(--btn-text); border-radius:6px;" onclick="tripOpenFullscreen()">full-screen &#x26F6;</button>
+        <button class="toggle-btn trip-close-btn" style="flex:none; padding:0.2rem 0.6rem; background:var(--btn-bg); color:var(--btn-text); border-radius:6px;" onclick="tripCloseFullscreen()">close &#x2715;</button>
+      </div>
+    </div>
 
-    <h3 id="hard-returns">Why are lines returned as-is, e.g., with hyphenation?</h3>
-    <p>
-      This OCR option is more literal, and it won't stitch hyphenated words back together.
-      This is another thing to review and clean up as needed.
-    </p>
+    <div style="display:flex; gap:0.5%;">
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Google Cloud Vision</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Ground Truth</div>
+      <div style="width:33%; background:var(--btn-bg); color:var(--btn-text); font-weight:600; font-size:0.9rem; padding:0.4rem 0.6rem; text-align:center;">Sarvam Vision</div>
+    </div>
+
+    <div class="trip-img-row" style="display:flex; gap:0.5%; align-items:center;">
+      <img class="trip-left" src="" style="width:33%;">
+      <img class="trip-middle" src="" style="width:33%;">
+      <img class="trip-right" src="" style="width:33%;">
+    </div>
+
+    <div style="display:flex; justify-content:center; align-items:center; margin-top:0.3rem;">
+      <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
+        <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvanceMiddle(-1)">&#8592;</button>
+        <span class="trip-middle-label" style="white-space:nowrap; color:var(--btn-text); font-size:0.85rem; min-width:12rem; text-align:center;">Scan</span>
+        <button class="toggle-btn" style="flex:none; padding:0.2rem 0.5rem;" onclick="tripAdvanceMiddle(1)">&#8594;</button>
+      </div></div>
+    </div>
+    {% endmacro %}
+
+    {{ trip_controls() }}
+
+    <!-- fullscreen overlay -->
+    <div id="tripOverlay" style="display:none; position:fixed; inset:0; z-index:9999; flex-direction:column; padding:0.8rem 0.8rem 1rem; height:100vh; box-sizing:border-box;">
+      {{ trip_controls() }}
+    </div>
+
+    <script>
+      var tripPage = 0;
+      var tripMiddle = 0;
+      var tripNorm = 0;
+      var tripPages = [5, 6, 7];
+      var tripMiddleLabels = ["Scan", "GCV diff vs. ground truth", "Sarvam diff vs. ground truth"];
+      var tripNormDirs = ["original", "body_text_only"];
+
+      function tripSrc(file) {
+        return "/assets/ocr_comparison/imgs/" + file;
+      }
+
+      function tripUpdate() {
+        var p = tripPages[tripPage];
+        var dir = tripNormDirs[tripNorm];
+        var left = tripSrc("meld/splits/" + dir + "/gcv_" + p + "_right.png");
+        var right = tripSrc("meld/splits/" + dir + "/sarvam_" + p + "_right.png");
+        var middle;
+        if (tripMiddle === 0) {
+          middle = tripSrc("page-" + p + ".jpg");
+        } else if (tripMiddle === 1) {
+          middle = tripSrc("meld/splits/" + dir + "/gt_vs_gcv_" + p + "_left.png");
+        } else {
+          middle = tripSrc("meld/splits/" + dir + "/gt_vs_sarvam_" + p + "_left.png");
+        }
+        document.querySelectorAll(".trip-left").forEach(function(el) { el.src = left; });
+        document.querySelectorAll(".trip-middle").forEach(function(el) { el.src = middle; });
+        document.querySelectorAll(".trip-right").forEach(function(el) { el.src = right; });
+        document.querySelectorAll(".trip-page-label").forEach(function(el) { el.textContent = "Page " + p; });
+        document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = tripMiddleLabels[tripMiddle]; });
+        document.querySelectorAll("#tripNormCheck").forEach(function(el) { el.checked = tripNorm === 1; });
+      }
+
+      function tripAdvancePage(dir) {
+        tripPage = (tripPage + dir + tripPages.length) % tripPages.length;
+        tripUpdate();
+      }
+
+      function tripAdvanceMiddle(dir) {
+        tripMiddle = (tripMiddle + dir + tripMiddleLabels.length) % tripMiddleLabels.length;
+        tripUpdate();
+      }
+
+      function tripToggleNorm(checked) {
+        tripNorm = checked ? 1 : 0;
+        tripUpdate();
+      }
+
+      function tripOpenFullscreen() {
+        var el = document.getElementById("tripOverlay");
+        el.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      function tripCloseFullscreen() {
+        document.getElementById("tripOverlay").style.display = "none";
+        document.body.style.overflow = "";
+      }
+
+      document.addEventListener("keydown", function(e) {
+        if (document.getElementById("tripOverlay").style.display === "flex") {
+          if (e.key === "Escape") tripCloseFullscreen();
+          if (e.key === "ArrowLeft") tripAdvancePage(-1);
+          if (e.key === "ArrowRight") tripAdvancePage(1);
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", tripUpdate);
+    </script>
+
+    <br>
+
+    <table class="table table-bordered table-sm ocr-comparison-table" style="max-width: 100%; table-layout: fixed;">
+      <colgroup>
+        <col style="width: 35%;">
+        <col style="width: 30%;">
+        <col style="width: 35%;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Google Cloud Vision</th>
+          <th>Ground Truth</th>
+          <th>Sarvam Vision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>preserved (3/3)</td>
+          <td>Page header<br>(कादम्बरी ।)</td>
+          <td>not preserved (0/3)</td>
+        </tr>
+        <tr>
+          <td>not preserved (0/3)</td>
+          <td>Page numbers<br>(५ ६ ७)</td>
+          <td>not preserved (0/3)</td>
+        </tr>
+        <tr>
+          <td>preserved in-place (12/12)</td>
+          <td>Margin line numbers<br>(<samp>5</samp>,  <samp>10</samp>, <samp>15</samp>, <samp>20</samp>)</td>
+          <td>some preserved in-place (5.5/12),<br>some duplicated at page end (4)</td>
+        </tr>
+        <tr>
+          <td>all preserved</td>
+          <td>Line-end hyphens</td>
+          <td>all preserved</td>
+        </tr>
+        <tr>
+          <td>most read as pipe <samp>|</samp> (10/14),<br>some preserved (4/14)</td>
+          <td>Daṇḍas (। ॥)</td>
+          <td>all preserved (14/14)</td>
+        </tr>
+        <tr>
+          <td>45 spaces, 1 newline</td>
+          <td>Spurious whitespace</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td>2.85%</td>
+          <td>Character error rate<br>(body text only, daṇḍas normalized)</td>
+          <td>0.90%</td>
+        </tr>
+        <tr>
+          <td>$0.0045</td>
+          <td>Cost (3 pages)</td>
+          <td>$0.018 (₹1.50)</td>
+        </tr>
+      </tbody>
+    </table>
+
     <br><br>
 
   </div>

@@ -1,6 +1,7 @@
 #!/bin/bash
 export FLASK_APP=flask_app.py
 export PORT=5012
+export GOOGLE_APPLICATION_CREDENTIALS="$(dirname "$0")/assets/uploader.json"
 
 for arg in "$@"; do
 	case "$arg" in
