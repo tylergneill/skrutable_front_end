@@ -9,7 +9,7 @@ from urllib.parse import quote
 from datetime import datetime, date
 from pathlib import Path
 
-from flask import Flask, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
+from flask import Flask, abort, jsonify, redirect, render_template, request, Request, session, send_from_directory, \
 	make_response, g, url_for, stream_with_context, Response
 from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
@@ -100,6 +100,8 @@ def run_identify_meter_batch(verses, r_o, r_k_m, from_scheme):
 # for serving static files from assets folder
 @app.route('/assets/<path:name>')
 def serve_files(name):
+	if name.endswith('.json'):
+		abort(404)
 	return send_from_directory('assets', name)
 
 # Skrutable main objects
