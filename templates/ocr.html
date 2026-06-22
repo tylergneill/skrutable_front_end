@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import ext_link_icon %}
 {% set active_page = 'ocr' %}
 
 {% block head_extra %}
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="/assets/js/ocr_pricing.js"></script>
 <style>
   #ocrResultContainer {
     margin-top: 1em;
@@ -36,7 +38,7 @@
 
   <div id="ocrForm">
 
-    <h1>PDF &#8594; Google Cloud Vision OCR</h1>
+    <h1>PDF &#8594; OCR</h1>
 
     <input type="file" id="fileInputPdf" accept=".pdf" style="display:none">
     <div class="dropzone" id="dropzone">
@@ -45,11 +47,25 @@
 
     <br>
 
-    <div>
-      <label for="googleApiKey">Google Cloud API key (required)</label>
+    <h3>provider</h3>
+    <div class="input-toggle" id="providerToggle" style="max-width: 360px; margin-bottom: 1rem;">
+      <button type="button" id="providerGoogle" class="toggle-btn active" onclick="setProvider('google')">Google Cloud Vision</button>
+      <button type="button" id="providerSarvam" class="toggle-btn" onclick="setProvider('sarvam')">Sarvam Vision</button>
+    </div>
+    <input type="hidden" name="ocr_provider" id="ocr_provider_input" value="google">
+
+    <div id="googleKeySection">
+      <label for="googleApiKey">API key (required)</label>
       <input type="password" id="googleApiKey" class="form-control"
              placeholder="Enter your Google Cloud API key"
-             name="google_api_key" autocomplete="current-password">
+             autocomplete="current-password">
+    </div>
+
+    <div id="sarvamKeySection" style="display:none">
+      <label for="sarvamApiKey">API key (required)</label>
+      <input type="password" id="sarvamApiKey" class="form-control"
+             placeholder="Enter your Sarvam API key"
+             autocomplete="current-password">
     </div>
 
     <br>
@@ -63,17 +79,18 @@
       </label>
     </p>
 
-    <h3>FAQ</h3>
+    <br>
+
+    <h3>faq</h3>
 
     <p>
       <a href="ocr_instructions#idea" target="_blank">Idea</a> |
-      <a href="ocr_instructions#api-key" target="_blank">API key</a> |
+      <a href="ocr_instructions#api-key" target="_blank">API keys</a> |
       <a href="ocr_instructions#cost" target="_blank">Cost</a> |
       <a href="ocr_instructions#safety" target="_blank">Safety</a> |
       <a href="ocr_instructions#input-limits" target="_blank">Filesize/Page limits</a> |
-      <a href="ocr_instructions#complex-page" target="_blank">Page layout</a> |
-      <a href="ocr_instructions#mistakes" target="_blank">Mistakes</a> |
-      <a href="ocr_instructions#hard-returns" target="_blank">Hard returns</a>
+      <a href="ocr_instructions#errors" target="_blank">Errors</a> |
+      <a href="ocr_instructions#side-by-side" target="_blank">Side-by-side</a>
     </p>
 
     <div class="progress" id="progressContainer" style="display: none;">
@@ -95,7 +112,7 @@
   </div>
 
   <div id="ocrResultContainer">
-    <h3>Result</h3>
+    <h3>result</h3>
 
     <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
       <textarea id="ocrText" class="textarea-output"
@@ -121,6 +138,9 @@
       <button id="clearButton" class="btn btn-primary" onclick="clearOcrResult()">Clear result</button>
     </div>
 
+    <p id="pagesProcessed" style="margin-top: 0.5em; font-size: 0.9em; color: gray;"></p>
+    <span id="extLinkIconTemplate" style="display:none;">{{ ext_link_icon() }}</span>
+
   </div>
 
   <br><br>
@@ -132,12 +152,20 @@
 <script>
 function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
-  const originalFile = fileInput.files[0] || window.selectedPdfFile;
-  const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+  const provider = document.getElementById("ocr_provider_input").value;
+  let dlName;
+  if (provider === "sarvam" && window._sarvamDlFilename) {
+    dlName = window._sarvamDlFilename;
+  } else {
+    const originalFile = fileInput.files[0] || window.selectedPdfFile;
+    const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
+    const providerTag = provider === "sarvam" ? "sarvam-vision" : "cloud-vision";
+    dlName = `${baseName}-skrutable-${providerTag}-ocr.txt`;
+  }
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${baseName}_ocr_result.txt`;
+  link.download = dlName;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -170,8 +198,39 @@ dz.addEventListener('drop', e => {
   }
 });
 
+function setProvider(provider) {
+  const isGoogle = provider === "google";
+  document.getElementById("providerGoogle").classList.toggle("active", isGoogle);
+  document.getElementById("providerSarvam").classList.toggle("active", !isGoogle);
+  document.getElementById("ocr_provider_input").value = provider;
+  document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
+  document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
+}
+
 const progressBar = document.getElementById("progressBar");
 const progressContainer = document.getElementById("progressContainer");
+
+// Cost line below the result — wording/links match the cost section of ocr_instructions.html;
+// rates and links come from /assets/js/ocr_pricing.js
+function showCostEstimate(provider, pageCount, inrToUsd) {
+  if (!pageCount) return;
+  const extLinkIcon = document.getElementById("extLinkIconTemplate").innerHTML;
+  const rateLink = ocrRateLink(provider, extLinkIcon);
+  let html;
+  if (provider === "sarvam") {
+    const inr = sarvamCostInr(pageCount);
+    if (inrToUsd) {
+      html = `Pages processed: ${pageCount} — estimated cost: $${(inr * inrToUsd).toFixed(2)} (= ${pageCount} pages × ${rateLink} × ${fxRateLink(inrToUsd, extLinkIcon)})`;
+    } else {
+      html = `Pages processed: ${pageCount} — estimated cost: ₹${inr.toFixed(2)} (= ${pageCount} pages × ${rateLink})`;
+    }
+  } else {
+    const cost = googleCostUsd(pageCount);
+    const costStr = cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2);
+    html = `Pages processed: ${pageCount} — estimated cost: $${costStr} (= ${pageCount} pages × ${rateLink}; the first 1,000 pages per month are free)`;
+  }
+  document.getElementById("pagesProcessed").innerHTML = html;
+}
 
 function estimateProgress(file) {
   const minimumTimeEstimate = 25000
@@ -213,6 +272,7 @@ function clearOcrResult() {
     if (!confirmClear) return;
     resultContainer.style.display = "none";
     progressContainer.style.display = "none";
+    document.getElementById("pagesProcessed").textContent = "";
   }
 }
 
@@ -240,14 +300,18 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     return;
   }
 
-  const apiKey = document.getElementById("googleApiKey").value;
+  const provider = document.getElementById("ocr_provider_input").value;
+  const apiKey = provider === "google"
+    ? document.getElementById("googleApiKey").value
+    : document.getElementById("sarvamApiKey").value;
   if (!apiKey) return alert("API key is required.");
 
   const includePageNumbers = document.getElementById("includePageNumbers").checked;
 
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
-  formData.append("google_api_key", apiKey);
+  formData.append("ocr_provider", provider);
+  formData.append("api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
 
   progressBar.style.width = "0%";
@@ -256,13 +320,125 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   progressBar.classList.add("progress-bar-striped", "active");
   progressBar.classList.remove("zoom-bounce", "error-state");
 
-  const interval = estimateProgress(pdfFile);
+  if (provider === "sarvam") {
+    // Discrete chunk-based progress: bar advances only as chunks return.
+    progressContainer.style.display = "block";
+    progressBar.style.backgroundColor = "steelblue";
+    progressBar.textContent = "uploading…";
+    await runSarvamStream(formData);
+  } else {
+    const interval = estimateProgress(pdfFile);
+    await runGoogleOcr(formData, interval, pdfFile);
+  }
+});
+
+async function runSarvamStream(formData) {
+  const ocrText    = document.getElementById("ocrText");
+  const resultBox  = document.getElementById("ocrResultContainer");
+  let accumulatedText = "";
+  let receivedDone = false;
+  let dlFilename   = null;
+
+  // FX rate for the running cost estimate; chunks take minutes, so this
+  // resolves well before the first one (₹ fallback covers the rare miss)
+  let fxRate = null;
+  fetchInrToUsd().then(function (rate) { fxRate = rate; });
 
   try {
-    const res = await fetch("/ocr", {
-      method: "POST",
-      body: formData
-    });
+    const res = await fetch("/ocr/stream", { method: "POST", body: formData });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`OCR request failed: ${errText}`);
+    }
+
+    progressBar.textContent = "processing…";
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+
+      const lines = buf.split("\n");
+      buf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (evt.type === "chunk") {
+          const pct = Math.round((evt.index / evt.total) * 100);
+          progressBar.style.width   = `${pct}%`;
+          progressBar.textContent   = `${pct}% (chunk ${evt.index}/${evt.total})`;
+          progressBar.setAttribute("aria-valuenow", pct);
+
+          if (accumulatedText) accumulatedText += "\n";
+          accumulatedText += evt.text;
+          ocrText.value = accumulatedText;
+
+          if (resultBox.style.display === "none" || resultBox.style.display === "") {
+            resultBox.style.display = "block";
+          }
+
+          showCostEstimate("sarvam", evt.pages || 0, fxRate);
+        } else if (evt.type === "done") {
+          receivedDone = true;
+          dlFilename = evt.filename || null;
+          showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || fxRate);
+        } else if (evt.type === "error") {
+          progressBar.classList.add("error-state");
+          progressBar.classList.remove("progress-bar-striped", "active");
+          const label = evt.status === 402 ? "No Sarvam credits" : "Error";
+          progressBar.textContent = label;
+          progressBar.style.width = "100%";
+          progressBar.setAttribute("aria-valuenow", 100);
+          alert(evt.message);
+          return;
+        }
+      }
+    }
+
+    if (!receivedDone) {
+      progressBar.classList.add("error-state");
+      progressBar.classList.remove("progress-bar-striped", "active");
+      progressBar.textContent = "Connection lost — partial result below";
+      progressBar.style.width = "100%";
+      progressBar.setAttribute("aria-valuenow", 100);
+      return;
+    }
+
+    progressBar.style.width = "100%";
+    progressBar.textContent = "100%";
+    progressBar.setAttribute("aria-valuenow", 100);
+    progressBar.classList.remove("progress-bar-striped", "active");
+    progressBar.classList.remove("zoom-bounce");
+    void progressBar.offsetWidth;
+    progressBar.classList.add("zoom-bounce");
+
+    if (dlFilename) window._sarvamDlFilename = dlFilename;
+
+    resultBox.classList.remove("animate-zoom");
+    void resultBox.offsetWidth;
+    resultBox.classList.add("animate-zoom");
+
+  } catch (err) {
+    console.error("runSarvamStream: error", err);
+    progressBar.classList.add("error-state");
+    progressBar.textContent = "Error";
+    progressBar.style.width = "100%";
+    progressBar.setAttribute("aria-valuenow", 100);
+    progressBar.classList.remove("progress-bar-striped", "active");
+  }
+}
+
+async function runGoogleOcr(formData, interval, pdfFile) {
+  try {
+    const res = await fetch("/ocr", { method: "POST", body: formData });
 
     if (!res.ok) {
       clearInterval(interval);
@@ -303,6 +479,9 @@ document.getElementById("startOcr").addEventListener("click", async function () 
       }
     }, 30);
 
+    const pageCount = parseInt(res.headers.get("X-Pages-Processed") || "0", 10);
+    showCostEstimate("google", pageCount, null);
+
     const raw = await res.text();
     const text = raw.replace(/<[^>]*>/g, '');
     const resultBox = document.getElementById("ocrResultContainer");
@@ -317,14 +496,14 @@ document.getElementById("startOcr").addEventListener("click", async function () 
 
   } catch (err) {
     clearInterval(interval);
-    console.error("startOcr: error occurred", err);
+    console.error("runGoogleOcr: error", err);
     progressBar.classList.add("error-state");
     progressBar.textContent = "Error";
     progressBar.setAttribute("aria-valuenow", 100);
     progressBar.style.width = "100%";
     progressBar.classList.remove("progress-bar-striped", "active");
   }
-});
+}
 
 function copyOcrText() {
   const btn = document.getElementById("copyButton");
