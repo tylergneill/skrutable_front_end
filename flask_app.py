@@ -679,7 +679,8 @@ def ocr():
 	api_key   = request.form.get("api_key", "").strip()
 	pdf_file  = request.files.get("pdf_file")
 
-	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+	include_page_numbers    = request.form.get("include_page_numbers") == "yes"
+	filter_headers_footers  = request.form.get("filter_headers_footers") == "yes"
 
 	if not api_key or not pdf_file:
 		return "PDF and API key are required.", 400
@@ -690,7 +691,7 @@ def ocr():
 
 		try:
 			if provider == "sarvam":
-				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers)
+				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers)
 			else:
 				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers)
 		except RuntimeError as exc:
@@ -743,7 +744,8 @@ def ocr_stream():
 
 	api_key  = request.form.get("api_key", "").strip()
 	pdf_file = request.files.get("pdf_file")
-	include_page_numbers = request.form.get("include_page_numbers") == "yes"
+	include_page_numbers   = request.form.get("include_page_numbers") == "yes"
+	filter_headers_footers = request.form.get("filter_headers_footers") == "yes"
 
 	if not api_key or not pdf_file:
 		def _err():
@@ -759,7 +761,7 @@ def ocr_stream():
 	def generate():
 		try:
 			all_page_count = 0
-			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers):
+			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers):
 				all_page_count += len(chunk_texts)
 				payload = {
 					"type":         "chunk",
