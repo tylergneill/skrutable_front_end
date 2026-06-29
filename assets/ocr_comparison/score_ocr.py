@@ -17,6 +17,12 @@ FILES = {
 	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only.txt",
 }
 
+FILES_WS_NORM = {
+	"truth": "ground_truth_body_text_only.txt",
+	"gcv": "skrutable_cloud_vision_ocr_body_text_only_whitespace_norm.txt",
+	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only_whitespace_norm.txt",
+}
+
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
 
 VERBOSE = "--verbose" in sys.argv
@@ -96,10 +102,9 @@ def print_diff(a, b, page, provider):
 			print(f"    INS  ocr={show_char(cb)!r:8}  (extra in ocr)")
 
 
-def main():
-	pages = {name: parse_pages(BASE / fname) for name, fname in FILES.items()}
+def score(pages, label):
 	page_nums = sorted(pages["truth"].keys())
-
+	print(f"\n===== {label} =====")
 	for provider in ("gcv", "sarvam"):
 		print(f"\n##### {provider.upper()} #####")
 		tot_dist = tot_len = 0
@@ -112,6 +117,17 @@ def main():
 			if VERBOSE:
 				print_diff(t, o, p, provider)
 		print(f"  TOTAL: CER {tot_dist/tot_len:.4f} ({tot_dist}/{tot_len})")
+
+
+def main():
+	score(
+		{name: parse_pages(BASE / fname) for name, fname in FILES.items()},
+		"body text only (daṇḍas normalized)",
+	)
+	score(
+		{name: parse_pages(BASE / fname) for name, fname in FILES_WS_NORM.items()},
+		"body text only (whitespace also normalized)",
+	)
 
 
 if __name__ == "__main__":

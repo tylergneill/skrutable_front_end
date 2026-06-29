@@ -297,11 +297,11 @@
     </p>
     <h3 id="side-by-side">Side-by-side provider comparison</h3>
     <p>
-      The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1885).
+      The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1889).
       Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
       The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
       errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
-      CER is computed on body text only (headers, margin numbers, and page numbers excluded).
+      CER is computed on body text only (headers, margin numbers, and page numbers excluded), once with and once without whitespace normalization.
     </p>
 
     {% macro trip_controls() %}
@@ -440,17 +440,17 @@
         <tr>
           <td>preserved (3/3)</td>
           <td>Page header<br>(कादम्बरी ।)</td>
-          <td>not preserved (0/3)</td>
+          <td>preserved (3/3)</td>
         </tr>
         <tr>
           <td>not preserved (0/3)</td>
           <td>Page numbers<br>(५ ६ ७)</td>
-          <td>not preserved (0/3)</td>
+          <td>preserved (3/3)</td>
         </tr>
         <tr>
           <td>preserved in-place (12/12)</td>
           <td>Margin line numbers<br>(<samp>5</samp>,  <samp>10</samp>, <samp>15</samp>, <samp>20</samp>)</td>
-          <td>some preserved in-place (5.5/12),<br>some duplicated at page end (4)</td>
+          <td>some preserved in-place (8.5/12),<br>some duplicated at page end (7)</td>
         </tr>
         <tr>
           <td>all preserved</td>
@@ -463,14 +463,24 @@
           <td>all preserved (14/14)</td>
         </tr>
         <tr>
-          <td>45 spaces, 1 newline</td>
+          <td>45 spaces</td>
           <td>Spurious whitespace</td>
+          <td>2 spaces</td>
+        </tr>
+        <tr>
+          <td>1 (p. 7 निर्वृतो)</td>
+          <td>Transplanted sections</td>
           <td>none</td>
         </tr>
         <tr>
           <td>2.85%</td>
           <td>Character error rate<br>(body text only, daṇḍas normalized)</td>
-          <td>0.90%</td>
+          <td>0.95%</td>
+        </tr>
+        <tr>
+          <td>1.72%</td>
+          <td>Character error rate<br>(whitespace also normalized)</td>
+          <td>0.92%</td>
         </tr>
         <tr>
           <td>$0.0045</td>
