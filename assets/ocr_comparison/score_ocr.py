@@ -12,15 +12,15 @@ import re
 BASE = Path(__file__).resolve().parent
 
 FILES = {
-	"truth": "ground_truth_body_text_only.txt",
-	"gcv": "skrutable_cloud_vision_ocr_body_text_only.txt",
-	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only.txt",
+	"truth": "ground_truth_norm1.txt",
+	"gcv": "skrutable_cloud_vision_ocr_norm1.txt",
+	"sarvam": "skrutable_sarvam_vision_ocr_norm1.txt",
 }
 
 FILES_WS_NORM = {
-	"truth": "ground_truth_body_text_only.txt",
-	"gcv": "skrutable_cloud_vision_ocr_body_text_only_whitespace_norm.txt",
-	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only_whitespace_norm.txt",
+	"truth": "ground_truth_norm1.txt",
+	"gcv": "skrutable_cloud_vision_ocr_norm2.txt",
+	"sarvam": "skrutable_sarvam_vision_ocr_norm2.txt",
 }
 
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
