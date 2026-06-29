@@ -404,11 +404,13 @@ def index():
 		if k in session:
 			session_kwargs[k] = session[k]
 
+	session["input_mode"] = "text"
+	session.modified = True
+	session_kwargs["input_mode"] = "text"
+
 	example_num = request.args.get("example")
 	if example_num and example_num in EXAMPLES:
 		ex = EXAMPLES[example_num]
-		session["input_mode"] = "text"
-		session.modified = True
 		return render_template(
 			'main.html',
 			text_input=ex["text_input"],
