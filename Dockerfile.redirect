@@ -1,0 +1,15 @@
+FROM python:3.11-slim-bookworm
+WORKDIR /app
+RUN pip install --no-cache-dir flask gunicorn
+RUN groupadd appgroup && \
+    useradd -r -M -G appgroup sanskrit && \
+    mkdir -p /app && \
+    chown -R sanskrit:appgroup /app
+COPY --chown=sanskrit:appgroup templates/redirect.html /app/templates/redirect.html
+COPY --chown=sanskrit:appgroup assets/favicon.png /app/assets/favicon.png
+COPY --chown=sanskrit:appgroup flask_redirect.py /app/
+USER sanskrit
+ENV PORT=5011
+ENV PROD_URL=https://skrutable.info
+CMD gunicorn --workers 1 --bind 0.0.0.0:$PORT --log-level info --error-logfile - flask_redirect:app
+EXPOSE 5011
