@@ -1,7 +1,13 @@
-"""Score the two OCR body-text-only outputs against ground_truth.txt.
+"""Score the two OCR body-text-only outputs against ground truth.
 
-Computes per-page and total CER (Levenshtein distance at the character level,
-whitespace preserved as-is). Run from anywhere: python3 score_ocr.py [--verbose]
+Computes per-page and total CER (Levenshtein distance at the character level)
+at two normalization levels: dandas only, and dandas + whitespace.
+
+The third CER row in the comparison table ("misplaced material restored") is
+computed as a one-off: temporarily edit gcv_norm_ws.txt to restore the
+misplaced word on page 7 (निर्वृतो), rerun, record the numbers, then revert.
+
+Run from anywhere: python3 score_ocr.py [--verbose]
 """
 
 import unicodedata
@@ -11,10 +17,16 @@ import re
 
 BASE = Path(__file__).resolve().parent
 
-FILES = {
-	"truth": "ground_truth_body_text_only.txt",
-	"gcv": "skrutable_cloud_vision_ocr_body_text_only.txt",
-	"sarvam": "skrutable_sarvam_vision_ocr_body_text_only.txt",
+FILES_NORM_DANDAS = {
+	"truth": "gt_norm.txt",
+	"gcv": "gcv_norm_dandas.txt",
+	"sarvam": "sarvam_norm_dandas.txt",
+}
+
+FILES_NORM_WS = {
+	"truth": "gt_norm.txt",
+	"gcv": "gcv_norm_ws.txt",
+	"sarvam": "sarvam_norm_ws.txt",
 }
 
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
@@ -96,10 +108,9 @@ def print_diff(a, b, page, provider):
 			print(f"    INS  ocr={show_char(cb)!r:8}  (extra in ocr)")
 
 
-def main():
-	pages = {name: parse_pages(BASE / fname) for name, fname in FILES.items()}
+def score(pages, label):
 	page_nums = sorted(pages["truth"].keys())
-
+	print(f"\n===== {label} =====")
 	for provider in ("gcv", "sarvam"):
 		print(f"\n##### {provider.upper()} #####")
 		tot_dist = tot_len = 0
@@ -112,6 +123,17 @@ def main():
 			if VERBOSE:
 				print_diff(t, o, p, provider)
 		print(f"  TOTAL: CER {tot_dist/tot_len:.4f} ({tot_dist}/{tot_len})")
+
+
+def main():
+	score(
+		{name: parse_pages(BASE / fname) for name, fname in FILES_NORM_DANDAS.items()},
+		"normalized: dandas",
+	)
+	score(
+		{name: parse_pages(BASE / fname) for name, fname in FILES_NORM_WS.items()},
+		"normalized: dandas + whitespace",
+	)
 
 
 if __name__ == "__main__":

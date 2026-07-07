@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Usage: ./split_meld.sh
 #
-# Reads from screenshots/original/ and screenshots/body_text_only/,
-# writes crops to splits/original/ and splits/body_text_only/.
+# Reads from screenshots/raw/, screenshots/norm_dandas/, and screenshots/norm_ws/,
+# writes crops to splits/raw/, splits/norm_dandas/, and splits/norm_ws/.
 #
 # GCV meld layout:    [GCV OCR | ground truth]
 # Sarvam meld layout: [ground truth | sarvam OCR]
@@ -23,7 +23,7 @@ split_dir() {
 
     for src in "$src_dir"/gcv_[0-9]*.png; do
         local base; base="$(basename "$src")"
-        local p="${base#gcv_}"; p="${p%_body_text_only.png}"; p="${p%.png}"
+        local p="${base#gcv_}"; p="${p%.png}"
         local w h half
         w=$(magick identify -format "%w" "$src")
         h=$(magick identify -format "%h" "$src")
@@ -35,7 +35,7 @@ split_dir() {
 
     for src in "$src_dir"/sarvam_[0-9]*.png; do
         local base; base="$(basename "$src")"
-        local p="${base#sarvam_}"; p="${p%_body_text_only.png}"; p="${p%.png}"
+        local p="${base#sarvam_}"; p="${p%.png}"
         local w h half
         w=$(magick identify -format "%w" "$src")
         h=$(magick identify -format "%h" "$src")
@@ -46,5 +46,6 @@ split_dir() {
     done
 }
 
-split_dir "$MELD/screenshots/original"       "$MELD/splits/original"
-split_dir "$MELD/screenshots/body_text_only" "$MELD/splits/body_text_only"
+split_dir "$MELD/screenshots/raw"        "$MELD/splits/raw"
+split_dir "$MELD/screenshots/norm_dandas" "$MELD/splits/norm_dandas"
+split_dir "$MELD/screenshots/norm_ws"    "$MELD/splits/norm_ws"

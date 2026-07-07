@@ -10,7 +10,11 @@ BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
 PROJECT = os.getenv("GCP_PROJECT", "sanskrit-ocr-219110") # set via env
 
 def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
-    """Upload PDF, run async Vision OCR, return (text, page_count)."""
+    """Upload PDF, run async Vision OCR, return (text, page_count).
+
+    Note: Google Vision's block_type enum has no HEADER/FOOTER values (only TEXT, TABLE,
+    PICTURE, RULER, BARCODE), so header/footer filtering is not possible here.
+    """
     client_vis   = vision.ImageAnnotatorClient(client_options={"api_key": api_key})
     client_store = storage.Client(project=PROJECT)
 
@@ -60,7 +64,7 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
 
 SARVAM_PAGE_LIMIT = 10
 
-def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_page_numbers: bool) -> list:
+def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_page_numbers: bool, filter_headers_footers: bool) -> list:
     """Run Sarvam OCR on a single chunk PDF, return list of page text strings."""
     try:
         job = client.document_intelligence.create_job(language="sa-IN", output_format="md")
@@ -84,23 +88,24 @@ def _run_sarvam_ocr_chunk(client, chunk_path: Path, page_offset: int, include_pa
             for i, name in enumerate(json_names, start=1):
                 data = json.loads(zf.read(name))
                 blocks = sorted(data.get("blocks", []), key=lambda b: b.get("reading_order", 0))
+                excluded = {"header", "footnote"} if filter_headers_footers else set()
                 page_text = "\n".join(
                     b["text"] for b in blocks
-                    if b.get("layout_tag") not in ("header", "footnote")
+                    if b.get("layout_tag") not in excluded
                 )
                 if include_page_numbers:
                     page_text = f"\n=== {page_offset + i} ===\n{page_text}"
                 texts.append(page_text)
     return texts
 
-def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
+def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True) -> tuple:
     """Submit PDF to Sarvam Vision, return (text, page_count). Splits into chunks if > 10 pages."""
     all_texts = []
-    for _, _, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers):
+    for _, _, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers):
         all_texts.extend(chunk_texts)
     return "\n".join(all_texts), len(all_texts)
 
-def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True):
+def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True):
     """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes."""
     reader = PdfReader(str(pdf_path))
     total_pages = len(reader.pages)
@@ -116,5 +121,5 @@ def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool =
             chunk_path = Path(chunk_dir) / f"chunk_{chunk_start}.pdf"
             with open(chunk_path, "wb") as f:
                 writer.write(f)
-            chunk_texts = _run_sarvam_ocr_chunk(client, chunk_path, chunk_start, include_page_numbers)
+            chunk_texts = _run_sarvam_ocr_chunk(client, chunk_path, chunk_start, include_page_numbers, filter_headers_footers)
             yield i, total_chunks, chunk_texts
