@@ -79,6 +79,13 @@
       </label>
     </p>
 
+    <p id="filterHeadersFootersOption" style="display:none">
+      <label>
+        <input type="checkbox" id="filterHeadersFooters" checked>
+        Filter out headers and footers (Sarvam Vision only)
+      </label>
+    </p>
+
     <br>
 
     <h3>faq</h3>
@@ -205,6 +212,7 @@ function setProvider(provider) {
   document.getElementById("ocr_provider_input").value = provider;
   document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
   document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
+  document.getElementById("filterHeadersFootersOption").style.display = isGoogle ? "none" : "";
 }
 
 const progressBar = document.getElementById("progressBar");
@@ -306,13 +314,15 @@ document.getElementById("startOcr").addEventListener("click", async function () 
     : document.getElementById("sarvamApiKey").value;
   if (!apiKey) return alert("API key is required.");
 
-  const includePageNumbers = document.getElementById("includePageNumbers").checked;
+  const includePageNumbers   = document.getElementById("includePageNumbers").checked;
+  const filterHeadersFooters = document.getElementById("filterHeadersFooters").checked;
 
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
   formData.append("ocr_provider", provider);
   formData.append("api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
+  formData.append("filter_headers_footers", filterHeadersFooters ? "yes" : "no");
 
   progressBar.style.width = "0%";
   progressBar.textContent = "0%";
