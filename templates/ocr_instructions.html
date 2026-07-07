@@ -318,9 +318,9 @@
     <div style="display:flex; gap:0.5%; align-items:center; margin-bottom:0.3rem;">
       <div style="width:33%; display:flex; justify-content:flex-start; align-items:center; gap:0.4rem;">
         <select id="tripNormSelect" style="font-size:0.85rem; padding:0.2rem 0.4rem; cursor:pointer; border-radius:6px; border:1px solid var(--btn-bg); background:var(--btn-bg); color:var(--btn-text);" onchange="tripSetNorm(this.value)">
-          <option value="0">unnormalized</option>
-          <option value="1">normalized: daṇḍas</option>
-          <option value="2">normalized: daṇḍas + whitespace</option>
+          <option value="0">unnormalized (no CER computed)</option>
+          <option value="1">normalized: daṇḍas (CER #1)</option>
+          <option value="2">normalized: daṇḍas + whitespace (CER #2)</option>
         </select>
       </div>
       <div style="width:33%; display:flex; justify-content:center;">
@@ -477,7 +477,7 @@
         </tr>
         <tr class="cer-group-top">
           <td>2.85%</td>
-          <td>Character error rate<br>after normalization, incl. daṇḍas</td>
+          <td>Character error rate #1,<br>after normalization, including daṇḍas</td>
           <td>0.95%</td>
         </tr>
         <tr class="cer-group-mid">
@@ -487,7 +487,7 @@
         </tr>
         <tr class="cer-group-mid">
           <td>1.69%</td>
-          <td>Character error rate<br>after whitespace also normalized</td>
+          <td>Character error rate #2,<br>after whitespace also normalized</td>
           <td>0.92%</td>
         </tr>
         <tr class="cer-group-mid">
@@ -497,7 +497,7 @@
         </tr>
         <tr class="cer-group-bot">
           <td>1.21%</td>
-          <td>Character error rate<br>after misplaced material also restored</td>
+          <td>Character error rate #3,<br>after misplaced material also restored</td>
           <td>0.92%</td>
         </tr>
         <tr>
