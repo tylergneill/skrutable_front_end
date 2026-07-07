@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skrutable</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f2ed;
+            color: #2c2c2c;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 17px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e0dcd3;
+            border-top: 4px solid #395a77;
+            border-radius: 4px;
+            padding: 48px 52px 44px;
+            max-width: 680px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        h1 {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 1.55rem;
+            font-weight: 600;
+            color: #395a77;
+            margin: 0 0 18px;
+            line-height: 1.3;
+        }
+
+        p {
+            color: #444;
+            margin: 0 0 12px;
+            font-size: 0.97rem;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e0dcd3;
+            margin: 28px 0;
+        }
+
+        .countdown-line {
+            font-size: 0.92rem;
+            color: #777;
+            margin: 0 0 20px;
+        }
+
+        .countdown-line span {
+            font-weight: 600;
+            color: #395a77;
+        }
+
+        .go-now {
+            display: inline-block;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #395a77;
+            text-decoration: none;
+            padding: 10px 28px;
+            border-radius: 3px;
+            transition: background-color 0.15s;
+        }
+
+        .go-now:hover {
+            background-color: #2e4a64;
+        }
+
+        .prod-url {
+            display: block;
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>Staging site currently offline, redirecting&hellip;</h1>
+
+    <p>The Skrutable staging site is only active when new features are under review.
+    Right now there is nothing in progress, so it has been shut down to conserve resources.</p>
+
+    <hr class="divider">
+
+    <p class="countdown-line">Redirecting to production site in <span id="seconds">15</span> seconds&hellip;</p>
+
+    <a class="go-now" href="{{ prod_url }}">Proceed Now</a>
+
+    <span class="prod-url"><a href="{{ prod_url }}">{{ prod_url }}</a></span>
+</div>
+
+<script>
+    var dest = {{ prod_url | tojson }};
+    var n = 15;
+    var el = document.getElementById('seconds');
+    var timer = setInterval(function () {
+        n -= 1;
+        el.textContent = n;
+        if (n <= 0) {
+            clearInterval(timer);
+            window.location.href = dest;
+        }
+    }, 1000);
+</script>
+</body>
+</html>
