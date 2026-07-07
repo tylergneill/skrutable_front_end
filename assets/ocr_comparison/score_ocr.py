@@ -4,7 +4,7 @@ Computes per-page and total CER (Levenshtein distance at the character level)
 at two normalization levels: dandas only, and dandas + whitespace.
 
 The third CER row in the comparison table ("misplaced material restored") is
-computed as a one-off: temporarily edit gcv_norm_dandas.txt to restore the
+computed as a one-off: temporarily edit gcv_norm_ws.txt to restore the
 misplaced word on page 7 (निर्वृतो), rerun, record the numbers, then revert.
 
 Run from anywhere: python3 score_ocr.py [--verbose]
