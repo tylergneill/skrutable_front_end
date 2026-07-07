@@ -11,7 +11,7 @@
   .cer-group-top td:last-child, .cer-group-mid td:last-child, .cer-group-bot td:last-child {
     border-right: 3px solid var(--btn-bg);
   }
-  .cer-group-top td { border-top: 3px solid var(--btn-bg); }
+  .cer-group-top td { border-top: 3px solid var(--btn-bg); font-weight: 800; }
   .cer-group-bot td { border-bottom: 3px solid var(--btn-bg); }
 </style>
 {% endblock %}
@@ -311,7 +311,10 @@
       Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
       The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
       errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
-      CER is computed on body text only (headers, margin numbers, and page numbers excluded), at two normalization levels: daṇḍas only, and daṇḍas + whitespace.
+      CER is computed only on body text (headers, margin numbers, and page numbers excluded), in three ways.
+      The first of these (CER #1, daṇḍas normalized) is the most meaningful, as it represents a reasonable amount of manual post-processing.
+      The remaining two (CER #s 2 and 3) are not meaningful performance estimates of either service but rather serve to illustrate the numerical influence of certain key factors
+      (whitespace errors and misplaced material) that are not easy to correct in manual post-processing.
     </p>
 
     {% macro trip_controls() %}
