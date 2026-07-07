@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Usage: ./split_meld.sh
 #
-# Reads from screenshots/raw/ and screenshots/norm/,
-# writes crops to splits/raw/ and splits/norm/.
+# Reads from screenshots/raw/, screenshots/norm_dandas/, and screenshots/norm_ws/,
+# writes crops to splits/raw/, splits/norm_dandas/, and splits/norm_ws/.
 #
 # GCV meld layout:    [GCV OCR | ground truth]
 # Sarvam meld layout: [ground truth | sarvam OCR]
@@ -46,5 +46,6 @@ split_dir() {
     done
 }
 
-split_dir "$MELD/screenshots/raw"       "$MELD/splits/raw"
-split_dir "$MELD/screenshots/norm" "$MELD/splits/norm"
+split_dir "$MELD/screenshots/raw"        "$MELD/splits/raw"
+split_dir "$MELD/screenshots/norm_dandas" "$MELD/splits/norm_dandas"
+split_dir "$MELD/screenshots/norm_ws"    "$MELD/splits/norm_ws"

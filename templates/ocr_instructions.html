@@ -4,6 +4,16 @@
 
 {% block head_extra %}
 <script src="/assets/js/ocr_pricing.js"></script>
+<style>
+  .cer-group-top td:first-child, .cer-group-mid td:first-child, .cer-group-bot td:first-child {
+    border-left: 3px solid var(--btn-bg);
+  }
+  .cer-group-top td:last-child, .cer-group-mid td:last-child, .cer-group-bot td:last-child {
+    border-right: 3px solid var(--btn-bg);
+  }
+  .cer-group-top td { border-top: 3px solid var(--btn-bg); }
+  .cer-group-bot td { border-bottom: 3px solid var(--btn-bg); }
+</style>
 {% endblock %}
 
 {% block sidebar_controls %}
@@ -301,14 +311,17 @@
       Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
       The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
       errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
-      CER is computed on body text only (headers, margin numbers, and page numbers excluded), once with and once without whitespace normalization.
+      CER is computed on body text only (headers, margin numbers, and page numbers excluded), at two normalization levels: daṇḍas only, and daṇḍas + whitespace.
     </p>
 
     {% macro trip_controls() %}
     <div style="display:flex; gap:0.5%; align-items:center; margin-bottom:0.3rem;">
       <div style="width:33%; display:flex; justify-content:flex-start; align-items:center; gap:0.4rem;">
-        <input type="checkbox" id="tripNormCheck" style="cursor:pointer;" onchange="tripToggleNorm(this.checked)">
-        <label for="tripNormCheck" style="font-size:0.85rem; cursor:pointer; margin:0; user-select:none;">normalized</label>
+        <select id="tripNormSelect" style="font-size:0.85rem; padding:0.2rem 0.4rem; cursor:pointer; border-radius:6px; border:1px solid var(--btn-bg); background:var(--btn-bg); color:var(--btn-text);" onchange="tripSetNorm(this.value)">
+          <option value="0">unnormalized</option>
+          <option value="1">normalized: daṇḍas</option>
+          <option value="2">normalized: daṇḍas + whitespace</option>
+        </select>
       </div>
       <div style="width:33%; display:flex; justify-content:center;">
         <div class="trip-toggle"><div class="input-toggle" style="flex:none; gap:0.4rem; align-items:center; padding:3px 6px;">
@@ -357,7 +370,7 @@
       var tripNorm = 0;
       var tripPages = [5, 6, 7];
       var tripMiddleLabels = ["Scan", "GCV diff vs. ground truth", "Sarvam diff vs. ground truth"];
-      var tripNormDirs = ["raw", "norm"];
+      var tripNormDirs = ["raw", "norm_dandas", "norm_ws"];
 
       function tripSrc(file) {
         return "/assets/ocr_comparison/imgs/" + file;
@@ -381,7 +394,7 @@
         document.querySelectorAll(".trip-right").forEach(function(el) { el.src = right; });
         document.querySelectorAll(".trip-page-label").forEach(function(el) { el.textContent = "Page " + p; });
         document.querySelectorAll(".trip-middle-label").forEach(function(el) { el.textContent = tripMiddleLabels[tripMiddle]; });
-        document.querySelectorAll("#tripNormCheck").forEach(function(el) { el.checked = tripNorm === 1; });
+        document.querySelectorAll("#tripNormSelect").forEach(function(el) { el.value = tripNorm; });
       }
 
       function tripAdvancePage(dir) {
@@ -394,8 +407,8 @@
         tripUpdate();
       }
 
-      function tripToggleNorm(checked) {
-        tripNorm = checked ? 1 : 0;
+      function tripSetNorm(value) {
+        tripNorm = parseInt(value, 10);
         tripUpdate();
       }
 
@@ -462,29 +475,29 @@
           <td>Daṇḍas (। ॥)</td>
           <td>all preserved (14/14)</td>
         </tr>
-        <tr>
-          <td>45 spaces</td>
-          <td>Spurious whitespace</td>
-          <td>1 space</td>
+        <tr class="cer-group-top">
+          <td>2.85%</td>
+          <td>Character error rate<br>after normalization, incl. daṇḍas</td>
+          <td>0.95%</td>
         </tr>
-        <tr>
+        <tr class="cer-group-mid">
+          <td>45</td>
+          <td>Whitespace errors<br>(all extras in this case)</td>
+          <td>1</td>
+        </tr>
+        <tr class="cer-group-mid">
+          <td>1.69%</td>
+          <td>Character error rate<br>after whitespace also normalized</td>
+          <td>0.92%</td>
+        </tr>
+        <tr class="cer-group-mid">
           <td>one word (p. 7 निर्वृतो)</td>
           <td>Misplaced material</td>
           <td>none</td>
         </tr>
-        <tr>
-          <td>2.85%</td>
-          <td>Character error rate<br>(body text only, daṇḍas normalized)</td>
-          <td>0.95%</td>
-        </tr>
-        <tr>
-          <td>1.69%</td>
-          <td>Character error rate<br>(whitespace also normalized)</td>
-          <td>0.92%</td>
-        </tr>
-        <tr>
+        <tr class="cer-group-bot">
           <td>1.21%</td>
-          <td>Character error rate<br>(misplaced material restored)</td>
+          <td>Character error rate<br>after misplaced material also restored</td>
           <td>0.92%</td>
         </tr>
         <tr>
