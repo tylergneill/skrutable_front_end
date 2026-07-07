@@ -1,7 +1,13 @@
-"""Score the two OCR body-text-only outputs against ground_truth.txt.
+"""Score the two OCR body-text-only outputs against ground truth.
 
-Computes per-page and total CER (Levenshtein distance at the character level,
-whitespace preserved as-is). Run from anywhere: python3 score_ocr.py [--verbose]
+Computes per-page and total CER (Levenshtein distance at the character level)
+at two normalization levels: dandas only, and dandas + whitespace.
+
+The third CER row in the comparison table ("misplaced material restored") is
+computed as a one-off: temporarily edit gt_norm_dandas.txt to restore the
+misplaced word on page 7 (निर्वृतो), rerun, record the numbers, then revert.
+
+Run from anywhere: python3 score_ocr.py [--verbose]
 """
 
 import unicodedata
@@ -11,16 +17,16 @@ import re
 
 BASE = Path(__file__).resolve().parent
 
-FILES = {
-	"truth": "ground_truth_norm1.txt",
-	"gcv": "skrutable_cloud_vision_ocr_norm1.txt",
-	"sarvam": "skrutable_sarvam_vision_ocr_norm1.txt",
+FILES_NORM_DANDAS = {
+	"truth": "gt_norm_dandas.txt",
+	"gcv": "gcv_norm_dandas.txt",
+	"sarvam": "sarvam_norm_dandas.txt",
 }
 
-FILES_WS_NORM = {
-	"truth": "ground_truth_norm1.txt",
-	"gcv": "skrutable_cloud_vision_ocr_norm2.txt",
-	"sarvam": "skrutable_sarvam_vision_ocr_norm2.txt",
+FILES_NORM_WS = {
+	"truth": "gt_norm_dandas.txt",
+	"gcv": "gcv_norm_ws.txt",
+	"sarvam": "sarvam_norm_ws.txt",
 }
 
 PAGE_RE = re.compile(r"^===\s*(\d+)\s*===\s*$")
@@ -121,12 +127,12 @@ def score(pages, label):
 
 def main():
 	score(
-		{name: parse_pages(BASE / fname) for name, fname in FILES.items()},
-		"body text only (daṇḍas normalized)",
+		{name: parse_pages(BASE / fname) for name, fname in FILES_NORM_DANDAS.items()},
+		"normalized: dandas",
 	)
 	score(
-		{name: parse_pages(BASE / fname) for name, fname in FILES_WS_NORM.items()},
-		"body text only (whitespace also normalized)",
+		{name: parse_pages(BASE / fname) for name, fname in FILES_NORM_WS.items()},
+		"normalized: dandas + whitespace",
 	)
 
 
