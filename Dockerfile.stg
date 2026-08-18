@@ -4,7 +4,18 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple -r requirements.txt
 RUN groupadd appgroup && \
     useradd -r -M -G appgroup sanskrit
-COPY --chown=sanskrit:appgroup assets /app/assets
+# Bulk data/media assets first: large and rarely changed, so edits to the
+# app's css/js/templates below don't invalidate ~260MB of unchanged layers.
+COPY --chown=sanskrit:appgroup assets/wsc2022 /app/assets/wsc2022
+COPY --chown=sanskrit:appgroup assets/meter_analyses /app/assets/meter_analyses
+COPY --chown=sanskrit:appgroup assets/melodies /app/assets/melodies
+COPY --chown=sanskrit:appgroup assets/ocr_comparison /app/assets/ocr_comparison
+COPY --chown=sanskrit:appgroup assets/videos /app/assets/videos
+
+# Everything else: small and frequently changed.
+COPY --chown=sanskrit:appgroup assets/css /app/assets/css
+COPY --chown=sanskrit:appgroup assets/js /app/assets/js
+COPY --chown=sanskrit:appgroup assets/favicon.png assets/ui_screenshot.png assets/ui_screenshot_old.png assets/openapi.yaml assets/uploader.json /app/assets/
 COPY --chown=sanskrit:appgroup templates /app/templates
 COPY --chown=sanskrit:appgroup ./*.py /app/
 COPY --chown=sanskrit:appgroup ./VERSION /app/
