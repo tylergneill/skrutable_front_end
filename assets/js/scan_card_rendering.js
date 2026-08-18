@@ -93,6 +93,16 @@ var ScansionRenderer = (function() {
 		});
 	}
 
+	// notable_syllables arrives in two shapes: a list of syllable indices (vipulā),
+	// or a dict keyed by syllable index (kramasaṃyoga). Both mean "these indices".
+	function notableIndexSet(ns) {
+		var set = {};
+		if (!ns) return set;
+		var keys = Array.isArray(ns) ? ns : Object.keys(ns);
+		keys.forEach(function(i) { set[parseInt(i, 10)] = true; });
+		return set;
+	}
+
 	function getPadaDiagInfo(diag, padaIdx, numPadas) {
 		var empty = { probSet: {}, notableSet: {}, ps: null, isLenError: false, imperfectLabel: null, notableLabel: null, canonicalGana: null };
 		if (!diag) return empty;
@@ -111,8 +121,7 @@ var ScansionRenderer = (function() {
 			var lenError = engLabel === 'hypermetric' || engLabel === 'hypometric';
 			var probSet = {};
 			if (ps) ps.forEach(function(i) { probSet[i] = true; });
-			var notableSet = {};
-			if (ns) Object.keys(ns).forEach(function(i) { notableSet[parseInt(i)] = true; });
+			var notableSet = notableIndexSet(ns);
 			var showLabel = false;
 			if (chosenLabel) {
 				var myPs = diag.problem_syllables && diag.problem_syllables[padaKey];
@@ -150,8 +159,7 @@ var ScansionRenderer = (function() {
 			var lenError2 = engLabel2 === 'hypermetric' || engLabel2 === 'hypometric';
 			var probSet2 = {};
 			if (!lenError2 && ps2) ps2.forEach(function(i) { probSet2[i] = true; });
-			var notableSet2 = {};
-			if (ns2) Object.keys(ns2).forEach(function(i) { notableSet2[parseInt(i)] = true; });
+			var notableSet2 = notableIndexSet(ns2);
 			var hasOddProbs  = d.problem_syllables && d.problem_syllables['odd']  && d.problem_syllables['odd'].length  > 0;
 			var hasEvenProbs = d.problem_syllables && d.problem_syllables['even'] && d.problem_syllables['even'].length > 0;
 			var hasOddNotable  = d.notable_syllables && d.notable_syllables['odd']  && Object.keys(d.notable_syllables['odd']).length  > 0;
