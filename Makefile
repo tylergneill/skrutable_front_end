@@ -1,6 +1,12 @@
 launch:
 	./launch.sh
 
+# serve to a Parallels VM browser (e.g. testing in Edge)
+# binds only the Mac<->VM private network, not public wifi
+# in the VM, browse to http://10.211.55.2:5012
+launch-vm:
+	./launch.sh --vm-host
+
 launch-profiling:
 	./launch.sh --scan-profiling
 
