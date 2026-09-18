@@ -941,6 +941,20 @@
 		// Save text on any edit
 		document.getElementById("text_input").addEventListener("input", function() { saveTexts(); updateBatchHint(); });
 		document.getElementById("text_output").addEventListener("input", saveTexts);
+
+		// Cmd+Enter (macOS) / Ctrl+Enter (elsewhere) repeats the last action
+		var repeatBtn = document.getElementById("repeat_action_button");
+		if (repeatBtn) {
+			var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+			repeatBtn.title = "Repeat last action (" + (isMac ? "⌘" : "Ctrl+") + "Enter)";
+		}
+		document.addEventListener("keydown", function(e) {
+			if (e.key !== "Enter" || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return;
+			var btn = document.getElementById("repeat_action_button");
+			if (!btn || btn.disabled) return;
+			e.preventDefault();
+			repeatLastAction();
+		});
 	}
 
 </script>
