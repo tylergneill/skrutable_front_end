@@ -329,7 +329,7 @@ def _init_session_defaults():
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
 		"batch_correction_mode": 0,
-		"workbench_meter_html_output": 0,
+		"workbench_meter_html_output": 1,
 		"explanation_language": "sanskrit",
 		"input_mode": "text",
 	}
