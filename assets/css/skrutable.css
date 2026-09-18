@@ -708,16 +708,17 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, select:f
 	overflow-x: auto;
 	overflow-y: auto;
 	word-wrap: normal;
+	/* Consolas covers Windows, where Menlo/DejaVu are absent and the old
+	   stack fell through to the very thin Courier New */
+	font-family: ui-monospace, 'Menlo', 'Consolas', 'DejaVu Sans Mono', 'Courier New', monospace;
 }
 
 .textarea-input {
 	min-height: 100px;
-	font-family: 'Menlo', 'DejaVu Sans Mono', 'Courier New', monospace;
 }
 
 .textarea-output {
 	min-height: 300px;
-	font-family: 'Menlo', 'DejaVu Sans Mono', 'Courier New', monospace;
 	font-weight: bold;
 	background: var(--input-bg);
 }
