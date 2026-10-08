@@ -113,7 +113,7 @@ SD = SchemeDetector()
 
 # --- Pure helper functions (no session, no g, no Flask) ---
 
-def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=False):
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=True):
 	return T.transliterate(
 		input_text,
 		from_scheme=from_scheme,
@@ -324,7 +324,7 @@ def _init_session_defaults():
 		"meter_label": "", "melody_options": [],
 		"avoid_virama_indic_scripts": 1,
 		"avoid_virama_non_indic_scripts": 0,
-		"preserve_anunasika": 0,
+		"preserve_anunasika": 1,
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
@@ -931,7 +931,7 @@ def api_transliterate():
 	inputs = get_inputs(
 		["input_text", "from_scheme", "to_scheme"],
 		request,
-		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": False},
+		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": True},
 	)
 	if isinstance(inputs, str):
 		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
