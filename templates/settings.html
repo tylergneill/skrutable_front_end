@@ -18,8 +18,8 @@
 				<label for="avoid_virama_non_indic_scripts">un-space Roman output (<span id="virama_non_indic_example_on">kimakurvata</span><span id="virama_non_indic_example_off" style="display:none">kim akurvata</span>)</label>
 			</p>
 			<p>
-				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(0)|int %}checked{% endif %}>
-				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">ã / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
+				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(1)|int %}checked{% endif %}>
+				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">am̐ / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
 			</p>
 
 			<h2>scansion and meter identification</h2>
@@ -147,7 +147,7 @@
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
 		document.getElementById("avoid_virama_non_indic_scripts").checked = false;
-		document.getElementById("preserve_anunasika").checked = false;
+		document.getElementById("preserve_anunasika").checked = true;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
