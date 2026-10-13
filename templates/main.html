@@ -93,9 +93,9 @@
 	var currentPreserveAnunasika = {{ preserve_anunasika|default(1)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
-	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentBatchCorrectionMode = {{ batch_correction_mode|default(1)|int }} === 1;
 	var currentWbMeterHtmlOutput = {{ workbench_meter_html_output|default(0)|int }} === 1;
-	var currentExplanationLang = "{{ explanation_language|default('sanskrit') }}";
+	var currentExplanationLang = "{{ explanation_language|default('english') }}";
 	var currentInputMode = "{{ input_mode|default('text') }}";
 
 	// --- Cross-tab sync: adopt extra settings changed in another tab (see settings_sync.js) ---

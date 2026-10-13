@@ -273,6 +273,8 @@ SESSION_VARIABLE_NAMES = (
 SETTINGS_MIGRATIONS = [
 	# (version, {session_key: forced_value})
 	(1, {"preserve_anunasika": 1}),  # app v1.17.7: preserve anunāsika by default
+	(2, {"batch_correction_mode": 1}),  # app v1.17.7: batch correction mode on by default
+	(3, {"explanation_language": "english"}),  # app v1.17.7: explanations default to English
 ]
 LATEST_SETTINGS_VERSION = max([version for version, _ in SETTINGS_MIGRATIONS], default=0)
 
@@ -341,9 +343,9 @@ def _init_session_defaults():
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
-		"batch_correction_mode": 0,
+		"batch_correction_mode": 1,
 		"workbench_meter_html_output": 1,
-		"explanation_language": "sanskrit",
+		"explanation_language": "english",
 		"input_mode": "text",
 	}
 	for k, v in defaults.items():
@@ -532,7 +534,7 @@ def upload_file():
 							"morae": session["morae"],
 							"gaRas": session["gaRas"],
 							"alignment": session["alignment"],
-							"explanation_language": session.get("explanation_language", "sanskrit"),
+							"explanation_language": session.get("explanation_language", "english"),
 						},
 						"duration_secs": duration_secs,
 					}),
@@ -662,7 +664,7 @@ def upload_file():
 					"morae": session["morae"],
 					"gaRas": session["gaRas"],
 					"alignment": session["alignment"],
-					"explanation_language": session.get("explanation_language", "sanskrit"),
+					"explanation_language": session.get("explanation_language", "english"),
 				},
 				"duration_secs": duration_secs,
 			}),
