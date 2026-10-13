@@ -101,16 +101,19 @@ Extra settings (e.g. `avoid_virama_indic_scripts`, `preserve_anunasika`) flow th
 - Add `fd.append("var_name", ...)` in `saveAll()`.
 - Add `document.getElementById("var_name").checked = <default>` in `resetExtra()`.
 - Add a `document.getElementById("var_name").addEventListener("change", ...)` call.
+- Add the id to `SYNCED_CHECKBOX_IDS` (or `SYNCED_SELECT_IDS`) so the setting is sent to, and adopted from, other open tabs (see "Cross-tab settings sync" below).
 
-### 3. `templates/main.html` — workbench page (3 spots)
+### 3. `templates/main.html` — workbench page (4 spots)
 
 - Declare a JS global: `var currentMyVar = {{ my_var|default(0)|int }} === 1;` alongside the other `current*` globals near the top of the `<script>` block.
 - Add `fd.append("my_var", currentMyVar)` in the fetch call for whichever action(s) use it (e.g. the `/api/transliterate` fetch).
 - Add `addHidden("my_var", currentMyVar)` in `syncHiddenInputs()` (used by the file upload form path).
+- Add `if ("my_var" in s) currentMyVar = !!s.my_var;` in the `SettingsSync.onChange(...)` handler near the globals, so a change made in another tab is adopted.
 
-### 4. `assets/js/settings.js` — shared JS (2 spots)
+### 4. `assets/js/settings.js` — shared JS (3 spots)
 
 - Add `fd.append("my_var", currentMyVar)` in `saveSettingsToSession()` so the session stays in sync whenever sidebar settings are saved.
+- Add `my_var: currentMyVar` to the `SettingsSync.announce({...})` call in the same function.
 - Update the comment at the top listing expected globals.
 
 ### 5. `skrutable` library (`transliteration.py` or relevant module)
@@ -123,6 +126,15 @@ Extra settings (e.g. `avoid_virama_indic_scripts`, `preserve_anunasika`) flow th
 - Add any required character mappings or character-set entries in the library.
 
 > **Why the setting can appear to do nothing:** The most common failure mode is wiring steps 1–4 in the front end but forgetting to pass the value through at one call site — typically the JS fetch in `main.html` (step 3) or the `saveSettingsToSession` in `settings.js` (step 4). The session may be correct, but the value is never sent with the API request, so the backend always sees the default.
+
+## Cross-tab settings sync
+
+Each open page holds its own copy of the extra settings and sends the whole copy to the server whenever it saves. So that a tab opened earlier does not keep using (and saving back) values another tab has since changed, pages tell each other about changes through a browser `BroadcastChannel`, wrapped in `assets/js/settings_sync.js` (loaded by `base.html`). No server call is involved.
+
+- **Sending:** `saveSettingsToSession()` (workbench) and `saveAll()` (settings page) call `SettingsSync.announce({...})` with the extra settings they just saved.
+- **Receiving:** each page registers `SettingsSync.onChange(...)`, which updates its variables and controls. It must not save or announce again.
+- Only extra settings are synced. Sidebar choices (schemes, scan details, action) are deliberately left per-tab.
+- A tab still running code from before a deploy cannot be reached; it catches up on refresh.
 
 ## Scan Timing Profiling
 
