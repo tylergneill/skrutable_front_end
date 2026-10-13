@@ -260,8 +260,21 @@ SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
 	CHECKBOX_ELEMENT_NAMES +
 	melody_variable_names +
-	extra_option_names
+	extra_option_names +
+	["settings_version"]
 	)
+
+# Settings migrations: one-time forced changes to settings stored in existing sessions.
+# Changing a default in _init_session_defaults() only affects new sessions,
+# because existing sessions already hold the old value.
+# To also switch existing users over, add an entry here with the next version number.
+# Each entry is applied once per session (tracked in session["settings_version"]),
+# in order, so users remain free to change the setting back afterwards.
+SETTINGS_MIGRATIONS = [
+	# (version, {session_key: forced_value})
+	(1, {"preserve_anunasika": 1}),  # app v1.17.7: preserve anunāsika by default
+]
+LATEST_SETTINGS_VERSION = max([version for version, _ in SETTINGS_MIGRATIONS], default=0)
 
 def find_front_end_version():
 	base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -337,12 +350,28 @@ def _init_session_defaults():
 		session.setdefault(k, v)
 	session.modified = True
 
+def _apply_settings_migrations():
+	"""Apply, once each and in order, any settings migrations this session has not yet seen."""
+	stored_version = session.get("settings_version", 0)
+	if stored_version >= LATEST_SETTINGS_VERSION:
+		return
+	for version, forced_values in sorted(SETTINGS_MIGRATIONS):
+		if version > stored_version:
+			session.update(forced_values)
+	session["settings_version"] = LATEST_SETTINGS_VERSION
+	session.modified = True
+
 def ensure_keys():
+	# brand-new session: defaults are already current, so there is nothing to migrate
+	if not any(var_name in session for var_name in SESSION_VARIABLE_NAMES):
+		session["settings_version"] = LATEST_SETTINGS_VERSION
 	# just in case, make sure all keys in session
 	for var_name in SESSION_VARIABLE_NAMES:
 		if var_name not in session:
 			_init_session_defaults()
-			return
+			break
+	# existing session from before a default changed: switch it over, once
+	_apply_settings_migrations()
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
