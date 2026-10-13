@@ -90,13 +90,34 @@
 	var currentAction = "{{ skrutable_action }}";
 	var currentAvoidVirama = {{ avoid_virama_indic_scripts|default(1)|int }} === 1;
 	var currentAvoidViramanonIndic = {{ avoid_virama_non_indic_scripts|default(0)|int }} === 1;
-	var currentPreserveAnunasika = {{ preserve_anunasika|default(0)|int }} === 1;
+	var currentPreserveAnunasika = {{ preserve_anunasika|default(1)|int }} === 1;
 	var currentPreserveCompoundHyphens = {{ preserve_compound_hyphens|default(1)|int }} === 1;
 	var currentPreservePunctuation = {{ preserve_punctuation|default(1)|int }} === 1;
-	var currentBatchCorrectionMode = {{ batch_correction_mode|default(0)|int }} === 1;
+	var currentBatchCorrectionMode = {{ batch_correction_mode|default(1)|int }} === 1;
 	var currentWbMeterHtmlOutput = {{ workbench_meter_html_output|default(0)|int }} === 1;
-	var currentExplanationLang = "{{ explanation_language|default('sanskrit') }}";
+	var currentExplanationLang = "{{ explanation_language|default('english') }}";
 	var currentInputMode = "{{ input_mode|default('text') }}";
+
+	// --- Cross-tab sync: adopt extra settings changed in another tab (see settings_sync.js) ---
+	// Without this, this page would keep using and saving back its own stale copies.
+	SettingsSync.onChange(function(s) {
+		if ("avoid_virama_indic_scripts" in s) currentAvoidVirama = !!s.avoid_virama_indic_scripts;
+		if ("avoid_virama_non_indic_scripts" in s) currentAvoidViramanonIndic = !!s.avoid_virama_non_indic_scripts;
+		if ("preserve_anunasika" in s) currentPreserveAnunasika = !!s.preserve_anunasika;
+		if ("preserve_punctuation" in s) currentPreservePunctuation = !!s.preserve_punctuation;
+		if ("preserve_compound_hyphens" in s) currentPreserveCompoundHyphens = !!s.preserve_compound_hyphens;
+		if ("batch_correction_mode" in s) currentBatchCorrectionMode = !!s.batch_correction_mode;
+		if ("explanation_language" in s) currentExplanationLang = s.explanation_language;
+		if ("splitter_model" in s) document.getElementById("splitter_model_sidebar").value = s.splitter_model;
+		if ("workbench_meter_html_output" in s && !!s.workbench_meter_html_output !== currentWbMeterHtmlOutput) {
+			currentWbMeterHtmlOutput = !!s.workbench_meter_html_output;
+			lastScanOutputMode = currentWbMeterHtmlOutput ? 'html' : 'text';
+			updatePillForAction(currentAction);
+		}
+		// refresh whatever is on screen that shows these values
+		if (document.getElementById("upload-view").style.display !== "none") updateOptionsDisplay();
+		updateBatchHint();
+	});
 
 	// --- Sidebar callback hooks (called by sidebar_actions.html) ---
 	function onActionButton(action) {

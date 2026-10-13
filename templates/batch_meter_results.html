@@ -284,7 +284,7 @@
 	var duration = batchData.duration_secs;
 
 	// --- Explanation language (initialized from session default, overridable per-page-load) ---
-	var explanationLang = settings.explanation_language || 'sanskrit';
+	var explanationLang = settings.explanation_language || 'english';
 	var explanationLangSel = document.getElementById('explanation-lang');
 	explanationLangSel.value = explanationLang;
 	explanationLangSel.addEventListener('change', function() {

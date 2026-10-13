@@ -18,8 +18,8 @@
 				<label for="avoid_virama_non_indic_scripts">un-space Roman output (<span id="virama_non_indic_example_on">kimakurvata</span><span id="virama_non_indic_example_off" style="display:none">kim akurvata</span>)</label>
 			</p>
 			<p>
-				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(0)|int %}checked{% endif %}>
-				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">ã / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
+				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(1)|int %}checked{% endif %}>
+				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">am̐ / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
 			</p>
 
 			<h2>scansion and meter identification</h2>
@@ -28,13 +28,13 @@
 				<label for="workbench_meter_html_output">workbench: show visual scansion output (text | html toggle)</label>
 			</p>
 			<p>
-				<input type="checkbox" id="batch_correction_mode" name="batch_correction_mode" value="batch_correction_mode" {% if batch_correction_mode|default(0)|int %}checked{% endif %}>
-				<label for="batch_correction_mode">batch correction mode (file upload: show interactive HTML results instead of plain-text download)</label>
+				<input type="checkbox" id="batch_correction_mode" name="batch_correction_mode" value="batch_correction_mode" {% if batch_correction_mode|default(1)|int %}checked{% endif %}>
+				<label for="batch_correction_mode">batch correction mode (multiple verses: show interactive HTML results instead of plain-text download)</label>
 			</p>
 			<p id="explanation_language_row" style="margin-left:1.5em;">
 				<label for="explanation_language" id="explanation_language_label" style="opacity:0.4;">explanations default: </label><select id="explanation_language" disabled style="opacity:0.4;">
-					<option value="sanskrit" {% if explanation_language|default('sanskrit') == 'sanskrit' %}selected{% endif %}>Sanskrit</option>
-					<option value="english" {% if explanation_language|default('sanskrit') == 'english' %}selected{% endif %}>English</option>
+					<option value="sanskrit" {% if explanation_language|default('english') == 'sanskrit' %}selected{% endif %}>Sanskrit</option>
+					<option value="english" {% if explanation_language|default('english') == 'english' %}selected{% endif %}>English</option>
 				</select>
 			</p>
 
@@ -126,7 +126,29 @@
 		fd.append("explanation_language",
 			document.getElementById("explanation_language").value);
 		fetch("/api/save-settings", { method: "POST", body: fd });
+		// keep other open tabs (e.g. the workbench) in step; see settings_sync.js
+		var announced = {};
+		SYNCED_CHECKBOX_IDS.forEach(function(id) { announced[id] = document.getElementById(id).checked; });
+		SYNCED_SELECT_IDS.forEach(function(id) { announced[id] = document.getElementById(id).value; });
+		SettingsSync.announce(announced);
 	}
+
+	// element ids here are the same as the session variable names
+	var SYNCED_CHECKBOX_IDS = [
+		"avoid_virama_indic_scripts", "avoid_virama_non_indic_scripts", "preserve_anunasika",
+		"preserve_punctuation", "preserve_compound_hyphens",
+		"workbench_meter_html_output", "batch_correction_mode",
+	];
+	var SYNCED_SELECT_IDS = ["splitter_model", "explanation_language"];
+
+	// adopt settings changed in another tab (setting these does not fire "change", so nothing is re-saved)
+	SettingsSync.onChange(function(s) {
+		SYNCED_CHECKBOX_IDS.forEach(function(id) { if (id in s) document.getElementById(id).checked = !!s[id]; });
+		SYNCED_SELECT_IDS.forEach(function(id) { if (id in s) document.getElementById(id).value = s[id]; });
+		toggle_explanation_language();
+		toggle_preserve_compound_hyphens();
+		updateExamples();
+	});
 
 	window.onload = function() {
 		toggle_preserve_compound_hyphens();
@@ -147,13 +169,13 @@
 	function resetExtra() {
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
 		document.getElementById("avoid_virama_non_indic_scripts").checked = false;
-		document.getElementById("preserve_anunasika").checked = false;
+		document.getElementById("preserve_anunasika").checked = true;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
 		document.getElementById("workbench_meter_html_output").checked = true;
-		document.getElementById("batch_correction_mode").checked = false;
-		document.getElementById("explanation_language").value = "sanskrit";
+		document.getElementById("batch_correction_mode").checked = true;
+		document.getElementById("explanation_language").value = "english";
 		toggle_explanation_language();
 		toggle_preserve_compound_hyphens();
 		updateExamples();

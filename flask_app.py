@@ -113,7 +113,7 @@ SD = SchemeDetector()
 
 # --- Pure helper functions (no session, no g, no Flask) ---
 
-def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=False):
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=True):
 	return T.transliterate(
 		input_text,
 		from_scheme=from_scheme,
@@ -260,8 +260,23 @@ SESSION_VARIABLE_NAMES = (
 	SELECT_ELEMENT_NAMES +
 	CHECKBOX_ELEMENT_NAMES +
 	melody_variable_names +
-	extra_option_names
+	extra_option_names +
+	["settings_version"]
 	)
+
+# Settings migrations: one-time forced changes to settings stored in existing sessions.
+# Changing a default in _init_session_defaults() only affects new sessions,
+# because existing sessions already hold the old value.
+# To also switch existing users over, add an entry here with the next version number.
+# Each entry is applied once per session (tracked in session["settings_version"]),
+# in order, so users remain free to change the setting back afterwards.
+SETTINGS_MIGRATIONS = [
+	# (version, {session_key: forced_value})
+	(1, {"preserve_anunasika": 1}),  # app v1.17.7: preserve anunāsika by default
+	(2, {"batch_correction_mode": 1}),  # app v1.17.7: batch correction mode on by default
+	(3, {"explanation_language": "english"}),  # app v1.17.7: explanations default to English
+]
+LATEST_SETTINGS_VERSION = max([version for version, _ in SETTINGS_MIGRATIONS], default=0)
 
 def find_front_end_version():
 	base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -324,25 +339,41 @@ def _init_session_defaults():
 		"meter_label": "", "melody_options": [],
 		"avoid_virama_indic_scripts": 1,
 		"avoid_virama_non_indic_scripts": 0,
-		"preserve_anunasika": 0,
+		"preserve_anunasika": 1,
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
-		"batch_correction_mode": 0,
+		"batch_correction_mode": 1,
 		"workbench_meter_html_output": 1,
-		"explanation_language": "sanskrit",
+		"explanation_language": "english",
 		"input_mode": "text",
 	}
 	for k, v in defaults.items():
 		session.setdefault(k, v)
 	session.modified = True
 
+def _apply_settings_migrations():
+	"""Apply, once each and in order, any settings migrations this session has not yet seen."""
+	stored_version = session.get("settings_version", 0)
+	if stored_version >= LATEST_SETTINGS_VERSION:
+		return
+	for version, forced_values in sorted(SETTINGS_MIGRATIONS):
+		if version > stored_version:
+			session.update(forced_values)
+	session["settings_version"] = LATEST_SETTINGS_VERSION
+	session.modified = True
+
 def ensure_keys():
+	# brand-new session: defaults are already current, so there is nothing to migrate
+	if not any(var_name in session for var_name in SESSION_VARIABLE_NAMES):
+		session["settings_version"] = LATEST_SETTINGS_VERSION
 	# just in case, make sure all keys in session
 	for var_name in SESSION_VARIABLE_NAMES:
 		if var_name not in session:
 			_init_session_defaults()
-			return
+			break
+	# existing session from before a default changed: switch it over, once
+	_apply_settings_migrations()
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
@@ -503,7 +534,7 @@ def upload_file():
 							"morae": session["morae"],
 							"gaRas": session["gaRas"],
 							"alignment": session["alignment"],
-							"explanation_language": session.get("explanation_language", "sanskrit"),
+							"explanation_language": session.get("explanation_language", "english"),
 						},
 						"duration_secs": duration_secs,
 					}),
@@ -633,7 +664,7 @@ def upload_file():
 					"morae": session["morae"],
 					"gaRas": session["gaRas"],
 					"alignment": session["alignment"],
-					"explanation_language": session.get("explanation_language", "sanskrit"),
+					"explanation_language": session.get("explanation_language", "english"),
 				},
 				"duration_secs": duration_secs,
 			}),
@@ -931,7 +962,7 @@ def api_transliterate():
 	inputs = get_inputs(
 		["input_text", "from_scheme", "to_scheme"],
 		request,
-		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": False},
+		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": True},
 	)
 	if isinstance(inputs, str):
 		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
