@@ -126,7 +126,29 @@
 		fd.append("explanation_language",
 			document.getElementById("explanation_language").value);
 		fetch("/api/save-settings", { method: "POST", body: fd });
+		// keep other open tabs (e.g. the workbench) in step; see settings_sync.js
+		var announced = {};
+		SYNCED_CHECKBOX_IDS.forEach(function(id) { announced[id] = document.getElementById(id).checked; });
+		SYNCED_SELECT_IDS.forEach(function(id) { announced[id] = document.getElementById(id).value; });
+		SettingsSync.announce(announced);
 	}
+
+	// element ids here are the same as the session variable names
+	var SYNCED_CHECKBOX_IDS = [
+		"avoid_virama_indic_scripts", "avoid_virama_non_indic_scripts", "preserve_anunasika",
+		"preserve_punctuation", "preserve_compound_hyphens",
+		"workbench_meter_html_output", "batch_correction_mode",
+	];
+	var SYNCED_SELECT_IDS = ["splitter_model", "explanation_language"];
+
+	// adopt settings changed in another tab (setting these does not fire "change", so nothing is re-saved)
+	SettingsSync.onChange(function(s) {
+		SYNCED_CHECKBOX_IDS.forEach(function(id) { if (id in s) document.getElementById(id).checked = !!s[id]; });
+		SYNCED_SELECT_IDS.forEach(function(id) { if (id in s) document.getElementById(id).value = s[id]; });
+		toggle_explanation_language();
+		toggle_preserve_compound_hyphens();
+		updateExamples();
+	});
 
 	window.onload = function() {
 		toggle_preserve_compound_hyphens();
