@@ -37,6 +37,18 @@ function saveSettingsToSession() {
 	if (s.gaRas) fd.append("scan_detail", "gaRas");
 	if (s.alignment) fd.append("scan_detail", "alignment");
 	fetch("/api/save-settings", { method: "POST", body: fd });
+	// keep other open tabs (e.g. the settings page) in step; see settings_sync.js
+	SettingsSync.announce({
+		avoid_virama_indic_scripts: currentAvoidVirama,
+		avoid_virama_non_indic_scripts: currentAvoidViramanonIndic,
+		preserve_anunasika: currentPreserveAnunasika,
+		preserve_punctuation: currentPreservePunctuation,
+		preserve_compound_hyphens: currentPreserveCompoundHyphens,
+		splitter_model: s.splitter_model,
+		batch_correction_mode: currentBatchCorrectionMode,
+		workbench_meter_html_output: currentWbMeterHtmlOutput,
+		explanation_language: currentExplanationLang,
+	});
 }
 
 function syncHiddenInputs() {
