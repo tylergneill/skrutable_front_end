@@ -45,9 +45,14 @@ def diagnose(html, needle):
 
 
 def check_gcv(html):
-    # Match on tag-stripped text so attribute/whitespace changes in the table don't break parsing
-    # Row: Document Text Detection | Free (first 1000 units) | $1.50 (units 1001-5M) | ...
-    m = re.search(r'Document Text Detection Free \$([\d.]+)', strip_tags(html), re.IGNORECASE)
+    # Match on tag-stripped text so attribute/whitespace changes in the table don't break parsing.
+    # Google serves two layouts (seemingly varying by requester); we want the 1,001-5M tier price:
+    #   old:    Document Text Detection | Free | $1.50 | $0.60
+    #   tiered: Document Text Detection 0 count to 1,000 count $0.00 (Free) 1,000 count to 5,000,000 count $1.50 ...
+    m = re.search(
+        r'Document Text Detection (?:Free|.{0,100}?1,000 count to 5,000,000 count) \$([\d.]+)',
+        strip_tags(html), re.IGNORECASE
+    )
     if not m:
         return None, ("parse failure: could not find Document Text Detection row; "
                       + diagnose(html, "Document Text Detection"))
