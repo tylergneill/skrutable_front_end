@@ -46,9 +46,10 @@ def diagnose(html, needle):
 
 def check_gcv(html):
     # Match on tag-stripped text so attribute/whitespace changes in the table don't break parsing.
-    # Google serves two layouts (seemingly varying by requester); we want the 1,001-5M tier price:
-    #   old:    Document Text Detection | Free | $1.50 | $0.60
+    # Google redesigned the page (Oct 2026) with a tiered layout; the old table is kept as a fallback.
+    # Either way we want the 1,001-5M tier price:
     #   tiered: Document Text Detection 0 count to 1,000 count $0.00 (Free) 1,000 count to 5,000,000 count $1.50 ...
+    #   old:    Document Text Detection | Free | $1.50 | $0.60
     m = re.search(
         r'Document Text Detection (?:Free|.{0,100}?1,000 count to 5,000,000 count) \$([\d.]+)',
         strip_tags(html), re.IGNORECASE
