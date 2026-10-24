@@ -9,6 +9,7 @@ import re
 import sys
 import urllib.request
 import urllib.error
+from decimal import Decimal
 
 KNOWN = {
     "gcv_document_text": {"price": "1.50", "currency": "USD", "unit": "1000 pages"},
@@ -18,7 +19,10 @@ KNOWN = {
 GCV_URL    = "https://cloud.google.com/vision/pricing"
 SARVAM_URL = "https://docs.sarvam.ai/api-reference-docs/pricing"
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; skrutable-price-check/1.0)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; skrutable-price-check/1.0)",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 
 def fetch(url):
@@ -27,13 +31,26 @@ def fetch(url):
         return r.read().decode("utf-8", errors="replace")
 
 
+def strip_tags(html):
+    return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', html))
+
+
+def diagnose(html, needle):
+    title = re.search(r'<title[^>]*>(.*?)</title>', html, re.DOTALL | re.IGNORECASE)
+    title = title.group(1).strip() if title else "(none)"
+    text = strip_tags(html)
+    i = text.lower().find(needle.lower())
+    snippet = text[i:i + 200] if i >= 0 else "(needle not found)"
+    return f"len={len(html)}, title={title!r}, snippet={snippet!r}"
+
+
 def check_gcv(html):
-    m = re.search(
-        r'Document Text Detection.*?<td[^>]*>Free</td>\s*<td[^>]*>\$([\d.]+)</td>',
-        html, re.DOTALL | re.IGNORECASE
-    )
+    # Match on tag-stripped text so attribute/whitespace changes in the table don't break parsing
+    # Row: Document Text Detection | Free (first 1000 units) | $1.50 (units 1001-5M) | ...
+    m = re.search(r'Document Text Detection Free \$([\d.]+)', strip_tags(html), re.IGNORECASE)
     if not m:
-        return None, "parse failure: could not find Document Text Detection row"
+        return None, ("parse failure: could not find Document Text Detection row; "
+                      + diagnose(html, "Document Text Detection"))
     return m.group(1), None
 
 
@@ -66,7 +83,7 @@ for provider, check_fn, url in [
         alerts.append(f"PARSE FAILURE [{provider}]: {err} (source: {url})")
         continue
 
-    if price != known["price"]:
+    if Decimal(price) != Decimal(known["price"]):
         alerts.append(
             f"PRICE CHANGE [{provider}]: was {known['currency']} {known['price']}"
             f" / {known['unit']}, now {known['currency']} {price} / {known['unit']}"
