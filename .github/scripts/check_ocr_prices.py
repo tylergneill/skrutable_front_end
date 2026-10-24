@@ -9,6 +9,7 @@ import re
 import sys
 import urllib.request
 import urllib.error
+from decimal import Decimal
 
 KNOWN = {
     "gcv_document_text": {"price": "1.50", "currency": "USD", "unit": "1000 pages"},
@@ -18,7 +19,10 @@ KNOWN = {
 GCV_URL    = "https://cloud.google.com/vision/pricing"
 SARVAM_URL = "https://docs.sarvam.ai/api-reference-docs/pricing"
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; skrutable-price-check/1.0)"}
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; skrutable-price-check/1.0)",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 
 
 def fetch(url):
@@ -27,13 +31,32 @@ def fetch(url):
         return r.read().decode("utf-8", errors="replace")
 
 
+def strip_tags(html):
+    return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', html))
+
+
+def diagnose(html, needle):
+    title = re.search(r'<title[^>]*>(.*?)</title>', html, re.DOTALL | re.IGNORECASE)
+    title = title.group(1).strip() if title else "(none)"
+    text = strip_tags(html)
+    i = text.lower().find(needle.lower())
+    snippet = text[i:i + 200] if i >= 0 else "(needle not found)"
+    return f"len={len(html)}, title={title!r}, snippet={snippet!r}"
+
+
 def check_gcv(html):
+    # Match on tag-stripped text so attribute/whitespace changes in the table don't break parsing.
+    # Google redesigned the page (Oct 2026) with a tiered layout; the old table is kept as a fallback.
+    # Either way we want the 1,001-5M tier price:
+    #   tiered: Document Text Detection 0 count to 1,000 count $0.00 (Free) 1,000 count to 5,000,000 count $1.50 ...
+    #   old:    Document Text Detection | Free | $1.50 | $0.60
     m = re.search(
-        r'Document Text Detection.*?<td[^>]*>Free</td>\s*<td[^>]*>\$([\d.]+)</td>',
-        html, re.DOTALL | re.IGNORECASE
+        r'Document Text Detection (?:Free|.{0,100}?1,000 count to 5,000,000 count) \$([\d.]+)',
+        strip_tags(html), re.IGNORECASE
     )
     if not m:
-        return None, "parse failure: could not find Document Text Detection row"
+        return None, ("parse failure: could not find Document Text Detection row; "
+                      + diagnose(html, "Document Text Detection"))
     return m.group(1), None
 
 
@@ -66,7 +89,7 @@ for provider, check_fn, url in [
         alerts.append(f"PARSE FAILURE [{provider}]: {err} (source: {url})")
         continue
 
-    if price != known["price"]:
+    if Decimal(price) != Decimal(known["price"]):
         alerts.append(
             f"PRICE CHANGE [{provider}]: was {known['currency']} {known['price']}"
             f" / {known['unit']}, now {known['currency']} {price} / {known['unit']}"
