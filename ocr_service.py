@@ -41,26 +41,30 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
         ),
     )
 
-    operation = client_vis.async_batch_annotate_files(requests=[request])
-    operation.result(timeout=420)
+    try:
+        operation = client_vis.async_batch_annotate_files(requests=[request])
+        # Must stay under gunicorn's 1200s request timeout (see Dockerfile)
+        operation.result(timeout=1100)
 
-    # Avoid e.g. 1, 10, 11, sorting problem
-    blobs = natsorted(bucket.list_blobs(prefix=f"{job_id}/ocr/"), key=lambda b: b.name)
+        # Avoid e.g. 1, 10, 11, sorting problem
+        blobs = natsorted(bucket.list_blobs(prefix=f"{job_id}/ocr/"), key=lambda b: b.name)
 
-    texts = []
-    for i, blob in enumerate(blobs, start=1):
-        data = json.loads(blob.download_as_text())["responses"][0]
-        page_text = data.get("fullTextAnnotation", {}).get("text", "")
+        texts = []
+        for i, blob in enumerate(blobs, start=1):
+            data = json.loads(blob.download_as_text())["responses"][0]
+            page_text = data.get("fullTextAnnotation", {}).get("text", "")
 
-        if include_page_numbers:
-            page_text = f"\n=== {i} ===\n{page_text}"
+            if include_page_numbers:
+                page_text = f"\n=== {i} ===\n{page_text}"
 
-        texts.append(page_text)
+            texts.append(page_text)
+    finally:
+        # On timeout, Vision keeps writing output after we give up; the nightly
+        # bucket-cleaning workflow catches anything written after this point.
+        bucket.delete_blobs(list(bucket.list_blobs(prefix=job_id)))
 
     final_output = "\n".join(texts)
     page_count = len(texts)
-
-    bucket.delete_blobs(list(bucket.list_blobs(prefix=job_id)))
 
     return final_output, page_count
 
