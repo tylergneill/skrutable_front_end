@@ -41,7 +41,7 @@
     <p>
       This interface provides access to cloud OCR services without requiring coding or cloud-storage setup.
       Both supported providers accept multi-page PDFs and deliver high accuracy on Indic scripts. Unlike
-      Google Drive OCR, neither is confused by a likely low-quality text layer potentially already embedded in the file.
+      Google Drive OCR, neither is thrown off by a low-quality text layer that may already be embedded in the file.
       <a href="https://www.tylerneill.info/blog-kalpataru-diaries/ocr-options" target="_blank">More background here{{ ext_link_icon() }}</a>.
     </p>
     <p>
@@ -53,7 +53,7 @@
         Requires a Google Cloud account with billing enabled. Setup is involved but only needs to be done once.
       </li>
       <li>
-        <strong>Sarvam Vision</strong> — new Indian AI focused on Indic languages, with impressive performance on Sanskrit.
+        <strong>Sarvam Vision</strong> — a new Indian AI model focused on Indic languages, with impressive performance on Sanskrit.
         Simpler to set up: just create an account at <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and generate a key.
       </li>
     </ul>
@@ -138,8 +138,9 @@
           Go to <a href="https://www.sarvam.ai" target="_blank">sarvam.ai{{ ext_link_icon() }}</a> and sign up.
         </li>
         <li>
-          <strong>Add a payment method</strong>:<br>
-          Navigate to your account billing settings and add a credit card.
+          <strong>Add credits</strong>:<br>
+          On the <a href="https://dashboard.sarvam.ai/billing" target="_blank">Sarvam billing page{{ ext_link_icon() }}</a>,
+          add a credit card and buy credits (see <a href="#cost">cost</a> below).
         </li>
         <li>
           <strong>Generate an API key</strong>:<br>
@@ -164,8 +165,8 @@
       (<a href="https://www.reddit.com/r/googlecloud/comments/ou5mw0/hello_im_noob_i_use_google_cloud_vision_and/?rdt=39873" target="_blank">this Reddit post{{ ext_link_icon() }}</a> has tips).
     </p>
     <p>
-      <em>Note: Google Cloud Vision uses standard Google Cloud billing postpay, where you're charged at the end of the month.
-      This is separate from the Gemini API, which as of March 2026 requires prepay credits for lower-tier developer accounts.
+      <em>Note: Google Cloud Vision uses standard Google Cloud postpay billing: you're charged after usage accrues, either at the end of the monthly cycle or, for accounts on threshold billing, whenever your balance reaches a set amount.
+      This is separate from the Gemini API, which as of March 2026 requires prepay credits.
       Don't confuse the two: Cloud Vision billing is set up through
       <a href="https://console.cloud.google.com/billing" target="_blank">Google Cloud Console{{ ext_link_icon() }}</a>,
       not AI Studio.</em>
@@ -177,9 +178,9 @@
       directly — this does not require an API key but does limit each job to 5 pages.
     </p>
     <p>
-      <em>Note: Sarvam billing works the other way around, through prepay. That is, you must add credits ahead of time via the
+      <em>Note: Unlike Cloud Vision, Sarvam billing is prepay. That is, you must add credits ahead of time via the
       <a href="https://dashboard.sarvam.ai/billing" target="_blank">Sarvam billing page{{ ext_link_icon() }}</a>,
-      either as one-off top-ups or threshold-based auto-recharge.
+      either as one-off top-ups or automatic recharge when your balance drops below a set amount.
       Be prepared to pay in INR (₹), i.e., pre-authorize with your card company if needed.</em>
     </p>
     <span id="extLinkIconTemplate" style="display:none;">{{ ext_link_icon() }}</span>
@@ -293,8 +294,7 @@
     <h3 id="input-limits">How big can the input be?</h3>
     <p>
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
-      Split larger files into parts.
-      With Google Cloud Vision, files of up to about 1,500 pages can be processed in one go; split longer files into parts.
+      With Google Cloud Vision, files of up to about 1,500 pages can be processed in one go. Split files that exceed either limit into parts.
       Sarvam Vision's API accepts only 10 pages at a time, but this interface handles splitting and reassembly automatically, so larger files are fine.
     </p>
 
@@ -309,7 +309,7 @@
     <p>
       The following pages are from Bāṇa's <em>Kādambarī</em> (Peterson 1889).
       Left and right panels always show Google Cloud Vision and Sarvam Vision output respectively.
-      The middle panel toggles between the original scan, and diff views (vs. ground truth) for each provider —
+      The middle panel toggles between the original scan and diff views (vs. ground truth) for each provider —
       errors highlighted in yellow by <a href="https://meld.en.softonic.com/mac">Meld {{ ext_link_icon() }}</a>.
       CER is computed only on body text (headers, margin numbers, and page numbers excluded), in three ways.
       The first of these (CER #1, daṇḍas normalized) is the most meaningful, as it represents a reasonable amount of manual post-processing.
