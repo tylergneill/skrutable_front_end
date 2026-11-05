@@ -89,6 +89,11 @@ ul, ol {
 	padding-left: 1.5em;
 }
 
+/* third-level lists (e.g. sub-bullets in updates.html) sit flush with the next item */
+ul ul ul {
+	margin-bottom: 0;
+}
+
 pre {
 	background: var(--pre-bg);
 	padding: 0.5em 0.75em;
