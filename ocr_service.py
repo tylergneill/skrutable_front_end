@@ -11,7 +11,11 @@ from pypdf import PdfReader, PdfWriter
 BUCKET = os.getenv("GCS_BUCKET", "vision_multilang_ocr")   # set via env
 PROJECT = os.getenv("GCP_PROJECT", "sanskrit-ocr-219110") # set via env
 
-def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True) -> tuple:
+def page_label(n: int, page_number_start: int = 1, page_number_step: int = 1) -> int:
+    """Printed page number for the n-th page (1-based) of the PDF."""
+    return page_number_start + (n - 1) * page_number_step
+
+def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, page_number_start: int = 1, page_number_step: int = 1) -> tuple:
     """Upload PDF, run async Vision OCR, return (text, page_count).
 
     Note: Google Vision's block_type enum has no HEADER/FOOTER values (only TEXT, TABLE,
@@ -55,7 +59,7 @@ def run_google_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
             page_text = data.get("fullTextAnnotation", {}).get("text", "")
 
             if include_page_numbers:
-                page_text = f"\n=== {i} ===\n{page_text}"
+                page_text = f"\n=== {page_label(i, page_number_start, page_number_step)} ===\n{page_text}"
 
             texts.append(page_text)
     finally:
@@ -104,7 +108,7 @@ def _block_text(block: dict) -> str:
         return "\n".join(flat.rows) or text
     return text
 
-def _sarvam_pages_to_texts(results: dict, page_offset: int, include_page_numbers: bool, filter_headers_footers: bool) -> list:
+def _sarvam_pages_to_texts(results: dict, page_offset: int, include_page_numbers: bool, filter_headers_footers: bool, page_number_start: int = 1, page_number_step: int = 1) -> list:
     """Convert a Document AI results JSON into a list of page text strings."""
     excluded = {"header", "footnote", "footer"} if filter_headers_footers else set()
     texts = []
@@ -116,11 +120,11 @@ def _sarvam_pages_to_texts(results: dict, page_offset: int, include_page_numbers
             if b.get("layout_tag") not in excluded
         )
         if include_page_numbers:
-            page_text = f"\n=== {page_offset + i} ===\n{page_text}"
+            page_text = f"\n=== {page_label(page_offset + i, page_number_start, page_number_step)} ===\n{page_text}"
         texts.append(page_text)
     return texts
 
-def _run_sarvam_ocr_chunk(client, api_key: str, chunk_path: Path, page_offset: int, include_page_numbers: bool, filter_headers_footers: bool) -> list:
+def _run_sarvam_ocr_chunk(client, api_key: str, chunk_path: Path, page_offset: int, include_page_numbers: bool, filter_headers_footers: bool, page_number_start: int = 1, page_number_step: int = 1) -> list:
     """Run Sarvam OCR (Document AI API) on a single chunk PDF, return list of page text strings."""
     try:
         with open(chunk_path, "rb") as f:
@@ -153,24 +157,32 @@ def _run_sarvam_ocr_chunk(client, api_key: str, chunk_path: Path, page_offset: i
         timeout=120,
     )
     resp.raise_for_status()
-    return _sarvam_pages_to_texts(resp.json(), page_offset, include_page_numbers, filter_headers_footers)
+    return _sarvam_pages_to_texts(resp.json(), page_offset, include_page_numbers, filter_headers_footers, page_number_start, page_number_step)
 
-def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True) -> tuple:
+def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True, page_number_start: int = 1, page_number_step: int = 1) -> tuple:
     """Submit PDF to Sarvam Vision, return (text, page_count). Splits into chunks if > 10 pages."""
     all_texts = []
-    for _, _, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers):
+    for _, _, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers,
+                                               page_number_start=page_number_start, page_number_step=page_number_step):
         all_texts.extend(chunk_texts)
     return "\n".join(all_texts), len(all_texts)
 
-def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True):
-    """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes."""
+def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True, start_page: int = 1, page_number_start: int = 1, page_number_step: int = 1):
+    """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes.
+
+    start_page (1-based) skips earlier pages, so a client whose connection dropped can
+    resume. chunk_index and total_chunks always count from page 1 of the whole PDF.
+    page_number_start/page_number_step only change the printed "=== N ===" labels.
+    """
     reader = PdfReader(str(pdf_path))
     total_pages = len(reader.pages)
     total_chunks = (total_pages + SARVAM_PAGE_LIMIT - 1) // SARVAM_PAGE_LIMIT
     client = SarvamAI(api_subscription_key=api_key)
+    first = max(start_page, 1) - 1
 
     with tempfile.TemporaryDirectory() as chunk_dir:
-        for i, chunk_start in enumerate(range(0, total_pages, SARVAM_PAGE_LIMIT), start=1):
+        for chunk_start in range(first, total_pages, SARVAM_PAGE_LIMIT):
+            i = chunk_start // SARVAM_PAGE_LIMIT + 1
             chunk_end = min(chunk_start + SARVAM_PAGE_LIMIT, total_pages)
             writer = PdfWriter()
             for p in range(chunk_start, chunk_end):
@@ -178,5 +190,6 @@ def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool =
             chunk_path = Path(chunk_dir) / f"chunk_{chunk_start}.pdf"
             with open(chunk_path, "wb") as f:
                 writer.write(f)
-            chunk_texts = _run_sarvam_ocr_chunk(client, api_key, chunk_path, chunk_start, include_page_numbers, filter_headers_footers)
+            chunk_texts = _run_sarvam_ocr_chunk(client, api_key, chunk_path, chunk_start, include_page_numbers, filter_headers_footers,
+                                                page_number_start, page_number_step)
             yield i, total_chunks, chunk_texts
