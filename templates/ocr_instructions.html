@@ -296,6 +296,8 @@
       Files up to <strong>~{{ max_size }} MB</strong> are supported.
       With Google Cloud Vision, files of up to about 1,500 pages can be processed in one go. Split files that exceed either limit into parts.
       Sarvam Vision's API accepts only 10 pages at a time, but this interface handles splitting and reassembly automatically, so larger files are fine.
+      If your connection drops partway through a long Sarvam job (e.g. because your computer goes to sleep), it resumes automatically from the last page received once you're back online.
+      Closing or reloading the tab, however, will lose progress.
     </p>
 
     <h3 id="errors">Why are some characters wrong, words misplaced, etc.? Why are lines returned as-is, e.g., with hyphenation? Will it work with complex page formats?</h3>

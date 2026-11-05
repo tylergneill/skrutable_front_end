@@ -777,6 +777,13 @@ def ocr_stream():
 	pdf_file = request.files.get("pdf_file")
 	include_page_numbers   = request.form.get("include_page_numbers") == "yes"
 	filter_headers_footers = request.form.get("filter_headers_footers") == "yes"
+	# set by the browser when resuming after a dropped connection
+	try:
+		start_page = max(int(request.form.get("start_page", 1)), 1)
+	except ValueError:
+		start_page = 1
+	if start_page > 1:
+		logger.info("Resuming OCR stream at page %d", start_page)
 
 	if not api_key or not pdf_file:
 		def _err():
@@ -791,8 +798,8 @@ def ocr_stream():
 
 	def generate():
 		try:
-			all_page_count = 0
-			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers):
+			all_page_count = start_page - 1  # pages the client already has
+			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers, start_page):
 				all_page_count += len(chunk_texts)
 				payload = {
 					"type":         "chunk",
@@ -820,6 +827,11 @@ def ocr_stream():
 
 			logger.info("Pages processed: %d", all_page_count)
 			logger.info("Total OCR stream time: %.3f seconds", time.time() - start_time)
+
+		except GeneratorExit:
+			# client went away (e.g. its machine slept); not an Exception subclass, so log it here
+			logger.warning("OCR stream: client disconnected after %d pages", all_page_count)
+			raise
 
 		except RuntimeError as exc:
 			logger.error("OCR stream failed: %s", exc)

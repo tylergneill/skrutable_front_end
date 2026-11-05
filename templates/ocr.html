@@ -278,6 +278,7 @@ function clearOcrResult() {
   if (text) {
     const confirmClear = confirm("Clear the current OCR result?");
     if (!confirmClear) return;
+    sarvamRunId++;  // stop any Sarvam run still in progress or reconnecting
     resultContainer.style.display = "none";
     progressContainer.style.display = "none";
     document.getElementById("pagesProcessed").textContent = "";
@@ -342,108 +343,153 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   }
 });
 
+// Bumped on every new run or clear, so a stale run (e.g. one waiting to
+// reconnect) stops instead of writing into the new one's result.
+let sarvamRunId = 0;
+
+// Retries allowed in a row without receiving any new chunk before giving up
+const SARVAM_MAX_RETRIES = 8;
+
+function setProgressError(label) {
+  progressBar.classList.add("error-state");
+  progressBar.classList.remove("progress-bar-striped", "active");
+  progressBar.textContent = label;
+  progressBar.style.width = "100%";
+  progressBar.setAttribute("aria-valuenow", 100);
+}
+
+// Wait until the browser reports a network connection, then delayMs more
+function waitForReconnect(delayMs) {
+  return new Promise(function (resolve) {
+    function go() { setTimeout(resolve, delayMs); }
+    if (navigator.onLine) go();
+    else window.addEventListener("online", go, { once: true });
+  });
+}
+
 async function runSarvamStream(formData) {
+  const runId      = ++sarvamRunId;
   const ocrText    = document.getElementById("ocrText");
   const resultBox  = document.getElementById("ocrResultContainer");
   let accumulatedText = "";
-  let receivedDone = false;
+  let pagesDone    = 0;   // pages received so far; a resume starts after these
   let dlFilename   = null;
+  let retries      = 0;
 
   // FX rate for the running cost estimate; chunks take minutes, so this
   // resolves well before the first one (₹ fallback covers the rare miss)
   let fxRate = null;
   fetchInrToUsd().then(function (rate) { fxRate = rate; });
 
-  try {
-    const res = await fetch("/ocr/stream", { method: "POST", body: formData });
+  // One request to /ocr/stream, starting after pagesDone.
+  // Returns "done" or "error", or "dropped" if the connection was lost.
+  async function streamOnce() {
+    formData.set("start_page", String(pagesDone + 1));
+
+    let res;
+    try {
+      res = await fetch("/ocr/stream", { method: "POST", body: formData });
+    } catch (err) {
+      console.warn("runSarvamStream: request failed", err);
+      return "dropped";
+    }
 
     if (!res.ok) {
       const errText = await res.text();
-      throw new Error(`OCR request failed: ${errText}`);
+      console.error("runSarvamStream: HTTP", res.status, errText);
+      setProgressError(res.status === 413 ? errText : "Error");
+      return "error";
     }
 
-    progressBar.textContent = "processing…";
+    if (runId !== sarvamRunId) return "error";
+    progressBar.classList.remove("error-state");
+    progressBar.classList.add("progress-bar-striped", "active");
+    progressBar.textContent = pagesDone ? `resumed at page ${pagesDone + 1}…` : "processing…";
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buf = "";
 
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buf += decoder.decode(value, { stream: true });
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) return "dropped";  // stream ended without a "done" event
+        if (runId !== sarvamRunId) { reader.cancel(); return "error"; }
+        buf += decoder.decode(value, { stream: true });
 
-      const lines = buf.split("\n");
-      buf = lines.pop();
+        const lines = buf.split("\n");
+        buf = lines.pop();
 
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        let evt;
-        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          let evt;
+          try { evt = JSON.parse(line.slice(6)); } catch { continue; }
 
-        if (evt.type === "chunk") {
-          const pct = Math.round((evt.index / evt.total) * 100);
-          progressBar.style.width   = `${pct}%`;
-          progressBar.textContent   = `${pct}% (chunk ${evt.index}/${evt.total})`;
-          progressBar.setAttribute("aria-valuenow", pct);
+          if (evt.type === "chunk") {
+            retries = 0;
+            pagesDone = evt.pages;
+            const pct = Math.round((evt.index / evt.total) * 100);
+            progressBar.style.width   = `${pct}%`;
+            progressBar.textContent   = `${pct}% (chunk ${evt.index}/${evt.total})`;
+            progressBar.setAttribute("aria-valuenow", pct);
 
-          if (accumulatedText) accumulatedText += "\n";
-          accumulatedText += evt.text;
-          ocrText.value = accumulatedText;
+            if (accumulatedText) accumulatedText += "\n";
+            accumulatedText += evt.text;
+            ocrText.value = accumulatedText;
 
-          if (resultBox.style.display === "none" || resultBox.style.display === "") {
-            resultBox.style.display = "block";
+            if (resultBox.style.display === "none" || resultBox.style.display === "") {
+              resultBox.style.display = "block";
+            }
+
+            showCostEstimate("sarvam", evt.pages || 0, fxRate);
+          } else if (evt.type === "done") {
+            dlFilename = evt.filename || null;
+            showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || fxRate);
+            return "done";
+          } else if (evt.type === "error") {
+            setProgressError(evt.status === 402 ? "No Sarvam credits" : "Error");
+            alert(evt.message);
+            return "error";
           }
-
-          showCostEstimate("sarvam", evt.pages || 0, fxRate);
-        } else if (evt.type === "done") {
-          receivedDone = true;
-          dlFilename = evt.filename || null;
-          showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || fxRate);
-        } else if (evt.type === "error") {
-          progressBar.classList.add("error-state");
-          progressBar.classList.remove("progress-bar-striped", "active");
-          const label = evt.status === 402 ? "No Sarvam credits" : "Error";
-          progressBar.textContent = label;
-          progressBar.style.width = "100%";
-          progressBar.setAttribute("aria-valuenow", 100);
-          alert(evt.message);
-          return;
         }
       }
+    } catch (err) {
+      console.warn("runSarvamStream: connection lost", err);
+      return "dropped";
     }
+  }
 
-    if (!receivedDone) {
-      progressBar.classList.add("error-state");
-      progressBar.classList.remove("progress-bar-striped", "active");
-      progressBar.textContent = "Connection lost — partial result below";
-      progressBar.style.width = "100%";
-      progressBar.setAttribute("aria-valuenow", 100);
+  while (true) {
+    const result = await streamOnce();
+    if (runId !== sarvamRunId) return;
+    if (result === "error") return;
+    if (result === "done") break;
+
+    // dropped: keep what we have and resume after the last page received
+    if (++retries > SARVAM_MAX_RETRIES) {
+      setProgressError(`Connection lost at page ${pagesDone} — partial result below`);
       return;
     }
-
-    progressBar.style.width = "100%";
-    progressBar.textContent = "100%";
-    progressBar.setAttribute("aria-valuenow", 100);
-    progressBar.classList.remove("progress-bar-striped", "active");
-    progressBar.classList.remove("zoom-bounce");
-    void progressBar.offsetWidth;
-    progressBar.classList.add("zoom-bounce");
-
-    if (dlFilename) window._sarvamDlFilename = dlFilename;
-
-    resultBox.classList.remove("animate-zoom");
-    void resultBox.offsetWidth;
-    resultBox.classList.add("animate-zoom");
-
-  } catch (err) {
-    console.error("runSarvamStream: error", err);
-    progressBar.classList.add("error-state");
-    progressBar.textContent = "Error";
-    progressBar.style.width = "100%";
-    progressBar.setAttribute("aria-valuenow", 100);
-    progressBar.classList.remove("progress-bar-striped", "active");
+    setProgressError(`Connection lost at page ${pagesDone} — reconnecting…`);
+    await waitForReconnect(Math.min(2000 * 2 ** (retries - 1), 30000));
+    if (runId !== sarvamRunId) return;
+    progressBar.textContent = `re-uploading to resume at page ${pagesDone + 1}…`;
   }
+
+  progressBar.classList.remove("error-state");
+  progressBar.style.width = "100%";
+  progressBar.textContent = "100%";
+  progressBar.setAttribute("aria-valuenow", 100);
+  progressBar.classList.remove("progress-bar-striped", "active");
+  progressBar.classList.remove("zoom-bounce");
+  void progressBar.offsetWidth;
+  progressBar.classList.add("zoom-bounce");
+
+  if (dlFilename) window._sarvamDlFilename = dlFilename;
+
+  resultBox.classList.remove("animate-zoom");
+  void resultBox.offsetWidth;
+  resultBox.classList.add("animate-zoom");
 }
 
 async function runGoogleOcr(formData, interval, pdfFile) {
