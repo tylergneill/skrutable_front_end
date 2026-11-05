@@ -162,15 +162,21 @@ def run_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = Tr
         all_texts.extend(chunk_texts)
     return "\n".join(all_texts), len(all_texts)
 
-def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True):
-    """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes."""
+def stream_sarvam_ocr(pdf_path: Path, api_key: str, include_page_numbers: bool = True, filter_headers_footers: bool = True, start_page: int = 1):
+    """Generator: yields (chunk_index, total_chunks, chunk_texts) as each chunk completes.
+
+    start_page (1-based) skips earlier pages, so a client whose connection dropped can
+    resume. chunk_index and total_chunks always count from page 1 of the whole PDF.
+    """
     reader = PdfReader(str(pdf_path))
     total_pages = len(reader.pages)
     total_chunks = (total_pages + SARVAM_PAGE_LIMIT - 1) // SARVAM_PAGE_LIMIT
     client = SarvamAI(api_subscription_key=api_key)
+    first = max(start_page, 1) - 1
 
     with tempfile.TemporaryDirectory() as chunk_dir:
-        for i, chunk_start in enumerate(range(0, total_pages, SARVAM_PAGE_LIMIT), start=1):
+        for chunk_start in range(first, total_pages, SARVAM_PAGE_LIMIT):
+            i = chunk_start // SARVAM_PAGE_LIMIT + 1
             chunk_end = min(chunk_start + SARVAM_PAGE_LIMIT, total_pages)
             writer = PdfWriter()
             for p in range(chunk_start, chunk_end):
