@@ -77,6 +77,17 @@
         <input type="checkbox" id="includePageNumbers" checked>
         Add extra page numbers in output (e.g. "=== 1 ===")
       </label>
+      <span id="pageNumberingFields" style="display:block; margin-left:1.6em; margin-top:0.3em;">
+        <label>starting at
+          <input type="number" id="pageNumberStart" value="1" step="1"
+                 style="width:5em; display:inline-block;" class="form-control">
+        </label>
+        &nbsp;
+        <label>counting by
+          <input type="number" id="pageNumberStep" value="1" min="1" step="1"
+                 style="width:5em; display:inline-block;" class="form-control">
+        </label>
+      </span>
     </p>
 
     <p id="filterHeadersFootersOption" style="display:none">
@@ -205,6 +216,14 @@ dz.addEventListener('drop', e => {
   }
 });
 
+// Start/step fields only matter when page numbers are added
+function syncPageNumberingFields() {
+  const on = document.getElementById("includePageNumbers").checked;
+  document.getElementById("pageNumberingFields").style.display = on ? "block" : "none";
+}
+document.getElementById("includePageNumbers").addEventListener("change", syncPageNumberingFields);
+syncPageNumberingFields();
+
 function setProvider(provider) {
   const isGoogle = provider === "google";
   document.getElementById("providerGoogle").classList.toggle("active", isGoogle);
@@ -318,12 +337,21 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   const includePageNumbers   = document.getElementById("includePageNumbers").checked;
   const filterHeadersFooters = document.getElementById("filterHeadersFooters").checked;
 
+  const pageNumberStart = Number(document.getElementById("pageNumberStart").value || 1);
+  const pageNumberStep  = Number(document.getElementById("pageNumberStep").value || 1);
+  if (includePageNumbers) {
+    if (!Number.isInteger(pageNumberStart)) return alert("Starting page number must be a whole number.");
+    if (!Number.isInteger(pageNumberStep) || pageNumberStep < 1) return alert("Page numbers must count by a whole number of 1 or more.");
+  }
+
   const formData = new FormData();
   formData.append("pdf_file", pdfFile);
   formData.append("ocr_provider", provider);
   formData.append("api_key", apiKey);
   formData.append("include_page_numbers", includePageNumbers ? "yes" : "no");
   formData.append("filter_headers_footers", filterHeadersFooters ? "yes" : "no");
+  formData.append("page_number_start", String(pageNumberStart));
+  formData.append("page_number_step", String(pageNumberStep));
 
   progressBar.style.width = "0%";
   progressBar.textContent = "0%";
