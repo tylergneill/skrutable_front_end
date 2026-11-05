@@ -698,6 +698,18 @@ def _log_ocr_request_stats():
 		logger.error("No file in request.files")
 	return start_time
 
+def _page_numbering_from_form():
+	"""(start, step) for the "=== N ===" page labels; step must be at least 1."""
+	try:
+		start = int(request.form.get("page_number_start", 1))
+	except ValueError:
+		start = 1
+	try:
+		step = max(int(request.form.get("page_number_step", 1)), 1)
+	except ValueError:
+		step = 1
+	return start, step
+
 @app.route("/ocr", methods=["GET", "POST"])
 def ocr():
 	if request.method == "GET":
@@ -712,6 +724,7 @@ def ocr():
 
 	include_page_numbers    = request.form.get("include_page_numbers") == "yes"
 	filter_headers_footers  = request.form.get("filter_headers_footers") == "yes"
+	page_number_start, page_number_step = _page_numbering_from_form()
 
 	if not api_key or not pdf_file:
 		return "PDF and API key are required.", 400
@@ -722,9 +735,11 @@ def ocr():
 
 		try:
 			if provider == "sarvam":
-				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers)
+				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers,
+					page_number_start=page_number_start, page_number_step=page_number_step)
 			else:
-				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers)
+				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers,
+					page_number_start=page_number_start, page_number_step=page_number_step)
 		except RuntimeError as exc:
 			logger.error("OCR failed: %s", exc)
 			if str(exc) == "QUOTA_EXHAUSTED":
@@ -777,6 +792,7 @@ def ocr_stream():
 	pdf_file = request.files.get("pdf_file")
 	include_page_numbers   = request.form.get("include_page_numbers") == "yes"
 	filter_headers_footers = request.form.get("filter_headers_footers") == "yes"
+	page_number_start, page_number_step = _page_numbering_from_form()
 	# set by the browser when resuming after a dropped connection
 	try:
 		start_page = max(int(request.form.get("start_page", 1)), 1)
@@ -799,7 +815,8 @@ def ocr_stream():
 	def generate():
 		try:
 			all_page_count = start_page - 1  # pages the client already has
-			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers, start_page):
+			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers, start_page,
+					page_number_start=page_number_start, page_number_step=page_number_step):
 				all_page_count += len(chunk_texts)
 				payload = {
 					"type":         "chunk",
