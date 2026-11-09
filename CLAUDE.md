@@ -9,11 +9,11 @@ Flask web front end for [skrutable](https://github.com/tylergneill/skrutable), a
 ## Running Locally
 
 ```bash
-# activate virtualenv (Python 3.11)
-source venv3.11/bin/activate
+# activate virtualenv (Python 3.14, matching the Docker images)
+source <path-to-venv>/bin/activate
 
 # install/update dependencies
-pip-compile requirements.in   # regenerate requirements.txt from requirements.in
+uv pip compile requirements.in -o requirements.txt   # regenerate requirements.txt from requirements.in
 pip install -r requirements.txt
 
 # run dev server on port 5012
