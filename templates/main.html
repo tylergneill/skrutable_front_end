@@ -593,6 +593,7 @@
 			fd.append("preserve_punctuation", currentPreservePunctuation);
 			fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
 			fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
+			fd.append("preserve_dandas", currentPreserveDandas);
 
 			var resp = await fetch("/api/split", {
 				method: "POST",
@@ -817,6 +818,7 @@
 		return makeTableWithControls("transliteration", [
 			["avoid vir\u0101ma (Indic)", makeCheckboxCell("avoid_virama", currentAvoidVirama, false)],
 			["unspace (non-Indic)", makeCheckboxCell("avoid_virama_non_indic", currentAvoidViramanonIndic, false)],
+			["preserve daṇḍas (non-Indic)", makeCheckboxCell("preserve_dandas", currentPreserveDandas, false)],
 		]);
 	}
 
