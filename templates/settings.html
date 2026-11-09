@@ -21,6 +21,10 @@
 				<input type="checkbox" id="preserve_anunasika" name="preserve_anunasika" value="preserve_anunasika" {% if preserve_anunasika|default(1)|int %}checked{% endif %}>
 				<label for="preserve_anunasika">preserve anun&#257;sika i.e. candrabindu (<span id="anunasika_example_on">am̐ / अँ</span><span id="anunasika_example_off" style="display:none">aṃ / अं</span>)</label>
 			</p>
+			<p>
+				<input type="checkbox" id="preserve_dandas" name="preserve_dandas" value="preserve_dandas" {% if preserve_dandas|default(0)|int %}checked{% endif %}>
+				<label for="preserve_dandas">preserve da&#7751;&#7693;as in Roman output (<span id="dandas_example_on">&#2404; &#2405;</span><span id="dandas_example_off" style="display:none">| ||</span>)</label>
+			</p>
 
 			<h2>scansion and meter identification</h2>
 			<p>
@@ -84,6 +88,10 @@
 		var anuOn = document.getElementById("preserve_anunasika").checked;
 		document.getElementById("anunasika_example_on").style.display = anuOn ? "" : "none";
 		document.getElementById("anunasika_example_off").style.display = anuOn ? "none" : "";
+
+		var danOn = document.getElementById("preserve_dandas").checked;
+		document.getElementById("dandas_example_on").style.display = danOn ? "" : "none";
+		document.getElementById("dandas_example_off").style.display = danOn ? "none" : "";
 	}
 
 	function toggle_explanation_language() {
@@ -113,6 +121,8 @@
 			document.getElementById("avoid_virama_non_indic_scripts").checked ? "true" : "false");
 		fd.append("preserve_anunasika",
 			document.getElementById("preserve_anunasika").checked ? "true" : "false");
+		fd.append("preserve_dandas",
+			document.getElementById("preserve_dandas").checked ? "true" : "false");
 		fd.append("preserve_punctuation",
 			document.getElementById("preserve_punctuation").checked ? "true" : "false");
 		fd.append("preserve_compound_hyphens",
@@ -135,7 +145,7 @@
 
 	// element ids here are the same as the session variable names
 	var SYNCED_CHECKBOX_IDS = [
-		"avoid_virama_indic_scripts", "avoid_virama_non_indic_scripts", "preserve_anunasika",
+		"avoid_virama_indic_scripts", "avoid_virama_non_indic_scripts", "preserve_anunasika", "preserve_dandas",
 		"preserve_punctuation", "preserve_compound_hyphens",
 		"workbench_meter_html_output", "batch_correction_mode",
 	];
@@ -160,6 +170,7 @@
 	document.getElementById("avoid_virama_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("avoid_virama_non_indic_scripts").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_anunasika").addEventListener("change", function() { updateExamples(); saveAll(); });
+	document.getElementById("preserve_dandas").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_compound_hyphens").addEventListener("change", function() { updateExamples(); saveAll(); });
 	document.getElementById("preserve_punctuation").addEventListener("change", saveAll);
 	document.getElementById("workbench_meter_html_output").addEventListener("change", function() { toggle_explanation_language(); saveAll(); });
@@ -170,6 +181,7 @@
 		document.getElementById("avoid_virama_indic_scripts").checked = true;
 		document.getElementById("avoid_virama_non_indic_scripts").checked = false;
 		document.getElementById("preserve_anunasika").checked = true;
+		document.getElementById("preserve_dandas").checked = false;
 		document.getElementById("preserve_punctuation").checked = true;
 		document.getElementById("preserve_compound_hyphens").checked = true;
 		document.getElementById("splitter_model").value = "dharmamitra_2024_sept";
