@@ -7,19 +7,24 @@
 
 		<h1>past updates</h1>
 
-		<p>(Sept – Nov '26)</p>
+		<p>(Oct – Nov '26)</p>
 		<ul>
-			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/71" target="_blank">[app v1.17.8]{{ ext_link_icon() }}</a> – <a href="https://github.com/tylergneill/skrutable_front_end/pull/77" target="_blank">[app v1.18.2]{{ ext_link_icon() }}</a>
+			<li><a href="https://github.com/tylergneill/skrutable/pull/86" target="_blank">[lib v2.10.0]{{ ext_link_icon() }}</a> <a href="https://pypi.org/project/skrutable/2.10.0/" target="_blank">[PyPI]{{ ext_link_icon() }}</a> / <a href="https://github.com/tylergneill/skrutable_front_end/pull/77" target="_blank">[app v1.18.2]{{ ext_link_icon() }}</a>
 				<ul>
-					<li>switched to transliterating Unicode daṇḍas to simple vertical bar (pipe) by default for Roman output</li>
+					<li>switched to transliterating Unicode daṇḍas (। ॥) as vertical bars (| ||) in Roman output</li>
+					<li>added "preserve daṇḍas" setting (off by default) on settings page</li>
+				</ul>
+			</li>
+			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/71" target="_blank">[app v1.17.8]{{ ext_link_icon() }}</a> – <a href="https://github.com/tylergneill/skrutable_front_end/pull/76" target="_blank">[app v1.18.1]{{ ext_link_icon() }}</a>
+				<ul>
 					<li>updated Python from 3.11 to 3.14 and Debian from 12 (Bookworm) to 13 (Trixie)</li>
 					<li>OCR housekeeping and improvements
 						<ul>
 							<li>fixed price checks</li>
 							<li>migrated Sarvam API endpoint</li>
 							<li>updated Google Cloud bucket tooling</li>
-							<li>fixed GCV timeout</li>
-							<li>added Sarvam resume</li>
+							<li>fixed GCV timeout on large files</li>
+							<li>fixed Sarvam to resume after interruptions</li>
 							<li>added page offset</li>
 							<li>FAQ updates</li>
 						</ul>
@@ -45,6 +50,10 @@
 					</li>
 				</ul>
 			</li>
+		</ul>
+
+		<p>(Aug – Sept '26)</p>
+		<ul>
 			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/69" target="_blank">[app v1.17.6]{{ ext_link_icon() }}</a>
 				<ul>
 					<li>added Cmd/Ctrl-Enter shortcut to redo last action</li>
@@ -52,10 +61,6 @@
 					<li>improved input box font on Windows</li>
 				</ul>
 			</li>
-		</ul>
-
-		<p>(Aug '26)</p>
-		<ul>
 			<li><a href="https://github.com/tylergneill/skrutable_front_end/pull/67" target="_blank">[app v1.17.4]{{ ext_link_icon() }}</a> – <a href="https://github.com/tylergneill/skrutable_front_end/pull/68" target="_blank">[app v1.17.5]{{ ext_link_icon() }}</a>
 				<ul>
 					<li>fix color-coding of vipulā in HTML meter id output</li>
