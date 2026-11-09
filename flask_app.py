@@ -113,7 +113,7 @@ SD = SchemeDetector()
 
 # --- Pure helper functions (no session, no g, no Flask) ---
 
-def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=True):
+def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scripts=True, avoid_virama_non_indic_scripts=False, preserve_anunasika=True, preserve_dandas=False):
 	return T.transliterate(
 		input_text,
 		from_scheme=from_scheme,
@@ -121,6 +121,7 @@ def do_transliterate(input_text, from_scheme, to_scheme, avoid_virama_indic_scri
 		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
 		avoid_virama_non_indic_scripts=avoid_virama_non_indic_scripts,
 		preserve_anunasika=preserve_anunasika,
+		preserve_dandas=preserve_dandas,
 	)
 
 def do_scan(input_text, from_scheme, show_weights, show_morae, show_gaRas, show_alignment):
@@ -247,6 +248,7 @@ extra_option_names = [
 	"avoid_virama_indic_scripts",
 	"avoid_virama_non_indic_scripts",
 	"preserve_anunasika",
+	"preserve_dandas",
 	# "include_single_pada",  # TODO: enable later
 	"preserve_compound_hyphens",
 	"preserve_punctuation",
@@ -340,6 +342,7 @@ def _init_session_defaults():
 		"avoid_virama_indic_scripts": 1,
 		"avoid_virama_non_indic_scripts": 0,
 		"preserve_anunasika": 1,
+		"preserve_dandas": 0,
 		"preserve_compound_hyphens": 1,
 		"preserve_punctuation": 1,
 		"splitter_model": "dharmamitra_2024_sept",
@@ -487,6 +490,7 @@ def upload_file():
 				avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 				avoid_virama_non_indic_scripts=session["avoid_virama_non_indic_scripts"],
 				preserve_anunasika=session["preserve_anunasika"],
+				preserve_dandas=session["preserve_dandas"],
 			)
 			output_fn_suffix = '_transliterated'
 
@@ -991,7 +995,7 @@ def api_transliterate():
 	inputs = get_inputs(
 		["input_text", "from_scheme", "to_scheme"],
 		request,
-		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": True},
+		optional_args={"avoid_virama_indic_scripts": True, "avoid_virama_non_indic_scripts": False, "preserve_anunasika": True, "preserve_dandas": False},
 	)
 	if isinstance(inputs, str):
 		if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
@@ -1006,6 +1010,7 @@ def api_transliterate():
 		avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
 		avoid_virama_non_indic_scripts=inputs["avoid_virama_non_indic_scripts"],
 		preserve_anunasika=inputs["preserve_anunasika"],
+		preserve_dandas=inputs["preserve_dandas"],
 	)
 	return api_response(result, detected_scheme=detected, detection_confidence=confidence)
 

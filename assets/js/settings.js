@@ -1,6 +1,6 @@
 // Shared sidebar settings functions.
 // Expects these globals from the including page:
-//   currentAction, currentAvoidVirama, currentAvoidViramanonIndic, currentPreserveAnunasika, currentPreservePunctuation, currentPreserveCompoundHyphens, currentBatchCorrectionMode, currentWbMeterHtmlOutput, currentExplanationLang, currentInputMode
+//   currentAction, currentAvoidVirama, currentAvoidViramanonIndic, currentPreserveAnunasika, currentPreserveDandas, currentPreservePunctuation, currentPreserveCompoundHyphens, currentBatchCorrectionMode, currentWbMeterHtmlOutput, currentExplanationLang, currentInputMode
 
 function getSidebarSettings() {
 	return {
@@ -26,6 +26,7 @@ function saveSettingsToSession() {
 	fd.append("avoid_virama_indic_scripts", currentAvoidVirama);
 	fd.append("avoid_virama_non_indic_scripts", currentAvoidViramanonIndic);
 	fd.append("preserve_anunasika", currentPreserveAnunasika);
+	fd.append("preserve_dandas", currentPreserveDandas);
 	fd.append("preserve_punctuation", currentPreservePunctuation);
 	fd.append("preserve_compound_hyphens", currentPreserveCompoundHyphens);
 	fd.append("batch_correction_mode", currentBatchCorrectionMode);
@@ -42,6 +43,7 @@ function saveSettingsToSession() {
 		avoid_virama_indic_scripts: currentAvoidVirama,
 		avoid_virama_non_indic_scripts: currentAvoidViramanonIndic,
 		preserve_anunasika: currentPreserveAnunasika,
+		preserve_dandas: currentPreserveDandas,
 		preserve_punctuation: currentPreservePunctuation,
 		preserve_compound_hyphens: currentPreserveCompoundHyphens,
 		splitter_model: s.splitter_model,
