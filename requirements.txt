@@ -116,7 +116,7 @@ requests==2.34.2
     #   skrutable
 sarvamai==0.1.45
     # via -r requirements.in
-skrutable==2.10.0-rc1
+skrutable==2.10.0
     # via -r requirements.in
 typing-extensions==4.16.0
     # via
