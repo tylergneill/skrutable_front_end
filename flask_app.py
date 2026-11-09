@@ -162,8 +162,10 @@ def do_identify_meter(input_text, from_scheme, resplit_option, show_weights, sho
 
 def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_2024_sept",
 			 preserve_compound_hyphens=True, preserve_punctuation=True, avoid_virama_indic_scripts=True,
-			 avoid_virama_non_indic_scripts=False):
-	IAST_input = T.transliterate(input_text, from_scheme=from_scheme, to_scheme='IAST')
+			 avoid_virama_non_indic_scripts=False, preserve_dandas=False):
+	# keep original dandas through the splitter (which treats them as punctuation);
+	# the final transliteration then applies the user's preserve_dandas choice
+	IAST_input = T.transliterate(input_text, from_scheme=from_scheme, to_scheme='IAST', preserve_dandas=True)
 	split_result = Spl.split(
 		IAST_input,
 		splitter_model=splitter_model,
@@ -176,6 +178,7 @@ def do_split(input_text, from_scheme, to_scheme, splitter_model="dharmamitra_202
 		to_scheme=to_scheme,
 		avoid_virama_indic_scripts=avoid_virama_indic_scripts,
 		avoid_virama_non_indic_scripts=avoid_virama_non_indic_scripts,
+		preserve_dandas=preserve_dandas,
 	)
 	# TODO: Remove once 2018 splitter server restored
 	if split_result.startswith("The server for the 2018 model is temporarily down"):
@@ -573,6 +576,7 @@ def upload_file():
 					preserve_punctuation=session["preserve_punctuation"],
 					avoid_virama_indic_scripts=session["avoid_virama_indic_scripts"],
 					avoid_virama_non_indic_scripts=session["avoid_virama_non_indic_scripts"],
+					preserve_dandas=session["preserve_dandas"],
 				)
 			except HTTPError as e:
 				status = e.response.status_code if e.response is not None else 502
@@ -1121,6 +1125,7 @@ def api_split():
 			"preserve_punctuation": True,
 			"avoid_virama_indic_scripts": True,
 			"avoid_virama_non_indic_scripts": False,
+			"preserve_dandas": False,
 		},
 	)
 
@@ -1140,6 +1145,7 @@ def api_split():
 			preserve_punctuation=inputs["preserve_punctuation"],
 			avoid_virama_indic_scripts=inputs["avoid_virama_indic_scripts"],
 			avoid_virama_non_indic_scripts=inputs["avoid_virama_non_indic_scripts"],
+			preserve_dandas=inputs["preserve_dandas"],
 		)
 	except HTTPError as e:
 		status = e.response.status_code if e.response is not None else 502
