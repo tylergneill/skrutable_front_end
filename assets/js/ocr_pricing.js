@@ -16,6 +16,14 @@ var OCR_PRICING = {
     pricingUrl: "https://cloud.google.com/vision/pricing",
     freePagesPerMonth: 1000,
   },
+  // Datalab (Surya) bills per page by mode. Not yet covered by the daily price check
+  // in .github/scripts/check_ocr_prices.py. Rates read from datalab.to/pricing, Nov 2026.
+  surya: {
+    usdPer1000PagesByMode: { lite: 0.375, fast: 1.0, balanced: 3.0, accurate: 7.5 },
+    pricingUrl: "https://www.datalab.to/pricing",
+    freeCreditUsdPerMonth: 10,   // $20 with a work email
+  },
+  // Sansar runs on a self-hosted server: no per-page price.
   fxApiUrl: "https://api.frankfurter.dev/v1/latest?from=INR&to=USD",
   fxInfoUrl: "https://www.frankfurter.dev",
 };
@@ -45,4 +53,15 @@ function sarvamCostInr(pages) {
 
 function googleCostUsd(billablePages) {
   return billablePages * OCR_PRICING.google.usdPerPage;
+}
+
+// '$3.00 / 1,000 pages' for a Datalab mode, linked to Datalab's pricing page.
+function suryaRateLink(mode, extLinkIcon) {
+  var p = OCR_PRICING.surya;
+  var label = "$" + p.usdPer1000PagesByMode[mode].toFixed(2) + " / 1,000 pages";
+  return '<a href="' + p.pricingUrl + '" target="_blank">' + label + (extLinkIcon || "") + '</a>';
+}
+
+function suryaCostUsd(pages, mode) {
+  return pages * OCR_PRICING.surya.usdPer1000PagesByMode[mode] / 1000;
 }

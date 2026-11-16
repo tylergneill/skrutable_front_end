@@ -8,3 +8,6 @@ google-cloud-vision
 google-cloud-storage
 sarvamai
 pypdf
+pypdfium2
+pillow
+numpy

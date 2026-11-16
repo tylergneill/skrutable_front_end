@@ -48,9 +48,13 @@
     <br>
 
     <h3>provider</h3>
-    <div class="input-toggle" id="providerToggle" style="max-width: 360px; margin-bottom: 1rem;">
+    <div class="input-toggle" id="providerToggle" style="max-width: {{ 720 if sansar_available else 540 }}px; margin-bottom: 1rem;">
       <button type="button" id="providerGoogle" class="toggle-btn active" onclick="setProvider('google')">Google Cloud Vision</button>
       <button type="button" id="providerSarvam" class="toggle-btn" onclick="setProvider('sarvam')">Sarvam Vision</button>
+      <button type="button" id="providerSurya" class="toggle-btn" onclick="setProvider('surya')">Surya (Datalab)</button>
+      {% if sansar_available %}
+      <button type="button" id="providerSansar" class="toggle-btn" onclick="setProvider('sansar')">Sansar OCR 2B</button>
+      {% endif %}
     </div>
     <input type="hidden" name="ocr_provider" id="ocr_provider_input" value="google">
 
@@ -67,6 +71,33 @@
              placeholder="Enter your Sarvam API key"
              autocomplete="current-password">
     </div>
+
+    <!-- Surya: Datalab's hosted API. The mode picks Datalab's speed/accuracy/price tier;
+         Datalab chooses which of its models run underneath. -->
+    <div id="suryaKeySection" style="display:none">
+      <label for="suryaApiKey">API key (required)</label>
+      <input type="password" id="suryaApiKey" class="form-control"
+             placeholder="Enter your Datalab API key"
+             autocomplete="current-password">
+      <label for="datalabMode" style="margin-top: 0.5em;">Datalab mode</label>
+      <select id="datalabMode" class="form-control" style="max-width: 360px;">
+        {% for mode in datalab_modes %}
+        <option value="{{ mode }}" {% if mode == datalab_default_mode %}selected{% endif %}>{{ mode }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Sansar: a model run on a server this site's operator controls (SANSAR_SERVER_URL).
+         Only rendered when that server is configured; no key needed. -->
+    {% if sansar_available %}
+    <div id="sansarKeySection" style="display:none">
+      <p style="font-size: 0.9em;">
+        No API key needed: pages go to the Sansar OCR 2B server set up for this site.
+        Printed Devanagari Sanskrit only; one page at a time, so expect it to be slower than the hosted options.
+        Model weights: CC BY-NC 4.0, by Muse Mesh Private Limited.
+      </p>
+    </div>
+    {% endif %}
 
     <br>
 
@@ -93,7 +124,7 @@
     <p id="filterHeadersFootersOption" style="display:none">
       <label>
         <input type="checkbox" id="filterHeadersFooters" checked>
-        Filter out headers and footers (Sarvam Vision only)
+        Filter out headers and footers (Sarvam Vision and Surya only)
       </label>
     </p>
 
@@ -172,13 +203,12 @@ function downloadOcrText() {
   const text = document.getElementById("ocrText").value;
   const provider = document.getElementById("ocr_provider_input").value;
   let dlName;
-  if (provider === "sarvam" && window._sarvamDlFilename) {
-    dlName = window._sarvamDlFilename;
+  if (STREAMING_PROVIDERS.includes(provider) && window._streamDlFilename) {
+    dlName = window._streamDlFilename;
   } else {
     const originalFile = fileInput.files[0] || window.selectedPdfFile;
     const baseName = originalFile ? originalFile.name.replace(/\.pdf$/i, '') : 'ocr_result';
-    const providerTag = provider === "sarvam" ? "sarvam-vision" : "cloud-vision";
-    dlName = `${baseName}-skrutable-${providerTag}-ocr.txt`;
+    dlName = `${baseName}-skrutable-${PROVIDER_TAGS[provider]}-ocr.txt`;
   }
   const blob = new Blob([text], { type: 'text/plain' });
   const link = document.createElement("a");
@@ -224,14 +254,36 @@ function syncPageNumberingFields() {
 document.getElementById("includePageNumbers").addEventListener("change", syncPageNumberingFields);
 syncPageNumberingFields();
 
+// Providers whose results arrive chunk by chunk over /ocr/stream (Google uses one /ocr request)
+const STREAMING_PROVIDERS = ["sarvam", "surya", "sansar"];
+// Tag used in download filenames; matches OCR_PROVIDER_TAGS in flask_app.py
+const PROVIDER_TAGS = {
+  google: "cloud-vision",
+  sarvam: "sarvam-vision",
+  surya:  "surya-datalab",
+  sansar: "sansar-ocr-2b",
+};
+// Toggle button / settings section ids per provider. The Sansar ones exist only when the
+// server has SANSAR_SERVER_URL set, hence the null checks below.
+const PROVIDER_IDS = {
+  google: ["providerGoogle", "googleKeySection"],
+  sarvam: ["providerSarvam", "sarvamKeySection"],
+  surya:  ["providerSurya",  "suryaKeySection"],
+  sansar: ["providerSansar", "sansarKeySection"],
+};
+// Providers whose output knows which blocks are headers/footers
+const HEADER_FOOTER_PROVIDERS = ["sarvam", "surya"];
+
 function setProvider(provider) {
-  const isGoogle = provider === "google";
-  document.getElementById("providerGoogle").classList.toggle("active", isGoogle);
-  document.getElementById("providerSarvam").classList.toggle("active", !isGoogle);
+  for (const [name, [buttonId, sectionId]] of Object.entries(PROVIDER_IDS)) {
+    const button = document.getElementById(buttonId);
+    const section = document.getElementById(sectionId);
+    if (button) button.classList.toggle("active", name === provider);
+    if (section) section.style.display = name === provider ? "" : "none";
+  }
   document.getElementById("ocr_provider_input").value = provider;
-  document.getElementById("googleKeySection").style.display = isGoogle ? "" : "none";
-  document.getElementById("sarvamKeySection").style.display = isGoogle ? "none" : "";
-  document.getElementById("filterHeadersFootersOption").style.display = isGoogle ? "none" : "";
+  document.getElementById("filterHeadersFootersOption").style.display =
+    HEADER_FOOTER_PROVIDERS.includes(provider) ? "" : "none";
 }
 
 const progressBar = document.getElementById("progressBar");
@@ -242,9 +294,16 @@ const progressContainer = document.getElementById("progressContainer");
 function showCostEstimate(provider, pageCount, inrToUsd) {
   if (!pageCount) return;
   const extLinkIcon = document.getElementById("extLinkIconTemplate").innerHTML;
-  const rateLink = ocrRateLink(provider, extLinkIcon);
+  const rateLink = OCR_PRICING[provider] && OCR_PRICING[provider].rateLabel ? ocrRateLink(provider, extLinkIcon) : "";
   let html;
-  if (provider === "sarvam") {
+  if (provider === "surya") {
+    const mode = document.getElementById("datalabMode").value;
+    const cost = suryaCostUsd(pageCount, mode);
+    const costStr = cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2);
+    html = `Pages processed: ${pageCount} — estimated cost: $${costStr} (= ${pageCount} pages × ${suryaRateLink(mode, extLinkIcon)}, ${mode} mode; Datalab's free monthly credit applies first)`;
+  } else if (provider === "sansar") {
+    html = `Pages processed: ${pageCount} — no per-page charge (runs on this site's own Sansar server)`;
+  } else if (provider === "sarvam") {
     const inr = sarvamCostInr(pageCount);
     if (inrToUsd) {
       html = `Pages processed: ${pageCount} — estimated cost: $${(inr * inrToUsd).toFixed(2)} (= ${pageCount} pages × ${rateLink} × ${fxRateLink(inrToUsd, extLinkIcon)})`;
@@ -297,7 +356,7 @@ function clearOcrResult() {
   if (text) {
     const confirmClear = confirm("Clear the current OCR result?");
     if (!confirmClear) return;
-    sarvamRunId++;  // stop any Sarvam run still in progress or reconnecting
+    streamRunId++;  // stop any streaming run still in progress or reconnecting
     resultContainer.style.display = "none";
     progressContainer.style.display = "none";
     document.getElementById("pagesProcessed").textContent = "";
@@ -329,10 +388,9 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   }
 
   const provider = document.getElementById("ocr_provider_input").value;
-  const apiKey = provider === "google"
-    ? document.getElementById("googleApiKey").value
-    : document.getElementById("sarvamApiKey").value;
-  if (!apiKey) return alert("API key is required.");
+  const keyInput = document.getElementById(provider + "ApiKey");  // none for Sansar
+  const apiKey = keyInput ? keyInput.value : "";
+  if (keyInput && !apiKey) return alert("API key is required.");
 
   const includePageNumbers   = document.getElementById("includePageNumbers").checked;
   const filterHeadersFooters = document.getElementById("filterHeadersFooters").checked;
@@ -352,6 +410,7 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   formData.append("filter_headers_footers", filterHeadersFooters ? "yes" : "no");
   formData.append("page_number_start", String(pageNumberStart));
   formData.append("page_number_step", String(pageNumberStep));
+  if (provider === "surya") formData.append("datalab_mode", document.getElementById("datalabMode").value);
 
   progressBar.style.width = "0%";
   progressBar.textContent = "0%";
@@ -359,12 +418,12 @@ document.getElementById("startOcr").addEventListener("click", async function () 
   progressBar.classList.add("progress-bar-striped", "active");
   progressBar.classList.remove("zoom-bounce", "error-state");
 
-  if (provider === "sarvam") {
+  if (STREAMING_PROVIDERS.includes(provider)) {
     // Discrete chunk-based progress: bar advances only as chunks return.
     progressContainer.style.display = "block";
     progressBar.style.backgroundColor = "steelblue";
     progressBar.textContent = "uploading…";
-    await runSarvamStream(formData);
+    await runStreamingOcr(provider, formData);
   } else {
     const interval = estimateProgress(pdfFile);
     await runGoogleOcr(formData, interval, pdfFile);
@@ -373,10 +432,10 @@ document.getElementById("startOcr").addEventListener("click", async function () 
 
 // Bumped on every new run or clear, so a stale run (e.g. one waiting to
 // reconnect) stops instead of writing into the new one's result.
-let sarvamRunId = 0;
+let streamRunId = 0;
 
 // Retries allowed in a row without receiving any new chunk before giving up
-const SARVAM_MAX_RETRIES = 8;
+const STREAM_MAX_RETRIES = 8;
 
 function setProgressError(label) {
   progressBar.classList.add("error-state");
@@ -395,8 +454,9 @@ function waitForReconnect(delayMs) {
   });
 }
 
-async function runSarvamStream(formData) {
-  const runId      = ++sarvamRunId;
+// Runs a chunked provider (Sarvam, Surya or Sansar) over /ocr/stream, resuming after drops.
+async function runStreamingOcr(provider, formData) {
+  const runId      = ++streamRunId;
   const ocrText    = document.getElementById("ocrText");
   const resultBox  = document.getElementById("ocrResultContainer");
   let accumulatedText = "";
@@ -404,10 +464,13 @@ async function runSarvamStream(formData) {
   let dlFilename   = null;
   let retries      = 0;
 
-  // FX rate for the running cost estimate; chunks take minutes, so this
+  // FX rate for the running Sarvam cost estimate; chunks take minutes, so this
   // resolves well before the first one (₹ fallback covers the rare miss)
   let fxRate = null;
-  fetchInrToUsd().then(function (rate) { fxRate = rate; });
+  if (provider === "sarvam") fetchInrToUsd().then(function (rate) { fxRate = rate; });
+
+  // Sansar streams one page per chunk, so say "page" rather than "chunk" in the bar
+  const unit = provider === "sansar" ? "page" : "chunk";
 
   // One request to /ocr/stream, starting after pagesDone.
   // Returns "done" or "error", or "dropped" if the connection was lost.
@@ -418,18 +481,18 @@ async function runSarvamStream(formData) {
     try {
       res = await fetch("/ocr/stream", { method: "POST", body: formData });
     } catch (err) {
-      console.warn("runSarvamStream: request failed", err);
+      console.warn("runStreamingOcr: request failed", err);
       return "dropped";
     }
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error("runSarvamStream: HTTP", res.status, errText);
+      console.error("runStreamingOcr: HTTP", res.status, errText);
       setProgressError(res.status === 413 ? errText : "Error");
       return "error";
     }
 
-    if (runId !== sarvamRunId) return "error";
+    if (runId !== streamRunId) return "error";
     progressBar.classList.remove("error-state");
     progressBar.classList.add("progress-bar-striped", "active");
     progressBar.textContent = pagesDone ? `resumed at page ${pagesDone + 1}…` : "processing…";
@@ -442,7 +505,7 @@ async function runSarvamStream(formData) {
       while (true) {
         const { value, done } = await reader.read();
         if (done) return "dropped";  // stream ended without a "done" event
-        if (runId !== sarvamRunId) { reader.cancel(); return "error"; }
+        if (runId !== streamRunId) { reader.cancel(); return "error"; }
         buf += decoder.decode(value, { stream: true });
 
         const lines = buf.split("\n");
@@ -458,7 +521,7 @@ async function runSarvamStream(formData) {
             pagesDone = evt.pages;
             const pct = Math.round((evt.index / evt.total) * 100);
             progressBar.style.width   = `${pct}%`;
-            progressBar.textContent   = `${pct}% (chunk ${evt.index}/${evt.total})`;
+            progressBar.textContent   = `${pct}% (${unit} ${evt.index}/${evt.total})`;
             progressBar.setAttribute("aria-valuenow", pct);
 
             if (accumulatedText) accumulatedText += "\n";
@@ -469,38 +532,38 @@ async function runSarvamStream(formData) {
               resultBox.style.display = "block";
             }
 
-            showCostEstimate("sarvam", evt.pages || 0, fxRate);
+            showCostEstimate(provider, evt.pages || 0, fxRate);
           } else if (evt.type === "done") {
             dlFilename = evt.filename || null;
-            showCostEstimate("sarvam", evt.pages || 0, evt.inr_to_usd || fxRate);
+            showCostEstimate(provider, evt.pages || 0, evt.inr_to_usd || fxRate);
             return "done";
           } else if (evt.type === "error") {
-            setProgressError(evt.status === 402 ? "No Sarvam credits" : "Error");
+            setProgressError(evt.status === 402 ? "No API credits" : "Error");
             alert(evt.message);
             return "error";
           }
         }
       }
     } catch (err) {
-      console.warn("runSarvamStream: connection lost", err);
+      console.warn("runStreamingOcr: connection lost", err);
       return "dropped";
     }
   }
 
   while (true) {
     const result = await streamOnce();
-    if (runId !== sarvamRunId) return;
+    if (runId !== streamRunId) return;
     if (result === "error") return;
     if (result === "done") break;
 
     // dropped: keep what we have and resume after the last page received
-    if (++retries > SARVAM_MAX_RETRIES) {
+    if (++retries > STREAM_MAX_RETRIES) {
       setProgressError(`Connection lost at page ${pagesDone} — partial result below`);
       return;
     }
     setProgressError(`Connection lost at page ${pagesDone} — reconnecting…`);
     await waitForReconnect(Math.min(2000 * 2 ** (retries - 1), 30000));
-    if (runId !== sarvamRunId) return;
+    if (runId !== streamRunId) return;
     progressBar.textContent = `re-uploading to resume at page ${pagesDone + 1}…`;
   }
 
@@ -513,7 +576,7 @@ async function runSarvamStream(formData) {
   void progressBar.offsetWidth;
   progressBar.classList.add("zoom-bounce");
 
-  if (dlFilename) window._sarvamDlFilename = dlFilename;
+  if (dlFilename) window._streamDlFilename = dlFilename;
 
   resultBox.classList.remove("animate-zoom");
   void resultBox.offsetWidth;
