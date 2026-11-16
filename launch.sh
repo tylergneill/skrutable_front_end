@@ -8,6 +8,10 @@ for arg in "$@"; do
 		--scan-profiling) export SKRUTABLE_DEBUG_TIMING=1 ;;
 		--no-parallel) export SKRUTABLE_NO_PARALLEL=1 ;;
 		--vm-host) HOST=10.211.55.2 ;;
+		# Local-only Sansar OCR option: needs a Sansar server already running
+		# (see docs/ocr-sansar-surya.md). Never set in the Dockerfiles, so the
+		# public site never shows it. An existing SANSAR_SERVER_URL wins.
+		--sansar) export SANSAR_SERVER_URL="${SANSAR_SERVER_URL:-http://127.0.0.1:8080/v1}" ;;
 	esac
 done
 
