@@ -80,9 +80,13 @@ markupsafe==3.0.4
 natsort==8.4.0
     # via -r requirements.in
 numpy==2.5.4
-    # via skrutable
+    # via
+    #   -r requirements.in
+    #   skrutable
 opentelemetry-api==1.45.2
     # via google-api-core
+pillow==13.0.0
+    # via -r requirements.in
 proto-plus==1.29.0
     # via
     #   google-api-core
@@ -107,6 +111,8 @@ pydantic-core==2.50.4
     #   pydantic
     #   sarvamai
 pypdf==7.0.0
+    # via -r requirements.in
+pypdfium2==5.15.2
     # via -r requirements.in
 requests==2.34.2
     # via

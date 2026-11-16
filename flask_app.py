@@ -15,7 +15,8 @@ from requests.exceptions import HTTPError
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import BadGateway, RequestEntityTooLarge
 
-from ocr_service import run_google_ocr, run_sarvam_ocr, stream_sarvam_ocr
+from ocr_service import run_google_ocr, run_sarvam_ocr, stream_sarvam_ocr, run_surya_ocr, stream_surya_ocr, \
+	run_sansar_ocr, stream_sansar_ocr, sansar_available, DATALAB_MODES, DATALAB_DEFAULT_MODE
 
 if os.environ.get('SKRUTABLE_DEBUG_TIMING'):
 	import skrutable.utils as _skrutable_utils
@@ -718,24 +719,89 @@ def _page_numbering_from_form():
 		step = 1
 	return start, step
 
+# OCR providers offered on /ocr. "google" and "sarvam" are hosted APIs with the user's own key;
+# "surya" is Datalab's hosted API (also the user's own key); "sansar" is a self-hosted model
+# behind SANSAR_SERVER_URL (no key, and only offered when that variable is set).
+OCR_PROVIDERS = ("google", "sarvam", "surya", "sansar")
+OCR_KEYLESS_PROVIDERS = {"sansar"}
+# Tag used in download filenames, e.g. mybook-skrutable-sarvam-vision-ocr.txt
+OCR_PROVIDER_TAGS = {
+	"google": "cloud-vision",
+	"sarvam": "sarvam-vision",
+	"surya": "surya-datalab",
+	"sansar": "sansar-ocr-2b",
+}
+OCR_QUOTA_MESSAGES = {
+	"sarvam": "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai.",
+	"surya": "Your Datalab API key has no credits remaining. Check your balance at datalab.to.",
+}
+
+def _ocr_options_from_form(default_provider="google"):
+	"""Read and validate the OCR form fields shared by /ocr and /ocr/stream.
+
+	Returns (options, error); error is a message string when the request can't be run.
+	"""
+	provider = request.form.get("ocr_provider", default_provider)
+	opts = {
+		"provider": provider,
+		"api_key": request.form.get("api_key", "").strip(),
+		"pdf_file": request.files.get("pdf_file"),
+		"include_page_numbers": request.form.get("include_page_numbers") == "yes",
+		"filter_headers_footers": request.form.get("filter_headers_footers") == "yes",
+		"datalab_mode": request.form.get("datalab_mode", DATALAB_DEFAULT_MODE),
+	}
+	opts["page_number_start"], opts["page_number_step"] = _page_numbering_from_form()
+	if provider not in OCR_PROVIDERS:
+		return opts, f"Unknown OCR provider: {provider}"
+	if provider == "sansar" and not sansar_available():
+		return opts, "Sansar OCR is not set up on this server."
+	if opts["datalab_mode"] not in DATALAB_MODES:
+		return opts, f"Unknown Datalab mode: {opts['datalab_mode']}"
+	if not opts["pdf_file"]:
+		return opts, "PDF is required."
+	if not opts["api_key"] and provider not in OCR_KEYLESS_PROVIDERS:
+		return opts, "PDF and API key are required."
+	return opts, None
+
+def _stream_ocr_chunks(opts, pdf_path, start_page=1):
+	"""The provider's chunk generator: yields (chunk_index, total_chunks, chunk_texts)."""
+	numbering = dict(page_number_start=opts["page_number_start"], page_number_step=opts["page_number_step"])
+	provider = opts["provider"]
+	if provider == "sarvam":
+		return stream_sarvam_ocr(pdf_path, opts["api_key"], opts["include_page_numbers"],
+			opts["filter_headers_footers"], start_page, **numbering)
+	if provider == "surya":
+		return stream_surya_ocr(pdf_path, opts["api_key"], opts["include_page_numbers"],
+			opts["filter_headers_footers"], start_page, mode=opts["datalab_mode"], **numbering)
+	if provider == "sansar":
+		return stream_sansar_ocr(pdf_path, opts["include_page_numbers"], start_page, **numbering)
+	raise ValueError(f"OCR provider {provider} has no streaming mode")
+
+def _inr_to_usd():
+	"""Today's INR→USD rate for the Sarvam cost estimate, or None."""
+	try:
+		fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
+		return fx["rates"]["USD"]
+	except Exception as e:
+		logger.warning("FX lookup failed: %s", e)
+		return None
+
 @app.route("/ocr", methods=["GET", "POST"])
 def ocr():
 	if request.method == "GET":
-		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB)
+		return render_template("ocr.html", max_size=MAX_CONTENT_LENGTH_MB,
+			sansar_available=sansar_available(), datalab_modes=DATALAB_MODES,
+			datalab_default_mode=DATALAB_DEFAULT_MODE)
 
 	start_time = _log_ocr_request_stats()
 
 	# ---------- POST ----------
-	provider  = request.form.get("ocr_provider", "google")
-	api_key   = request.form.get("api_key", "").strip()
-	pdf_file  = request.files.get("pdf_file")
-
-	include_page_numbers    = request.form.get("include_page_numbers") == "yes"
-	filter_headers_footers  = request.form.get("filter_headers_footers") == "yes"
-	page_number_start, page_number_step = _page_numbering_from_form()
-
-	if not api_key or not pdf_file:
-		return "PDF and API key are required.", 400
+	opts, error = _ocr_options_from_form()
+	if error:
+		return error, 400
+	provider = opts["provider"]
+	pdf_file = opts["pdf_file"]
+	numbering = dict(page_number_start=opts["page_number_start"], page_number_step=opts["page_number_step"])
 
 	with tempfile.TemporaryDirectory() as td:
 		pdf_path = Path(td) / secure_filename(pdf_file.filename)
@@ -743,15 +809,20 @@ def ocr():
 
 		try:
 			if provider == "sarvam":
-				ocr_text, page_count = run_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers,
-					page_number_start=page_number_start, page_number_step=page_number_step)
+				ocr_text, page_count = run_sarvam_ocr(pdf_path, opts["api_key"], opts["include_page_numbers"],
+					opts["filter_headers_footers"], **numbering)
+			elif provider == "surya":
+				ocr_text, page_count = run_surya_ocr(pdf_path, opts["api_key"], opts["include_page_numbers"],
+					opts["filter_headers_footers"], mode=opts["datalab_mode"], **numbering)
+			elif provider == "sansar":
+				ocr_text, page_count = run_sansar_ocr(pdf_path, opts["include_page_numbers"], **numbering)
 			else:
-				ocr_text, page_count = run_google_ocr(pdf_path, api_key, include_page_numbers,
-					page_number_start=page_number_start, page_number_step=page_number_step)
+				ocr_text, page_count = run_google_ocr(pdf_path, opts["api_key"], opts["include_page_numbers"],
+					**numbering)
 		except RuntimeError as exc:
 			logger.error("OCR failed: %s", exc)
 			if str(exc) == "QUOTA_EXHAUSTED":
-				return "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai.", 402
+				return OCR_QUOTA_MESSAGES.get(provider, "No API credits remaining."), 402
 			return f"OCR failed: {exc}", 500
 		except Exception as exc:
 			import traceback
@@ -762,13 +833,7 @@ def ocr():
 
 	logger.info("Pages processed: %d", page_count)
 
-	inr_to_usd = None
-	if provider == "sarvam":
-		try:
-			fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
-			inr_to_usd = fx["rates"]["USD"]
-		except Exception as e:
-			logger.warning("FX lookup failed: %s", e)
+	inr_to_usd = _inr_to_usd() if provider == "sarvam" else None
 
 	response = make_response(ocr_text)
 	response.headers["Content-Type"] = "text/plain; charset=utf-8"
@@ -778,8 +843,7 @@ def ocr():
 
 	if request.form.get("display_inline") != "yes":
 		pdf_stem = Path(secure_filename(pdf_file.filename)).stem
-		provider_tag = "sarvam-vision" if provider == "sarvam" else "cloud-vision"
-		dl_filename = f"{pdf_stem}-skrutable-{provider_tag}-ocr.txt"
+		dl_filename = f"{pdf_stem}-skrutable-{OCR_PROVIDER_TAGS[provider]}-ocr.txt"
 		response.headers["Content-Disposition"] = f"attachment; filename={dl_filename}"
 
 	end_time = time.time()
@@ -791,16 +855,19 @@ def ocr():
 
 @app.route("/ocr/stream", methods=["POST"])
 def ocr_stream():
-	"""Streaming SSE endpoint for Sarvam OCR — yields one event per 10-page chunk."""
+	"""Streaming SSE endpoint for the chunked providers (Sarvam, Surya, Sansar).
+
+	Yields one event per chunk (10 pages for Sarvam and Surya, 1 page for Sansar).
+	Requests without ocr_provider are treated as Sarvam, as before.
+	"""
 	import json as _json
 
 	start_time = _log_ocr_request_stats()
 
-	api_key  = request.form.get("api_key", "").strip()
-	pdf_file = request.files.get("pdf_file")
-	include_page_numbers   = request.form.get("include_page_numbers") == "yes"
-	filter_headers_footers = request.form.get("filter_headers_footers") == "yes"
-	page_number_start, page_number_step = _page_numbering_from_form()
+	opts, error = _ocr_options_from_form(default_provider="sarvam")
+	provider = opts["provider"]
+	if not error and provider == "google":
+		error = "Google Cloud Vision has no streaming mode; use /ocr."
 	# set by the browser when resuming after a dropped connection
 	try:
 		start_page = max(int(request.form.get("start_page", 1)), 1)
@@ -809,11 +876,12 @@ def ocr_stream():
 	if start_page > 1:
 		logger.info("Resuming OCR stream at page %d", start_page)
 
-	if not api_key or not pdf_file:
+	if error:
 		def _err():
-			yield 'data: ' + _json.dumps({"type": "error", "status": 400, "message": "PDF and API key are required."}) + '\n\n'
+			yield 'data: ' + _json.dumps({"type": "error", "status": 400, "message": error}) + '\n\n'
 		return Response(stream_with_context(_err()), mimetype="text/event-stream")
 
+	pdf_file = opts["pdf_file"]
 	td_obj = tempfile.TemporaryDirectory()
 	pdf_path = Path(td_obj.name) / secure_filename(pdf_file.filename)
 	pdf_file.save(pdf_path)
@@ -823,8 +891,7 @@ def ocr_stream():
 	def generate():
 		try:
 			all_page_count = start_page - 1  # pages the client already has
-			for chunk_idx, total_chunks, chunk_texts in stream_sarvam_ocr(pdf_path, api_key, include_page_numbers, filter_headers_footers, start_page,
-					page_number_start=page_number_start, page_number_step=page_number_step):
+			for chunk_idx, total_chunks, chunk_texts in _stream_ocr_chunks(opts, pdf_path, start_page):
 				all_page_count += len(chunk_texts)
 				payload = {
 					"type":         "chunk",
@@ -835,18 +902,11 @@ def ocr_stream():
 				}
 				yield 'data: ' + _json.dumps(payload, ensure_ascii=False) + '\n\n'
 
-			inr_to_usd = None
-			try:
-				fx = requests.get("https://api.frankfurter.dev/v1/latest?from=INR&to=USD", timeout=5).json()
-				inr_to_usd = fx["rates"]["USD"]
-			except Exception as e:
-				logger.warning("FX lookup failed: %s", e)
-
 			done_payload = {
 				"type":        "done",
 				"pages":       all_page_count,
-				"inr_to_usd":  inr_to_usd,
-				"filename":    f"{pdf_stem}-skrutable-sarvam-vision-ocr.txt",
+				"inr_to_usd":  _inr_to_usd() if provider == "sarvam" else None,
+				"filename":    f"{pdf_stem}-skrutable-{OCR_PROVIDER_TAGS[provider]}-ocr.txt",
 			}
 			yield 'data: ' + _json.dumps(done_payload) + '\n\n'
 
@@ -861,7 +921,7 @@ def ocr_stream():
 		except RuntimeError as exc:
 			logger.error("OCR stream failed: %s", exc)
 			if str(exc) == "QUOTA_EXHAUSTED":
-				msg = "Your Sarvam API key has no credits remaining. Add credits at dashboard.sarvam.ai."
+				msg = OCR_QUOTA_MESSAGES.get(provider, "No API credits remaining.")
 				status = 402
 			else:
 				msg = f"OCR failed: {exc}"
