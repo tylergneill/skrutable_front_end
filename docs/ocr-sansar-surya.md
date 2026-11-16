@@ -81,9 +81,13 @@ vllm serve MuseMesh/sansar-ocr-2b --served-model-name sansar-ocr-2b --max-model-
 Then run Skrutable against it:
 
 ```bash
-SANSAR_SERVER_URL=http://127.0.0.1:8080/v1 ./launch.sh
+./launch.sh --sansar        # or: make launch-sansar
 # open http://127.0.0.1:5012/ocr and pick "Sansar OCR 2B"
 ```
+
+`--sansar` sets `SANSAR_SERVER_URL` to `http://127.0.0.1:8080/v1` unless you've already set
+it to something else. Sansar is meant as a local-only option: the Dockerfiles never set the
+variable, so skrutable.info never shows it.
 
 Optional env vars:
 
