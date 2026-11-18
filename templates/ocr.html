@@ -300,7 +300,7 @@ function showCostEstimate(provider, pageCount, inrToUsd) {
     const mode = document.getElementById("datalabMode").value;
     const cost = suryaCostUsd(pageCount, mode);
     const costStr = cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2);
-    html = `Pages processed: ${pageCount} — estimated cost: $${costStr} (= ${pageCount} pages × ${suryaRateLink(mode, extLinkIcon)}, ${mode} mode; Datalab's free monthly credit applies first)`;
+    html = `Pages processed: ${pageCount} — estimated cost: $${costStr} (= ${pageCount} pages × ${suryaRateLink(mode, extLinkIcon)}, ${mode} mode; ${suryaDataSharingRateLabel(mode)} if you let Datalab train on your data; Datalab's free monthly credit applies first)`;
   } else if (provider === "sansar") {
     html = `Pages processed: ${pageCount} — no per-page charge (runs on this site's own Sansar server)`;
   } else if (provider === "sarvam") {

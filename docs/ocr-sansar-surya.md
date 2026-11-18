@@ -44,7 +44,10 @@ You need a Datalab API key (datalab.to; free credit each month, no card). Paste 
 the key field on `/ocr`, the same way as a Sarvam key. Nothing to configure on the server.
 
 - **Mode** (`lite`, `fast`, `balanced`, `accurate`): Datalab's speed/accuracy/price tier,
-  $0.375 to $7.50 per 1,000 pages. `balanced` is the default because it's Datalab's.
+  $0.50 to $10 per 1,000 pages. `balanced` is the default because it's Datalab's.
+- **Cost line:** uses the full price. Datalab's headline prices are 25% lower but assume
+  the user lets Datalab train on their documents, an account setting we can't see, so the
+  lower price is shown only in parentheses.
 - Datalab has **no model selector**: the mode decides which of its models run, so this is
   "Datalab's Surya-based pipeline", not a pinned Surya checkpoint. If you want Surya itself,
   pinned, the alternative is `pip install surya-ocr` locally (not wired in here).

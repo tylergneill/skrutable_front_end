@@ -17,9 +17,13 @@ var OCR_PRICING = {
     freePagesPerMonth: 1000,
   },
   // Datalab (Surya) bills per page by mode. Not yet covered by the daily price check
-  // in .github/scripts/check_ocr_prices.py. Rates read from datalab.to/pricing, Nov 2026.
+  // in .github/scripts/check_ocr_prices.py. Rates read from datalab.to/pricing, Nov 18 2026.
+  // Datalab's headline prices assume the user lets Datalab train on their documents
+  // (25% off). We can't see that account setting, so estimates use the full price and
+  // mention the discounted one in parentheses.
   surya: {
-    usdPer1000PagesByMode: { lite: 0.375, fast: 1.0, balanced: 3.0, accurate: 7.5 },
+    usdPer1000PagesByMode:          { lite: 0.50,  fast: 1.33, balanced: 4.0, accurate: 10.0 },
+    usdPer1000PagesWithDataSharing: { lite: 0.375, fast: 1.0,  balanced: 3.0, accurate: 7.5 },
     pricingUrl: "https://www.datalab.to/pricing",
     freeCreditUsdPerMonth: 10,   // $20 with a work email
   },
@@ -55,13 +59,24 @@ function googleCostUsd(billablePages) {
   return billablePages * OCR_PRICING.google.usdPerPage;
 }
 
-// '$3.00 / 1,000 pages' for a Datalab mode, linked to Datalab's pricing page.
+// Dollar amount with cents, or tenths of a cent when needed (0.375 -> '0.375', 4 -> '4.00').
+function _usd(x) {
+  return Math.round(x * 100) === x * 100 ? x.toFixed(2) : x.toFixed(3);
+}
+
+// '$4.00 / 1,000 pages' (full price) for a Datalab mode, linked to Datalab's pricing page.
 function suryaRateLink(mode, extLinkIcon) {
   var p = OCR_PRICING.surya;
-  var label = "$" + p.usdPer1000PagesByMode[mode].toFixed(2) + " / 1,000 pages";
+  var label = "$" + _usd(p.usdPer1000PagesByMode[mode]) + " / 1,000 pages";
   return '<a href="' + p.pricingUrl + '" target="_blank">' + label + (extLinkIcon || "") + '</a>';
 }
 
+// '$3.00 / 1,000': the same mode's price for users who share data for training.
+function suryaDataSharingRateLabel(mode) {
+  return "$" + _usd(OCR_PRICING.surya.usdPer1000PagesWithDataSharing[mode]) + " / 1,000";
+}
+
+// Estimated cost at the full (no data sharing) price.
 function suryaCostUsd(pages, mode) {
   return pages * OCR_PRICING.surya.usdPer1000PagesByMode[mode] / 1000;
 }
