@@ -61,14 +61,21 @@ def check_gcv(html):
 
 
 def check_sarvam(html):
-    # Matches the table row: Document Digitization API | ₹0.5 | per page
-    m = re.search(r'Document Digitization API.*?₹([\d.]+).*?per page', html, re.DOTALL | re.IGNORECASE)
+    # Sarvam renamed the row (Nov 2026) from "Document Digitization API" to:
+    #   Document AI: Parse | ₹0.50 | ₹0.50 | ₹0.50   (pay-as-you-go, Pro, Growth)
+    # We take the first price after the label, i.e. pay-as-you-go.
+    # The old regex, anchored on "Document Digitization API" with a lazy .*?, latched onto a
+    # leftover mention of the legacy endpoint and read the Pro plan fee "₹9,999" as "9".
+    # Guards against that: the gap between label and price is capped and may not contain
+    # another ₹, and the price allows thousands commas so a ₹9,999 can never be cut to 9.
+    pattern = r'Document AI: Parse[^₹]{0,80}?₹\s*([\d,]+(?:\.\d+)?)'
+    # Prefer tag-stripped text (cells become space-separated); fall back to raw HTML
+    # in case the table only exists inside an embedded JS/JSON payload.
+    m = re.search(pattern, strip_tags(html), re.IGNORECASE) or re.search(pattern, html, re.IGNORECASE)
     if not m:
-        # fallback: look for escaped version in JS bundle
-        m = re.search(r'Document Digitization API.*?₹([\d.]+)', html, re.DOTALL | re.IGNORECASE)
-    if not m:
-        return None, "parse failure: could not find Sarvam Vision pricing row"
-    return m.group(1), None
+        return None, ("parse failure: could not find Document AI: Parse row; "
+                      + diagnose(html, "Document AI: Parse"))
+    return m.group(1).replace(",", ""), None
 
 
 alerts = []
