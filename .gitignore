@@ -140,3 +140,7 @@ assets/uploader.json
 
 # claude
 settings.local.json
+
+# browser extension (extension/): npm packages and builds
+extension/node_modules/
+extension/dist/
