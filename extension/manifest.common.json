@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Skrutable Sanskrit Tools",
-  "version": "1.1.0",
+  "version": "1.0.1",
   "description": "Sanskrit transliteration, scansion, meter identification, and splitting for selected text on any webpage.",
   "host_permissions": [
     "https://dharmamitra.org/*",

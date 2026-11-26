@@ -1,6 +1,6 @@
 {
   "name": "skrutable-extension",
-  "version": "1.1.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Skrutable Sanskrit Tools browser extension (Chrome and Firefox). Not published to npm; this file only pins the build's dependencies.",
   "license": "CC-BY-SA-4.0",
