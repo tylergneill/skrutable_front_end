@@ -5,8 +5,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN groupadd appgroup && \
     useradd -r -M -G appgroup sanskrit
 # Bulk data/media assets first: large and rarely changed, so edits to the
-# app's css/js/templates below don't invalidate ~260MB of unchanged layers.
-COPY --chown=sanskrit:appgroup assets/wsc2022 /app/assets/wsc2022
+# app's css/js/templates below don't invalidate ~150MB of unchanged layers.
+# assets/wsc2022 (WSC 2022 talk videos + paper) is not copied: on the server
+# it is mounted from the host (see kalpataru-grove scripts/redeploy.sh).
 COPY --chown=sanskrit:appgroup assets/meter_analyses /app/assets/meter_analyses
 COPY --chown=sanskrit:appgroup assets/melodies /app/assets/melodies
 COPY --chown=sanskrit:appgroup assets/ocr_comparison /app/assets/ocr_comparison
