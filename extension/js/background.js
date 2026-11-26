@@ -62,7 +62,10 @@ browser.action.onClicked.addListener(async (tab) => {
     let selectionError = false;
     try {
       const results = await browser.scripting.executeScript({
-        target: { tabId: tab.id, allFrames: true },
+        // Main frame only: activeTab covers it, so no <all_urls> host permission
+        // is needed. Text selected inside an iframe still reaches the panel
+        // through the right-click menu, which passes info.selectionText.
+        target: { tabId: tab.id },
         func: () => {
           try {
             return (window.getSelection && window.getSelection().toString().trim()) || "";
