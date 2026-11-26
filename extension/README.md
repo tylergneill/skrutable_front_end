@@ -31,6 +31,8 @@ Settings are kept in the browser's synced extension storage, not on a server.
 - `sidePanel` (Chrome): the side panel.
 - Host access to the two splitter servers (Dharmamitra and the 2018 EMNLP splitter), for word splitting.
 
+Because word splitting sends the selected text to those servers, the extension declares "website content" as data it transmits: in `manifest.firefox.json` (`data_collection_permissions`, which needs Firefox 140 or later) and in the Chrome Web Store's Privacy practices tab.
+
 ## Building and trying it out
 
 From the repo root:
