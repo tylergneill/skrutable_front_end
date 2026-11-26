@@ -13,7 +13,9 @@
  *   3. Copy the skrutable-js library bundle to lib/skrutable.bundle.js,
  *      which ui/sidepanel.html loads. The bundle always ships inside the
  *      extension: Manifest V3 forbids loading scripts from a CDN.
- *   4. Strip the other browser's blocks from js/background.js.
+ *   4. Copy webextension-polyfill's release build to js/vendor/, unmodified
+ *      (store reviewers compare third-party libraries against the release).
+ *   5. Strip the other browser's blocks from js/background.js.
  *
  * The bundle normally comes from the skrutable-js version pinned in
  * package.json (node_modules/skrutable-js). To try an unreleased library
@@ -99,6 +101,11 @@ async function build() {
   }
 
   await fs.copy(bundle.file, path.join(targetDistDir, 'lib', 'skrutable.bundle.js'));
+
+  // The browser API polyfill, straight from its npm release (pinned in package.json).
+  const polyfill = path.join(extensionRoot, 'node_modules', 'webextension-polyfill', 'dist', 'browser-polyfill.min.js');
+  if (!await fs.pathExists(polyfill)) throw new Error(`${polyfill} not found. Run 'npm ci' in extension/ first.`);
+  await fs.copy(polyfill, path.join(targetDistDir, 'js', 'vendor', 'browser-polyfill.min.js'));
 
   const bgPath = path.join(targetDistDir, 'js', 'background.js');
   await fs.writeFile(bgPath, processBackgroundJs(await fs.readFile(bgPath, 'utf-8'), targetBrowser), 'utf-8');

@@ -9,7 +9,8 @@
     "build:firefox": "node build.cjs firefox"
   },
   "dependencies": {
-    "skrutable-js": "2.1.6"
+    "skrutable-js": "2.1.6",
+    "webextension-polyfill": "0.12.0"
   },
   "devDependencies": {
     "deepmerge": "^4.3.1",

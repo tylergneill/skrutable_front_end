@@ -21,7 +21,7 @@ Settings are kept in the browser's synced extension storage, not on a server.
 | `js/sidepanel/index.js` | The side panel's workbench, ported from the web app's JS |
 | `ui/` | Side panel HTML and CSS |
 | `build.cjs` | Builds one browser's extension into `dist/<browser>/` |
-| `package.json` | Pins the skrutable-js version and the build tools. Not published anywhere |
+| `package.json` | Pins skrutable-js, webextension-polyfill (Mozilla's `browser.*` API shim for Chrome) and the build tools. Not published anywhere |
 
 ### Permissions
 
@@ -54,6 +54,8 @@ SKRUTABLE_JS_BUNDLE=../../skrutable/js/dist/skrutable.bundle.js node build.cjs c
 ```
 
 Don't submit a build made this way; `make extension-zip` always uses the pinned npm version.
+
+Third-party code ships only as unmodified npm releases, copied in by the build (the library bundle into `lib/`, the polyfill into `js/vendor/`), because store reviewers check bundled libraries against their releases.
 
 ## Releasing
 

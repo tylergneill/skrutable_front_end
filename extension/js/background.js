@@ -5,7 +5,7 @@ import {
 } from "./constants.js";
 import { MESSAGES } from "./messages.js";
 import { validTabUrl } from "./utils.js";
-import "./vendor/webextension-polyfill.min.js";
+import "./vendor/browser-polyfill.min.js";
 
 // #if_build_is CHROME
 function openSidePanelChrome(passedTab) {
