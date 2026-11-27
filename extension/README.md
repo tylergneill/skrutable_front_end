@@ -21,6 +21,7 @@ Settings are kept in the browser's synced extension storage, not on a server.
 | `js/sidepanel/index.js` | The side panel's workbench, ported from the web app's JS |
 | `ui/` | Side panel HTML and CSS |
 | `build.cjs` | Builds one browser's extension into `dist/<browser>/` |
+| `PRIVACY.md` | The privacy policy linked from both store listings |
 | `package.json` | Pins skrutable-js, webextension-polyfill (Mozilla's `browser.*` API shim for Chrome) and the build tools. Not published anywhere |
 
 ### Permissions
@@ -31,7 +32,7 @@ Settings are kept in the browser's synced extension storage, not on a server.
 - `sidePanel` (Chrome): the side panel.
 - Host access to the two splitter servers (Dharmamitra and the 2018 EMNLP splitter), for word splitting.
 
-Because word splitting sends the selected text to those servers, the extension declares "website content" as data it transmits: in `manifest.firefox.json` (`data_collection_permissions`, which needs Firefox 140 or later) and in the Chrome Web Store's Privacy practices tab.
+Because word splitting sends the selected text to those servers, the extension declares "website content" as data it transmits: in `manifest.firefox.json` (`data_collection_permissions`, which needs Firefox 140 or later) and in the Chrome Web Store's Privacy practices tab. The privacy policy both stores link to is [PRIVACY.md](PRIVACY.md).
 
 ## Building and trying it out
 
