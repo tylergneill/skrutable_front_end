@@ -1,0 +1,16 @@
+{
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "storage",
+    "scripting",
+    "sidePanel"
+  ],
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "ui/sidepanel.html"
+  }
+}

@@ -36,3 +36,22 @@ run-official:
 
 ngrok:
 	ngrok http 5012
+
+# --- Browser extension (extension/); see extension/README.md ---
+
+EXT_VERSION = $(shell node -p "require('./extension/package.json').version")
+
+# Build Chrome and Firefox into extension/dist/<browser>/ for Load unpacked.
+extension-build:
+	cd extension && npm ci --no-audit --no-fund && node build.cjs chrome && node build.cjs firefox
+
+# Store builds: always the pinned npm library (any SKRUTABLE_JS_BUNDLE
+# override is ignored), zipped as extension/dist/skrutable-extension-<browser>-<version>.zip.
+extension-zip:
+	cd extension && npm ci --no-audit --no-fund && \
+	env -u SKRUTABLE_JS_BUNDLE node build.cjs chrome && \
+	env -u SKRUTABLE_JS_BUNDLE node build.cjs firefox
+	cd extension/dist && rm -f skrutable-extension-*-$(EXT_VERSION).zip && \
+	(cd chrome && zip -qr ../skrutable-extension-chrome-$(EXT_VERSION).zip .) && \
+	(cd firefox && zip -qr ../skrutable-extension-firefox-$(EXT_VERSION).zip .) && \
+	ls -l skrutable-extension-*-$(EXT_VERSION).zip
