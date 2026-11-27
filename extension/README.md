@@ -62,6 +62,6 @@ Third-party code ships only as unmodified npm releases, copied in by the build (
 
 1. To pick up a new library release, change the `skrutable-js` version in `package.json` and run `npm install` here to update `package-lock.json`.
 2. Bump the extension's own version in both `package.json` and `manifest.common.json` (the build stops if they differ). It is separate from the library's version.
-3. From the repo root, run `make extension-zip`. It writes `extension/dist/skrutable-extension-chrome-<version>.zip` and the Firefox one.
+3. Commit, then from the repo root run `make extension-zip`. It writes `extension/dist/skrutable-extension-chrome-<version>.zip`, the Firefox one, and `skrutable-extension-source-<version>.zip` (the committed `extension/` folder, for addons.mozilla.org's source code question).
 4. Load the unzipped build once more and check all four actions.
 5. Upload the Chrome zip in the [Chrome Web Store developer dashboard](https://chrome.google.com/webstore/devconsole). Firefox is still to do: [addons.mozilla.org developer hub](https://addons.mozilla.org/developers/), with the gecko id `skrutable@tylergneill.com` from `manifest.firefox.json`.
